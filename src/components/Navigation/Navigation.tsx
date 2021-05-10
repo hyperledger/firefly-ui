@@ -19,7 +19,7 @@ import EventAvailableIcon from '@material-ui/icons/EventAvailable';
 import SettingsIcon from '@material-ui/icons/Settings';
 import SubtitlesIcon from '@material-ui/icons/Subtitles';
 import { NavDrawer } from './NavDrawer';
-import { ReactComponent as LogoIconSVG } from '../svg/ff-logo.svg';
+import { ReactComponent as LogoIconSVG } from '../../svg/ff-logo.svg';
 
 export const NAVOPEN_LOCALSTORAGE_KEY = 'ff:navopen';
 const drawerWidth = 220;
