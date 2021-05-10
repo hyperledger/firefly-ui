@@ -1,8 +1,21 @@
 import React from 'react';
 import ReactDOM from 'react-dom';
+import i18n from 'i18next';
+import { initReactI18next } from 'react-i18next';
+import en from './translations/en.json';
 import './index.css';
 import App from './App';
 import reportWebVitals from './reportWebVitals';
+
+i18n.use(initReactI18next).init({
+  resources: {
+    en: { translation: en },
+  },
+  lng: 'en',
+  interpolation: {
+    escapeValue: false,
+  },
+});
 
 ReactDOM.render(
   <React.StrictMode>

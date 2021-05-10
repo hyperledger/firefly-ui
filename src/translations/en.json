@@ -1,0 +1,9 @@
+{
+  "dashboard": "Dashboard",
+  "network": "Network",
+  "messages": "Messages",
+  "data": "Data",
+  "transactions": "Transactions",
+  "subscriptions": "Subscriptions",
+  "settings": "Settings"
+}
