@@ -7,6 +7,9 @@ import { AppWrapper } from './components/AppWrapper';
 
 const history = createBrowserHistory();
 export const theme = createMuiTheme({
+  palette: {
+    type: 'dark',
+  },
   overrides: {
     MuiListItem: {
       gutters: {
@@ -21,13 +24,13 @@ function App() {
   return (
     <ThemeProvider theme={theme}>
       <CssBaseline />
-      <AppWrapper>
-        <Router history={history}>
+      <Router history={history}>
+        <AppWrapper>
           <Switch>
             <Route exact path="/" render={() => <Dashboard />} />
           </Switch>
-        </Router>
-      </AppWrapper>
+        </AppWrapper>
+      </Router>
     </ThemeProvider>
   );
 }

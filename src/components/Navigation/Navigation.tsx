@@ -9,17 +9,19 @@ import {
   Hidden,
   IconButton,
   SvgIconProps,
+  fade,
 } from '@material-ui/core';
+import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
-import HomeIcon from '@material-ui/icons/Home';
+import DashboardIcon from '@material-ui/icons/Dashboard';
 import LanguageIcon from '@material-ui/icons/Language';
 import ChatIcon from '@material-ui/icons/Chat';
 import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
 import EventAvailableIcon from '@material-ui/icons/EventAvailable';
 import SettingsIcon from '@material-ui/icons/Settings';
-import SubtitlesIcon from '@material-ui/icons/Subtitles';
 import { NavDrawer } from './NavDrawer';
 import { ReactComponent as LogoIconSVG } from '../../svg/ff-logo.svg';
+import { useLocation, useHistory } from 'react-router-dom';
 
 export const NAVOPEN_LOCALSTORAGE_KEY = 'ff:navopen';
 const drawerWidth = 220;
@@ -36,6 +38,9 @@ export const Navigation: React.FC<Props> = ({
   const classes = useStyles();
   const { t } = useTranslation();
   const [isMobile, setIsMobile] = useState(false);
+  const history = useHistory();
+  const { pathname } = useLocation();
+  const relpath = pathname.replace(/^\//, '');
 
   const handleOpenClose = () => {
     window.localStorage.setItem(
@@ -46,26 +51,33 @@ export const Navigation: React.FC<Props> = ({
   };
 
   const icons: { [name: string]: React.ComponentType<SvgIconProps> } = {
-    dashboard: HomeIcon,
+    dashboard: DashboardIcon,
     network: LanguageIcon,
     messages: ChatIcon,
     data: LibraryBooksIcon,
     transactions: EventAvailableIcon,
-    subscriptions: SubtitlesIcon,
     settings: SettingsIcon,
   };
 
-  const navItem = (name: string) => {
+  const navItem = (name: string, isDefault?: boolean) => {
     const Icon = icons[name];
+    const isActive = relpath.startsWith(name) || (isDefault && !relpath);
 
     return (
-      <ListItem className={classes.menuItem} button>
+      <ListItem
+        className={clsx(classes.menuItem, isActive && classes.highlightedItem)}
+        button
+        onClick={() => {
+          history.push(isDefault ? '' : `/${name}`);
+          if (isMobile) setNavigationOpen(false);
+        }}
+      >
         <ListItemIcon
           classes={{
             root: classes.closerText,
           }}
         >
-          <Icon />
+          <Icon className={isActive ? classes.highlightedIcon : classes.icon} />
         </ListItemIcon>
         {navigationOpen ? (
           <ListItemText
@@ -88,12 +100,11 @@ export const Navigation: React.FC<Props> = ({
         </IconButton>
       </Box>
       <List>
-        {navItem('dashboard')}
+        {navItem('dashboard', true)}
         {navItem('network')}
         {navItem('messages')}
         {navItem('data')}
         {navItem('transactions')}
-        {navItem('subscriptions')}
         {navItem('settings')}
       </List>
     </>
@@ -159,5 +170,17 @@ const useStyles = makeStyles((theme) => ({
   matchTabs: {
     fontWeight: 'lighter',
     fontSize: 16,
+  },
+  highlightedIcon: {
+    color: theme.palette.action.active,
+  },
+  icon: {
+    color: theme.palette.action.disabled,
+  },
+  highlightedItem: {
+    backgroundColor: fade(
+      theme.palette.action.active,
+      theme.palette.action.activatedOpacity
+    ),
   },
 }));

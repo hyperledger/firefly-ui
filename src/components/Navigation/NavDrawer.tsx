@@ -12,7 +12,7 @@ type Props = {
 
 const drawerWidth = 220;
 
-export const NavDrawer = ({
+export const NavDrawer: React.FC<Props> = ({
   open,
   setOpen,
   isMobile = false,

@@ -1,8 +1,7 @@
 import React from 'react';
 import { IconButton, Hidden, makeStyles, Box } from '@material-ui/core';
 import MenuIcon from '@material-ui/icons/Menu';
-
-const LOGO_URL = '/img/ff-logo.svg';
+import { ReactComponent as LogoIconSVG } from '../svg/ff-logo.svg';
 
 type Props = {
   navigationOpen: boolean;
@@ -26,7 +25,7 @@ export const HiddenAppBar: React.FC<Props> = ({
           >
             <MenuIcon />
           </IconButton>
-          <img height="33" src={LOGO_URL} alt="" />
+          <LogoIconSVG className={classes.logo} />
         </div>
       </Box>
     </Hidden>
@@ -47,5 +46,9 @@ const useStyles = makeStyles((theme) => ({
   },
   marginRight: {
     marginRight: theme.spacing(1),
+  },
+  logo: {
+    width: 49,
+    height: 50,
   },
 }));
