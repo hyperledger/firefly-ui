@@ -5,5 +5,12 @@
   "data": "Data",
   "transactions": "Transactions",
   "subscriptions": "Subscriptions",
-  "settings": "Settings"
+  "settings": "Settings",
+  "author": "Author",
+  "type": "Type",
+  "topic": "Topic",
+  "context": "Context",
+  "pinned": "Pinned",
+  "dataHash": "Data Hash",
+  "createdOn": "Created On"
 }
