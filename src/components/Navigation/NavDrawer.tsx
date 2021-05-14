@@ -44,6 +44,7 @@ export const NavDrawer: React.FC<Props> = ({
       className={isMobile || open ? classes.drawerOpen : classes.drawerClose}
       classes={{
         paper: isMobile || open ? classes.drawerOpen : classes.drawerClose,
+        paperAnchorDockedLeft: classes.drawerBorder,
       }}
     >
       {children}
@@ -52,6 +53,9 @@ export const NavDrawer: React.FC<Props> = ({
 };
 
 const useStyles = makeStyles((theme) => ({
+  drawerBorder: {
+    borderRight: 0,
+  },
   drawerOpen: {
     width: drawerWidth,
     transition: theme.transitions.create('width', {

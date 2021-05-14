@@ -9,7 +9,6 @@ import {
   Hidden,
   IconButton,
   SvgIconProps,
-  fade,
 } from '@material-ui/core';
 import clsx from 'clsx';
 import { useTranslation } from 'react-i18next';
@@ -20,7 +19,7 @@ import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
 import EventAvailableIcon from '@material-ui/icons/EventAvailable';
 import SettingsIcon from '@material-ui/icons/Settings';
 import { NavDrawer } from './NavDrawer';
-import { ReactComponent as LogoIconSVG } from '../../svg/ff-logo.svg';
+import { ReactComponent as LogoIconSVG } from '../../svg/ff-logo-symbol-white.svg';
 import { useLocation, useHistory } from 'react-router-dom';
 
 export const NAVOPEN_LOCALSTORAGE_KEY = 'ff:navopen';
@@ -172,15 +171,12 @@ const useStyles = makeStyles((theme) => ({
     fontSize: 16,
   },
   highlightedIcon: {
-    color: theme.palette.action.active,
+    color: theme.palette.text.primary,
   },
   icon: {
     color: theme.palette.action.disabled,
   },
   highlightedItem: {
-    backgroundColor: fade(
-      theme.palette.action.active,
-      theme.palette.action.activatedOpacity
-    ),
+    backgroundColor: theme.palette.background.default,
   },
 }));
