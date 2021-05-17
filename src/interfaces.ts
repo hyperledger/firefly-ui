@@ -38,3 +38,50 @@ export interface IMessage {
   header: IFireflyHeader;
   sequence: number;
 }
+
+export interface ITransaction {
+  confirmed: number;
+  created: number;
+  hash: string;
+  id: string;
+  protocolId: string;
+  sequence: number;
+  status: string;
+  info: IEthTransactionInfo;
+  subject: {
+    author: string;
+    batch: string;
+    message: string;
+    namespace: string;
+    type: string;
+  };
+}
+
+export interface IEthTransactionInfo {
+  address: string;
+  blockNumber: string;
+  data: {
+    author: string;
+    batchId: string;
+    payloadRef: string;
+    timestamp: string;
+  };
+  logIndex: string;
+  signature: string;
+  subId: string;
+  transactionHash: string;
+  transactionIndex: string;
+}
+
+export interface IData {
+  created: number;
+  definition: {
+    name: string;
+    version: string;
+  };
+  hash: string;
+  id: string;
+  namespace: string;
+  validator: string;
+  value: any;
+}
