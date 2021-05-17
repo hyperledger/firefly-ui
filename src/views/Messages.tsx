@@ -1,15 +1,18 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import { Grid, Typography, makeStyles } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
-import { IMessage } from '../interfaces';
+import dayjs from 'dayjs';
+import { IDataTableRecord, IMessage } from '../interfaces';
 import { DataTable } from '../components/DataTable/DataTable';
 import { AddressPopover } from '../components/AddressPopover';
-import dayjs from 'dayjs';
+import { MessageDetails } from '../components/MessageDetails';
+import DoneIcon from '@material-ui/icons/Done';
 
 export const Messages: React.FC = () => {
   const { t } = useTranslation();
   const classes = useStyles();
   const [messages, setMessages] = useState<IMessage[]>([]);
+  const [viewMessage, setViewMessage] = useState<IMessage | undefined>();
 
   const columnHeaders = [
     t('author'),
@@ -35,17 +38,32 @@ export const Messages: React.FC = () => {
     queryMessages();
   }, [queryMessages]);
 
-  const records = messages.map((message: IMessage) => ({
+  const records: IDataTableRecord[] = messages.map((message: IMessage) => ({
     key: message.header.id,
     columns: [
-      { value: <AddressPopover address={message.header.author} /> },
+      {
+        value: (
+          <AddressPopover
+            textColor="secondary"
+            address={message.header.author}
+          />
+        ),
+      },
       { value: message.header.type },
       { value: message.header.topic },
       { value: message.header.context },
-      { value: message.header.tx.type },
-      { value: <AddressPopover address={message.header.datahash} /> },
+      { value: message.header.tx.type === 'pin' ? <DoneIcon /> : undefined },
+      {
+        value: (
+          <AddressPopover
+            textColor="secondary"
+            address={message.header.datahash}
+          />
+        ),
+      },
       { value: dayjs(message.header.created).format('MM/DD/YYYY h:mm A') },
     ],
+    onClick: () => setViewMessage(message),
   }));
 
   return (
@@ -60,6 +78,13 @@ export const Messages: React.FC = () => {
           <DataTable {...{ columnHeaders }} {...{ records }} />
         </Grid>
       </Grid>
+      {viewMessage && (
+        <MessageDetails
+          open={!!viewMessage}
+          onClose={() => setViewMessage(undefined)}
+          message={viewMessage}
+        />
+      )}
     </>
   );
 };
