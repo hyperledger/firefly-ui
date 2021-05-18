@@ -1,6 +1,6 @@
 import React from 'react';
 import { Slide, Modal, Paper, IconButton, makeStyles } from '@material-ui/core';
-import CloseIcon from '@material-ui/icons/Close';
+import CloseIcon from 'mdi-react/CloseIcon';
 
 export interface Props {
   open: boolean;

@@ -1,6 +1,6 @@
 import React from 'react';
 import { IconButton, Hidden, makeStyles, Box } from '@material-ui/core';
-import MenuIcon from '@material-ui/icons/Menu';
+import MenuIcon from 'mdi-react/MenuIcon';
 import { ReactComponent as LogoIconSVG } from '../svg/ff-logo-symbol-white.svg';
 
 type Props = {
