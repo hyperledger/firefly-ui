@@ -18,5 +18,8 @@
   "yes": "Yes",
   "no": "No",
   "copy": "Copy",
-  "pinned?": "Pinned?"
+  "pinned?": "Pinned?",
+  "explorer": "Explorer",
+  "latestMessages": "Latest Messages",
+  "networkMembers": "Network Members"
 }
