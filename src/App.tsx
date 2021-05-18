@@ -9,6 +9,7 @@ import {
 } from '@material-ui/core';
 import { Dashboard } from './views/Dashboard';
 import { Messages } from './views/Messages';
+import { Transactions } from './views/Transactions';
 import { AppWrapper } from './components/AppWrapper';
 import { NamespaceContext } from './contexts/NamespaceContext';
 import { INamespace } from './interfaces';
