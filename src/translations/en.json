@@ -12,5 +12,11 @@
   "context": "Context",
   "pinned": "Pinned",
   "dataHash": "Data Hash",
-  "createdOn": "Created On"
+  "createdOn": "Created On",
+  "messageDetail": "Message Detail",
+  "id": "ID",
+  "yes": "Yes",
+  "no": "No",
+  "copy": "Copy",
+  "pinned?": "Pinned?"
 }

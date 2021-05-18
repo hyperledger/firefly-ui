@@ -13,7 +13,11 @@ export const DataTableRow: React.FC<Props> = ({ record }) => {
     <>
       <StyledTableRow>
         {record.columns.map((column, index) => (
-          <TableCell className={classes.cell} key={index}>
+          <TableCell
+            className={classes.cell}
+            key={index}
+            onClick={record.onClick}
+          >
             {column.value}
           </TableCell>
         ))}
@@ -30,6 +34,7 @@ const StyledTableRow = withStyles((theme) => ({
     '&:nth-of-type(odd)': {
       backgroundColor: theme.palette.background.paper,
     },
+    cursor: 'pointer',
   },
 }))(TableRow);
 

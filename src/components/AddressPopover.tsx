@@ -1,13 +1,26 @@
 import React, { useState, useRef } from 'react';
-import { Chip, Grid, Popover, IconButton, makeStyles } from '@material-ui/core';
+import {
+  Chip,
+  Grid,
+  Popover,
+  IconButton,
+  makeStyles,
+  Typography,
+  Theme,
+} from '@material-ui/core';
 import ContentCopyIcon from 'mdi-react/ContentCopyIcon';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import clsx from 'clsx';
 
 interface Props {
   address: string;
+  textColor?: 'primary' | 'secondary';
 }
 
-export const AddressPopover: React.FC<Props> = ({ address }) => {
+export const AddressPopover: React.FC<Props> = ({
+  address,
+  textColor = 'primary',
+}) => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
@@ -16,7 +29,10 @@ export const AddressPopover: React.FC<Props> = ({ address }) => {
     <>
       <Chip
         label={address}
-        className={classes.chip}
+        className={clsx(
+          classes.chip,
+          textColor === 'secondary' && classes.addressSecondaryText
+        )}
         onClick={(event) => {
           event.stopPropagation();
           setOpen(!open);
@@ -26,7 +42,10 @@ export const AddressPopover: React.FC<Props> = ({ address }) => {
       <Popover
         open={open}
         anchorEl={anchorRef.current}
-        onClose={() => setOpen(false)}
+        onBackdropClick={(event) => {
+          event.stopPropagation();
+          setOpen(false);
+        }}
         anchorOrigin={{
           vertical: 'top',
           horizontal: 'left',
@@ -43,7 +62,9 @@ export const AddressPopover: React.FC<Props> = ({ address }) => {
           direction="row"
           className={classes.popoverContainer}
         >
-          <Grid item>{address}</Grid>
+          <Grid item>
+            <Typography>{address}</Typography>
+          </Grid>
           <Grid item>
             <CopyToClipboard text={address}>
               <IconButton className={classes.button}>
@@ -57,12 +78,11 @@ export const AddressPopover: React.FC<Props> = ({ address }) => {
   );
 };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles<Theme>((theme) => ({
   chip: {
-    width: 100,
+    width: 200,
     borderRadius: 2,
     backgroundColor: theme.palette.background.default,
-    color: theme.palette.text.secondary,
     '&:hover, &:focus': {
       backgroundColor: theme.palette.background.default,
     },
@@ -73,5 +93,8 @@ const useStyles = makeStyles((theme) => ({
   button: {
     color: theme.palette.text.primary,
     padding: 0,
+  },
+  addressSecondaryText: {
+    color: theme.palette.text.secondary,
   },
 }));
