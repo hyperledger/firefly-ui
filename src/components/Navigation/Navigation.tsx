@@ -11,16 +11,17 @@ import {
   SvgIconProps,
 } from '@material-ui/core';
 import clsx from 'clsx';
+import CubeOutlineIcon from 'mdi-react/CubeOutlineIcon';
+import TextBoxCheckOutlineIcon from 'mdi-react/TextBoxCheckOutlineIcon';
+import ViewDashboardOutlineIcon from 'mdi-react/ViewDashboardOutlineIcon';
+import MessageTextIcon from 'mdi-react/MessageTextIcon';
+import CogOutlineIcon from 'mdi-react/CogOutlineIcon';
+import WebIcon from 'mdi-react/WebIcon';
 import { useTranslation } from 'react-i18next';
-import DashboardIcon from '@material-ui/icons/Dashboard';
-import LanguageIcon from '@material-ui/icons/Language';
-import ChatIcon from '@material-ui/icons/Chat';
-import LibraryBooksIcon from '@material-ui/icons/LibraryBooks';
-import EventAvailableIcon from '@material-ui/icons/EventAvailable';
-import SettingsIcon from '@material-ui/icons/Settings';
 import { NavDrawer } from './NavDrawer';
 import { ReactComponent as LogoIconSVG } from '../../svg/ff-logo-symbol-white.svg';
 import { useLocation, useHistory } from 'react-router-dom';
+import { MdiReactIconComponentType } from 'mdi-react';
 
 export const NAVOPEN_LOCALSTORAGE_KEY = 'ff:navopen';
 const drawerWidth = 220;
@@ -49,13 +50,13 @@ export const Navigation: React.FC<Props> = ({
     setNavigationOpen(!navigationOpen);
   };
 
-  const icons: { [name: string]: React.ComponentType<SvgIconProps> } = {
-    dashboard: DashboardIcon,
-    network: LanguageIcon,
-    messages: ChatIcon,
-    data: LibraryBooksIcon,
-    transactions: EventAvailableIcon,
-    settings: SettingsIcon,
+  const icons: { [name: string]: MdiReactIconComponentType } = {
+    dashboard: ViewDashboardOutlineIcon,
+    network: WebIcon,
+    messages: MessageTextIcon,
+    data: CubeOutlineIcon,
+    transactions: TextBoxCheckOutlineIcon,
+    settings: CogOutlineIcon,
   };
 
   const navItem = (name: string, isDefault?: boolean) => {

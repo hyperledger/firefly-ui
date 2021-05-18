@@ -6,7 +6,7 @@ import { IDataTableRecord, IMessage } from '../interfaces';
 import { DataTable } from '../components/DataTable/DataTable';
 import { AddressPopover } from '../components/AddressPopover';
 import { MessageDetails } from '../components/MessageDetails';
-import DoneIcon from '@material-ui/icons/Done';
+import CheckIcon from 'mdi-react/CheckIcon';
 
 export const Messages: React.FC = () => {
   const { t } = useTranslation();
@@ -52,7 +52,7 @@ export const Messages: React.FC = () => {
       { value: message.header.type },
       { value: message.header.topic },
       { value: message.header.context },
-      { value: message.header.tx.type === 'pin' ? <DoneIcon /> : undefined },
+      { value: message.header.tx.type === 'pin' ? <CheckIcon /> : undefined },
       {
         value: (
           <AddressPopover
