@@ -59,7 +59,8 @@ export const Messages: React.FC = () => {
       onChangePage={handleChangePage}
       onChangeRowsPerPage={handleChangeRowsPerPage}
       rowsPerPageOptions={PAGE_LIMITS}
-      labelDisplayedRows={({ from, to, count }) => `${from} - ${to}`}
+      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
+      className={classes.pagination}
     />
   );
 
@@ -111,6 +112,7 @@ export const Messages: React.FC = () => {
         </Grid>
         <Grid container item>
           <DataTable
+            maxHeight="calc(100vh - 340px)"
             {...{ columnHeaders }}
             {...{ records }}
             {...{ pagination }}
@@ -140,4 +142,7 @@ const useStyles = makeStyles((theme) => ({
   header: {
     fontWeight: 'bold',
   },
+  pagination: {
+    color: theme.palette.text.secondary
+  }
 }));

@@ -36,11 +36,13 @@ export const DataTable: React.FC<Props> = ({
 
   return (
     <>
-      <Grid>
-        <Typography className={classes.header}>{header}</Typography>
-      </Grid>
+      { header &&
+        <Grid>
+          <Typography className={classes.header}>{header}</Typography>
+        </Grid>
+      }
       <Grid item xs={12}>
-        <TableContainer className={classes.tableContainer}>
+        <TableContainer style={{maxHeight, height}} className={classes.tableContainer}>
           <Table stickyHeader={stickyHeader}>
             <TableHead>
               <TableRow>
