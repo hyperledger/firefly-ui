@@ -1,5 +1,10 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Grid, Typography, TablePagination, makeStyles } from '@material-ui/core';
+import {
+  Grid,
+  Typography,
+  TablePagination,
+  makeStyles,
+} from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { IDataTableRecord, ITransaction } from '../interfaces';
@@ -51,15 +56,17 @@ export const Transactions: React.FC = () => {
   );
 
   useEffect(() => {
-    fetch(`/api/v1/namespaces/${selectedNamespace}/transactions?limit=${rowsPerPage}&skip=${rowsPerPage * currentPage}`).then(
-      async (response) => {
-        if (response.ok) {
-          setTransactions(await response.json());
-        } else {
-          console.log('error fetching transactions');
-        }
+    fetch(
+      `/api/v1/namespaces/${selectedNamespace}/transactions?limit=${rowsPerPage}&skip=${
+        rowsPerPage * currentPage
+      }`
+    ).then(async (response) => {
+      if (response.ok) {
+        setTransactions(await response.json());
+      } else {
+        console.log('error fetching transactions');
       }
-    );
+    });
   }, [rowsPerPage, currentPage, selectedNamespace]);
 
   const records: IDataTableRecord[] = transactions.map((tx: ITransaction) => ({
@@ -88,7 +95,12 @@ export const Transactions: React.FC = () => {
           </Typography>
         </Grid>
         <Grid container item>
-          <DataTable maxHeight="calc(100vh - 340px)" {...{ columnHeaders }} {...{ records }} {...{pagination}} />
+          <DataTable
+            maxHeight="calc(100vh - 340px)"
+            {...{ columnHeaders }}
+            {...{ records }}
+            {...{ pagination }}
+          />
         </Grid>
       </Grid>
     </>
@@ -108,6 +120,6 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 'bold',
   },
   pagination: {
-    color: theme.palette.text.secondary
-  }
+    color: theme.palette.text.secondary,
+  },
 }));
