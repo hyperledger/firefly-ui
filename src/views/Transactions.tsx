@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useContext } from 'react';
-import { Grid, Typography, makeStyles } from '@material-ui/core';
+import { Grid, Typography, TablePagination, makeStyles } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { IDataTableRecord, ITransaction } from '../interfaces';
@@ -7,11 +7,15 @@ import { DataTable } from '../components/DataTable/DataTable';
 import { AddressPopover } from '../components/AddressPopover';
 import { NamespaceContext } from '../contexts/NamespaceContext';
 
+const PAGE_LIMITS = [10, 25];
+
 export const Transactions: React.FC = () => {
   const { t } = useTranslation();
   const classes = useStyles();
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const { selectedNamespace } = useContext(NamespaceContext);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
 
   const columnHeaders = [
     t('hash'),
@@ -21,8 +25,33 @@ export const Transactions: React.FC = () => {
     t('dateMined'),
   ];
 
+  const handleChangePage = (_event: unknown, newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setCurrentPage(0);
+    setRowsPerPage(+event.target.value);
+  };
+
+  const pagination = (
+    <TablePagination
+      component="div"
+      count={-1}
+      rowsPerPage={rowsPerPage}
+      page={currentPage}
+      onChangePage={handleChangePage}
+      onChangeRowsPerPage={handleChangeRowsPerPage}
+      rowsPerPageOptions={PAGE_LIMITS}
+      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
+      className={classes.pagination}
+    />
+  );
+
   useEffect(() => {
-    fetch(`/api/v1/namespaces/${selectedNamespace}/transactions`).then(
+    fetch(`/api/v1/namespaces/${selectedNamespace}/transactions?limit=${rowsPerPage}&skip=${rowsPerPage * currentPage}`).then(
       async (response) => {
         if (response.ok) {
           setTransactions(await response.json());
@@ -31,7 +60,7 @@ export const Transactions: React.FC = () => {
         }
       }
     );
-  }, [selectedNamespace]);
+  }, [rowsPerPage, currentPage, selectedNamespace]);
 
   const records: IDataTableRecord[] = transactions.map((tx: ITransaction) => ({
     key: tx.id,
@@ -59,7 +88,7 @@ export const Transactions: React.FC = () => {
           </Typography>
         </Grid>
         <Grid container item>
-          <DataTable {...{ columnHeaders }} {...{ records }} />
+          <DataTable maxHeight="calc(100vh - 340px)" {...{ columnHeaders }} {...{ records }} {...{pagination}} />
         </Grid>
       </Grid>
     </>
@@ -78,4 +107,7 @@ const useStyles = makeStyles((theme) => ({
   header: {
     fontWeight: 'bold',
   },
+  pagination: {
+    color: theme.palette.text.secondary
+  }
 }));
