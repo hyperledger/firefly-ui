@@ -17,14 +17,20 @@ interface Props {
   records?: IDataTableRecord[];
   columnHeaders?: string[];
   stickyHeader?: boolean;
+  pagination?: JSX.Element;
   header?: string;
+  height?: string;
+  maxHeight?: string;
 }
 
 export const DataTable: React.FC<Props> = ({
   records,
   columnHeaders,
   stickyHeader,
+  pagination,
   header,
+  height,
+  maxHeight,
 }) => {
   const classes = useStyles();
 
@@ -54,6 +60,7 @@ export const DataTable: React.FC<Props> = ({
             </TableBody>
           </Table>
         </TableContainer>
+        {pagination}
       </Grid>
     </>
   );
@@ -62,7 +69,6 @@ export const DataTable: React.FC<Props> = ({
 const useStyles = makeStyles((theme) => ({
   tableContainer: {
     whiteSpace: 'nowrap',
-    minHeight: 300,
   },
   cell: {
     borderBottom: 0,

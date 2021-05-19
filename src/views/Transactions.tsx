@@ -1,15 +1,17 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { Grid, Typography, makeStyles } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { IDataTableRecord, ITransaction } from '../interfaces';
 import { DataTable } from '../components/DataTable/DataTable';
 import { AddressPopover } from '../components/AddressPopover';
+import { NamespaceContext } from '../contexts/NamespaceContext';
 
 export const Transactions: React.FC = () => {
   const { t } = useTranslation();
   const classes = useStyles();
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
+  const { selectedNamespace } = useContext(NamespaceContext);
 
   const columnHeaders = [
     t('hash'),
@@ -19,19 +21,17 @@ export const Transactions: React.FC = () => {
     t('dateMined'),
   ];
 
-  const queryMessages = useCallback(() => {
-    fetch('/api/v1/ns/ns1/transactions').then(async (response) => {
-      if (response.ok) {
-        setTransactions(await response.json());
-      } else {
-        console.log('error fetching messages');
-      }
-    });
-  }, []);
-
   useEffect(() => {
-    queryMessages();
-  }, [queryMessages]);
+    fetch(`/api/v1/namespaces/${selectedNamespace}/transactions`).then(
+      async (response) => {
+        if (response.ok) {
+          setTransactions(await response.json());
+        } else {
+          console.log('error fetching transactions');
+        }
+      }
+    );
+  }, [selectedNamespace]);
 
   const records: IDataTableRecord[] = transactions.map((tx: ITransaction) => ({
     key: tx.id,
