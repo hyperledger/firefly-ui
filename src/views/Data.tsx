@@ -7,27 +7,26 @@ import {
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import { IDataTableRecord, ITransaction } from '../interfaces';
+import { IDataTableRecord, IData } from '../interfaces';
 import { DataTable } from '../components/DataTable/DataTable';
 import { HashPopover } from '../components/HashPopover';
 import { NamespaceContext } from '../contexts/NamespaceContext';
 
 const PAGE_LIMITS = [10, 25];
 
-export const Transactions: React.FC = () => {
+export const Data: React.FC = () => {
   const { t } = useTranslation();
   const classes = useStyles();
-  const [transactions, setTransactions] = useState<ITransaction[]>([]);
+  const [transactions, setTransactions] = useState<IData[]>([]);
   const { selectedNamespace } = useContext(NamespaceContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
 
   const columnHeaders = [
-    t('hash'),
-    t('blockNumber'),
-    t('author'),
-    t('status'),
-    t('dateMined'),
+    t('id'),
+    t('validator'),
+    t('dataHash'),
+    t('createdOn'),
   ];
 
   const handleChangePage = (_event: unknown, newPage: number) => {
@@ -57,32 +56,29 @@ export const Transactions: React.FC = () => {
 
   useEffect(() => {
     fetch(
-      `/api/v1/namespaces/${selectedNamespace}/transactions?limit=${rowsPerPage}&skip=${
+      `/api/v1/namespaces/${selectedNamespace}/data?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
       }`
     ).then(async (response) => {
       if (response.ok) {
         setTransactions(await response.json());
       } else {
-        console.log('error fetching transactions');
+        console.log('error fetching data');
       }
     });
   }, [rowsPerPage, currentPage, selectedNamespace]);
 
-  const records: IDataTableRecord[] = transactions.map((tx: ITransaction) => ({
-    key: tx.id,
+  const records: IDataTableRecord[] = transactions.map((data: IData) => ({
+    key: data.id,
     columns: [
       {
-        value: <HashPopover textColor="secondary" address={tx.hash} />,
+        value: <HashPopover textColor="secondary" address={data.id} />,
       },
-      { value: tx.info?.blockNumber },
+      { value: data.validator },
       {
-        value: (
-          <HashPopover textColor="secondary" address={tx.subject.author} />
-        ),
+        value: <HashPopover textColor="secondary" address={data.hash} />,
       },
-      { value: tx.status },
-      { value: dayjs(tx.confirmed).format('MM/DD/YYYY h:mm A') },
+      { value: dayjs(data.created).format('MM/DD/YYYY h:mm A') },
     ],
   }));
 
@@ -91,7 +87,7 @@ export const Transactions: React.FC = () => {
       <Grid container wrap="nowrap" direction="column" className={classes.root}>
         <Grid item>
           <Typography className={classes.header} variant="h4">
-            {t('transactions')}
+            {t('data')}
           </Typography>
         </Grid>
         <Grid container item>

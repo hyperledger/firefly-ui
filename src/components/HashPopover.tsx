@@ -17,7 +17,7 @@ interface Props {
   textColor?: 'primary' | 'secondary';
 }
 
-export const AddressPopover: React.FC<Props> = ({
+export const HashPopover: React.FC<Props> = ({
   address,
   textColor = 'primary',
 }) => {
