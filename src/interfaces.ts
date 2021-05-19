@@ -39,6 +39,15 @@ export interface IMessage {
   sequence: number;
 }
 
+export interface INamespace {
+  id: string;
+  name: string;
+  description: string;
+  type: string;
+  created: string;
+  confirmed: string;
+}
+
 export interface ITransaction {
   confirmed: number;
   created: number;

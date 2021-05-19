@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useState, useContext } from 'react';
 import {
   Grid,
   makeStyles,
@@ -13,6 +13,7 @@ import { IDataTableRecord, IMessage, ITransaction } from '../interfaces';
 import { DataTable } from '../components/DataTable/DataTable';
 import dayjs from 'dayjs';
 import { AddressPopover } from '../components/AddressPopover';
+import { NamespaceContext } from '../contexts/NamespaceContext';
 
 export const Dashboard: React.FC = () => {
   const classes = useStyles();
@@ -20,12 +21,13 @@ export const Dashboard: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
+  const { selectedNamespace } = useContext(NamespaceContext);
 
   useEffect(() => {
     setLoading(true);
     Promise.all([
-      fetch(`/api/v1/ns/ns1/messages?limit=5`),
-      fetch(`/api/v1/ns/ns1/transactions?limit=1`),
+      fetch(`/api/v1/namespaces/${selectedNamespace}/messages?limit=5`),
+      fetch(`/api/v1/namespaces/${selectedNamespace}/transactions?limit=1`),
     ])
       .then(async ([messageResponse, transactionResponse]) => {
         if (messageResponse.ok && transactionResponse.ok) {
@@ -36,13 +38,17 @@ export const Dashboard: React.FC = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, []);
+  }, [selectedNamespace]);
 
   const summaryPanel = (label: string, value: string | number) => (
     <Card>
       <CardContent className={classes.content}>
-        <Typography className={classes.summaryLabel}>{label}</Typography>
-        <Typography className={classes.summaryValue}>{value}</Typography>
+        <Typography noWrap className={classes.summaryLabel}>
+          {label}
+        </Typography>
+        <Typography noWrap className={classes.summaryValue}>
+          {value}
+        </Typography>
       </CardContent>
     </Card>
   );

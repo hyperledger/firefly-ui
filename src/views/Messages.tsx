@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect } from 'react';
+import React, { useState, useCallback, useEffect, useContext } from 'react';
 import { Grid, Typography, makeStyles } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
@@ -7,12 +7,14 @@ import { DataTable } from '../components/DataTable/DataTable';
 import { AddressPopover } from '../components/AddressPopover';
 import { MessageDetails } from '../components/MessageDetails';
 import CheckIcon from 'mdi-react/CheckIcon';
+import { NamespaceContext } from '../contexts/NamespaceContext';
 
 export const Messages: React.FC = () => {
   const { t } = useTranslation();
   const classes = useStyles();
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [viewMessage, setViewMessage] = useState<IMessage | undefined>();
+  const { selectedNamespace } = useContext(NamespaceContext);
 
   const columnHeaders = [
     t('author'),
@@ -25,14 +27,16 @@ export const Messages: React.FC = () => {
   ];
 
   const queryMessages = useCallback(() => {
-    fetch('/api/v1/ns/ns1/messages').then(async (response) => {
-      if (response.ok) {
-        setMessages(await response.json());
-      } else {
-        console.log('error fetching messages');
+    fetch(`/api/v1/namespaces/${selectedNamespace}/messages`).then(
+      async (response) => {
+        if (response.ok) {
+          setMessages(await response.json());
+        } else {
+          console.log('error fetching messages');
+        }
       }
-    });
-  }, []);
+    );
+  }, [selectedNamespace]);
 
   useEffect(() => {
     queryMessages();
