@@ -21,5 +21,7 @@
   "pinned?": "Pinned?",
   "explorer": "Explorer",
   "latestMessages": "Latest Messages",
-  "networkMembers": "Network Members"
+  "networkMembers": "Network Members",
+  "blockNumber": "Block Number",
+  "dateMined": "Date Mined"
 }

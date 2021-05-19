@@ -1,5 +1,10 @@
 import React, { useState, useCallback, useEffect, useContext } from 'react';
-import { Grid, Typography, makeStyles } from '@material-ui/core';
+import {
+  Grid,
+  Typography,
+  TablePagination,
+  makeStyles,
+} from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { IDataTableRecord, IMessage } from '../interfaces';
@@ -9,12 +14,55 @@ import { MessageDetails } from '../components/MessageDetails';
 import CheckIcon from 'mdi-react/CheckIcon';
 import { NamespaceContext } from '../contexts/NamespaceContext';
 
+const PAGE_LIMITS = [10, 25];
+
 export const Messages: React.FC = () => {
   const { t } = useTranslation();
   const classes = useStyles();
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [viewMessage, setViewMessage] = useState<IMessage | undefined>();
+  const [currentPage, setCurrentPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
   const { selectedNamespace } = useContext(NamespaceContext);
+
+  useEffect(() => {
+    fetch(
+      `/api/v1/namespaces/${selectedNamespace}/messages?limit=${rowsPerPage}&skip=${
+        rowsPerPage * currentPage
+      }`
+    ).then(async (response) => {
+      if (response.ok) {
+        setMessages(await response.json());
+      } else {
+        console.log('error fetching messages');
+      }
+    });
+  }, [rowsPerPage, currentPage, selectedNamespace]);
+
+  const handleChangePage = (_event: unknown, newPage: number) => {
+    setCurrentPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setCurrentPage(0);
+    setRowsPerPage(+event.target.value);
+  };
+
+  const pagination = (
+    <TablePagination
+      component="div"
+      count={-1}
+      rowsPerPage={rowsPerPage}
+      page={currentPage}
+      onChangePage={handleChangePage}
+      onChangeRowsPerPage={handleChangeRowsPerPage}
+      rowsPerPageOptions={PAGE_LIMITS}
+      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
+      className={classes.pagination}
+    />
+  );
 
   const columnHeaders = [
     t('author'),
@@ -25,22 +73,6 @@ export const Messages: React.FC = () => {
     t('dataHash'),
     t('createdOn'),
   ];
-
-  const queryMessages = useCallback(() => {
-    fetch(`/api/v1/namespaces/${selectedNamespace}/messages`).then(
-      async (response) => {
-        if (response.ok) {
-          setMessages(await response.json());
-        } else {
-          console.log('error fetching messages');
-        }
-      }
-    );
-  }, [selectedNamespace]);
-
-  useEffect(() => {
-    queryMessages();
-  }, [queryMessages]);
 
   const records: IDataTableRecord[] = messages.map((message: IMessage) => ({
     key: message.header.id,
@@ -79,7 +111,12 @@ export const Messages: React.FC = () => {
           </Typography>
         </Grid>
         <Grid container item>
-          <DataTable {...{ columnHeaders }} {...{ records }} />
+          <DataTable
+            maxHeight="calc(100vh - 340px)"
+            {...{ columnHeaders }}
+            {...{ records }}
+            {...{ pagination }}
+          />
         </Grid>
       </Grid>
       {viewMessage && (
@@ -105,4 +142,7 @@ const useStyles = makeStyles((theme) => ({
   header: {
     fontWeight: 'bold',
   },
+  pagination: {
+    color: theme.palette.text.secondary
+  }
 }));
