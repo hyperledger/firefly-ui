@@ -56,7 +56,7 @@ export interface ITransaction {
   protocolId: string;
   sequence: number;
   status: string;
-  info: IEthTransactionInfo;
+  info?: IEthTransactionInfo;
   subject: {
     author: string;
     batch: string;
