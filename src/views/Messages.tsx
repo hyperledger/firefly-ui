@@ -143,6 +143,6 @@ const useStyles = makeStyles((theme) => ({
     fontWeight: 'bold',
   },
   pagination: {
-    color: theme.palette.text.secondary
-  }
+    color: theme.palette.text.secondary,
+  },
 }));
