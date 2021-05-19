@@ -39,7 +39,7 @@ export const Transactions: React.FC = () => {
       {
         value: <AddressPopover textColor="secondary" address={tx.hash} />,
       },
-      { value: tx.info.blockNumber },
+      { value: tx.info?.blockNumber },
       {
         value: (
           <AddressPopover textColor="secondary" address={tx.subject.author} />
