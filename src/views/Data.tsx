@@ -3,6 +3,8 @@ import {
   Grid,
   Typography,
   TablePagination,
+  CircularProgress,
+  Box,
   makeStyles,
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +19,7 @@ const PAGE_LIMITS = [10, 25];
 export const Data: React.FC = () => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const [loading, setLoading] = useState(false);
   const [transactions, setTransactions] = useState<IData[]>([]);
   const { selectedNamespace } = useContext(NamespaceContext);
   const [currentPage, setCurrentPage] = useState(0);
@@ -55,17 +58,22 @@ export const Data: React.FC = () => {
   );
 
   useEffect(() => {
+    setLoading(true);
     fetch(
       `/api/v1/namespaces/${selectedNamespace}/data?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
       }`
-    ).then(async (response) => {
-      if (response.ok) {
-        setTransactions(await response.json());
-      } else {
-        console.log('error fetching data');
-      }
-    });
+    )
+      .then(async (response) => {
+        if (response.ok) {
+          setTransactions(await response.json());
+        } else {
+          console.log('error fetching data');
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [rowsPerPage, currentPage, selectedNamespace]);
 
   const records: IDataTableRecord[] = transactions.map((data: IData) => ({
@@ -81,6 +89,14 @@ export const Data: React.FC = () => {
       { value: dayjs(data.created).format('MM/DD/YYYY h:mm A') },
     ],
   }));
+
+  if (loading) {
+    return (
+      <Box className={classes.centeredContent}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <>
@@ -117,5 +133,13 @@ const useStyles = makeStyles((theme) => ({
   },
   pagination: {
     color: theme.palette.text.secondary,
+  },
+  centeredContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 'calc(100vh - 300px)',
+    overflow: 'auto',
   },
 }));

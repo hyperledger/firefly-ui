@@ -3,6 +3,8 @@ import {
   Grid,
   Typography,
   TablePagination,
+  Box,
+  CircularProgress,
   makeStyles,
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
@@ -19,6 +21,7 @@ const PAGE_LIMITS = [10, 25];
 export const Messages: React.FC = () => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [viewMessage, setViewMessage] = useState<IMessage | undefined>();
   const [currentPage, setCurrentPage] = useState(0);
@@ -26,17 +29,22 @@ export const Messages: React.FC = () => {
   const { selectedNamespace } = useContext(NamespaceContext);
 
   useEffect(() => {
+    setLoading(true);
     fetch(
       `/api/v1/namespaces/${selectedNamespace}/messages?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
       }`
-    ).then(async (response) => {
-      if (response.ok) {
-        setMessages(await response.json());
-      } else {
-        console.log('error fetching messages');
-      }
-    });
+    )
+      .then(async (response) => {
+        if (response.ok) {
+          setMessages(await response.json());
+        } else {
+          console.log('error fetching messages');
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [rowsPerPage, currentPage, selectedNamespace]);
 
   const handleChangePage = (_event: unknown, newPage: number) => {
@@ -99,6 +107,14 @@ export const Messages: React.FC = () => {
     onClick: () => setViewMessage(message),
   }));
 
+  if (loading) {
+    return (
+      <Box className={classes.centeredContent}>
+        <CircularProgress />
+      </Box>
+    );
+  }
+
   return (
     <>
       <Grid container wrap="nowrap" direction="column" className={classes.root}>
@@ -141,5 +157,13 @@ const useStyles = makeStyles((theme) => ({
   },
   pagination: {
     color: theme.palette.text.secondary,
+  },
+  centeredContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 'calc(100vh - 300px)',
+    overflow: 'auto',
   },
 }));
