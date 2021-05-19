@@ -3,6 +3,8 @@ import {
   Grid,
   Typography,
   TablePagination,
+  Box,
+  CircularProgress,
   makeStyles,
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +19,7 @@ const PAGE_LIMITS = [10, 25];
 export const Transactions: React.FC = () => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const [loading, setLoading] = useState(false);
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const { selectedNamespace } = useContext(NamespaceContext);
   const [currentPage, setCurrentPage] = useState(0);
@@ -56,17 +59,22 @@ export const Transactions: React.FC = () => {
   );
 
   useEffect(() => {
+    setLoading(true);
     fetch(
       `/api/v1/namespaces/${selectedNamespace}/transactions?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
       }`
-    ).then(async (response) => {
-      if (response.ok) {
-        setTransactions(await response.json());
-      } else {
-        console.log('error fetching transactions');
-      }
-    });
+    )
+      .then(async (response) => {
+        if (response.ok) {
+          setTransactions(await response.json());
+        } else {
+          console.log('error fetching transactions');
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
   }, [rowsPerPage, currentPage, selectedNamespace]);
 
   const records: IDataTableRecord[] = transactions.map((tx: ITransaction) => ({
@@ -85,6 +93,14 @@ export const Transactions: React.FC = () => {
       { value: dayjs(tx.confirmed).format('MM/DD/YYYY h:mm A') },
     ],
   }));
+
+  if (loading) {
+    return (
+      <Box className={classes.centeredContent}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <>
@@ -121,5 +137,13 @@ const useStyles = makeStyles((theme) => ({
   },
   pagination: {
     color: theme.palette.text.secondary,
+  },
+  centeredContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 'calc(100vh - 300px)',
+    overflow: 'auto',
   },
 }));
