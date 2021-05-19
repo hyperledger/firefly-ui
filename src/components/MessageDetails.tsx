@@ -9,7 +9,7 @@ import {
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import { IMessage } from '../interfaces';
-import { AddressPopover } from './AddressPopover';
+import { HashPopover } from './HashPopover';
 import dayjs from 'dayjs';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import clsx from 'clsx';
@@ -72,10 +72,7 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
             direction="row"
           >
             <Grid className={classes.detailItem} sm={12} md={6} container item>
-              {detailItem(
-                t('id'),
-                <AddressPopover address={message.header.id} />
-              )}
+              {detailItem(t('id'), <HashPopover address={message.header.id} />)}
             </Grid>
             <Grid className={classes.detailItem} sm={12} md={6} container item>
               {detailItem(t('topic'), message.header.topic)}
@@ -89,7 +86,7 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
             <Grid className={classes.detailItem} sm={12} md={6} container item>
               {detailItem(
                 t('author'),
-                <AddressPopover address={message.header.author} />
+                <HashPopover address={message.header.author} />
               )}
             </Grid>
             <Grid className={classes.detailItem} sm={12} md={6} container item>
