@@ -8,7 +8,6 @@ import {
   makeStyles,
   Hidden,
   IconButton,
-  SvgIconProps,
 } from '@material-ui/core';
 import clsx from 'clsx';
 import CubeOutlineIcon from 'mdi-react/CubeOutlineIcon';
