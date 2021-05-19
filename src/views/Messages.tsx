@@ -1,4 +1,4 @@
-import React, { useState, useCallback, useEffect, useContext } from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import {
   Grid,
   Typography,
@@ -9,7 +9,7 @@ import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { IDataTableRecord, IMessage } from '../interfaces';
 import { DataTable } from '../components/DataTable/DataTable';
-import { AddressPopover } from '../components/AddressPopover';
+import { HashPopover } from '../components/HashPopover';
 import { MessageDetails } from '../components/MessageDetails';
 import CheckIcon from 'mdi-react/CheckIcon';
 import { NamespaceContext } from '../contexts/NamespaceContext';
@@ -79,10 +79,7 @@ export const Messages: React.FC = () => {
     columns: [
       {
         value: (
-          <AddressPopover
-            textColor="secondary"
-            address={message.header.author}
-          />
+          <HashPopover textColor="secondary" address={message.header.author} />
         ),
       },
       { value: message.header.type },
@@ -91,7 +88,7 @@ export const Messages: React.FC = () => {
       { value: message.header.tx.type === 'pin' ? <CheckIcon /> : undefined },
       {
         value: (
-          <AddressPopover
+          <HashPopover
             textColor="secondary"
             address={message.header.datahash}
           />

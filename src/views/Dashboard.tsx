@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { IDataTableRecord, IMessage, ITransaction } from '../interfaces';
 import { DataTable } from '../components/DataTable/DataTable';
 import dayjs from 'dayjs';
-import { AddressPopover } from '../components/AddressPopover';
+import { HashPopover } from '../components/HashPopover';
 import { NamespaceContext } from '../contexts/NamespaceContext';
 
 export const Dashboard: React.FC = () => {
@@ -66,7 +66,7 @@ export const Dashboard: React.FC = () => {
       columns: [
         {
           value: (
-            <AddressPopover
+            <HashPopover
               textColor="secondary"
               address={message.header.author}
             />
@@ -77,7 +77,7 @@ export const Dashboard: React.FC = () => {
         },
         {
           value: (
-            <AddressPopover
+            <HashPopover
               textColor="secondary"
               address={message.header.datahash}
             />

@@ -10,6 +10,7 @@ import {
 import { Dashboard } from './views/Dashboard';
 import { Messages } from './views/Messages';
 import { Transactions } from './views/Transactions';
+import { Data } from './views/Data';
 import { AppWrapper } from './components/AppWrapper';
 import { NamespaceContext } from './contexts/NamespaceContext';
 import { INamespace } from './interfaces';
@@ -90,6 +91,7 @@ function App() {
             <Switch>
               <Route exact path="/" render={() => <Dashboard />} />
               <Route exact path="/messages" render={() => <Messages />} />
+              <Route exact path="/data" render={() => <Data />} />
               <Route
                 exact
                 path="/transactions"
