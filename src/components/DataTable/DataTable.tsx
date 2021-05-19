@@ -33,7 +33,7 @@ export const DataTable: React.FC<Props> = ({
       <Grid>
         <Typography className={classes.header}>{header}</Typography>
       </Grid>
-      <Grid xs={12}>
+      <Grid item xs={12}>
         <TableContainer className={classes.tableContainer}>
           <Table stickyHeader={stickyHeader}>
             <TableHead>
