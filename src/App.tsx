@@ -90,6 +90,11 @@ function App() {
             <Switch>
               <Route exact path="/" render={() => <Dashboard />} />
               <Route exact path="/messages" render={() => <Messages />} />
+              <Route
+                exact
+                path="/transactions"
+                render={() => <Transactions />}
+              />
             </Switch>
           </AppWrapper>
         </Router>
