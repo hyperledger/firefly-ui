@@ -134,6 +134,8 @@ export const Dashboard: React.FC = () => {
         </Grid>
         <Grid item>
           <DataTable
+            minHeight="300px"
+            maxHeight="calc(100vh - 340px)"
             columnHeaders={messageColumnHeaders}
             records={messageRecords}
             header={t('latestMessages')}
@@ -146,7 +148,7 @@ export const Dashboard: React.FC = () => {
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    paddingTop: 80,
+    paddingTop: 20,
     paddingLeft: 120,
     paddingRight: 120,
     [theme.breakpoints.down('sm')]: {

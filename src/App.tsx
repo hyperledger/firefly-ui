@@ -43,6 +43,27 @@ export const theme = createMuiTheme({
         paddingRight: 25,
       },
     },
+    MuiSelect: {
+      root: {
+        color: '#6E7780',
+      },
+      select: {
+        '&:focus': {
+          backgroundColor: 'yellobw',
+        },
+      },
+      icon: {
+        color: '#6E7780',
+      },
+    },
+    MuiFormLabel: {
+      root: {
+        '&$focused': {
+          backgroundColor: '#1E242A',
+          color: '#6E7780',
+        },
+      },
+    },
   },
 });
 
