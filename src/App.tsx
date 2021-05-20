@@ -15,7 +15,9 @@ import { AppWrapper } from './components/AppWrapper';
 import { NamespaceContext } from './contexts/NamespaceContext';
 import { INamespace } from './interfaces';
 
-const history = createBrowserHistory();
+const history = createBrowserHistory({
+  basename: process.env.PUBLIC_URL,
+});
 const NAMESPACE_LOCALSTORAGE_KEY = 'ff:namespace';
 export const theme = createMuiTheme({
   palette: {
