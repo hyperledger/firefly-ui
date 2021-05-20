@@ -108,6 +108,7 @@ export const Data: React.FC = () => {
         </Grid>
         <Grid container item>
           <DataTable
+            minHeight="300px"
             maxHeight="calc(100vh - 340px)"
             {...{ columnHeaders }}
             {...{ records }}
@@ -121,7 +122,7 @@ export const Data: React.FC = () => {
 
 const useStyles = makeStyles((theme) => ({
   root: {
-    paddingTop: 80,
+    paddingTop: 20,
     paddingLeft: 120,
     paddingRight: 120,
     [theme.breakpoints.down('sm')]: {
