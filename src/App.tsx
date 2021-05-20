@@ -18,7 +18,7 @@ import { INamespace } from './interfaces';
 const history = createBrowserHistory({
   basename: process.env.PUBLIC_URL,
 });
-const NAMESPACE_LOCALSTORAGE_KEY = 'ff:namespace';
+export const NAMESPACE_LOCALSTORAGE_KEY = 'ff:namespace';
 export const theme = createMuiTheme({
   palette: {
     type: 'dark',
@@ -49,7 +49,7 @@ export const theme = createMuiTheme({
       },
       select: {
         '&:focus': {
-          backgroundColor: 'yellobw',
+          backgroundColor: '#1E242A',
         },
       },
       icon: {
