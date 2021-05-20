@@ -9,18 +9,20 @@ import {
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import { IDataTableRecord, IMessage } from '../interfaces';
+import { IDataTableRecord, IMessage, IHistory } from '../interfaces';
 import { DataTable } from '../components/DataTable/DataTable';
 import { HashPopover } from '../components/HashPopover';
 import { MessageDetails } from '../components/MessageDetails';
 import CheckIcon from 'mdi-react/CheckIcon';
 import { NamespaceContext } from '../contexts/NamespaceContext';
+import { useHistory } from 'react-router-dom';
 
 const PAGE_LIMITS = [10, 25];
 
 export const Messages: React.FC = () => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const history = useHistory<IHistory>();
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [viewMessage, setViewMessage] = useState<IMessage | undefined>();
@@ -104,7 +106,10 @@ export const Messages: React.FC = () => {
       },
       { value: dayjs(message.header.created).format('MM/DD/YYYY h:mm A') },
     ],
-    onClick: () => setViewMessage(message),
+    onClick: () => {
+      setViewMessage(message);
+      history.replace('/messages', { viewMessage: message });
+    },
   }));
 
   if (loading) {
@@ -113,6 +118,11 @@ export const Messages: React.FC = () => {
         <CircularProgress />
       </Box>
     );
+  }
+
+  // make sure to view MessageDetails panel if it was open when navigating to a linked page and user goes back
+  if (history.location.state && !viewMessage) {
+    setViewMessage(history.location.state.viewMessage);
   }
 
   return (
@@ -136,7 +146,10 @@ export const Messages: React.FC = () => {
       {viewMessage && (
         <MessageDetails
           open={!!viewMessage}
-          onClose={() => setViewMessage(undefined)}
+          onClose={() => {
+            setViewMessage(undefined);
+            history.replace('/messages', undefined);
+          }}
           message={viewMessage}
         />
       )}
