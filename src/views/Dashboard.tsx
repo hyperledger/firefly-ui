@@ -132,7 +132,7 @@ export const Dashboard: React.FC = () => {
             )}
           </Grid>
         </Grid>
-        <Grid item>
+        <Grid container item>
           <DataTable
             minHeight="300px"
             maxHeight="calc(100vh - 340px)"
