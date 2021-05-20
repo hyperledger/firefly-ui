@@ -19,7 +19,7 @@ interface Props {
   stickyHeader?: boolean;
   pagination?: JSX.Element;
   header?: string;
-  height?: string;
+  minHeight?: string;
   maxHeight?: string;
 }
 
@@ -29,7 +29,7 @@ export const DataTable: React.FC<Props> = ({
   stickyHeader,
   pagination,
   header,
-  height,
+  minHeight,
   maxHeight,
 }) => {
   const classes = useStyles();
@@ -43,7 +43,7 @@ export const DataTable: React.FC<Props> = ({
       )}
       <Grid item xs={12}>
         <TableContainer
-          style={{ maxHeight, height }}
+          style={{ maxHeight, minHeight }}
           className={classes.tableContainer}
         >
           <Table stickyHeader={stickyHeader}>
