@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useEffect, useContext } from 'react';
 import { DisplaySlide } from './Display/DisplaySlide';
 import {
   Typography,
@@ -6,13 +6,17 @@ import {
   Divider,
   Button,
   makeStyles,
+  Box,
+  CircularProgress,
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
-import { IMessage } from '../interfaces';
+import { IMessage, IBatch } from '../interfaces';
 import { HashPopover } from './HashPopover';
 import dayjs from 'dayjs';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import clsx from 'clsx';
+import { NamespaceContext } from '../contexts/NamespaceContext';
+import { useHistory } from 'react-router-dom';
 
 interface Props {
   message: IMessage;
@@ -23,6 +27,10 @@ interface Props {
 export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const history = useHistory();
+  const [loading, setLoading] = useState(false);
+  const [txId, setTxId] = useState<string>();
+  const { selectedNamespace } = useContext(NamespaceContext);
 
   const detailItem = (label: string, value: string | JSX.Element) => (
     <>
@@ -34,6 +42,20 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
       </Grid>
     </>
   );
+
+  useEffect(() => {
+    setLoading(true);
+    fetch(`/api/v1/namespaces/${selectedNamespace}/batches/${message.batchId}`)
+      .then(async (response) => {
+        if (response.ok) {
+          const batch: IBatch = await response.json();
+          setTxId(batch.payload.tx.id);
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [message.batchId, selectedNamespace]);
 
   const copyableHash = (hash: string) => (
     <Grid alignItems="center" container direction="row">
@@ -55,6 +77,42 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
       </Grid>
     </Grid>
   );
+
+  const pinned = (txType: string, txId: string | undefined) => (
+    <Grid alignItems="center" container direction="row" justify="space-between">
+      <Grid item xs={8}>
+        <Typography
+          noWrap
+          className={clsx(classes.detailValue, classes.paddingRight)}
+        >
+          {txType === 'pin' ? t('yes') : t('no')}
+        </Typography>
+      </Grid>
+      {txId && (
+        <Grid item xs={4}>
+          <Button
+            size="small"
+            className={classes.copyButton}
+            onClick={() =>
+              history.push(`/transactions/${txId}`, {
+                props: { message: message, open: open },
+              })
+            }
+          >
+            {t('viewTx')}
+          </Button>
+        </Grid>
+      )}
+    </Grid>
+  );
+
+  if (loading) {
+    return (
+      <Box className={classes.centeredContent}>
+        <CircularProgress />
+      </Box>
+    );
+  }
 
   return (
     <>
@@ -104,10 +162,7 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
             direction="row"
           >
             <Grid className={classes.detailItem} sm={12} container item>
-              {detailItem(
-                t('pinned?'),
-                message.header.tx.type === 'pin' ? t('yes') : t('no')
-              )}
+              {detailItem(t('pinned?'), pinned(message.header.tx.type, txId))}
             </Grid>
             <Grid className={classes.detailItem} sm={12} container item>
               {detailItem(t('dataHash'), copyableHash(message.header.datahash))}
@@ -153,5 +208,13 @@ const useStyles = makeStyles((theme) => ({
   },
   paddingRight: {
     paddingRight: theme.spacing(1),
+  },
+  centeredContent: {
+    display: 'flex',
+    flexDirection: 'column',
+    justifyContent: 'center',
+    alignItems: 'center',
+    height: 'calc(100vh - 300px)',
+    overflow: 'auto',
   },
 }));

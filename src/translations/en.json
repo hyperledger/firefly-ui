@@ -23,5 +23,7 @@
   "latestMessages": "Latest Messages",
   "networkMembers": "Network Members",
   "blockNumber": "Block Number",
-  "dateMined": "Date Mined"
+  "dateMined": "Date Mined",
+  "transactionDetails": "Transaction Details",
+  "viewTx": "View TX"
 }

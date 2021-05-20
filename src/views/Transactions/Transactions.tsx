@@ -9,10 +9,11 @@ import {
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import { IDataTableRecord, ITransaction } from '../interfaces';
-import { DataTable } from '../components/DataTable/DataTable';
-import { HashPopover } from '../components/HashPopover';
-import { NamespaceContext } from '../contexts/NamespaceContext';
+import { IDataTableRecord, ITransaction } from '../../interfaces';
+import { DataTable } from '../../components/DataTable/DataTable';
+import { HashPopover } from '../../components/HashPopover';
+import { NamespaceContext } from '../../contexts/NamespaceContext';
+import { useHistory } from 'react-router-dom';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -24,6 +25,7 @@ export const Transactions: React.FC = () => {
   const { selectedNamespace } = useContext(NamespaceContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
+  const history = useHistory();
 
   const columnHeaders = [
     t('hash'),
@@ -92,6 +94,9 @@ export const Transactions: React.FC = () => {
       { value: tx.status },
       { value: dayjs(tx.confirmed).format('MM/DD/YYYY h:mm A') },
     ],
+    onClick: () => {
+      history.push(`/transactions/${tx.id}`);
+    },
   }));
 
   if (loading) {
