@@ -27,7 +27,7 @@ export const theme = createMuiTheme({
       paper: '#252C32',
     },
     text: {
-      secondary: '#6E7780',
+      secondary: '#9BA7B0',
     },
     action: {
       active: '#1E242A',
