@@ -9,7 +9,8 @@ import {
 } from '@material-ui/core';
 import { Dashboard } from './views/Dashboard';
 import { Messages } from './views/Messages';
-import { Transactions } from './views/Transactions';
+import { Transactions } from './views/Transactions/Transactions';
+import { TransactionDetails } from './views/Transactions/TransactionDetails';
 import { Data } from './views/Data';
 import { AppWrapper } from './components/AppWrapper';
 import { NamespaceContext } from './contexts/NamespaceContext';
@@ -119,6 +120,11 @@ function App() {
                 exact
                 path="/transactions"
                 render={() => <Transactions />}
+              />
+              <Route
+                exact
+                path="/transactions/:id"
+                render={() => <TransactionDetails />}
               />
             </Switch>
           </AppWrapper>

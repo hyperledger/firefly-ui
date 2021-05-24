@@ -8,6 +8,10 @@ export interface IDataTableRecord {
   onClick?: () => void;
 }
 
+export interface IHistory {
+  viewMessage: IMessage;
+}
+
 export interface IFireflyHeader {
   author: string;
   cid: string;
@@ -49,11 +53,11 @@ export interface INamespace {
 }
 
 export interface ITransaction {
-  confirmed: number;
+  confirmed?: number;
   created: number;
   hash: string;
   id: string;
-  protocolId: string;
+  protocolId?: string;
   sequence: number;
   status: string;
   info?: IEthTransactionInfo;
@@ -93,4 +97,23 @@ export interface IData {
   namespace: string;
   validator: string;
   value: any;
+}
+
+export interface IBatch {
+  author: string;
+  confirmed: string;
+  created: string;
+  hash: string;
+  id: string;
+  namespace: string;
+  payload: {
+    data: IData[];
+    messages: IMessage[];
+    tx: {
+      id: string;
+      type: string;
+    };
+  };
+  payloadRef: string;
+  type: string;
 }
