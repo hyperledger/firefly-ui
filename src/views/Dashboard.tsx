@@ -14,12 +14,14 @@ import { DataTable } from '../components/DataTable/DataTable';
 import dayjs from 'dayjs';
 import { HashPopover } from '../components/HashPopover';
 import { NamespaceContext } from '../contexts/NamespaceContext';
+import { RecentTransactions } from '../components/RecentTransactions/RecentTransactions';
 
 export const Dashboard: React.FC = () => {
   const classes = useStyles();
   const { t } = useTranslation();
   const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<IMessage[]>([]);
+  const [txSequence, setTxSequence] = useState<ITransaction[]>([]);
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const { selectedNamespace } = useContext(NamespaceContext);
 
@@ -28,11 +30,18 @@ export const Dashboard: React.FC = () => {
     Promise.all([
       fetch(`/api/v1/namespaces/${selectedNamespace}/messages?limit=5`),
       fetch(`/api/v1/namespaces/${selectedNamespace}/transactions?limit=1`),
+      fetch(
+        `/api/v1/namespaces/${selectedNamespace}/transactions?created=>=${dayjs()
+          .subtract(1, 'day')
+          .unix()}`
+      ),
     ])
-      .then(async ([messageResponse, transactionResponse]) => {
-        if (messageResponse.ok && transactionResponse.ok) {
+      .then(async ([messageResponse, txSequenceResponse, txResponse]) => {
+        if (messageResponse.ok && txSequenceResponse.ok && txResponse.ok) {
           setMessages(await messageResponse.json());
-          setTransactions(await transactionResponse.json());
+          setTransactions(await txResponse.json());
+          // use most recent tx to determine sequence number, which tells us total # of tx's
+          setTxSequence(await txSequenceResponse.json());
         }
       })
       .finally(() => {
@@ -108,38 +117,43 @@ export const Dashboard: React.FC = () => {
         </Grid>
         <Grid
           className={classes.cardContainer}
-          spacing={6}
+          spacing={4}
           container
           item
           direction="row"
         >
-          <Grid xs={6} sm={3} item>
+          <Grid xs={6} sm={4} item>
             {summaryPanel(
               t('networkMembers'),
               Math.floor(Math.random() * 1000)
             )}
           </Grid>
-          <Grid xs={6} sm={3} item>
+          <Grid xs={6} sm={4} item>
             {summaryPanel(
               t('messages'),
               messages.length !== 0 ? messages[0].sequence : 0
             )}
           </Grid>
-          <Grid xs={6} sm={3} item>
+          <Grid xs={6} sm={4} item>
             {summaryPanel(
               t('transactions'),
-              transactions.length !== 0 ? transactions[0].sequence : 0
+              txSequence.length !== 0 ? txSequence[0].sequence : 0
             )}
           </Grid>
         </Grid>
-        <Grid container item>
-          <DataTable
-            minHeight="300px"
-            maxHeight="calc(100vh - 340px)"
-            columnHeaders={messageColumnHeaders}
-            records={messageRecords}
-            header={t('latestMessages')}
-          />
+        <Grid container item direction="row" spacing={6}>
+          <Grid container item xs={7}>
+            <DataTable
+              minHeight="300px"
+              maxHeight="calc(100vh - 340px)"
+              columnHeaders={messageColumnHeaders}
+              records={messageRecords}
+              header={t('latestMessages')}
+            />
+          </Grid>
+          <Grid container item xs={5}>
+            <RecentTransactions transactions={transactions} />
+          </Grid>
         </Grid>
       </Grid>
     </>

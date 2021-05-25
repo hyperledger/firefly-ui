@@ -2,6 +2,19 @@ export interface IDataTableColumn {
   value: string | number | JSX.Element | undefined;
 }
 
+export enum TXStatus {
+  Confirmed = 'confirmed',
+  Pending = 'pending',
+  Error = 'error',
+}
+
+export interface IPieChartElement {
+  id: string;
+  label: string;
+  value: number;
+  color: string;
+}
+
 export interface IDataTableRecord {
   columns: IDataTableColumn[];
   key: string;
@@ -59,7 +72,7 @@ export interface ITransaction {
   id: string;
   protocolId?: string;
   sequence: number;
-  status: string;
+  status: TXStatus;
   info?: IEthTransactionInfo;
   subject: {
     author: string;
