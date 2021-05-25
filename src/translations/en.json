@@ -25,5 +25,6 @@
   "blockNumber": "Block Number",
   "dateMined": "Date Mined",
   "transactionDetails": "Transaction Details",
-  "viewTx": "View TX"
+  "viewTx": "View TX",
+  "last24Hours": "Last 24 Hours"
 }
