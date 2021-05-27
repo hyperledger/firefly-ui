@@ -48,7 +48,7 @@ export interface IData {
 }
 
 export interface IMessage {
-  batchId: string;
+  batchID: string;
   confirmed: number;
   data: IData[];
   hash: string;
@@ -88,13 +88,13 @@ export interface IEthTransactionInfo {
   blockNumber: string;
   data: {
     author: string;
-    batchId: string;
+    batchID: string;
     payloadRef: string;
     timestamp: string;
   };
   logIndex: string;
   signature: string;
-  subId: string;
+  subID: string;
   transactionHash: string;
   transactionIndex: string;
 }

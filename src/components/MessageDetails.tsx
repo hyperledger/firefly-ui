@@ -45,7 +45,7 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/v1/namespaces/${selectedNamespace}/batches/${message.batchId}`)
+    fetch(`/api/v1/namespaces/${selectedNamespace}/batches/${message.batchID}`)
       .then(async (response) => {
         if (response.ok) {
           const batch: IBatch = await response.json();
@@ -55,7 +55,7 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
       .finally(() => {
         setLoading(false);
       });
-  }, [message.batchId, selectedNamespace]);
+  }, [message.batchID, selectedNamespace]);
 
   const copyableHash = (hash: string) => (
     <Grid alignItems="center" container direction="row">
