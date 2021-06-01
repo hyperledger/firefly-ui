@@ -116,11 +116,11 @@ export const Navigation: React.FC<Props> = ({
       </Box>
       <List>
         {navItem('dashboard', true)}
-        {navItem('network')}
+        {/* {navItem('network')} */}
         {navItem('messages')}
         {navItem('data')}
         {navItem('transactions')}
-        {navItem('settings')}
+        {/* {navItem('settings')} */}
       </List>
     </>
   );

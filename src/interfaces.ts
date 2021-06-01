@@ -18,6 +18,8 @@ export interface IDataTableColumn {
   value: string | number | JSX.Element | undefined;
 }
 
+export type DataView = 'timeline' | 'list';
+
 export enum TXStatus {
   Confirmed = 'confirmed',
   Pending = 'pending',
@@ -29,6 +31,14 @@ export interface IPieChartElement {
   label: string;
   value: number;
   color: string;
+}
+
+export interface ITimelineItem {
+  title?: string;
+  description?: string;
+  icon?: JSX.Element;
+  time?: string;
+  onClick?: () => void;
 }
 
 export interface IDataTableRecord {

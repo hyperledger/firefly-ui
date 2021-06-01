@@ -26,5 +26,7 @@
   "dateMined": "Date Mined",
   "transactionDetails": "Transaction Details",
   "viewTx": "View TX",
-  "last24Hours": "Last 24 Hours"
+  "last24Hours": "Last 24 Hours",
+  "list": "List",
+  "timeline": "Timeline"
 }
