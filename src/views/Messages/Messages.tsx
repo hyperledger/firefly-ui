@@ -23,8 +23,6 @@ import {
   Box,
   CircularProgress,
   makeStyles,
-  ButtonGroup,
-  Button,
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
@@ -42,6 +40,7 @@ import CheckIcon from 'mdi-react/CheckIcon';
 import BroadcastIcon from 'mdi-react/BroadcastIcon';
 import { NamespaceContext } from '../../contexts/NamespaceContext';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
+import { DataViewSwitch } from '../../components/DataViewSwitch';
 import { useHistory } from 'react-router-dom';
 
 const PAGE_LIMITS = [10, 25];
@@ -56,7 +55,7 @@ export const Messages: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
   const { selectedNamespace } = useContext(NamespaceContext);
-  const { dataView, setDataView } = useContext(ApplicationContext);
+  const { dataView } = useContext(ApplicationContext);
 
   useEffect(() => {
     setLoading(true);
@@ -182,26 +181,7 @@ export const Messages: React.FC = () => {
           </Grid>
           <Box className={classes.separator} />
           <Grid item>
-            <ButtonGroup>
-              <Button
-                onClick={() => setDataView('list')}
-                className={
-                  dataView === 'list' ? classes.buttonSelected : classes.button
-                }
-              >
-                {t('list')}
-              </Button>
-              <Button
-                onClick={() => setDataView('timeline')}
-                className={
-                  dataView === 'timeline'
-                    ? classes.buttonSelected
-                    : classes.button
-                }
-              >
-                {t('timeline')}
-              </Button>
-            </ButtonGroup>
+            <DataViewSwitch />
           </Grid>
         </Grid>
         {dataView === 'timeline' && (
@@ -263,12 +243,5 @@ const useStyles = makeStyles((theme) => ({
   },
   separator: {
     flexGrow: 1,
-  },
-  buttonSelected: {
-    backgroundColor: theme.palette.action.selected,
-    borderBottom: '2px solid white',
-  },
-  button: {
-    color: theme.palette.text.disabled,
   },
 }));
