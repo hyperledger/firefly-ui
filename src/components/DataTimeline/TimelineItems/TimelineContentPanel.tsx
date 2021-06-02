@@ -43,7 +43,9 @@ export const TimelineContentPanel: React.FC<Props> = ({
             <Typography className={classes.title}>{title}</Typography>
           </Grid>
           <Grid item>
-            <Typography>{description}</Typography>
+            <Typography className={classes.description}>
+              {description}
+            </Typography>
           </Grid>
         </Grid>
       </Paper>
@@ -59,6 +61,10 @@ const useStyles = makeStyles((theme) => ({
   },
   title: {
     fontWeight: 'bold',
+    fontSize: 14,
+  },
+  description: {
+    fontSize: 12,
   },
   container: {
     alignItems: 'flex-start',
