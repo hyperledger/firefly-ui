@@ -205,12 +205,12 @@ export const Messages: React.FC = () => {
           </Grid>
         </Grid>
         {dataView === 'timeline' && (
-          <Grid className={classes.timelineContainer} container item>
+          <Grid className={classes.timelineContainer} xs={12} container item>
             <DataTimeline items={buildTimelineElements(messages)} />
           </Grid>
         )}
         {dataView === 'list' && (
-          <Grid className={classes.timelineContainer} xs={12} container item>
+          <Grid container item>
             <DataTable
               minHeight="300px"
               maxHeight="calc(100vh - 340px)"

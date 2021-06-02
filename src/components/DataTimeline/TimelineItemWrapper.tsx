@@ -1,6 +1,4 @@
 import React from 'react';
-import { makeStyles } from '@material-ui/core';
-
 import { ITimelineItem } from '../../interfaces';
 import { OppositeTimelineItem } from './TimelineItems/OppositeTimelineItem';
 import { TimelineItem } from './TimelineItems/TimelineItem';
@@ -21,10 +19,3 @@ export const TimelineItemWrapper: React.FC<Props> = ({ item, opposite }) => {
     </>
   );
 };
-
-const useStyles = makeStyles((theme) => ({
-  paper: {
-    padding: theme.spacing(2),
-    backgroundColor: theme.palette.timelineBackground.main,
-  },
-}));

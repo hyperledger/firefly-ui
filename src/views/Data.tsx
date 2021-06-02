@@ -21,13 +21,18 @@ import {
   CircularProgress,
   Box,
   makeStyles,
+  Button,
+  ButtonGroup,
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import { IDataTableRecord, IData } from '../interfaces';
+import { IDataTableRecord, IData, ITimelineItem } from '../interfaces';
 import { DataTable } from '../components/DataTable/DataTable';
 import { HashPopover } from '../components/HashPopover';
 import { NamespaceContext } from '../contexts/NamespaceContext';
+import { DataTimeline } from '../components/DataTimeline/DataTimeline';
+import BroadcastIcon from 'mdi-react/BroadcastIcon';
+import { ApplicationContext } from '../contexts/ApplicationContext';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -35,10 +40,11 @@ export const Data: React.FC = () => {
   const { t } = useTranslation();
   const classes = useStyles();
   const [loading, setLoading] = useState(false);
-  const [transactions, setTransactions] = useState<IData[]>([]);
+  const [dataItems, setDataItems] = useState<IData[]>([]);
   const { selectedNamespace } = useContext(NamespaceContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
+  const { dataView, setDataView } = useContext(ApplicationContext);
 
   const columnHeaders = [
     t('id'),
@@ -81,7 +87,7 @@ export const Data: React.FC = () => {
     )
       .then(async (response) => {
         if (response.ok) {
-          setTransactions(await response.json());
+          setDataItems(await response.json());
         } else {
           console.log('error fetching data');
         }
@@ -91,7 +97,7 @@ export const Data: React.FC = () => {
       });
   }, [rowsPerPage, currentPage, selectedNamespace]);
 
-  const records: IDataTableRecord[] = transactions.map((data: IData) => ({
+  const records: IDataTableRecord[] = dataItems.map((data: IData) => ({
     key: data.id,
     columns: [
       {
@@ -105,6 +111,15 @@ export const Data: React.FC = () => {
     ],
   }));
 
+  const buildTimelineElements = (dataItems: IData[]): ITimelineItem[] => {
+    return dataItems.map((data: IData) => ({
+      title: data.hash,
+      description: data.validator,
+      time: dayjs(data.created).format('MM/DD/YYYY h:mm A'),
+      icon: <BroadcastIcon />,
+    }));
+  };
+
   if (loading) {
     return (
       <Box className={classes.centeredContent}>
@@ -116,20 +131,52 @@ export const Data: React.FC = () => {
   return (
     <>
       <Grid container wrap="nowrap" direction="column" className={classes.root}>
-        <Grid item>
-          <Typography className={classes.header} variant="h4">
-            {t('data')}
-          </Typography>
+        <Grid container item direction="row">
+          <Grid item>
+            <Typography className={classes.header} variant="h4">
+              {t('data')}
+            </Typography>
+          </Grid>
+          <Box className={classes.separator} />
+          <Grid item>
+            <ButtonGroup>
+              <Button
+                onClick={() => setDataView('list')}
+                className={
+                  dataView === 'list' ? classes.buttonSelected : classes.button
+                }
+              >
+                {t('list')}
+              </Button>
+              <Button
+                onClick={() => setDataView('timeline')}
+                className={
+                  dataView === 'timeline'
+                    ? classes.buttonSelected
+                    : classes.button
+                }
+              >
+                {t('timeline')}
+              </Button>
+            </ButtonGroup>
+          </Grid>
         </Grid>
-        <Grid container item>
-          <DataTable
-            minHeight="300px"
-            maxHeight="calc(100vh - 340px)"
-            {...{ columnHeaders }}
-            {...{ records }}
-            {...{ pagination }}
-          />
-        </Grid>
+        {dataView === 'timeline' && (
+          <Grid className={classes.timelineContainer} xs={12} container item>
+            <DataTimeline items={buildTimelineElements(dataItems)} />
+          </Grid>
+        )}
+        {dataView === 'list' && (
+          <Grid container item>
+            <DataTable
+              minHeight="300px"
+              maxHeight="calc(100vh - 340px)"
+              {...{ columnHeaders }}
+              {...{ records }}
+              {...{ pagination }}
+            />
+          </Grid>
+        )}
       </Grid>
     </>
   );
@@ -157,5 +204,18 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     height: 'calc(100vh - 300px)',
     overflow: 'auto',
+  },
+  timelineContainer: {
+    paddingTop: theme.spacing(4),
+  },
+  separator: {
+    flexGrow: 1,
+  },
+  buttonSelected: {
+    backgroundColor: theme.palette.action.selected,
+    borderBottom: '2px solid white',
+  },
+  button: {
+    color: theme.palette.text.disabled,
   },
 }));
