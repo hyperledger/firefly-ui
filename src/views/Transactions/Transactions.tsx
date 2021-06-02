@@ -185,7 +185,7 @@ export const Transactions: React.FC = () => {
           </Grid>
         </Grid>
         {dataView === 'timeline' && (
-          <Grid className={classes.timelineContainer} container item>
+          <Grid className={classes.timelineContainer} xs={12} container item>
             <DataTimeline items={buildTimelineElements(transactions)} />
           </Grid>
         )}
