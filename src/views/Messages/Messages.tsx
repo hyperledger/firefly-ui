@@ -205,7 +205,7 @@ export const Messages: React.FC = () => {
           </Grid>
         </Grid>
         {dataView === 'timeline' && (
-          <Grid className={classes.timelineContainer} xs={12} container item>
+          <Grid className={classes.timelineContainer} container item>
             <DataTimeline items={buildTimelineElements(messages)} />
           </Grid>
         )}
