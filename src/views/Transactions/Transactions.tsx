@@ -22,18 +22,28 @@ import {
   Box,
   CircularProgress,
   makeStyles,
+  Button,
+  ButtonGroup,
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import { IDataTableRecord, ITransaction } from '../../interfaces';
+import { useHistory } from 'react-router-dom';
+import BroadcastIcon from 'mdi-react/BroadcastIcon';
+import {
+  IDataTableRecord,
+  ITransaction,
+  ITimelineItem,
+} from '../../interfaces';
 import { DataTable } from '../../components/DataTable/DataTable';
 import { HashPopover } from '../../components/HashPopover';
 import { NamespaceContext } from '../../contexts/NamespaceContext';
-import { useHistory } from 'react-router-dom';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
+import { DataTimeline } from '../../components/DataTimeline/DataTimeline';
 
 const PAGE_LIMITS = [10, 25];
 
 export const Transactions: React.FC = () => {
+  const history = useHistory();
   const { t } = useTranslation();
   const classes = useStyles();
   const [loading, setLoading] = useState(false);
@@ -41,7 +51,7 @@ export const Transactions: React.FC = () => {
   const { selectedNamespace } = useContext(NamespaceContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-  const history = useHistory();
+  const { dataView, setDataView } = useContext(ApplicationContext);
 
   const columnHeaders = [
     t('hash'),
@@ -108,12 +118,30 @@ export const Transactions: React.FC = () => {
         ),
       },
       { value: tx.status },
-      { value: dayjs(tx.confirmed).format('MM/DD/YYYY h:mm A') },
+      {
+        value: tx.confirmed
+          ? dayjs(tx.confirmed).format('MM/DD/YYYY h:mm A')
+          : undefined,
+      },
     ],
     onClick: () => {
       history.push(`/transactions/${tx.id}`);
     },
   }));
+
+  const buildTimelineElements = (
+    transactions: ITransaction[]
+  ): ITimelineItem[] => {
+    return transactions.map((tx: ITransaction) => ({
+      title: tx.hash,
+      description: tx.status,
+      time: dayjs(tx.created).format('MM/DD/YYYY h:mm A'),
+      icon: <BroadcastIcon />,
+      onClick: () => {
+        history.push(`/transactions/${tx.id}`);
+      },
+    }));
+  };
 
   if (loading) {
     return (
@@ -126,20 +154,52 @@ export const Transactions: React.FC = () => {
   return (
     <>
       <Grid container wrap="nowrap" direction="column" className={classes.root}>
-        <Grid item>
-          <Typography className={classes.header} variant="h4">
-            {t('transactions')}
-          </Typography>
+        <Grid container item direction="row">
+          <Grid item>
+            <Typography className={classes.header} variant="h4">
+              {t('transactions')}
+            </Typography>
+          </Grid>
+          <Box className={classes.separator} />
+          <Grid item>
+            <ButtonGroup>
+              <Button
+                onClick={() => setDataView('list')}
+                className={
+                  dataView === 'list' ? classes.buttonSelected : classes.button
+                }
+              >
+                {t('list')}
+              </Button>
+              <Button
+                onClick={() => setDataView('timeline')}
+                className={
+                  dataView === 'timeline'
+                    ? classes.buttonSelected
+                    : classes.button
+                }
+              >
+                {t('timeline')}
+              </Button>
+            </ButtonGroup>
+          </Grid>
         </Grid>
-        <Grid container item>
-          <DataTable
-            minHeight="300px"
-            maxHeight="calc(100vh - 340px)"
-            {...{ columnHeaders }}
-            {...{ records }}
-            {...{ pagination }}
-          />
-        </Grid>
+        {dataView === 'timeline' && (
+          <Grid className={classes.timelineContainer} container item>
+            <DataTimeline items={buildTimelineElements(transactions)} />
+          </Grid>
+        )}
+        {dataView === 'list' && (
+          <Grid container item>
+            <DataTable
+              minHeight="300px"
+              maxHeight="calc(100vh - 340px)"
+              {...{ columnHeaders }}
+              {...{ records }}
+              {...{ pagination }}
+            />
+          </Grid>
+        )}
       </Grid>
     </>
   );
@@ -167,5 +227,18 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     height: 'calc(100vh - 300px)',
     overflow: 'auto',
+  },
+  timelineContainer: {
+    paddingTop: theme.spacing(4),
+  },
+  separator: {
+    flexGrow: 1,
+  },
+  buttonSelected: {
+    backgroundColor: theme.palette.action.selected,
+    borderBottom: '2px solid white',
+  },
+  button: {
+    color: theme.palette.text.disabled,
   },
 }));
