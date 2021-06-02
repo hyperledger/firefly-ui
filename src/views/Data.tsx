@@ -21,8 +21,6 @@ import {
   CircularProgress,
   Box,
   makeStyles,
-  Button,
-  ButtonGroup,
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
@@ -33,6 +31,7 @@ import { NamespaceContext } from '../contexts/NamespaceContext';
 import { DataTimeline } from '../components/DataTimeline/DataTimeline';
 import BroadcastIcon from 'mdi-react/BroadcastIcon';
 import { ApplicationContext } from '../contexts/ApplicationContext';
+import { DataViewSwitch } from '../components/DataViewSwitch';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -44,7 +43,7 @@ export const Data: React.FC = () => {
   const { selectedNamespace } = useContext(NamespaceContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-  const { dataView, setDataView } = useContext(ApplicationContext);
+  const { dataView } = useContext(ApplicationContext);
 
   const columnHeaders = [
     t('id'),
@@ -139,26 +138,7 @@ export const Data: React.FC = () => {
           </Grid>
           <Box className={classes.separator} />
           <Grid item>
-            <ButtonGroup>
-              <Button
-                onClick={() => setDataView('list')}
-                className={
-                  dataView === 'list' ? classes.buttonSelected : classes.button
-                }
-              >
-                {t('list')}
-              </Button>
-              <Button
-                onClick={() => setDataView('timeline')}
-                className={
-                  dataView === 'timeline'
-                    ? classes.buttonSelected
-                    : classes.button
-                }
-              >
-                {t('timeline')}
-              </Button>
-            </ButtonGroup>
+            <DataViewSwitch />
           </Grid>
         </Grid>
         {dataView === 'timeline' && (
@@ -210,12 +190,5 @@ const useStyles = makeStyles((theme) => ({
   },
   separator: {
     flexGrow: 1,
-  },
-  buttonSelected: {
-    backgroundColor: theme.palette.action.selected,
-    borderBottom: '2px solid white',
-  },
-  button: {
-    color: theme.palette.text.disabled,
   },
 }));
