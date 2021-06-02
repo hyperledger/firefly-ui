@@ -57,6 +57,7 @@
     "@types/react-router-dom": "^5.1.7",
     "eslint-config-prettier": "^8.3.0",
     "eslint-plugin-prettier": "^3.4.0",
+    "eslint-plugin-header": "^3.1.1",
     "prettier": "^2.2.1"
   },
   "proxy": "http://localhost:5000"

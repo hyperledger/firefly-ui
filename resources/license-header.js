@@ -13,28 +13,3 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-import React from 'react';
-import ReactDOM from 'react-dom';
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import en from './translations/en.json';
-import './index.css';
-import App from './App';
-
-i18n.use(initReactI18next).init({
-  resources: {
-    en: { translation: en },
-  },
-  lng: 'en',
-  interpolation: {
-    escapeValue: false,
-  },
-});
-
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
