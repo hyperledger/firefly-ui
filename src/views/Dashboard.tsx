@@ -48,7 +48,7 @@ export const Dashboard: React.FC = () => {
       fetch(`/api/v1/namespaces/${selectedNamespace}/transactions?limit=1`),
       fetch(
         `/api/v1/namespaces/${selectedNamespace}/transactions?created=>=${dayjs()
-          .subtract(1, 'day')
+          .subtract(24, 'hours')
           .unix()}`
       ),
     ])

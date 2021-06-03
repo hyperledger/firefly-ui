@@ -14,16 +14,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export interface IDataTableColumn {
-  value: string | number | JSX.Element | undefined;
-}
-
 export type DataView = 'timeline' | 'list';
 
 export enum TXStatus {
   Confirmed = 'confirmed',
   Pending = 'pending',
   Error = 'error',
+}
+
+export type CreatedFilterOptions = '24hours' | '7days' | '30days';
+
+export type FilterOptions = CreatedFilterOptions;
+
+export interface IDataTableColumn {
+  value: string | number | JSX.Element | undefined;
+}
+
+export interface IFilterItem {
+  value: string;
+  label: string;
 }
 
 export interface IPieChartElement {

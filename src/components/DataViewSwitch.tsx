@@ -26,7 +26,7 @@ export const DataViewSwitch: React.FC = () => {
 
   return (
     <>
-      <ButtonGroup size="small">
+      <ButtonGroup className={classes.buttonGroup}>
         <Button
           onClick={() => setDataView('list')}
           className={
@@ -55,5 +55,8 @@ const useStyles = makeStyles((theme) => ({
   },
   button: {
     color: theme.palette.text.disabled,
+  },
+  buttonGroup: {
+    height: 40,
   },
 }));

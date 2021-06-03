@@ -28,5 +28,7 @@
   "viewTx": "View TX",
   "last24Hours": "Last 24 Hours",
   "list": "List",
-  "timeline": "Timeline"
+  "timeline": "Timeline",
+  "last7Days": "Last 7 Days",
+  "last30Days": "Last 30 Days"
 }

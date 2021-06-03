@@ -30,6 +30,7 @@ import {
   ITimelineItem,
   IMessage,
   IHistory,
+  CreatedFilterOptions,
 } from '../../interfaces';
 import { DataTable } from '../../components/DataTable/DataTable';
 import { DataTimeline } from '../../components/DataTimeline/DataTimeline';
@@ -41,6 +42,7 @@ import { NamespaceContext } from '../../contexts/NamespaceContext';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { DataViewSwitch } from '../../components/DataViewSwitch';
 import { useHistory } from 'react-router-dom';
+import { FilterSelect } from '../../components/FilterSelect';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -55,13 +57,41 @@ export const Messages: React.FC = () => {
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
   const { selectedNamespace } = useContext(NamespaceContext);
   const { dataView } = useContext(ApplicationContext);
+  const [createdFilter, setCreatedFilter] = useState<CreatedFilterOptions>(
+    '24hours'
+  );
+
+  const createdQueryOptions = [
+    {
+      value: '24hours',
+      label: t('last24Hours'),
+    },
+    {
+      value: '7days',
+      label: t('last7Days'),
+    },
+    {
+      value: '30days',
+      label: t('last30Days'),
+    },
+  ];
 
   useEffect(() => {
     setLoading(true);
+    let createdFilterString = `&created=>=${dayjs()
+      .subtract(24, 'hours')
+      .unix()}`;
+    if (createdFilter === '30days') {
+      createdFilterString = `&created=>=${dayjs().subtract(30, 'days').unix()}`;
+    }
+    if (createdFilter === '7days') {
+      createdFilterString = `&created=>=${dayjs().subtract(7, 'days').unix()}`;
+    }
+
     fetch(
       `/api/v1/namespaces/${selectedNamespace}/messages?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
-      }`
+      }${createdFilterString}`
     )
       .then(async (response) => {
         if (response.ok) {
@@ -73,7 +103,7 @@ export const Messages: React.FC = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace]);
+  }, [rowsPerPage, currentPage, selectedNamespace, createdFilter]);
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setCurrentPage(newPage);
@@ -172,13 +202,20 @@ export const Messages: React.FC = () => {
   return (
     <>
       <Grid container wrap="nowrap" direction="column" className={classes.root}>
-        <Grid container item direction="row">
+        <Grid container spacing={2} item direction="row" alignItems="center">
           <Grid item>
             <Typography className={classes.header} variant="h4">
               {t('messages')}
             </Typography>
           </Grid>
           <Box className={classes.separator} />
+          <Grid item>
+            <FilterSelect
+              filter={createdFilter}
+              setFilter={setCreatedFilter}
+              filterItems={createdQueryOptions}
+            />
+          </Grid>
           <Grid item>
             <DataViewSwitch />
           </Grid>
