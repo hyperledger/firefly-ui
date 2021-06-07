@@ -14,15 +14,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import '@material-ui/core/styles';
+import React from 'react';
+import { ITimelineItem } from '../../interfaces';
+import { OppositeTimelineItem } from './TimelineItems/OppositeTimelineItem';
+import { TimelineItem } from './TimelineItems/TimelineItem';
 
-declare module '@material-ui/core/styles/createPalette' {
-  interface Palette {
-    tableRowAlternate: Palette['primary'];
-    timelineBackground: Palette['primary'];
-  }
-  interface PaletteOptions {
-    tableRowAlternate: PaletteOptions['primary'];
-    timelineBackground: PaletteOptions['primary'];
-  }
+interface Props {
+  item: ITimelineItem;
+  opposite?: boolean;
 }
+
+export const TimelineItemWrapper: React.FC<Props> = ({ item, opposite }) => {
+  return (
+    <>
+      {opposite ? (
+        <OppositeTimelineItem item={item} />
+      ) : (
+        <TimelineItem item={item} />
+      )}
+    </>
+  );
+};

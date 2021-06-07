@@ -14,15 +14,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import '@material-ui/core/styles';
+import React, { Dispatch, SetStateAction } from 'react';
+import { DataView } from '../interfaces';
 
-declare module '@material-ui/core/styles/createPalette' {
-  interface Palette {
-    tableRowAlternate: Palette['primary'];
-    timelineBackground: Palette['primary'];
-  }
-  interface PaletteOptions {
-    tableRowAlternate: PaletteOptions['primary'];
-    timelineBackground: PaletteOptions['primary'];
-  }
+export interface IApplicationContext {
+  dataView: DataView;
+  setDataView: Dispatch<SetStateAction<DataView>>;
 }
+
+export const ApplicationContext = React.createContext<IApplicationContext>({
+  dataView: 'list',
+  setDataView: () => {
+    /* default value */
+  },
+});

@@ -24,13 +24,14 @@ import {
   createMuiTheme,
 } from '@material-ui/core';
 import { Dashboard } from './views/Dashboard';
-import { Messages } from './views/Messages';
+import { Messages } from './views/Messages/Messages';
 import { Transactions } from './views/Transactions/Transactions';
 import { TransactionDetails } from './views/Transactions/TransactionDetails';
 import { Data } from './views/Data';
 import { AppWrapper } from './components/AppWrapper';
 import { NamespaceContext } from './contexts/NamespaceContext';
-import { INamespace } from './interfaces';
+import { ApplicationContext } from './contexts/ApplicationContext';
+import { INamespace, DataView } from './interfaces';
 
 const history = createBrowserHistory({
   basename: process.env.PUBLIC_URL,
@@ -51,6 +52,9 @@ export const theme = createMuiTheme({
     },
     tableRowAlternate: {
       main: '#21272D',
+    },
+    timelineBackground: {
+      main: '#2D353C',
     },
   },
   overrides: {
@@ -88,6 +92,7 @@ function App() {
   const [initializing, setInitializing] = useState(true);
   const [namespaces, setNamespaces] = useState<INamespace[]>([]);
   const [selectedNamespace, setSelectedNamespace] = useState<string>('');
+  const [dataView, setDataView] = useState<DataView>('list');
 
   useEffect(() => {
     fetch('/api/v1/namespaces')
@@ -126,25 +131,27 @@ function App() {
           setSelectedNamespace,
         }}
       >
-        <Router history={history}>
-          <AppWrapper>
-            <Switch>
-              <Route exact path="/" render={() => <Dashboard />} />
-              <Route exact path="/messages" render={() => <Messages />} />
-              <Route exact path="/data" render={() => <Data />} />
-              <Route
-                exact
-                path="/transactions"
-                render={() => <Transactions />}
-              />
-              <Route
-                exact
-                path="/transactions/:id"
-                render={() => <TransactionDetails />}
-              />
-            </Switch>
-          </AppWrapper>
-        </Router>
+        <ApplicationContext.Provider value={{ dataView, setDataView }}>
+          <Router history={history}>
+            <AppWrapper>
+              <Switch>
+                <Route exact path="/" render={() => <Dashboard />} />
+                <Route exact path="/messages" render={() => <Messages />} />
+                <Route exact path="/data" render={() => <Data />} />
+                <Route
+                  exact
+                  path="/transactions"
+                  render={() => <Transactions />}
+                />
+                <Route
+                  exact
+                  path="/transactions/:id"
+                  render={() => <TransactionDetails />}
+                />
+              </Switch>
+            </AppWrapper>
+          </Router>
+        </ApplicationContext.Provider>
       </NamespaceContext.Provider>
     </ThemeProvider>
   );

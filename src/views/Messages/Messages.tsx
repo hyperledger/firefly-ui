@@ -13,42 +13,49 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 import React, { useState, useEffect, useContext } from 'react';
 import {
   Grid,
   Typography,
   TablePagination,
-  CircularProgress,
   Box,
+  CircularProgress,
   makeStyles,
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import {
   IDataTableRecord,
-  IData,
   ITimelineItem,
+  IMessage,
+  IHistory,
   CreatedFilterOptions,
-} from '../interfaces';
-import { DataTable } from '../components/DataTable/DataTable';
-import { HashPopover } from '../components/HashPopover';
-import { NamespaceContext } from '../contexts/NamespaceContext';
-import { DataTimeline } from '../components/DataTimeline/DataTimeline';
+} from '../../interfaces';
+import { DataTable } from '../../components/DataTable/DataTable';
+import { DataTimeline } from '../../components/DataTimeline/DataTimeline';
+import { HashPopover } from '../../components/HashPopover';
+import { MessageDetails } from './MessageDetails';
+import CheckIcon from 'mdi-react/CheckIcon';
 import BroadcastIcon from 'mdi-react/BroadcastIcon';
-import { ApplicationContext } from '../contexts/ApplicationContext';
-import { DataViewSwitch } from '../components/DataViewSwitch';
-import { FilterSelect } from '../components/FilterSelect';
+import { NamespaceContext } from '../../contexts/NamespaceContext';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
+import { DataViewSwitch } from '../../components/DataViewSwitch';
+import { useHistory } from 'react-router-dom';
+import { FilterSelect } from '../../components/FilterSelect';
 
 const PAGE_LIMITS = [10, 25];
 
-export const Data: React.FC = () => {
+export const Messages: React.FC = () => {
   const { t } = useTranslation();
   const classes = useStyles();
+  const history = useHistory<IHistory>();
   const [loading, setLoading] = useState(false);
-  const [dataItems, setDataItems] = useState<IData[]>([]);
-  const { selectedNamespace } = useContext(NamespaceContext);
+  const [messages, setMessages] = useState<IMessage[]>([]);
+  const [viewMessage, setViewMessage] = useState<IMessage | undefined>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
+  const { selectedNamespace } = useContext(NamespaceContext);
   const { dataView } = useContext(ApplicationContext);
   const [createdFilter, setCreatedFilter] = useState<CreatedFilterOptions>(
     '24hours'
@@ -69,12 +76,34 @@ export const Data: React.FC = () => {
     },
   ];
 
-  const columnHeaders = [
-    t('id'),
-    t('validator'),
-    t('dataHash'),
-    t('createdOn'),
-  ];
+  useEffect(() => {
+    setLoading(true);
+    let createdFilterString = `&created=>=${dayjs()
+      .subtract(24, 'hours')
+      .unix()}`;
+    if (createdFilter === '30days') {
+      createdFilterString = `&created=>=${dayjs().subtract(30, 'days').unix()}`;
+    }
+    if (createdFilter === '7days') {
+      createdFilterString = `&created=>=${dayjs().subtract(7, 'days').unix()}`;
+    }
+
+    fetch(
+      `/api/v1/namespaces/${selectedNamespace}/messages?limit=${rowsPerPage}&skip=${
+        rowsPerPage * currentPage
+      }${createdFilterString}`
+    )
+      .then(async (response) => {
+        if (response.ok) {
+          setMessages(await response.json());
+        } else {
+          console.log('error fetching messages');
+        }
+      })
+      .finally(() => {
+        setLoading(false);
+      });
+  }, [rowsPerPage, currentPage, selectedNamespace, createdFilter]);
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setCurrentPage(newPage);
@@ -101,55 +130,59 @@ export const Data: React.FC = () => {
     />
   );
 
-  useEffect(() => {
-    setLoading(true);
-    let createdFilterString = `&created=>=${dayjs()
-      .subtract(24, 'hours')
-      .unix()}`;
-    if (createdFilter === '30days') {
-      createdFilterString = `&created=>=${dayjs().subtract(30, 'days').unix()}`;
-    }
-    if (createdFilter === '7days') {
-      createdFilterString = `&created=>=${dayjs().subtract(7, 'days').unix()}`;
-    }
+  const columnHeaders = [
+    t('author'),
+    t('type'),
+    t('topic'),
+    t('context'),
+    t('pinned'),
+    t('dataHash'),
+    t('createdOn'),
+  ];
 
-    fetch(
-      `/api/v1/namespaces/${selectedNamespace}/data?limit=${rowsPerPage}&skip=${
-        rowsPerPage * currentPage
-      }${createdFilterString}`
-    )
-      .then(async (response) => {
-        if (response.ok) {
-          setDataItems(await response.json());
-        } else {
-          console.log('error fetching data');
-        }
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [rowsPerPage, currentPage, selectedNamespace, createdFilter]);
-
-  const records: IDataTableRecord[] = dataItems.map((data: IData) => ({
-    key: data.id,
-    columns: [
-      {
-        value: <HashPopover textColor="secondary" address={data.id} />,
+  const buildTableRecords = (messages: IMessage[]): IDataTableRecord[] => {
+    return messages.map((message: IMessage) => ({
+      key: message.header.id,
+      columns: [
+        {
+          value: (
+            <HashPopover
+              textColor="secondary"
+              address={message.header.author}
+            />
+          ),
+        },
+        { value: message.header.type },
+        { value: message.header.topic },
+        { value: message.header.context },
+        { value: message.header.tx.type === 'pin' ? <CheckIcon /> : undefined },
+        {
+          value: (
+            <HashPopover
+              textColor="secondary"
+              address={message.header.datahash}
+            />
+          ),
+        },
+        { value: dayjs(message.header.created).format('MM/DD/YYYY h:mm A') },
+      ],
+      onClick: () => {
+        setViewMessage(message);
+        history.replace('/messages', { viewMessage: message });
       },
-      { value: data.validator },
-      {
-        value: <HashPopover textColor="secondary" address={data.hash} />,
-      },
-      { value: dayjs(data.created).format('MM/DD/YYYY h:mm A') },
-    ],
-  }));
+    }));
+  };
 
-  const buildTimelineElements = (dataItems: IData[]): ITimelineItem[] => {
-    return dataItems.map((data: IData) => ({
-      title: data.hash,
-      description: data.validator,
-      time: dayjs(data.created).format('MM/DD/YYYY h:mm A'),
+  const buildTimelineElements = (messages: IMessage[]): ITimelineItem[] => {
+    return messages.map((message: IMessage) => ({
+      title: message.header.topic,
+      description: message.header.context,
+      time: dayjs(message.header.created).format('MM/DD/YYYY h:mm A'),
       icon: <BroadcastIcon />,
+      onClick: () => {
+        setViewMessage(message);
+        history.replace('/messages', { viewMessage: message });
+      },
     }));
   };
 
@@ -161,13 +194,18 @@ export const Data: React.FC = () => {
     );
   }
 
+  // make sure to view MessageDetails panel if it was open when navigating to a linked page and user goes back
+  if (history.location.state && !viewMessage) {
+    setViewMessage(history.location.state.viewMessage);
+  }
+
   return (
     <>
       <Grid container wrap="nowrap" direction="column" className={classes.root}>
-        <Grid container spacing={2} item direction="row">
+        <Grid container spacing={2} item direction="row" alignItems="center">
           <Grid item>
             <Typography className={classes.header} variant="h4">
-              {t('data')}
+              {t('messages')}
             </Typography>
           </Grid>
           <Box className={classes.separator} />
@@ -184,7 +222,7 @@ export const Data: React.FC = () => {
         </Grid>
         {dataView === 'timeline' && (
           <Grid className={classes.timelineContainer} xs={12} container item>
-            <DataTimeline items={buildTimelineElements(dataItems)} />
+            <DataTimeline items={buildTimelineElements(messages)} />
           </Grid>
         )}
         {dataView === 'list' && (
@@ -192,13 +230,23 @@ export const Data: React.FC = () => {
             <DataTable
               minHeight="300px"
               maxHeight="calc(100vh - 340px)"
+              records={buildTableRecords(messages)}
               {...{ columnHeaders }}
-              {...{ records }}
               {...{ pagination }}
             />
           </Grid>
         )}
       </Grid>
+      {viewMessage && (
+        <MessageDetails
+          open={!!viewMessage}
+          onClose={() => {
+            setViewMessage(undefined);
+            history.replace('/messages', undefined);
+          }}
+          message={viewMessage}
+        />
+      )}
     </>
   );
 };
