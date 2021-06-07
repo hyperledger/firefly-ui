@@ -31,7 +31,7 @@ import { Data } from './views/Data';
 import { AppWrapper } from './components/AppWrapper';
 import { NamespaceContext } from './contexts/NamespaceContext';
 import { ApplicationContext } from './contexts/ApplicationContext';
-import { INamespace, DataView } from './interfaces';
+import { INamespace, DataView, CreatedFilterOptions } from './interfaces';
 
 const history = createBrowserHistory({
   basename: process.env.PUBLIC_URL,
@@ -93,6 +93,9 @@ function App() {
   const [namespaces, setNamespaces] = useState<INamespace[]>([]);
   const [selectedNamespace, setSelectedNamespace] = useState<string>('');
   const [dataView, setDataView] = useState<DataView>('list');
+  const [createdFilter, setCreatedFilter] = useState<CreatedFilterOptions>(
+    '24hours'
+  );
 
   useEffect(() => {
     fetch('/api/v1/namespaces')
@@ -131,7 +134,9 @@ function App() {
           setSelectedNamespace,
         }}
       >
-        <ApplicationContext.Provider value={{ dataView, setDataView }}>
+        <ApplicationContext.Provider
+          value={{ dataView, setDataView, createdFilter, setCreatedFilter }}
+        >
           <Router history={history}>
             <AppWrapper>
               <Switch>

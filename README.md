@@ -4,7 +4,8 @@ firefly-ui is the UI explorer for [FireFly](https://github.com/kaleido-io/firefl
 
 ### Get started locally
 
-* Clone / build firefly-ui
+- Clone / build firefly-ui
+
 ```bash
 git clone https://github.com/kaleido-io/firefly-ui
 npm i

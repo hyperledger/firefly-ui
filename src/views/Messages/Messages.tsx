@@ -30,7 +30,6 @@ import {
   ITimelineItem,
   IMessage,
   IHistory,
-  CreatedFilterOptions,
 } from '../../interfaces';
 import { DataTable } from '../../components/DataTable/DataTable';
 import { DataTimeline } from '../../components/DataTimeline/DataTimeline';
@@ -56,9 +55,8 @@ export const Messages: React.FC = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
   const { selectedNamespace } = useContext(NamespaceContext);
-  const { dataView } = useContext(ApplicationContext);
-  const [createdFilter, setCreatedFilter] = useState<CreatedFilterOptions>(
-    '24hours'
+  const { dataView, createdFilter, setCreatedFilter } = useContext(
+    ApplicationContext
   );
 
   const createdQueryOptions = [
