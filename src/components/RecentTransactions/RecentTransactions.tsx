@@ -25,9 +25,9 @@ interface Props {
 }
 
 const TX_STATUS_COLORS: { [key in TXStatus]: string } = {
-  pending: '#FFCA00',
-  error: '#FF0000',
-  confirmed: '#462DE0',
+  Pending: '#FFCA00',
+  Error: '#FF0000',
+  Confirmed: '#462DE0',
 };
 
 export const RecentTransactions: React.FC<Props> = ({ transactions }) => {

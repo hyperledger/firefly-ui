@@ -17,9 +17,9 @@
 export type DataView = 'timeline' | 'list';
 
 export enum TXStatus {
-  Confirmed = 'confirmed',
-  Pending = 'pending',
-  Error = 'error',
+  Confirmed = 'Confirmed',
+  Pending = 'Pending',
+  Error = 'Error',
 }
 
 export type CreatedFilterOptions = '24hours' | '7days' | '30days';
