@@ -165,3 +165,11 @@ export interface IBatch {
   payloadRef: string;
   type: string;
 }
+
+export interface IOrganization {
+  created: string;
+  description: string;
+  identity: string;
+  message: string;
+  parent: string;
+}

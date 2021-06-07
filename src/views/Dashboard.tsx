@@ -25,7 +25,12 @@ import {
   CircularProgress,
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
-import { IDataTableRecord, IMessage, ITransaction } from '../interfaces';
+import {
+  IDataTableRecord,
+  IMessage,
+  ITransaction,
+  IOrganization,
+} from '../interfaces';
 import { DataTable } from '../components/DataTable/DataTable';
 import dayjs from 'dayjs';
 import { HashPopover } from '../components/HashPopover';
@@ -39,6 +44,7 @@ export const Dashboard: React.FC = () => {
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [txSequence, setTxSequence] = useState<ITransaction[]>([]);
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
+  const [orgs, setOrgs] = useState<IOrganization[]>([]);
   const { selectedNamespace } = useContext(NamespaceContext);
 
   useEffect(() => {
@@ -46,20 +52,34 @@ export const Dashboard: React.FC = () => {
     Promise.all([
       fetch(`/api/v1/namespaces/${selectedNamespace}/messages?limit=5`),
       fetch(`/api/v1/namespaces/${selectedNamespace}/transactions?limit=1`),
+      fetch(`/api/v1/network/organizations?limit=100`),
       fetch(
         `/api/v1/namespaces/${selectedNamespace}/transactions?created=>=${dayjs()
           .subtract(24, 'hours')
           .unix()}`
       ),
     ])
-      .then(async ([messageResponse, txSequenceResponse, txResponse]) => {
-        if (messageResponse.ok && txSequenceResponse.ok && txResponse.ok) {
-          setMessages(await messageResponse.json());
-          setTransactions(await txResponse.json());
-          // use most recent tx to determine sequence number, which tells us total # of tx's
-          setTxSequence(await txSequenceResponse.json());
+      .then(
+        async ([
+          messageResponse,
+          txSequenceResponse,
+          orgResponse,
+          txResponse,
+        ]) => {
+          if (
+            messageResponse.ok &&
+            txSequenceResponse.ok &&
+            txResponse.ok &&
+            orgResponse.ok
+          ) {
+            setMessages(await messageResponse.json());
+            setTransactions(await txResponse.json());
+            setOrgs(await orgResponse.json());
+            // use most recent tx to determine sequence number, which tells us total # of tx's
+            setTxSequence(await txSequenceResponse.json());
+          }
         }
-      })
+      )
       .finally(() => {
         setLoading(false);
       });
@@ -139,10 +159,7 @@ export const Dashboard: React.FC = () => {
           direction="row"
         >
           <Grid xs={6} sm={4} item>
-            {summaryPanel(
-              t('networkMembers'),
-              Math.floor(Math.random() * 1000)
-            )}
+            {summaryPanel(t('networkMembers'), orgs.length)}
           </Grid>
           <Grid xs={6} sm={4} item>
             {summaryPanel(
