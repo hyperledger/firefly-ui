@@ -175,8 +175,8 @@ export const Messages: React.FC = () => {
 
   const buildTimelineElements = (messages: IMessage[]): ITimelineItem[] => {
     return messages.map((message: IMessage) => ({
-      title: message.header.topic,
-      description: message.header.context,
+      title: message.header.datahash,
+      description: message.header.type,
       time: dayjs(message.header.created).format('MM/DD/YYYY h:mm A'),
       icon: <BroadcastIcon />,
       onClick: () => {
