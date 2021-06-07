@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import React, { useState, useEffect, useContext } from 'react';
-import { DisplaySlide } from './Display/DisplaySlide';
+import { DisplaySlide } from '../../components/Display/DisplaySlide';
 import {
   Typography,
   Grid,
@@ -26,12 +26,12 @@ import {
   CircularProgress,
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
-import { IMessage, IBatch } from '../interfaces';
-import { HashPopover } from './HashPopover';
+import { IMessage, IBatch } from '../../interfaces';
+import { HashPopover } from '../../components/HashPopover';
 import dayjs from 'dayjs';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import clsx from 'clsx';
-import { NamespaceContext } from '../contexts/NamespaceContext';
+import { NamespaceContext } from '../../contexts/NamespaceContext';
 import { useHistory } from 'react-router-dom';
 
 interface Props {
