@@ -17,7 +17,7 @@
 export type DataView = 'timeline' | 'list';
 
 export enum TXStatus {
-  Confirmed = 'Confirmed',
+  Succeeded = 'Succeeded',
   Pending = 'Pending',
   Error = 'Error',
 }
@@ -61,20 +61,15 @@ export interface IHistory {
 }
 
 export interface IFireflyHeader {
-  author: string;
-  cid: string;
-  context: string;
-  created: number;
-  datahash: string;
-  group: string;
   id: string;
-  namespace: string;
-  topic: string;
-  tx: {
-    id: string;
-    type: string;
-  };
   type: string;
+  txtype: string;
+  author: string;
+  created: string;
+  namespace: string;
+  topic: string[];
+  tag: string;
+  datahash: string;
 }
 
 export interface IData {
@@ -84,11 +79,12 @@ export interface IData {
 
 export interface IMessage {
   batchID: string;
-  confirmed: number;
+  confirmed: string;
   data: IData[];
   hash: string;
   header: IFireflyHeader;
   sequence: number;
+  local: boolean;
 }
 
 export interface INamespace {
@@ -101,7 +97,6 @@ export interface INamespace {
 }
 
 export interface ITransaction {
-  confirmed?: number;
   created: number;
   hash: string;
   id: string;
@@ -110,11 +105,10 @@ export interface ITransaction {
   status: TXStatus;
   info?: IEthTransactionInfo;
   subject: {
-    author: string;
-    batch: string;
-    message: string;
+    signer: string;
     namespace: string;
     type: string;
+    reference: string;
   };
 }
 
@@ -123,9 +117,12 @@ export interface IEthTransactionInfo {
   blockNumber: string;
   data: {
     author: string;
-    batchID: string;
+    batchHash: string;
+    contexts: string[];
+    namespace: string;
     payloadRef: string;
     timestamp: string;
+    uuids: string;
   };
   logIndex: string;
   signature: string;

@@ -18,6 +18,8 @@ import React, { Dispatch, SetStateAction } from 'react';
 import { DataView, CreatedFilterOptions } from '../interfaces';
 
 export interface IApplicationContext {
+  lastEvent: any;
+  setLastEvent: Dispatch<SetStateAction<any>>;
   dataView: DataView;
   setDataView: Dispatch<SetStateAction<DataView>>;
   createdFilter: CreatedFilterOptions;
@@ -31,6 +33,10 @@ export const ApplicationContext = React.createContext<IApplicationContext>({
   },
   createdFilter: '24hours',
   setCreatedFilter: () => {
+    /* default value */
+  },
+  lastEvent: undefined,
+  setLastEvent: () => {
     /* default value */
   },
 });
