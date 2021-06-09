@@ -45,9 +45,8 @@ export const Data: React.FC = () => {
   const { selectedNamespace } = useContext(NamespaceContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-  const { dataView, createdFilter, setCreatedFilter, lastEvent } = useContext(
-    ApplicationContext
-  );
+  const { dataView, createdFilter, setCreatedFilter, lastEvent } =
+    useContext(ApplicationContext);
 
   const createdQueryOptions = [
     {

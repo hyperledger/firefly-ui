@@ -105,9 +105,8 @@ function App() {
   const [namespaces, setNamespaces] = useState<INamespace[]>([]);
   const [selectedNamespace, setSelectedNamespace] = useState<string>('');
   const [dataView, setDataView] = useState<DataView>('list');
-  const [createdFilter, setCreatedFilter] = useState<CreatedFilterOptions>(
-    '24hours'
-  );
+  const [createdFilter, setCreatedFilter] =
+    useState<CreatedFilterOptions>('24hours');
   const ws = useRef<ReconnectingWebsocket | null>(null);
   const [lastEvent, setLastEvent] = useState<any>();
 

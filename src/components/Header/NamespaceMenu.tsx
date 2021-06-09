@@ -21,9 +21,8 @@ import { NAMESPACE_LOCALSTORAGE_KEY } from '../../App';
 
 export const NamespaceMenu: React.FC = () => {
   const classes = useStyles();
-  const { namespaces, selectedNamespace, setSelectedNamespace } = useContext(
-    NamespaceContext
-  );
+  const { namespaces, selectedNamespace, setSelectedNamespace } =
+    useContext(NamespaceContext);
 
   const handleSelectNamespace = (
     event: React.ChangeEvent<HTMLInputElement>
