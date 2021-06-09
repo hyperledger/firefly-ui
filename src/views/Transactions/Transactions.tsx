@@ -31,7 +31,6 @@ import {
   IDataTableRecord,
   ITransaction,
   ITimelineItem,
-  CreatedFilterOptions,
 } from '../../interfaces';
 import { DataTable } from '../../components/DataTable/DataTable';
 import { HashPopover } from '../../components/HashPopover';
@@ -52,9 +51,8 @@ export const Transactions: React.FC = () => {
   const { selectedNamespace } = useContext(NamespaceContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-  const { dataView } = useContext(ApplicationContext);
-  const [createdFilter, setCreatedFilter] = useState<CreatedFilterOptions>(
-    '24hours'
+  const { dataView, createdFilter, setCreatedFilter } = useContext(
+    ApplicationContext
   );
 
   const createdQueryOptions = [

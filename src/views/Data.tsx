@@ -13,6 +13,7 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 import React, { useState, useEffect, useContext } from 'react';
 import {
   Grid,
@@ -24,12 +25,7 @@ import {
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import {
-  IDataTableRecord,
-  IData,
-  ITimelineItem,
-  CreatedFilterOptions,
-} from '../interfaces';
+import { IDataTableRecord, IData, ITimelineItem } from '../interfaces';
 import { DataTable } from '../components/DataTable/DataTable';
 import { HashPopover } from '../components/HashPopover';
 import { NamespaceContext } from '../contexts/NamespaceContext';
@@ -49,9 +45,8 @@ export const Data: React.FC = () => {
   const { selectedNamespace } = useContext(NamespaceContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-  const { dataView } = useContext(ApplicationContext);
-  const [createdFilter, setCreatedFilter] = useState<CreatedFilterOptions>(
-    '24hours'
+  const { dataView, createdFilter, setCreatedFilter } = useContext(
+    ApplicationContext
   );
 
   const createdQueryOptions = [
