@@ -141,6 +141,7 @@ export const Data: React.FC = () => {
 
   const buildTimelineElements = (dataItems: IData[]): ITimelineItem[] => {
     return dataItems.map((data: IData) => ({
+      key: data.id,
       title: data.hash,
       description: data.validator,
       time: dayjs(data.created).format('MM/DD/YYYY h:mm A'),

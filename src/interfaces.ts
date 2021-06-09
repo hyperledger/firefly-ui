@@ -43,6 +43,7 @@ export interface IPieChartElement {
 }
 
 export interface ITimelineItem {
+  key: string;
   title?: string;
   description?: string;
   icon?: JSX.Element;

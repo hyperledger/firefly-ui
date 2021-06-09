@@ -160,6 +160,7 @@ export const Transactions: React.FC = () => {
     transactions: ITransaction[]
   ): ITimelineItem[] => {
     return transactions.map((tx: ITransaction) => ({
+      key: tx.id,
       title: tx.hash,
       description: tx.status,
       time: dayjs(tx.created).format('MM/DD/YYYY h:mm A'),
