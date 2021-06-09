@@ -141,9 +141,6 @@ function App() {
       ws.current.onmessage = (event: any) => {
         setLastEvent(event);
       };
-      ws.current.onerror = (err: any) => {
-        console.log('error', err);
-      };
     }
   }, [selectedNamespace]);
 
