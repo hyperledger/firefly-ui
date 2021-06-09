@@ -77,6 +77,16 @@ export const theme = createMuiTheme({
         color: '#6E7780',
       },
     },
+    MuiOutlinedInput: {
+      root: {
+        '&:hover $notchedOutline': {
+          borderColor: '#9BA7B0',
+        },
+        '&$focused $notchedOutline': {
+          borderColor: '#9BA7B0',
+        },
+      },
+    },
     MuiFormLabel: {
       root: {
         '&$focused': {
