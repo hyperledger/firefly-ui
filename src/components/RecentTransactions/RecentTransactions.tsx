@@ -27,7 +27,7 @@ interface Props {
 const TX_STATUS_COLORS: { [key in TXStatus]: string } = {
   Pending: '#FFCA00',
   Error: '#FF0000',
-  Confirmed: '#462DE0',
+  Succeeded: '#462DE0',
 };
 
 export const RecentTransactions: React.FC<Props> = ({ transactions }) => {
@@ -45,8 +45,8 @@ export const RecentTransactions: React.FC<Props> = ({ transactions }) => {
     }, new Map<TXStatus, number>());
 
     // if there are some tx, provide filler values for missing statuses to show all arcs
-    if (!data.has(TXStatus.Confirmed)) {
-      data.set(TXStatus.Confirmed, 0);
+    if (!data.has(TXStatus.Succeeded)) {
+      data.set(TXStatus.Succeeded, 0);
     }
     if (!data.has(TXStatus.Error)) {
       data.set(TXStatus.Error, 0);

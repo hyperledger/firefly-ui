@@ -51,7 +51,7 @@ export const Transactions: React.FC = () => {
   const { selectedNamespace } = useContext(NamespaceContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-  const { dataView, createdFilter, setCreatedFilter } = useContext(
+  const { dataView, createdFilter, setCreatedFilter, lastEvent } = useContext(
     ApplicationContext
   );
 
@@ -73,7 +73,7 @@ export const Transactions: React.FC = () => {
   const columnHeaders = [
     t('hash'),
     t('blockNumber'),
-    t('author'),
+    t('signer'),
     t('status'),
     t('dateMined'),
   ];
@@ -130,7 +130,7 @@ export const Transactions: React.FC = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace, createdFilter]);
+  }, [rowsPerPage, currentPage, selectedNamespace, createdFilter, lastEvent]);
 
   const records: IDataTableRecord[] = transactions.map((tx: ITransaction) => ({
     key: tx.id,
@@ -141,13 +141,13 @@ export const Transactions: React.FC = () => {
       { value: tx.info?.blockNumber },
       {
         value: (
-          <HashPopover textColor="secondary" address={tx.subject.author} />
+          <HashPopover textColor="secondary" address={tx.subject.signer} />
         ),
       },
       { value: tx.status },
       {
-        value: tx.confirmed
-          ? dayjs(tx.confirmed).format('MM/DD/YYYY h:mm A')
+        value: tx.created
+          ? dayjs(tx.created).format('MM/DD/YYYY h:mm A')
           : undefined,
       },
     ],
@@ -160,6 +160,7 @@ export const Transactions: React.FC = () => {
     transactions: ITransaction[]
   ): ITimelineItem[] => {
     return transactions.map((tx: ITransaction) => ({
+      key: tx.id,
       title: tx.hash,
       description: tx.status,
       time: dayjs(tx.created).format('MM/DD/YYYY h:mm A'),

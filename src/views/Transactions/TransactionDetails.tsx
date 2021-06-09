@@ -128,7 +128,7 @@ export const TransactionDetails: React.FC = () => {
                     'From',
                     <HashPopover
                       textColor="secondary"
-                      address={transaction.subject.author}
+                      address={transaction.subject.signer}
                     />
                   )}
                 </Grid>
@@ -198,9 +198,9 @@ export const TransactionDetails: React.FC = () => {
                 </Grid>
                 <Grid className={classes.detailGrid} item>
                   {detailItem(
-                    'batch',
+                    'reference',
                     <Typography className={classes.detailValue}>
-                      {transaction.subject.batch}
+                      {transaction.subject.reference}
                     </Typography>
                   )}
                 </Grid>

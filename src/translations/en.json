@@ -30,5 +30,8 @@
   "list": "List",
   "timeline": "Timeline",
   "last7Days": "Last 7 Days",
-  "last30Days": "Last 30 Days"
+  "last30Days": "Last 30 Days",
+  "signer": "Signer",
+  "transactionType": "Transaction Type",
+  "tag": "Tag"
 }

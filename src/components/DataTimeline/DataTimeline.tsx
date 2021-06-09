@@ -32,7 +32,7 @@ export const DataTimeline: React.FC<Props> = ({ items }) => {
       <Paper className={classes.paper}>
         <Timeline>
           {items.map((item) => (
-            <TimelineItemWrapper item={item} opposite />
+            <TimelineItemWrapper key={item.key} item={item} opposite />
           ))}
         </Timeline>
       </Paper>

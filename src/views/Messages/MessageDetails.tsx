@@ -94,14 +94,14 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
     </Grid>
   );
 
-  const pinned = (txType: string, txId: string | undefined) => (
+  const pinned = (txType: string | undefined, txId: string | undefined) => (
     <Grid alignItems="center" container direction="row" justify="space-between">
       <Grid item xs={8}>
         <Typography
           noWrap
           className={clsx(classes.detailValue, classes.paddingRight)}
         >
-          {txType === 'pin' ? t('yes') : t('no')}
+          {txType === 'batch_pin' ? t('yes') : t('no')}
         </Typography>
       </Grid>
       {txId && (
@@ -149,13 +149,13 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
               {detailItem(t('id'), <HashPopover address={message.header.id} />)}
             </Grid>
             <Grid className={classes.detailItem} sm={12} md={6} container item>
-              {detailItem(t('topic'), message.header.topic)}
+              {detailItem(t('tag'), message.header.tag)}
             </Grid>
             <Grid className={classes.detailItem} sm={12} md={6} container item>
               {detailItem(t('type'), message.header.type)}
             </Grid>
             <Grid className={classes.detailItem} sm={12} md={6} container item>
-              {detailItem(t('context'), message.header.context)}
+              {detailItem(t('transactionType'), message.header.txtype)}
             </Grid>
             <Grid className={classes.detailItem} sm={12} md={6} container item>
               {detailItem(
@@ -178,7 +178,7 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
             direction="row"
           >
             <Grid className={classes.detailItem} sm={12} container item>
-              {detailItem(t('pinned?'), pinned(message.header.tx.type, txId))}
+              {detailItem(t('pinned?'), pinned(message.header.txtype, txId))}
             </Grid>
             <Grid className={classes.detailItem} sm={12} container item>
               {detailItem(t('dataHash'), copyableHash(message.header.datahash))}

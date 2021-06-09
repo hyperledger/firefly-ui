@@ -45,7 +45,7 @@ export const Data: React.FC = () => {
   const { selectedNamespace } = useContext(NamespaceContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-  const { dataView, createdFilter, setCreatedFilter } = useContext(
+  const { dataView, createdFilter, setCreatedFilter, lastEvent } = useContext(
     ApplicationContext
   );
 
@@ -123,7 +123,7 @@ export const Data: React.FC = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace, createdFilter]);
+  }, [rowsPerPage, currentPage, selectedNamespace, createdFilter, lastEvent]);
 
   const records: IDataTableRecord[] = dataItems.map((data: IData) => ({
     key: data.id,
@@ -141,6 +141,7 @@ export const Data: React.FC = () => {
 
   const buildTimelineElements = (dataItems: IData[]): ITimelineItem[] => {
     return dataItems.map((data: IData) => ({
+      key: data.id,
       title: data.hash,
       description: data.validator,
       time: dayjs(data.created).format('MM/DD/YYYY h:mm A'),

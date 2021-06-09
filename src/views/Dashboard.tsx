@@ -21,8 +21,6 @@ import {
   Typography,
   Card,
   CardContent,
-  Box,
-  CircularProgress,
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import {
@@ -35,20 +33,20 @@ import { DataTable } from '../components/DataTable/DataTable';
 import dayjs from 'dayjs';
 import { HashPopover } from '../components/HashPopover';
 import { NamespaceContext } from '../contexts/NamespaceContext';
+import { ApplicationContext } from '../contexts/ApplicationContext';
 import { RecentTransactions } from '../components/RecentTransactions/RecentTransactions';
 
 export const Dashboard: React.FC = () => {
   const classes = useStyles();
   const { t } = useTranslation();
-  const [loading, setLoading] = useState(false);
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [txSequence, setTxSequence] = useState<ITransaction[]>([]);
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const [orgs, setOrgs] = useState<IOrganization[]>([]);
   const { selectedNamespace } = useContext(NamespaceContext);
+  const { lastEvent } = useContext(ApplicationContext);
 
   useEffect(() => {
-    setLoading(true);
     Promise.all([
       fetch(`/api/v1/namespaces/${selectedNamespace}/messages?limit=5`),
       fetch(`/api/v1/namespaces/${selectedNamespace}/transactions?limit=1`),
@@ -58,32 +56,28 @@ export const Dashboard: React.FC = () => {
           .subtract(24, 'hours')
           .unix()}`
       ),
-    ])
-      .then(
-        async ([
-          messageResponse,
-          txSequenceResponse,
-          orgResponse,
-          txResponse,
-        ]) => {
-          if (
-            messageResponse.ok &&
-            txSequenceResponse.ok &&
-            txResponse.ok &&
-            orgResponse.ok
-          ) {
-            setMessages(await messageResponse.json());
-            setTransactions(await txResponse.json());
-            setOrgs(await orgResponse.json());
-            // use most recent tx to determine sequence number, which tells us total # of tx's
-            setTxSequence(await txSequenceResponse.json());
-          }
+    ]).then(
+      async ([
+        messageResponse,
+        txSequenceResponse,
+        orgResponse,
+        txResponse,
+      ]) => {
+        if (
+          messageResponse.ok &&
+          txSequenceResponse.ok &&
+          txResponse.ok &&
+          orgResponse.ok
+        ) {
+          setMessages(await messageResponse.json());
+          setTransactions(await txResponse.json());
+          setOrgs(await orgResponse.json());
+          // use most recent tx to determine sequence number, which tells us total # of tx's
+          setTxSequence(await txSequenceResponse.json());
         }
-      )
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [selectedNamespace]);
+      }
+    );
+  }, [selectedNamespace, lastEvent]);
 
   const summaryPanel = (label: string, value: string | number) => (
     <Card>
@@ -135,14 +129,6 @@ export const Dashboard: React.FC = () => {
     })
   );
 
-  if (loading) {
-    return (
-      <Box className={classes.centeredContent}>
-        <CircularProgress />
-      </Box>
-    );
-  }
-
   return (
     <>
       <Grid container wrap="nowrap" className={classes.root} direction="column">
@@ -158,16 +144,10 @@ export const Dashboard: React.FC = () => {
           item
           direction="row"
         >
-          <Grid xs={6} sm={4} item>
+          <Grid xs={3} item>
             {summaryPanel(t('networkMembers'), orgs.length)}
           </Grid>
-          <Grid xs={6} sm={4} item>
-            {summaryPanel(
-              t('messages'),
-              messages.length !== 0 ? messages[0].sequence : 0
-            )}
-          </Grid>
-          <Grid xs={6} sm={4} item>
+          <Grid xs={3} item>
             {summaryPanel(
               t('transactions'),
               txSequence.length !== 0 ? txSequence[0].sequence : 0
@@ -221,13 +201,5 @@ const useStyles = makeStyles((theme) => ({
   },
   cardContainer: {
     paddingBottom: theme.spacing(4),
-  },
-  centeredContent: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 'calc(100vh - 300px)',
-    overflow: 'auto',
   },
 }));
