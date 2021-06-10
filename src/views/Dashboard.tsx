@@ -21,6 +21,7 @@ import {
   Typography,
   Card,
   CardContent,
+  Box,
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import {
@@ -35,49 +36,74 @@ import { HashPopover } from '../components/HashPopover';
 import { NamespaceContext } from '../contexts/NamespaceContext';
 import { ApplicationContext } from '../contexts/ApplicationContext';
 import { RecentTransactions } from '../components/RecentTransactions/RecentTransactions';
+import { FilterSelect } from '../components/FilterSelect';
 
 export const Dashboard: React.FC = () => {
   const classes = useStyles();
   const { t } = useTranslation();
   const [messages, setMessages] = useState<IMessage[]>([]);
-  const [txSequence, setTxSequence] = useState<ITransaction[]>([]);
+  const [data, setData] = useState<IMessage[]>([]);
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const [orgs, setOrgs] = useState<IOrganization[]>([]);
   const { selectedNamespace } = useContext(NamespaceContext);
-  const { lastEvent } = useContext(ApplicationContext);
+  const { lastEvent, createdFilter, setCreatedFilter } =
+    useContext(ApplicationContext);
+
+  const createdQueryOptions = [
+    {
+      value: '24hours',
+      label: t('last24Hours'),
+    },
+    {
+      value: '7days',
+      label: t('last7Days'),
+    },
+    {
+      value: '30days',
+      label: t('last30Days'),
+    },
+  ];
 
   useEffect(() => {
+    let createdFilterString = `&created=>=${dayjs()
+      .subtract(24, 'hours')
+      .unix()}`;
+    if (createdFilter === '30days') {
+      createdFilterString = `&created=>=${dayjs().subtract(30, 'days').unix()}`;
+    }
+    if (createdFilter === '7days') {
+      createdFilterString = `&created=>=${dayjs().subtract(7, 'days').unix()}`;
+    }
+
     Promise.all([
-      fetch(`/api/v1/namespaces/${selectedNamespace}/messages?limit=5`),
-      fetch(`/api/v1/namespaces/${selectedNamespace}/transactions?limit=1`),
       fetch(`/api/v1/network/organizations?limit=100`),
       fetch(
-        `/api/v1/namespaces/${selectedNamespace}/transactions?created=>=${dayjs()
+        `/api/v1/namespaces/${selectedNamespace}/data?limit=200${createdFilterString}`
+      ),
+      fetch(
+        `/api/v1/namespaces/${selectedNamespace}/messages?limit=200${createdFilterString}`
+      ),
+      fetch(
+        `/api/v1/namespaces/${selectedNamespace}/transactions?limit=200&created=>=${dayjs()
           .subtract(24, 'hours')
-          .unix()}`
+          .unix()}${createdFilterString}`
       ),
     ]).then(
-      async ([
-        messageResponse,
-        txSequenceResponse,
-        orgResponse,
-        txResponse,
-      ]) => {
+      async ([orgResponse, dataResponse, messageResponse, txResponse]) => {
         if (
+          orgResponse.ok &&
+          dataResponse.ok &&
           messageResponse.ok &&
-          txSequenceResponse.ok &&
-          txResponse.ok &&
-          orgResponse.ok
+          txResponse.ok
         ) {
           setMessages(await messageResponse.json());
           setTransactions(await txResponse.json());
           setOrgs(await orgResponse.json());
-          // use most recent tx to determine sequence number, which tells us total # of tx's
-          setTxSequence(await txSequenceResponse.json());
+          setData(await dataResponse.json());
         }
       }
     );
-  }, [selectedNamespace, lastEvent]);
+  }, [selectedNamespace, lastEvent, createdFilter]);
 
   const summaryPanel = (label: string, value: string | number) => (
     <Card>
@@ -99,8 +125,9 @@ export const Dashboard: React.FC = () => {
     t('createdOn'),
   ];
 
-  const messageRecords: IDataTableRecord[] = messages.map(
-    (message: IMessage) => ({
+  const messageRecords: IDataTableRecord[] = messages
+    .slice(0, 5)
+    .map((message: IMessage) => ({
       key: message.header.id,
       columns: [
         {
@@ -126,16 +153,25 @@ export const Dashboard: React.FC = () => {
           value: dayjs(message.header.created).format('MM/DD/YYYY h:mm A'),
         },
       ],
-    })
-  );
+    }));
 
   return (
     <>
       <Grid container wrap="nowrap" className={classes.root} direction="column">
-        <Grid className={classes.headerContainer} item>
-          <Typography variant="h4" className={classes.header}>
-            {t('explorer')}
-          </Typography>
+        <Grid container item direction="row">
+          <Grid className={classes.headerContainer} item>
+            <Typography variant="h4" className={classes.header}>
+              {t('explorer')}
+            </Typography>
+          </Grid>
+          <Box className={classes.separator} />
+          <Grid item>
+            <FilterSelect
+              filter={createdFilter}
+              setFilter={setCreatedFilter}
+              filterItems={createdQueryOptions}
+            />
+          </Grid>
         </Grid>
         <Grid
           className={classes.cardContainer}
@@ -148,10 +184,13 @@ export const Dashboard: React.FC = () => {
             {summaryPanel(t('networkMembers'), orgs.length)}
           </Grid>
           <Grid xs={3} item>
-            {summaryPanel(
-              t('transactions'),
-              txSequence.length !== 0 ? txSequence[0].sequence : 0
-            )}
+            {summaryPanel(t('messages'), transactions.length)}
+          </Grid>
+          <Grid xs={3} item>
+            {summaryPanel(t('transactions'), transactions.length)}
+          </Grid>
+          <Grid xs={3} item>
+            {summaryPanel(t('data'), data.length)}
           </Grid>
         </Grid>
         <Grid container item direction="row" spacing={6}>
@@ -201,5 +240,8 @@ const useStyles = makeStyles((theme) => ({
   },
   cardContainer: {
     paddingBottom: theme.spacing(4),
+  },
+  separator: {
+    flexGrow: 1,
   },
 }));
