@@ -14,11 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
-import { Paper, makeStyles } from '@material-ui/core';
+import React, { useContext } from 'react';
+import { Paper, makeStyles, Avatar, Tooltip } from '@material-ui/core';
 import { Timeline } from '@material-ui/lab';
 import { ITimelineItem } from '../../interfaces';
 import { TimelineItemWrapper } from './TimelineItemWrapper';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
 
 interface Props {
   items: ITimelineItem[];
@@ -26,13 +27,30 @@ interface Props {
 
 export const DataTimeline: React.FC<Props> = ({ items }) => {
   const classes = useStyles();
+  const { identity, orgName } = useContext(ApplicationContext);
+
+  const determineOpposite = (author: string | undefined) => {
+    if (!author) return true;
+    if (author === identity) return true;
+    return false;
+  };
 
   return (
     <>
       <Paper className={classes.paper}>
+        <Tooltip title={orgName}>
+          <Avatar className={classes.avatar} alt={orgName}>
+            {' '}
+            {orgName.charAt(0)}
+          </Avatar>
+        </Tooltip>
         <Timeline>
           {items.map((item) => (
-            <TimelineItemWrapper key={item.key} item={item} opposite />
+            <TimelineItemWrapper
+              key={item.key}
+              item={item}
+              opposite={determineOpposite(item.author)}
+            />
           ))}
         </Timeline>
       </Paper>
@@ -46,5 +64,10 @@ const useStyles = makeStyles((theme) => ({
     width: '100%',
     maxHeight: 'calc(100vh - 100px)',
     overflow: 'auto',
+  },
+  avatar: {
+    textTransform: 'uppercase',
+    backgroundColor: theme.palette.primary.main,
+    color: theme.palette.text.primary,
   },
 }));

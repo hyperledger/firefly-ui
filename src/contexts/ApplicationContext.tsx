@@ -18,6 +18,8 @@ import React, { Dispatch, SetStateAction } from 'react';
 import { DataView, CreatedFilterOptions } from '../interfaces';
 
 export interface IApplicationContext {
+  identity: string;
+  orgName: string;
   lastEvent: any;
   setLastEvent: Dispatch<SetStateAction<any>>;
   dataView: DataView;
@@ -27,6 +29,8 @@ export interface IApplicationContext {
 }
 
 export const ApplicationContext = React.createContext<IApplicationContext>({
+  identity: '',
+  orgName: '',
   dataView: 'list',
   setDataView: () => {
     /* default value */

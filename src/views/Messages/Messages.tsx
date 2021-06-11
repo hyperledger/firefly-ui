@@ -172,6 +172,7 @@ export const Messages: React.FC = () => {
       key: message.header.id,
       title: message.header.type,
       description: message.header.tag,
+      author: message.header.author,
       time: dayjs(message.header.created).format('MM/DD/YYYY h:mm A'),
       icon: <BroadcastIcon />,
       onClick: () => {

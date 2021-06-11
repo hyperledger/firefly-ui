@@ -22,12 +22,14 @@ interface Props {
   title?: string;
   description?: string;
   onClick?: () => void;
+  color?: 'primary' | 'secondary';
 }
 
 export const TimelineContentPanel: React.FC<Props> = ({
   title,
   description,
   onClick,
+  color = 'primary',
 }) => {
   const classes = useStyles();
 
@@ -35,7 +37,11 @@ export const TimelineContentPanel: React.FC<Props> = ({
     <>
       <Paper
         elevation={3}
-        className={clsx(classes.paper, onClick && classes.clickable)}
+        className={clsx(
+          classes.paper,
+          onClick && classes.clickable,
+          color === 'primary' ? classes.borderPrimary : classes.borderSecondary
+        )}
         onClick={onClick}
       >
         <Grid container className={classes.container} direction="column">
@@ -57,7 +63,6 @@ const useStyles = makeStyles((theme) => ({
   paper: {
     padding: theme.spacing(2),
     backgroundColor: theme.palette.timelineBackground.main,
-    borderLeft: `4px solid ${theme.palette.primary.main}`,
   },
   title: {
     fontWeight: 'bold',
@@ -71,5 +76,11 @@ const useStyles = makeStyles((theme) => ({
   },
   clickable: {
     cursor: 'pointer',
+  },
+  borderPrimary: {
+    borderLeft: `4px solid ${theme.palette.primary.main}`,
+  },
+  borderSecondary: {
+    borderLeft: `4px solid ${theme.palette.secondary.main}`,
   },
 }));

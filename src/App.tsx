@@ -27,11 +27,16 @@ import { Dashboard } from './views/Dashboard';
 import { Messages } from './views/Messages/Messages';
 import { Transactions } from './views/Transactions/Transactions';
 import { TransactionDetails } from './views/Transactions/TransactionDetails';
-import { Data } from './views/Data';
+import { Data } from './views/Data/Data';
 import { AppWrapper } from './components/AppWrapper';
 import { NamespaceContext } from './contexts/NamespaceContext';
 import { ApplicationContext } from './contexts/ApplicationContext';
-import { INamespace, DataView, CreatedFilterOptions } from './interfaces';
+import {
+  INamespace,
+  DataView,
+  CreatedFilterOptions,
+  IStatus,
+} from './interfaces';
 import ReconnectingWebsocket from 'reconnecting-websocket';
 
 const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
@@ -105,16 +110,21 @@ function App() {
   const [namespaces, setNamespaces] = useState<INamespace[]>([]);
   const [selectedNamespace, setSelectedNamespace] = useState<string>('');
   const [dataView, setDataView] = useState<DataView>('list');
+  const [identity, setIdentity] = useState('');
+  const [orgName, setOrgName] = useState('');
   const [createdFilter, setCreatedFilter] =
     useState<CreatedFilterOptions>('24hours');
   const ws = useRef<ReconnectingWebsocket | null>(null);
   const [lastEvent, setLastEvent] = useState<any>();
 
   useEffect(() => {
-    fetch('/api/v1/namespaces')
-      .then(async (response) => {
-        if (response.ok) {
-          const ns: INamespace[] = await response.json();
+    Promise.all([fetch('/api/v1/namespaces'), fetch('/api/v1/status')])
+      .then(async ([namespaceResponse, statusResponse]) => {
+        if (namespaceResponse.ok && statusResponse.ok) {
+          const status: IStatus = await statusResponse.json();
+          setIdentity(status.org.identity);
+          setOrgName(status.org.name);
+          const ns: INamespace[] = await namespaceResponse.json();
           setNamespaces(ns);
           const storageItem = window.localStorage.getItem(
             NAMESPACE_LOCALSTORAGE_KEY
@@ -159,8 +169,9 @@ function App() {
         }}
       >
         <ApplicationContext.Provider
-          // value={{ dataView, setDataView, createdFilter, setCreatedFilter }}
           value={{
+            orgName,
+            identity,
             dataView,
             setDataView,
             lastEvent,
