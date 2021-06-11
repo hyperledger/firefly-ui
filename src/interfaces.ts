@@ -26,6 +26,23 @@ export type CreatedFilterOptions = '24hours' | '7days' | '30days';
 
 export type FilterOptions = CreatedFilterOptions;
 
+export interface IStatus {
+  node: {
+    name: string;
+    registered: boolean;
+    id: string;
+  };
+  org: {
+    name: string;
+    registered: boolean;
+    identity: string;
+    id: string;
+  };
+  defaults: {
+    namespace: string;
+  };
+}
+
 export interface IDataTableColumn {
   value: string | number | JSX.Element | undefined;
 }
@@ -48,6 +65,7 @@ export interface ITimelineItem {
   description?: string;
   icon?: JSX.Element;
   time?: string;
+  author?: string;
   onClick?: () => void;
 }
 
@@ -142,7 +160,9 @@ export interface IData {
   id: string;
   namespace: string;
   validator: string;
-  value: any;
+  value: {
+    owner: string;
+  };
 }
 
 export interface IBatch {

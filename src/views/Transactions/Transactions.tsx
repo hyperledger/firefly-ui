@@ -164,6 +164,7 @@ export const Transactions: React.FC = () => {
       description: tx.status,
       time: dayjs(tx.created).format('MM/DD/YYYY h:mm A'),
       icon: <BroadcastIcon />,
+      author: tx.subject.signer,
       onClick: () => {
         history.push(`/transactions/${tx.id}`);
       },

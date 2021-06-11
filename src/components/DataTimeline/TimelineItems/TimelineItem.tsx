@@ -49,6 +49,7 @@ export const TimelineItem: React.FC<Props> = ({ item }) => {
             title={item.title}
             description={item.description}
             onClick={item.onClick}
+            color="secondary"
           />
         </TimelineContent>
       </TItem>
