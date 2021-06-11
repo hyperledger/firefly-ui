@@ -25,12 +25,13 @@ import {
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import { IDataTableRecord, IData } from '../interfaces';
-import { DataTable } from '../components/DataTable/DataTable';
-import { HashPopover } from '../components/HashPopover';
-import { NamespaceContext } from '../contexts/NamespaceContext';
-import { ApplicationContext } from '../contexts/ApplicationContext';
-import { FilterSelect } from '../components/FilterSelect';
+import { IDataTableRecord, IData } from '../../interfaces';
+import { DataTable } from '../../components/DataTable/DataTable';
+import { HashPopover } from '../../components/HashPopover';
+import { NamespaceContext } from '../../contexts/NamespaceContext';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
+import { FilterSelect } from '../../components/FilterSelect';
+import { DataDetails } from './DataDetails';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -42,6 +43,7 @@ export const Data: React.FC = () => {
   const { selectedNamespace } = useContext(NamespaceContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
+  const [viewData, setViewData] = useState<IData | undefined>();
   const { createdFilter, setCreatedFilter, lastEvent } =
     useContext(ApplicationContext);
 
@@ -133,6 +135,9 @@ export const Data: React.FC = () => {
       },
       { value: dayjs(data.created).format('MM/DD/YYYY h:mm A') },
     ],
+    onClick: () => {
+      setViewData(data);
+    },
   }));
 
   if (loading) {
@@ -171,6 +176,15 @@ export const Data: React.FC = () => {
           />
         </Grid>
       </Grid>
+      {viewData && (
+        <DataDetails
+          open={!!viewData}
+          onClose={() => {
+            setViewData(undefined);
+          }}
+          data={viewData}
+        />
+      )}
     </>
   );
 };

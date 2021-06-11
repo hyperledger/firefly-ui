@@ -27,7 +27,7 @@ import { Dashboard } from './views/Dashboard';
 import { Messages } from './views/Messages/Messages';
 import { Transactions } from './views/Transactions/Transactions';
 import { TransactionDetails } from './views/Transactions/TransactionDetails';
-import { Data } from './views/Data';
+import { Data } from './views/Data/Data';
 import { AppWrapper } from './components/AppWrapper';
 import { NamespaceContext } from './contexts/NamespaceContext';
 import { ApplicationContext } from './contexts/ApplicationContext';

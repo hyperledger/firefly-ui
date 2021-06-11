@@ -33,5 +33,6 @@
   "last30Days": "Last 30 Days",
   "signer": "Signer",
   "transactionType": "Transaction Type",
-  "tag": "Tag"
+  "tag": "Tag",
+  "dataDetails": "Data Details"
 }
