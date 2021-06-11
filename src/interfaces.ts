@@ -159,10 +159,8 @@ export interface IData {
   hash: string;
   id: string;
   namespace: string;
-  validator: string;
-  value: {
-    owner: string;
-  };
+  validator?: string;
+  value?: any;
 }
 
 export interface IBatch {

@@ -23,16 +23,18 @@ import {
   Button,
   makeStyles,
   Box,
+  Paper,
   CircularProgress,
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
-import { IMessage, IBatch } from '../../interfaces';
+import { IMessage, IBatch, IData } from '../../interfaces';
 import { HashPopover } from '../../components/HashPopover';
 import dayjs from 'dayjs';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import clsx from 'clsx';
 import { NamespaceContext } from '../../contexts/NamespaceContext';
 import { useHistory } from 'react-router-dom';
+import Highlight from 'react-highlight';
 
 interface Props {
   message: IMessage;
@@ -46,6 +48,7 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
   const history = useHistory();
   const [loading, setLoading] = useState(false);
   const [txId, setTxId] = useState<string>();
+  const [data, setData] = useState<IData[]>([]);
   const { selectedNamespace } = useContext(NamespaceContext);
 
   const detailItem = (label: string, value: string | JSX.Element) => (
@@ -61,17 +64,25 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/v1/namespaces/${selectedNamespace}/batches/${message.batchID}`)
-      .then(async (response) => {
-        if (response.ok) {
-          const batch: IBatch = await response.json();
+    Promise.all([
+      fetch(
+        `/api/v1/namespaces/${selectedNamespace}/batches/${message.batchID}`
+      ),
+      fetch(
+        `/api/v1/namespaces/${selectedNamespace}/messages/${message.header.id}?data`
+      ),
+    ])
+      .then(async ([batchResponse, messageDataResponse]) => {
+        if (batchResponse.ok && messageDataResponse.ok) {
+          setData((await messageDataResponse.json()).data);
+          const batch: IBatch = await batchResponse.json();
           setTxId(batch.payload.tx.id);
         }
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [message.batchID, selectedNamespace]);
+  }, [message.batchID, selectedNamespace, message.header.id]);
 
   const copyableHash = (hash: string) => (
     <Grid alignItems="center" container direction="row">
@@ -184,6 +195,15 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
               {detailItem(t('dataHash'), copyableHash(message.header.datahash))}
             </Grid>
           </Grid>
+          {data.map((item) => (
+            <Grid container className={classes.dataContainer} item>
+              <Grid item>
+                <Paper className={classes.paper}>
+                  <Highlight>{JSON.stringify(item.value, null, 2)}</Highlight>
+                </Paper>
+              </Grid>
+            </Grid>
+          ))}
         </Grid>
       </DisplaySlide>
     </>
@@ -231,6 +251,13 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     alignItems: 'center',
     height: 'calc(100vh - 300px)',
+    overflow: 'auto',
+  },
+  paper: {
+    backgroundColor: theme.palette.background.default,
+    minWidth: '40vw',
+  },
+  dataContainer: {
     overflow: 'auto',
   },
 }));
