@@ -24,7 +24,7 @@ jobs:
         id: vars
         run: echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
       - name: package
-        run: tar -C build zcvf "${{ github.ref }}_${{ steps.vars.outputs.sha_short }}.tgz" .
+        run: tar -C build -zcvf "${{ github.ref }}_${{ steps.vars.outputs.sha_short }}.tgz" .
       # - name: release
       #   uses: actions/create-release@v1
       #   id: create_release
