@@ -24,5 +24,6 @@ module.exports = {
   plugins: ['header'],
   rules: {
     'header/header': [2, 'resources/license-header.js'],
+    '@typescript-eslint/no-explicit-any': 'off',
   },
 };
