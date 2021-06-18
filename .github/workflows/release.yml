@@ -1,0 +1,37 @@
+name: Release
+on:
+  push:
+    tags:
+      - '*'
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v2
+      - name: Setup node.js
+        uses: actions/setup-node@v1
+        with:
+          node-version: 14.x
+      - run: npm i
+      - run: npm run build
+      - name: Set outputs
+        id: vars
+        run: |
+          echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
+          echo "::set-output name=ref_name::$(echo ${{ github.ref }} | sed 's/\//_/g')"
+      - name: package
+        run: tar -C build -zcvf "${{ steps.vars.outputs.ref_name }}_${{ steps.vars.outputs.sha_short }}.tgz" .
+      - name: release
+        uses: actions/create-release@v1
+        id: create_release
+        with:
+          draft: false
+          prerelease: false
+          release_name: ${{ github.ref }}_${{ steps.vars.outputs.sha_short }}
+          tag_name: ${{ github.ref }}
+          body_path: ${{ steps.vars.outputs.ref_name }}_${{ steps.vars.outputs.sha_short }}.tgz
+        env:
+          GITHUB_TOKEN: ${{ github.token }}

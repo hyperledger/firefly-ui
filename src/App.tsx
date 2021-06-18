@@ -105,7 +105,7 @@ export const theme = createMuiTheme({
   },
 });
 
-function App() {
+function App(): JSX.Element {
   const [initializing, setInitializing] = useState(true);
   const [namespaces, setNamespaces] = useState<INamespace[]>([]);
   const [selectedNamespace, setSelectedNamespace] = useState<string>('');
