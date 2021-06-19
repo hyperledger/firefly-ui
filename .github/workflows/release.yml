@@ -30,7 +30,7 @@ jobs:
         with:
           draft: false
           prerelease: false
-          name: ${{ github.ref }}_${{ steps.vars.outputs.sha_short }}
+          name: ${{ steps.vars.outputs.ref_name }}_${{ steps.vars.outputs.sha_short }}
           tag_name: ${{ github.ref }}
           files: ${{ steps.vars.outputs.ref_name }}_${{ steps.vars.outputs.sha_short }}.tgz
         env:
