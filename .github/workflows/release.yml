@@ -25,13 +25,13 @@ jobs:
       - name: package
         run: tar -C build -zcvf "${{ steps.vars.outputs.ref_name }}_${{ steps.vars.outputs.sha_short }}.tgz" .
       - name: release
-        uses: actions/create-release@v1
+        uses: softprops/action-gh-release@v1
         id: create_release
         with:
           draft: false
           prerelease: false
-          release_name: ${{ github.ref }}_${{ steps.vars.outputs.sha_short }}
+          name: ${{ github.ref }}_${{ steps.vars.outputs.sha_short }}
           tag_name: ${{ github.ref }}
-          body_path: ${{ steps.vars.outputs.ref_name }}_${{ steps.vars.outputs.sha_short }}.tgz
+          files: ${{ steps.vars.outputs.ref_name }}_${{ steps.vars.outputs.sha_short }}.tgz
         env:
           GITHUB_TOKEN: ${{ github.token }}
