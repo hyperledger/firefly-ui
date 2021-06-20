@@ -16,7 +16,7 @@ jobs:
         with:
           node-version: 14.x
       - run: npm i
-      - run: npm run build
+      - run: PUBLIC_URL="/ui" npm run build
       - name: Set outputs
         id: vars
         run: |
