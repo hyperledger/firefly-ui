@@ -156,8 +156,14 @@ export const Dashboard: React.FC = () => {
     }));
 
   return (
-    <>
-      <Grid container wrap="nowrap" className={classes.root} direction="column">
+    <Grid container justify="center">
+      <Grid
+        container
+        item
+        wrap="nowrap"
+        className={classes.root}
+        direction="column"
+      >
         <Grid container item direction="row">
           <Grid className={classes.headerContainer} item>
             <Typography variant="h4" className={classes.header}>
@@ -208,7 +214,7 @@ export const Dashboard: React.FC = () => {
           </Grid>
         </Grid>
       </Grid>
-    </>
+    </Grid>
   );
 };
 
@@ -217,6 +223,7 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: 20,
     paddingLeft: 120,
     paddingRight: 120,
+    maxWidth: 1920,
     [theme.breakpoints.down('sm')]: {
       flexWrap: 'wrap',
     },
