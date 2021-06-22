@@ -45,7 +45,7 @@ export const TimelineContentPanel: React.FC<Props> = ({
         onClick={onClick}
       >
         <Grid container className={classes.container} direction="column">
-          <Grid className={classes.fullWidth} item>
+          <Grid className={classes.titleContainer} item>
             <Typography noWrap className={classes.title}>
               {title}
             </Typography>
@@ -66,7 +66,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(2),
     backgroundColor: theme.palette.timelineBackground.main,
   },
-  fullWidth: {
+  titleContainer: {
     maxWidth: 220,
   },
   title: {
