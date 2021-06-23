@@ -197,41 +197,48 @@ export const Messages: React.FC = () => {
 
   return (
     <>
-      <Grid container wrap="nowrap" direction="column" className={classes.root}>
-        <Grid container spacing={2} item direction="row" alignItems="center">
-          <Grid item>
-            <Typography className={classes.header} variant="h4">
-              {t('messages')}
-            </Typography>
+      <Grid container justify="center">
+        <Grid
+          container
+          wrap="nowrap"
+          direction="column"
+          className={classes.root}
+        >
+          <Grid container spacing={2} item direction="row" alignItems="center">
+            <Grid item>
+              <Typography className={classes.header} variant="h4">
+                {t('messages')}
+              </Typography>
+            </Grid>
+            <Box className={classes.separator} />
+            <Grid item>
+              <FilterSelect
+                filter={createdFilter}
+                setFilter={setCreatedFilter}
+                filterItems={createdQueryOptions}
+              />
+            </Grid>
+            <Grid item>
+              <DataViewSwitch />
+            </Grid>
           </Grid>
-          <Box className={classes.separator} />
-          <Grid item>
-            <FilterSelect
-              filter={createdFilter}
-              setFilter={setCreatedFilter}
-              filterItems={createdQueryOptions}
-            />
-          </Grid>
-          <Grid item>
-            <DataViewSwitch />
-          </Grid>
+          {dataView === 'timeline' && (
+            <Grid className={classes.timelineContainer} xs={12} container item>
+              <DataTimeline items={buildTimelineElements(messages)} />
+            </Grid>
+          )}
+          {dataView === 'list' && (
+            <Grid container item>
+              <DataTable
+                minHeight="300px"
+                maxHeight="calc(100vh - 340px)"
+                records={buildTableRecords(messages)}
+                {...{ columnHeaders }}
+                {...{ pagination }}
+              />
+            </Grid>
+          )}
         </Grid>
-        {dataView === 'timeline' && (
-          <Grid className={classes.timelineContainer} xs={12} container item>
-            <DataTimeline items={buildTimelineElements(messages)} />
-          </Grid>
-        )}
-        {dataView === 'list' && (
-          <Grid container item>
-            <DataTable
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              records={buildTableRecords(messages)}
-              {...{ columnHeaders }}
-              {...{ pagination }}
-            />
-          </Grid>
-        )}
       </Grid>
       {viewMessage && (
         <MessageDetails
@@ -252,6 +259,7 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: 20,
     paddingLeft: 120,
     paddingRight: 120,
+    maxWidth: 1920,
     [theme.breakpoints.down('sm')]: {
       flexWrap: 'wrap',
     },

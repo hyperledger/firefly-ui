@@ -150,30 +150,37 @@ export const Data: React.FC = () => {
 
   return (
     <>
-      <Grid container wrap="nowrap" direction="column" className={classes.root}>
-        <Grid container spacing={2} item direction="row">
-          <Grid item>
-            <Typography className={classes.header} variant="h4">
-              {t('data')}
-            </Typography>
+      <Grid container justify="center">
+        <Grid
+          container
+          wrap="nowrap"
+          direction="column"
+          className={classes.root}
+        >
+          <Grid container spacing={2} item direction="row">
+            <Grid item>
+              <Typography className={classes.header} variant="h4">
+                {t('data')}
+              </Typography>
+            </Grid>
+            <Box className={classes.separator} />
+            <Grid item>
+              <FilterSelect
+                filter={createdFilter}
+                setFilter={setCreatedFilter}
+                filterItems={createdQueryOptions}
+              />
+            </Grid>
           </Grid>
-          <Box className={classes.separator} />
-          <Grid item>
-            <FilterSelect
-              filter={createdFilter}
-              setFilter={setCreatedFilter}
-              filterItems={createdQueryOptions}
+          <Grid container item>
+            <DataTable
+              minHeight="300px"
+              maxHeight="calc(100vh - 340px)"
+              {...{ columnHeaders }}
+              {...{ records }}
+              {...{ pagination }}
             />
           </Grid>
-        </Grid>
-        <Grid container item>
-          <DataTable
-            minHeight="300px"
-            maxHeight="calc(100vh - 340px)"
-            {...{ columnHeaders }}
-            {...{ records }}
-            {...{ pagination }}
-          />
         </Grid>
       </Grid>
       {viewData && (
@@ -194,6 +201,7 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: 20,
     paddingLeft: 120,
     paddingRight: 120,
+    maxWidth: 1920,
     [theme.breakpoints.down('sm')]: {
       flexWrap: 'wrap',
     },

@@ -81,8 +81,14 @@ export const TransactionDetails: React.FC = () => {
   }
 
   return (
-    <>
-      <Grid container wrap="nowrap" direction="column" className={classes.root}>
+    <Grid container justify="center">
+      <Grid
+        container
+        item
+        wrap="nowrap"
+        direction="column"
+        className={classes.root}
+      >
         <Grid item>
           <Button
             className={classes.backButton}
@@ -209,7 +215,7 @@ export const TransactionDetails: React.FC = () => {
           </Grid>
         </Grid>
       </Grid>
-    </>
+    </Grid>
   );
 };
 
@@ -218,6 +224,7 @@ const useStyles = makeStyles((theme) => ({
     paddingTop: 20,
     paddingLeft: 120,
     paddingRight: 120,
+    maxWidth: 1920,
     [theme.breakpoints.down('sm')]: {
       flexWrap: 'wrap',
     },
