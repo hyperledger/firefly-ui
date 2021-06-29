@@ -37,6 +37,7 @@ import { NamespaceContext } from '../contexts/NamespaceContext';
 import { ApplicationContext } from '../contexts/ApplicationContext';
 import { RecentTransactions } from '../components/RecentTransactions/RecentTransactions';
 import { FilterSelect } from '../components/FilterSelect';
+import { fetchWithCredentials } from '../utils';
 
 export const Dashboard: React.FC = () => {
   const classes = useStyles();
@@ -76,14 +77,14 @@ export const Dashboard: React.FC = () => {
     }
 
     Promise.all([
-      fetch(`/api/v1/network/organizations?limit=100`),
-      fetch(
+      fetchWithCredentials(`/api/v1/network/organizations?limit=100`),
+      fetchWithCredentials(
         `/api/v1/namespaces/${selectedNamespace}/data?limit=200${createdFilterString}`
       ),
-      fetch(
+      fetchWithCredentials(
         `/api/v1/namespaces/${selectedNamespace}/messages?limit=200${createdFilterString}`
       ),
-      fetch(
+      fetchWithCredentials(
         `/api/v1/namespaces/${selectedNamespace}/transactions?limit=200&created=>=${dayjs()
           .subtract(24, 'hours')
           .unix()}${createdFilterString}`

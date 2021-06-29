@@ -41,6 +41,7 @@ import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { DataViewSwitch } from '../../components/DataViewSwitch';
 import { useHistory } from 'react-router-dom';
 import { FilterSelect } from '../../components/FilterSelect';
+import { fetchWithCredentials } from '../../utils';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -84,7 +85,7 @@ export const Messages: React.FC = () => {
       createdFilterString = `&created=>=${dayjs().subtract(7, 'days').unix()}`;
     }
 
-    fetch(
+    fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/messages?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
       }${createdFilterString}`
