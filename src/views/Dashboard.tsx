@@ -24,6 +24,8 @@ import {
   Box,
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router';
+import dayjs from 'dayjs';
 import {
   IDataTableRecord,
   IMessage,
@@ -31,24 +33,22 @@ import {
   IOrganization,
 } from '../interfaces';
 import { DataTable } from '../components/DataTable/DataTable';
-import dayjs from 'dayjs';
 import { HashPopover } from '../components/HashPopover';
-import { NamespaceContext } from '../contexts/NamespaceContext';
 import { ApplicationContext } from '../contexts/ApplicationContext';
 import { RecentTransactions } from '../components/RecentTransactions/RecentTransactions';
 import { FilterSelect } from '../components/FilterSelect';
 import { fetchWithCredentials } from '../utils';
 
-export const Dashboard: React.FC = () => {
+export const Dashboard: () => JSX.Element = () => {
   const classes = useStyles();
   const { t } = useTranslation();
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [data, setData] = useState<IMessage[]>([]);
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const [orgs, setOrgs] = useState<IOrganization[]>([]);
-  const { selectedNamespace } = useContext(NamespaceContext);
   const { lastEvent, createdFilter, setCreatedFilter } =
     useContext(ApplicationContext);
+  const { namespace } = useParams<{ namespace: string }>();
 
   const createdQueryOptions = [
     {
@@ -79,13 +79,13 @@ export const Dashboard: React.FC = () => {
     Promise.all([
       fetchWithCredentials(`/api/v1/network/organizations?limit=100`),
       fetchWithCredentials(
-        `/api/v1/namespaces/${selectedNamespace}/data?limit=200${createdFilterString}`
+        `/api/v1/namespaces/${namespace}/data?limit=200${createdFilterString}`
       ),
       fetchWithCredentials(
-        `/api/v1/namespaces/${selectedNamespace}/messages?limit=200${createdFilterString}`
+        `/api/v1/namespaces/${namespace}/messages?limit=200${createdFilterString}`
       ),
       fetchWithCredentials(
-        `/api/v1/namespaces/${selectedNamespace}/transactions?limit=200&created=>=${dayjs()
+        `/api/v1/namespaces/${namespace}/transactions?limit=200&created=>=${dayjs()
           .subtract(24, 'hours')
           .unix()}${createdFilterString}`
       ),
@@ -104,7 +104,7 @@ export const Dashboard: React.FC = () => {
         }
       }
     );
-  }, [selectedNamespace, lastEvent, createdFilter]);
+  }, [namespace, lastEvent, createdFilter]);
 
   const summaryPanel = (label: string, value: string | number) => (
     <Card>

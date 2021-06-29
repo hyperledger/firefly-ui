@@ -18,7 +18,6 @@ import React from 'react';
 import { IconButton, Hidden, makeStyles, Box } from '@material-ui/core';
 import MenuIcon from 'mdi-react/MenuIcon';
 import { ReactComponent as LogoIconSVG } from '../svg/ff-logo-symbol-white.svg';
-import { NamespaceMenu } from './Header/NamespaceMenu';
 
 type Props = {
   navigationOpen: boolean;
@@ -43,9 +42,6 @@ export const HiddenAppBar: React.FC<Props> = ({
             <MenuIcon />
           </IconButton>
           <LogoIconSVG className={classes.logo} />
-        </div>
-        <div>
-          <NamespaceMenu />
         </div>
       </Box>
     </Hidden>

@@ -34,7 +34,7 @@ import {
 } from '@material-ui/core';
 import { fetchWithCredentials } from '../../utils';
 
-export const TransactionDetails: React.FC = () => {
+export const TransactionDetails: () => JSX.Element = () => {
   const history = useHistory();
   const { id } = useParams<{ id: string }>();
   const { t } = useTranslation();

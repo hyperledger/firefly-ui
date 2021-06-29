@@ -14,37 +14,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useEffect, useState, useRef } from 'react';
-import { Router, Switch, Route } from 'react-router-dom';
-import { createBrowserHistory } from 'history';
-import {
-  ThemeProvider,
-  CssBaseline,
-  CircularProgress,
-  createMuiTheme,
-} from '@material-ui/core';
-import { Dashboard } from './views/Dashboard';
-import { Messages } from './views/Messages/Messages';
-import { Transactions } from './views/Transactions/Transactions';
-import { TransactionDetails } from './views/Transactions/TransactionDetails';
-import { Data } from './views/Data/Data';
-import { AppWrapper } from './components/AppWrapper';
-import { NamespaceContext } from './contexts/NamespaceContext';
-import { ApplicationContext } from './contexts/ApplicationContext';
-import {
-  INamespace,
-  DataView,
-  CreatedFilterOptions,
-  IStatus,
-} from './interfaces';
-import ReconnectingWebsocket from 'reconnecting-websocket';
-import { fetchWithCredentials } from './utils';
+import { ThemeProvider, CssBaseline, createMuiTheme } from '@material-ui/core';
+import { Routes } from './components/Routes';
 
-const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-const history = createBrowserHistory({
-  basename: process.env.PUBLIC_URL,
-});
-export const NAMESPACE_LOCALSTORAGE_KEY = 'ff:namespace';
 export const theme = createMuiTheme({
   palette: {
     type: 'dark',
@@ -107,104 +79,10 @@ export const theme = createMuiTheme({
 });
 
 function App(): JSX.Element {
-  const [initializing, setInitializing] = useState(true);
-  const [namespaces, setNamespaces] = useState<INamespace[]>([]);
-  const [selectedNamespace, setSelectedNamespace] = useState<string>('');
-  const [dataView, setDataView] = useState<DataView>('list');
-  const [identity, setIdentity] = useState('');
-  const [orgName, setOrgName] = useState('');
-  const [createdFilter, setCreatedFilter] =
-    useState<CreatedFilterOptions>('24hours');
-  const ws = useRef<ReconnectingWebsocket | null>(null);
-  const [lastEvent, setLastEvent] = useState<any>();
-
-  useEffect(() => {
-    Promise.all([
-      fetchWithCredentials('/api/v1/namespaces'),
-      fetchWithCredentials('/api/v1/status'),
-    ])
-      .then(async ([namespaceResponse, statusResponse]) => {
-        if (namespaceResponse.ok && statusResponse.ok) {
-          const status: IStatus = await statusResponse.json();
-          setIdentity(status.org.identity);
-          setOrgName(status.org.name);
-          const ns: INamespace[] = await namespaceResponse.json();
-          setNamespaces(ns);
-          const storageItem = window.localStorage.getItem(
-            NAMESPACE_LOCALSTORAGE_KEY
-          );
-          if (storageItem) {
-            setSelectedNamespace(storageItem);
-          } else if (ns.length !== 0) {
-            setSelectedNamespace(ns[0].name);
-            window.localStorage.setItem(NAMESPACE_LOCALSTORAGE_KEY, ns[0].name);
-          }
-        }
-      })
-      .finally(() => {
-        setInitializing(false);
-      });
-  }, []);
-
-  useEffect(() => {
-    if (selectedNamespace) {
-      ws.current = new ReconnectingWebsocket(
-        `${protocol}://${window.location.hostname}:${window.location.port}/ws?namespace=${selectedNamespace}&ephemeral&autoack`
-      );
-      ws.current.onmessage = (event: any) => {
-        setLastEvent(event);
-      };
-    }
-  }, [selectedNamespace]);
-
-  if (initializing) {
-    return <CircularProgress />;
-  }
-
   return (
-    <ThemeProvider theme={theme}>
+    <ThemeProvider {...{ theme }}>
       <CssBaseline />
-      <NamespaceContext.Provider
-        value={{
-          namespaces,
-          selectedNamespace,
-          setNamespaces,
-          setSelectedNamespace,
-        }}
-      >
-        <ApplicationContext.Provider
-          value={{
-            orgName,
-            identity,
-            dataView,
-            setDataView,
-            lastEvent,
-            setLastEvent,
-            createdFilter,
-            setCreatedFilter,
-          }}
-        >
-          <Router history={history}>
-            <AppWrapper>
-              <Switch>
-                <Route exact path="/" render={() => <Dashboard />} />
-                <Route exact path="/messages" render={() => <Messages />} />
-                <Route exact path="/data" render={() => <Data />} />
-                <Route
-                  exact
-                  path="/transactions"
-                  render={() => <Transactions />}
-                />
-                <Route
-                  exact
-                  path="/transactions/:id"
-                  render={() => <TransactionDetails />}
-                />
-              </Switch>
-            </AppWrapper>
-          </Router>
-        </ApplicationContext.Provider>
-      </NamespaceContext.Provider>
+      <Routes />
     </ThemeProvider>
   );
 }

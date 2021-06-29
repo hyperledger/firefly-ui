@@ -122,9 +122,13 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
             size="small"
             className={classes.copyButton}
             onClick={() =>
-              history.push(`/transactions/${txId}`, {
-                props: { message: message, open: open },
-              })
+              history.push(
+                `/namespace/${selectedNamespace}/transactions/${txId}` +
+                  history.location.search,
+                {
+                  props: { message: message, open: open },
+                }
+              )
             }
           >
             {t('viewTx')}

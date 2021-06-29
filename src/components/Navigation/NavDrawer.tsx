@@ -16,7 +16,6 @@
 
 import { Drawer, makeStyles } from '@material-ui/core';
 import React, { useEffect } from 'react';
-import { NAVOPEN_LOCALSTORAGE_KEY } from './Navigation';
 
 type Props = {
   open: boolean;
@@ -25,8 +24,6 @@ type Props = {
   setIsMobile: React.Dispatch<React.SetStateAction<boolean>>;
   children: JSX.Element;
 };
-
-const drawerWidth = 220;
 
 export const NavDrawer: React.FC<Props> = ({
   open,
@@ -41,13 +38,6 @@ export const NavDrawer: React.FC<Props> = ({
     if (isMobile) {
       setOpen(false);
       setIsMobile(true);
-    } else {
-      const storageItem = window.localStorage.getItem(NAVOPEN_LOCALSTORAGE_KEY);
-      const isLocalStorageNavOpen =
-        storageItem === undefined /* default if unset is true */ ||
-        storageItem === 'true';
-      setOpen(isLocalStorageNavOpen);
-      setIsMobile(false);
     }
   }, [isMobile, setOpen, setIsMobile]);
 
@@ -57,9 +47,9 @@ export const NavDrawer: React.FC<Props> = ({
       {...{ open }}
       onClose={() => setOpen(false)}
       anchor="left"
-      className={isMobile || open ? classes.drawerOpen : classes.drawerClose}
+      className={classes.drawerOpen}
       classes={{
-        paper: isMobile || open ? classes.drawerOpen : classes.drawerClose,
+        paper: classes.drawerOpen,
         paperAnchorDockedLeft: classes.drawerBorder,
       }}
     >
@@ -73,24 +63,10 @@ const useStyles = makeStyles((theme) => ({
     borderRight: 0,
   },
   drawerOpen: {
-    width: drawerWidth,
+    width: 220,
     transition: theme.transitions.create('width', {
       easing: theme.transitions.easing.sharp,
       duration: theme.transitions.duration.enteringScreen,
     }),
-  },
-  drawerClose: {
-    [theme.breakpoints.down('md')]: {
-      width: 0,
-    },
-    transition: theme.transitions.create('width', {
-      easing: theme.transitions.easing.sharp,
-      duration: theme.transitions.duration.leavingScreen,
-    }),
-    overflowX: 'hidden',
-    width: theme.spacing(7) + 1,
-    [theme.breakpoints.up('md')]: {
-      width: theme.spacing(9) + 1,
-    },
   },
 }));

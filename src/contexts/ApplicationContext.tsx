@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { Dispatch, SetStateAction } from 'react';
+import { Dispatch, SetStateAction, createContext } from 'react';
 import { DataView, CreatedFilterOptions } from '../interfaces';
 
 export interface IApplicationContext {
@@ -28,19 +28,4 @@ export interface IApplicationContext {
   setCreatedFilter: Dispatch<SetStateAction<CreatedFilterOptions>>;
 }
 
-export const ApplicationContext = React.createContext<IApplicationContext>({
-  identity: '',
-  orgName: '',
-  dataView: 'list',
-  setDataView: () => {
-    /* default value */
-  },
-  createdFilter: '24hours',
-  setCreatedFilter: () => {
-    /* default value */
-  },
-  lastEvent: undefined,
-  setLastEvent: () => {
-    /* default value */
-  },
-});
+export const ApplicationContext = createContext({} as IApplicationContext);

@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useState } from 'react';
+import React, { useState, useContext } from 'react';
 import {
   Box,
   List,
@@ -23,7 +23,7 @@ import {
   ListItemText,
   makeStyles,
   Hidden,
-  IconButton,
+  Collapse,
 } from '@material-ui/core';
 import clsx from 'clsx';
 import CubeOutlineIcon from 'mdi-react/CubeOutlineIcon';
@@ -33,13 +33,13 @@ import MessageTextIcon from 'mdi-react/MessageTextIcon';
 import CogOutlineIcon from 'mdi-react/CogOutlineIcon';
 import WebIcon from 'mdi-react/WebIcon';
 import { useTranslation } from 'react-i18next';
+import { useLocation, useHistory, useParams } from 'react-router-dom';
+import { MdiReactIconComponentType } from 'mdi-react';
 import { NavDrawer } from './NavDrawer';
 import { ReactComponent as LogoIconSVG } from '../../svg/ff-logo-symbol-white.svg';
-import { useLocation, useHistory } from 'react-router-dom';
-import { MdiReactIconComponentType } from 'mdi-react';
-
-export const NAVOPEN_LOCALSTORAGE_KEY = 'ff:navopen';
-const drawerWidth = 220;
+import { IRouterParams } from '../../interfaces';
+import { NamespacePicker } from './NamespacePicker';
+import { NamespaceContext } from '../../contexts/NamespaceContext';
 
 type Props = {
   navigationOpen: boolean;
@@ -56,14 +56,8 @@ export const Navigation: React.FC<Props> = ({
   const history = useHistory();
   const { pathname } = useLocation();
   const relpath = pathname.replace(/^\//, '');
-
-  const handleOpenClose = () => {
-    window.localStorage.setItem(
-      NAVOPEN_LOCALSTORAGE_KEY,
-      Boolean(!navigationOpen).toString()
-    );
-    setNavigationOpen(!navigationOpen);
-  };
+  const { namespace } = useParams<IRouterParams>();
+  const { selectedNamespace } = useContext(NamespaceContext);
 
   const icons: { [name: string]: MdiReactIconComponentType } = {
     dashboard: ViewDashboardOutlineIcon,
@@ -74,16 +68,27 @@ export const Navigation: React.FC<Props> = ({
     settings: CogOutlineIcon,
   };
 
-  const navItem = (name: string, isDefault?: boolean) => {
+  const navItem = (
+    name: string,
+    includeNamespace = true,
+    isDefault?: boolean
+  ) => {
     const Icon = icons[name];
-    const isActive = relpath.startsWith(name) || (isDefault && !relpath);
+    const isActive =
+      relpath.includes(name) ||
+      (isDefault && relpath === `namespace/${selectedNamespace}`);
+    const ns = namespace ? namespace : selectedNamespace;
 
     return (
       <ListItem
         className={clsx(classes.menuItem, isActive && classes.highlightedItem)}
         button
         onClick={() => {
-          history.push(isDefault ? '' : `/${name}`);
+          history.push(
+            `${includeNamespace ? `/namespace/${ns}` : ''}${
+              isDefault ? '' : `/${name}`
+            }`
+          );
           if (isMobile) setNavigationOpen(false);
         }}
       >
@@ -94,15 +99,13 @@ export const Navigation: React.FC<Props> = ({
         >
           <Icon className={isActive ? classes.highlightedIcon : classes.icon} />
         </ListItemIcon>
-        {navigationOpen ? (
-          <ListItemText
-            primaryTypographyProps={{
-              noWrap: true,
-              className: classes.matchTabs,
-            }}
-            primary={t(name)}
-          />
-        ) : undefined}
+        <ListItemText
+          primaryTypographyProps={{
+            noWrap: true,
+            className: classes.navFont,
+          }}
+          primary={t(name)}
+        />
       </ListItem>
     );
   };
@@ -110,18 +113,17 @@ export const Navigation: React.FC<Props> = ({
   const drawerContent = (
     <>
       <Box className={classes.logoContainer}>
-        <IconButton size="small" onClick={handleOpenClose}>
-          <LogoIconSVG className={classes.logo} />
-        </IconButton>
+        <LogoIconSVG className={classes.logo} />
       </Box>
-      <List>
-        {navItem('dashboard', true)}
-        {/* {navItem('network')} */}
-        {navItem('messages')}
-        {navItem('data')}
-        {navItem('transactions')}
-        {/* {navItem('settings')} */}
-      </List>
+      <Collapse in>
+        <NamespacePicker />
+        <List>
+          {navItem('dashboard', true, true)}
+          {navItem('messages')}
+          {navItem('data')}
+          {navItem('transactions')}
+        </List>
+      </Collapse>
     </>
   );
 
@@ -154,13 +156,6 @@ const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
   },
-  drawer: {
-    width: drawerWidth,
-    flexShrink: 0,
-  },
-  drawerPaper: {
-    width: drawerWidth,
-  },
   content: {
     flexGrow: 1,
     backgroundColor: theme.palette.background.default,
@@ -182,8 +177,7 @@ const useStyles = makeStyles((theme) => ({
   closerText: {
     minWidth: 40,
   },
-  matchTabs: {
-    fontWeight: 'lighter',
+  navFont: {
     fontSize: 16,
   },
   highlightedIcon: {

@@ -14,21 +14,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useContext } from 'react';
+import React, { useContext, useEffect } from 'react';
 import { Button, ButtonGroup, makeStyles } from '@material-ui/core';
+import { DataView } from '../interfaces';
 import { useTranslation } from 'react-i18next';
+import { useQueryParam, StringParam } from 'use-query-params';
 import { ApplicationContext } from '../contexts/ApplicationContext';
 
 export const DataViewSwitch: React.FC = () => {
   const classes = useStyles();
   const { t } = useTranslation();
   const { dataView, setDataView } = useContext(ApplicationContext);
+  const [view, setView] = useQueryParam('view', StringParam);
+
+  useEffect(() => {
+    // set view if it's present in the url
+    if (view) {
+      setDataView(view as DataView);
+      return;
+    }
+
+    // use view from state and update the url
+    setView(dataView);
+  }, [view, setView, setDataView, dataView]);
 
   return (
     <>
       <ButtonGroup className={classes.buttonGroup}>
         <Button
-          onClick={() => setDataView('list')}
+          onClick={() => setView('list')}
           className={
             dataView === 'list' ? classes.buttonSelected : classes.button
           }
@@ -36,7 +50,7 @@ export const DataViewSwitch: React.FC = () => {
           {t('list')}
         </Button>
         <Button
-          onClick={() => setDataView('timeline')}
+          onClick={() => setView('timeline')}
           className={
             dataView === 'timeline' ? classes.buttonSelected : classes.button
           }
