@@ -32,6 +32,7 @@ import { NamespaceContext } from '../../contexts/NamespaceContext';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { FilterSelect } from '../../components/FilterSelect';
 import { DataDetails } from './DataDetails';
+import { fetchWithCredentials } from '../../utils';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -106,7 +107,7 @@ export const Data: React.FC = () => {
       createdFilterString = `&created=>=${dayjs().subtract(7, 'days').unix()}`;
     }
 
-    fetch(
+    fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/data?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
       }${createdFilterString}`

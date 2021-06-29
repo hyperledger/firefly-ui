@@ -32,6 +32,7 @@ import {
   CardContent,
   makeStyles,
 } from '@material-ui/core';
+import { fetchWithCredentials } from '../../utils';
 
 export const TransactionDetails: React.FC = () => {
   const history = useHistory();
@@ -55,7 +56,9 @@ export const TransactionDetails: React.FC = () => {
 
   useEffect(() => {
     setLoading(true);
-    fetch(`/api/v1/namespaces/${selectedNamespace}/transactions/${id}`)
+    fetchWithCredentials(
+      `/api/v1/namespaces/${selectedNamespace}/transactions/${id}`
+    )
       .then(async (response) => {
         if (response.ok) {
           setTransaction(await response.json());

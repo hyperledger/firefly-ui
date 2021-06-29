@@ -39,6 +39,7 @@ import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { DataTimeline } from '../../components/DataTimeline/DataTimeline';
 import { DataViewSwitch } from '../../components/DataViewSwitch';
 import { FilterSelect } from '../../components/FilterSelect';
+import { fetchWithCredentials } from '../../utils';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -114,7 +115,7 @@ export const Transactions: React.FC = () => {
       createdFilterString = `&created=>=${dayjs().subtract(7, 'days').unix()}`;
     }
 
-    fetch(
+    fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/transactions?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
       }${createdFilterString}`

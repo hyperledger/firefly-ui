@@ -38,6 +38,7 @@ import {
   IStatus,
 } from './interfaces';
 import ReconnectingWebsocket from 'reconnecting-websocket';
+import { fetchWithCredentials } from './utils';
 
 const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 const history = createBrowserHistory({
@@ -118,7 +119,10 @@ function App(): JSX.Element {
   const [lastEvent, setLastEvent] = useState<any>();
 
   useEffect(() => {
-    Promise.all([fetch('/api/v1/namespaces'), fetch('/api/v1/status')])
+    Promise.all([
+      fetchWithCredentials('/api/v1/namespaces'),
+      fetchWithCredentials('/api/v1/status'),
+    ])
       .then(async ([namespaceResponse, statusResponse]) => {
         if (namespaceResponse.ok && statusResponse.ok) {
           const status: IStatus = await statusResponse.json();
