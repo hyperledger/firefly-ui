@@ -18,5 +18,8 @@ export const fetchWithCredentials = (
   resource: string,
   options?: RequestInit
 ): Promise<Response> => {
-  return fetch(resource, { ...options, credentials: 'include' });
+  return fetch(
+    `${window.location.protocol}//${window.location.hostname}:${window.location.port}/${resource}`,
+    { ...options, credentials: 'include' }
+  );
 };
