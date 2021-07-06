@@ -191,7 +191,7 @@ export const Dashboard: React.FC = () => {
             {summaryPanel(t('networkMembers'), orgs.length)}
           </Grid>
           <Grid xs={3} item>
-            {summaryPanel(t('messages'), transactions.length)}
+            {summaryPanel(t('messages'), messages.length)}
           </Grid>
           <Grid xs={3} item>
             {summaryPanel(t('transactions'), transactions.length)}
