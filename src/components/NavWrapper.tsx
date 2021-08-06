@@ -18,9 +18,8 @@ import React, { useState } from 'react';
 import { Navigation } from './Navigation/Navigation';
 import { makeStyles } from '@material-ui/core';
 import { HiddenAppBar } from './HiddenAppBar';
-import { Header } from './Header/Header';
 
-export const AppWrapper: React.FC = ({ children }) => {
+export const NavWrapper: React.FC = ({ children }) => {
   const classes = useStyles();
   const [navigationOpen, setNavigationOpen] = useState(true);
 
@@ -35,14 +34,13 @@ export const AppWrapper: React.FC = ({ children }) => {
           navigationOpen={navigationOpen}
           setNavigationOpen={setNavigationOpen}
         />
-        <Header />
         {children}
       </main>
     </div>
   );
 };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   root: {
     display: 'flex',
   },

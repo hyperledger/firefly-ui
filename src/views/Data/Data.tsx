@@ -36,7 +36,7 @@ import { fetchWithCredentials } from '../../utils';
 
 const PAGE_LIMITS = [10, 25];
 
-export const Data: React.FC = () => {
+export const Data: () => JSX.Element = () => {
   const { t } = useTranslation();
   const classes = useStyles();
   const [loading, setLoading] = useState(false);

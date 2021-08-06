@@ -14,49 +14,27 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useState, useEffect, useContext } from 'react';
-import {
-  Grid,
-  Typography,
-  TablePagination,
-  Box,
-  CircularProgress,
-  makeStyles,
-} from '@material-ui/core';
+import React, { useState, useContext } from 'react';
+import { Grid, Typography, Box, makeStyles } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
-import {
-  IDataTableRecord,
-  ITimelineItem,
-  IMessage,
-  IHistory,
-} from '../../interfaces';
-import { DataTable } from '../../components/DataTable/DataTable';
-import { DataTimeline } from '../../components/DataTimeline/DataTimeline';
-import { HashPopover } from '../../components/HashPopover';
+import { IMessage, IHistory } from '../../interfaces';
 import { MessageDetails } from './MessageDetails';
-import BroadcastIcon from 'mdi-react/BroadcastIcon';
-import { NamespaceContext } from '../../contexts/NamespaceContext';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { DataViewSwitch } from '../../components/DataViewSwitch';
 import { useHistory } from 'react-router-dom';
+import { MessageTimeline } from './MessageTimeline';
+import { MessageList } from './MessageList';
 import { FilterSelect } from '../../components/FilterSelect';
-import { fetchWithCredentials } from '../../utils';
+import { NamespaceContext } from '../../contexts/NamespaceContext';
 
-const PAGE_LIMITS = [10, 25];
-
-export const Messages: React.FC = () => {
+export const Messages: () => JSX.Element = () => {
   const { t } = useTranslation();
   const classes = useStyles();
   const history = useHistory<IHistory>();
-  const [loading, setLoading] = useState(false);
-  const [messages, setMessages] = useState<IMessage[]>([]);
   const [viewMessage, setViewMessage] = useState<IMessage | undefined>();
-  const [currentPage, setCurrentPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-  const { selectedNamespace } = useContext(NamespaceContext);
-  const { dataView, createdFilter, setCreatedFilter, lastEvent } =
+  const { dataView, createdFilter, setCreatedFilter } =
     useContext(ApplicationContext);
+  const { selectedNamespace } = useContext(NamespaceContext);
 
   const createdQueryOptions = [
     {
@@ -72,124 +50,6 @@ export const Messages: React.FC = () => {
       label: t('last30Days'),
     },
   ];
-
-  useEffect(() => {
-    setLoading(true);
-    let createdFilterString = `&created=>=${dayjs()
-      .subtract(24, 'hours')
-      .unix()}`;
-    if (createdFilter === '30days') {
-      createdFilterString = `&created=>=${dayjs().subtract(30, 'days').unix()}`;
-    }
-    if (createdFilter === '7days') {
-      createdFilterString = `&created=>=${dayjs().subtract(7, 'days').unix()}`;
-    }
-
-    fetchWithCredentials(
-      `/api/v1/namespaces/${selectedNamespace}/messages?limit=${rowsPerPage}&skip=${
-        rowsPerPage * currentPage
-      }${createdFilterString}`
-    )
-      .then(async (response) => {
-        if (response.ok) {
-          setMessages(await response.json());
-        } else {
-          console.log('error fetching messages');
-        }
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [rowsPerPage, currentPage, selectedNamespace, createdFilter, lastEvent]);
-
-  const handleChangePage = (_event: unknown, newPage: number) => {
-    setCurrentPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setCurrentPage(0);
-    setRowsPerPage(+event.target.value);
-  };
-
-  const pagination = (
-    <TablePagination
-      component="div"
-      count={-1}
-      rowsPerPage={rowsPerPage}
-      page={currentPage}
-      onChangePage={handleChangePage}
-      onChangeRowsPerPage={handleChangeRowsPerPage}
-      rowsPerPageOptions={PAGE_LIMITS}
-      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
-      className={classes.pagination}
-    />
-  );
-
-  const columnHeaders = [
-    t('author'),
-    t('type'),
-    t('tag'),
-    t('transactionType'),
-    t('dataHash'),
-    t('createdOn'),
-  ];
-
-  const buildTableRecords = (messages: IMessage[]): IDataTableRecord[] => {
-    return messages.map((message: IMessage) => ({
-      key: message.header.id,
-      columns: [
-        {
-          value: (
-            <HashPopover
-              textColor="secondary"
-              address={message.header.author}
-            />
-          ),
-        },
-        { value: message.header.type },
-        { value: message.header.tag },
-        { value: message.header.txtype },
-        {
-          value: (
-            <HashPopover
-              textColor="secondary"
-              address={message.header.datahash}
-            />
-          ),
-        },
-        { value: dayjs(message.header.created).format('MM/DD/YYYY h:mm A') },
-      ],
-      onClick: () => {
-        setViewMessage(message);
-        history.replace('/messages', { viewMessage: message });
-      },
-    }));
-  };
-
-  const buildTimelineElements = (messages: IMessage[]): ITimelineItem[] => {
-    return messages.map((message: IMessage) => ({
-      key: message.header.id,
-      title: message.header.type,
-      description: message.header.tag,
-      author: message.header.author,
-      time: dayjs(message.header.created).format('MM/DD/YYYY h:mm A'),
-      icon: <BroadcastIcon />,
-      onClick: () => {
-        setViewMessage(message);
-        history.replace('/messages', { viewMessage: message });
-      },
-    }));
-  };
-
-  if (loading) {
-    return (
-      <Box className={classes.centeredContent}>
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   // make sure to view MessageDetails panel if it was open when navigating to a linked page and user goes back
   if (history.location.state && !viewMessage) {
@@ -225,18 +85,12 @@ export const Messages: React.FC = () => {
           </Grid>
           {dataView === 'timeline' && (
             <Grid className={classes.timelineContainer} xs={12} container item>
-              <DataTimeline items={buildTimelineElements(messages)} />
+              <MessageTimeline {...{ setViewMessage }} />
             </Grid>
           )}
           {dataView === 'list' && (
             <Grid container item>
-              <DataTable
-                minHeight="300px"
-                maxHeight="calc(100vh - 340px)"
-                records={buildTableRecords(messages)}
-                {...{ columnHeaders }}
-                {...{ pagination }}
-              />
+              <MessageList {...{ setViewMessage }} />
             </Grid>
           )}
         </Grid>
@@ -244,11 +98,15 @@ export const Messages: React.FC = () => {
       {viewMessage && (
         <MessageDetails
           open={!!viewMessage}
+          message={viewMessage}
           onClose={() => {
             setViewMessage(undefined);
-            history.replace('/messages', undefined);
+            history.replace(
+              `/namespace/${selectedNamespace}/messages` +
+                history.location.search,
+              undefined
+            );
           }}
-          message={viewMessage}
         />
       )}
     </>
@@ -267,17 +125,6 @@ const useStyles = makeStyles((theme) => ({
   },
   header: {
     fontWeight: 'bold',
-  },
-  pagination: {
-    color: theme.palette.text.secondary,
-  },
-  centeredContent: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 'calc(100vh - 300px)',
-    overflow: 'auto',
   },
   timelineContainer: {
     paddingTop: theme.spacing(4),
