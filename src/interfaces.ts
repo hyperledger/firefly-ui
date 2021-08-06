@@ -107,7 +107,7 @@ export interface IData {
 }
 
 export interface IMessage {
-  batchID: string;
+  batch: string;
   confirmed: string;
   data: IData[];
   hash: string;

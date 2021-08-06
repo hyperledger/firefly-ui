@@ -67,7 +67,7 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
     setLoading(true);
     Promise.all([
       fetchWithCredentials(
-        `/api/v1/namespaces/${selectedNamespace}/batches/${message.batchID}`
+        `/api/v1/namespaces/${selectedNamespace}/batches/${message.batch}`
       ),
       fetchWithCredentials(
         `/api/v1/namespaces/${selectedNamespace}/messages/${message.header.id}?data`
@@ -83,7 +83,7 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
       .finally(() => {
         setLoading(false);
       });
-  }, [message.batchID, selectedNamespace, message.header.id]);
+  }, [message.batch, selectedNamespace, message.header.id]);
 
   const copyableHash = (hash: string) => (
     <Grid alignItems="center" container direction="row">
