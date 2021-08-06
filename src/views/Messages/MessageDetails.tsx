@@ -106,14 +106,14 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
     </Grid>
   );
 
-  const pinned = (txType: string | undefined, txId: string | undefined) => (
+  const transactionLink = (txId: string | undefined) => (
     <Grid alignItems="center" container direction="row" justify="space-between">
       <Grid item xs={8}>
         <Typography
           noWrap
           className={clsx(classes.detailValue, classes.paddingRight)}
         >
-          {txType === 'batch_pin' ? t('yes') : t('no')}
+          {txId}
         </Typography>
       </Grid>
       {txId && (
@@ -194,7 +194,7 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
             direction="row"
           >
             <Grid className={classes.detailItem} sm={12} container item>
-              {detailItem(t('pinned?'), pinned(message.header.txtype, txId))}
+              {detailItem(t('transaction'), transactionLink(txId))}
             </Grid>
             <Grid className={classes.detailItem} sm={12} container item>
               {detailItem(t('dataHash'), copyableHash(message.header.datahash))}

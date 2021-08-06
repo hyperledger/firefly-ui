@@ -77,15 +77,15 @@ export const Dashboard: () => JSX.Element = () => {
     }
 
     Promise.all([
-      fetchWithCredentials(`/api/v1/network/organizations?limit=100`),
+      fetchWithCredentials(`/api/v1/network/organizations?count&created=>=0`),
       fetchWithCredentials(
-        `/api/v1/namespaces/${namespace}/data?limit=200${createdFilterString}`
+        `/api/v1/namespaces/${namespace}/data?count${createdFilterString}`
       ),
       fetchWithCredentials(
-        `/api/v1/namespaces/${namespace}/messages?limit=200${createdFilterString}`
+        `/api/v1/namespaces/${namespace}/messages?limit=5&count${createdFilterString}`
       ),
       fetchWithCredentials(
-        `/api/v1/namespaces/${namespace}/transactions?limit=200&created=>=${dayjs()
+        `/api/v1/namespaces/${namespace}/transactions?count&created=>=${dayjs()
           .subtract(24, 'hours')
           .unix()}${createdFilterString}`
       ),
@@ -97,10 +97,14 @@ export const Dashboard: () => JSX.Element = () => {
           messageResponse.ok &&
           txResponse.ok
         ) {
-          setMessages(await messageResponse.json());
-          setTransactions(await txResponse.json());
-          setOrgs(await orgResponse.json());
-          setData(await dataResponse.json());
+          const messageJson = await messageResponse.json();
+          const dataJson = await dataResponse.json();
+          const txJson = await txResponse.json();
+          const orgJson = await orgResponse.json();
+          setMessages(messageJson.items);
+          setTransactions(txJson.items);
+          setData(dataJson.items);
+          setOrgs(orgJson.items);
         }
       }
     );
@@ -126,9 +130,8 @@ export const Dashboard: () => JSX.Element = () => {
     t('createdOn'),
   ];
 
-  const messageRecords: IDataTableRecord[] = messages
-    .slice(0, 5)
-    .map((message: IMessage) => ({
+  const messageRecords: IDataTableRecord[] = messages.map(
+    (message: IMessage) => ({
       key: message.header.id,
       columns: [
         {
@@ -154,7 +157,8 @@ export const Dashboard: () => JSX.Element = () => {
           value: dayjs(message.header.created).format('MM/DD/YYYY h:mm A'),
         },
       ],
-    }));
+    })
+  );
 
   return (
     <Grid container justify="center">
