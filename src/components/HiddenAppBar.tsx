@@ -17,7 +17,7 @@
 import React from 'react';
 import { IconButton, Hidden, makeStyles, Box } from '@material-ui/core';
 import MenuIcon from 'mdi-react/MenuIcon';
-import { ReactComponent as LogoIconSVG } from '../svg/ff-logo-symbol-white.svg';
+import { ReactComponent as LogoIconSVG } from '../svg/ff-logo-white-full.svg';
 
 type Props = {
   navigationOpen: boolean;
@@ -65,7 +65,7 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(1),
   },
   logo: {
-    width: 49,
+    width: 100,
     height: 50,
   },
 }));

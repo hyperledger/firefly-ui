@@ -36,7 +36,7 @@ import { useTranslation } from 'react-i18next';
 import { useLocation, useHistory, useParams } from 'react-router-dom';
 import { MdiReactIconComponentType } from 'mdi-react';
 import { NavDrawer } from './NavDrawer';
-import { ReactComponent as LogoIconSVG } from '../../svg/ff-logo-symbol-white.svg';
+import { ReactComponent as LogoIconSVG } from '../../svg/ff-logo-white-full.svg';
 import { IRouterParams } from '../../interfaces';
 import { NamespacePicker } from './NamespacePicker';
 import { NamespaceContext } from '../../contexts/NamespaceContext';
@@ -162,8 +162,7 @@ const useStyles = makeStyles((theme) => ({
     padding: theme.spacing(3),
   },
   logo: {
-    width: 49,
-    height: 50,
+    width: 120,
   },
   fullLogo: {
     width: 140,
