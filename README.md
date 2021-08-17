@@ -4,7 +4,7 @@ firefly-ui is the UI explorer for [FireFly](https://github.com/hyperledger-labs/
 
 ### Get started locally
 
-- Clone / build firefly-ui
+- Clone / start firefly-ui
 
 ```bash
 git clone https://github.com/kaleido-io/firefly-ui
