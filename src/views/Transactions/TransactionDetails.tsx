@@ -33,6 +33,7 @@ import {
   makeStyles,
 } from '@material-ui/core';
 import { fetchWithCredentials } from '../../utils';
+import { SnackbarContext } from '../../contexts/SnackbarContext';
 
 export const TransactionDetails: () => JSX.Element = () => {
   const history = useHistory();
@@ -42,6 +43,7 @@ export const TransactionDetails: () => JSX.Element = () => {
   const [transaction, setTransaction] = useState<ITransaction>();
   const [loading, setLoading] = useState(false);
   const classes = useStyles();
+  const { setMessage, setMessageType } = useContext(SnackbarContext);
 
   const detailItem = (label: string, value: string | JSX.Element) => (
     <>
@@ -63,13 +65,14 @@ export const TransactionDetails: () => JSX.Element = () => {
         if (response.ok) {
           setTransaction(await response.json());
         } else {
-          console.log(`error loading transaction ${id}`);
+          setMessageType('error');
+          setMessage(`Error loading transaction ${id}`);
         }
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [selectedNamespace, id]);
+  }, [selectedNamespace, id, setMessageType, setMessage]);
 
   if (loading) {
     return (

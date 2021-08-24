@@ -36,6 +36,7 @@ import { NamespaceContext } from '../../contexts/NamespaceContext';
 import { useHistory } from 'react-router-dom';
 import Highlight from 'react-highlight';
 import { fetchWithCredentials } from '../../utils';
+import { SnackbarContext } from '../../contexts/SnackbarContext';
 
 interface Props {
   message: IMessage;
@@ -51,6 +52,7 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
   const [txId, setTxId] = useState<string>();
   const [data, setData] = useState<IData[]>([]);
   const { selectedNamespace } = useContext(NamespaceContext);
+  const { setMessage, setMessageType } = useContext(SnackbarContext);
 
   const detailItem = (label: string, value: string | JSX.Element) => (
     <>
@@ -78,12 +80,21 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
           setData((await messageDataResponse.json()).data);
           const batch: IBatch = await batchResponse.json();
           setTxId(batch.payload.tx.id);
+        } else {
+          setMessageType('error');
+          setMessage(`Error loading details for message ${message.header.id}`);
         }
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [message.batch, selectedNamespace, message.header.id]);
+  }, [
+    message.batch,
+    selectedNamespace,
+    message.header.id,
+    setMessage,
+    setMessageType,
+  ]);
 
   const copyableHash = (hash: string) => (
     <Grid alignItems="center" container direction="row">
