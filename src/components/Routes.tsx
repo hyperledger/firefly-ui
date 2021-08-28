@@ -37,6 +37,8 @@ import { ApplicationContext } from '../contexts/ApplicationContext';
 import { NavWrapper } from './NavWrapper';
 import { fetchWithCredentials } from '../utils';
 import { CircularProgress } from '@material-ui/core';
+import { SnackbarContext } from '../contexts/SnackbarContext';
+import { MessageSnackbar, SnackbarMessageType } from './MessageSnackbar';
 
 const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 const history = createBrowserHistory({
@@ -54,6 +56,8 @@ export const Routes: () => JSX.Element = () => {
     useState<CreatedFilterOptions>('24hours');
   const ws = useRef<ReconnectingWebSocket | null>(null);
   const [lastEvent, setLastEvent] = useState<any>();
+  const [message, setMessage] = useState('');
+  const [messageType, setMessageType] = useState<SnackbarMessageType>('error');
 
   //path needs to update on every render for conditional rendering since its outside of Router
   const { pathname: currentPath } = useMemo(() => {
@@ -165,26 +169,33 @@ export const Routes: () => JSX.Element = () => {
           setCreatedFilter,
         }}
       >
-        <Router history={history}>
-          <QueryParamProvider ReactRouterRoute={Route}>
-            <Switch>
-              {routes.map((route, i) => (
-                <Route
-                  key={i}
-                  exact={route.exact}
-                  path={route.path}
-                  render={() => (
-                    // navigation need to be within the route for access to url params
-                    <NavWrapper>
-                      <route.component />
-                    </NavWrapper>
-                  )}
-                />
-              ))}
-              <Redirect to="/" />
-            </Switch>
-          </QueryParamProvider>
-        </Router>
+        <SnackbarContext.Provider value={{ setMessage, setMessageType }}>
+          <MessageSnackbar
+            {...{ message }}
+            {...{ setMessage }}
+            {...{ messageType }}
+          />
+          <Router history={history}>
+            <QueryParamProvider ReactRouterRoute={Route}>
+              <Switch>
+                {routes.map((route, i) => (
+                  <Route
+                    key={i}
+                    exact={route.exact}
+                    path={route.path}
+                    render={() => (
+                      // navigation need to be within the route for access to url params
+                      <NavWrapper>
+                        <route.component />
+                      </NavWrapper>
+                    )}
+                  />
+                ))}
+                <Redirect to="/" />
+              </Switch>
+            </QueryParamProvider>
+          </Router>
+        </SnackbarContext.Provider>
       </ApplicationContext.Provider>
     </NamespaceContext.Provider>
   );
