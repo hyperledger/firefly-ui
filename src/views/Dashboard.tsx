@@ -26,12 +26,7 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 import dayjs from 'dayjs';
-import {
-  IDataTableRecord,
-  IMessage,
-  ITransaction,
-  IOrganization,
-} from '../interfaces';
+import { IDataTableRecord, IMessage, ITransaction } from '../interfaces';
 import { DataTable } from '../components/DataTable/DataTable';
 import { HashPopover } from '../components/HashPopover';
 import { ApplicationContext } from '../contexts/ApplicationContext';
@@ -43,9 +38,11 @@ export const Dashboard: () => JSX.Element = () => {
   const classes = useStyles();
   const { t } = useTranslation();
   const [messages, setMessages] = useState<IMessage[]>([]);
-  const [data, setData] = useState<IMessage[]>([]);
+  const [messageTotal, setMessageTotal] = useState(0);
+  const [orgTotal, setOrgTotal] = useState(0);
+  const [dataTotal, setDataTotal] = useState(0);
+  const [txTotal, setTxTotal] = useState(0);
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
-  const [orgs, setOrgs] = useState<IOrganization[]>([]);
   const { lastEvent, createdFilter, setCreatedFilter } =
     useContext(ApplicationContext);
   const { namespace } = useParams<{ namespace: string }>();
@@ -101,10 +98,12 @@ export const Dashboard: () => JSX.Element = () => {
           const dataJson = await dataResponse.json();
           const txJson = await txResponse.json();
           const orgJson = await orgResponse.json();
+          setMessageTotal(messageJson.total);
+          setDataTotal(dataJson.total);
+          setTxTotal(txJson.total);
+          setOrgTotal(orgJson.total);
           setMessages(messageJson.items);
           setTransactions(txJson.items);
-          setData(dataJson.items);
-          setOrgs(orgJson.items);
         }
       }
     );
@@ -192,16 +191,16 @@ export const Dashboard: () => JSX.Element = () => {
           direction="row"
         >
           <Grid xs={3} item>
-            {summaryPanel(t('networkMembers'), orgs.length)}
+            {summaryPanel(t('networkMembers'), orgTotal)}
           </Grid>
           <Grid xs={3} item>
-            {summaryPanel(t('messages'), messages.length)}
+            {summaryPanel(t('messages'), messageTotal)}
           </Grid>
           <Grid xs={3} item>
-            {summaryPanel(t('transactions'), transactions.length)}
+            {summaryPanel(t('transactions'), txTotal)}
           </Grid>
           <Grid xs={3} item>
-            {summaryPanel(t('data'), data.length)}
+            {summaryPanel(t('data'), dataTotal)}
           </Grid>
         </Grid>
         <Grid container item direction="row" spacing={6}>
