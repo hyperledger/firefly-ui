@@ -199,3 +199,17 @@ export interface IOrganization {
   message: string;
   parent: string;
 }
+
+export interface IPagedMessageResponse {
+  pageParam: number;
+  count: number;
+  items: IMessage[];
+  total: number;
+}
+
+export interface IPagedTransactionResponse {
+  pageParam: number;
+  count: number;
+  items: ITransaction[];
+  total: number;
+}

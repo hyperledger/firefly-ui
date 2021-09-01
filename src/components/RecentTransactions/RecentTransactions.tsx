@@ -69,12 +69,7 @@ export const RecentTransactions: React.FC<Props> = ({ transactions }) => {
         <Grid container justify="space-between" direction="row">
           <Grid item>
             <Typography className={classes.header}>
-              {t('transactions')}
-            </Typography>
-          </Grid>
-          <Grid item>
-            <Typography className={classes.subheader}>
-              {t('last24Hours')}
+              {t('recentTransactions')}
             </Typography>
           </Grid>
         </Grid>

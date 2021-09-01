@@ -42,20 +42,20 @@ export const DataViewSwitch: React.FC = () => {
     <>
       <ButtonGroup className={classes.buttonGroup}>
         <Button
-          onClick={() => setView('list')}
-          className={
-            dataView === 'list' ? classes.buttonSelected : classes.button
-          }
-        >
-          {t('list')}
-        </Button>
-        <Button
           onClick={() => setView('timeline')}
           className={
             dataView === 'timeline' ? classes.buttonSelected : classes.button
           }
         >
           {t('timeline')}
+        </Button>
+        <Button
+          onClick={() => setView('list')}
+          className={
+            dataView === 'list' ? classes.buttonSelected : classes.button
+          }
+        >
+          {t('list')}
         </Button>
       </ButtonGroup>
     </>
