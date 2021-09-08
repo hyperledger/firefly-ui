@@ -15,8 +15,8 @@
 // limitations under the License.
 
 import React from 'react';
-import { PieCustomLayer, ResponsivePie } from '@nivo/pie';
-import { makeStyles } from '@material-ui/core';
+import { PieCustomLayer, ResponsivePie, PieLayer } from '@nivo/pie';
+import { makeStyles, useTheme, useMediaQuery } from '@material-ui/core';
 import { IPieChartElement } from '../../interfaces';
 import { useTranslation } from 'react-i18next';
 import { LegendProps } from '@nivo/legends';
@@ -25,9 +25,18 @@ interface Props {
   data: IPieChartElement[];
 }
 
+const BASE_LAYERS: PieLayer<IPieChartElement>[] = [
+  'arcs',
+  'arcLinkLabels',
+  'legends',
+];
+
 export const TransactionPieChart: React.FC<Props> = ({ data }) => {
   const classes = useStyles();
   const { t } = useTranslation();
+
+  const theme = useTheme();
+  const isSmall = useMediaQuery(theme.breakpoints.down('md'));
 
   const CenteredMetric: PieCustomLayer<IPieChartElement> = ({
     dataWithArc,
@@ -95,7 +104,7 @@ export const TransactionPieChart: React.FC<Props> = ({ data }) => {
           // change tooltip text color
           theme={{ tooltip: { container: { color: 'black' } } }}
           legends={legends}
-          layers={['arcs', 'arcLinkLabels', 'legends', CenteredMetric]}
+          layers={isSmall ? BASE_LAYERS : [...BASE_LAYERS, CenteredMetric]}
         />
       </div>
     </div>
