@@ -82,7 +82,7 @@ export const Dashboard: () => JSX.Element = () => {
         `/api/v1/namespaces/${namespace}/messages?limit=5&count${createdFilterString}`
       ),
       fetchWithCredentials(
-        `/api/v1/namespaces/${namespace}/transactions?count&created=>=${dayjs()
+        `/api/v1/namespaces/${namespace}/transactions?limit=50&count&created=>=${dayjs()
           .subtract(24, 'hours')
           .unix()}${createdFilterString}`
       ),

@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import React, { useEffect, useContext, useRef } from 'react';
-import { IMessage, IHistory, IPagedMessageResponse } from '../../interfaces';
+import { IHistory, IPagedTransactionResponse } from '../../interfaces';
 import { useHistory } from 'react-router';
 import dayjs from 'dayjs';
 import BroadcastIcon from 'mdi-react/BroadcastIcon';
@@ -29,11 +29,7 @@ import { fetchWithCredentials } from '../../utils';
 
 const ROWS_PER_PAGE = 25;
 
-interface Props {
-  setViewMessage: React.Dispatch<React.SetStateAction<IMessage | undefined>>;
-}
-
-export const MessageTimeline: React.FC<Props> = ({ setViewMessage }) => {
+export const TransactionTimeline: React.FC = () => {
   const history = useHistory<IHistory>();
   const loadingRef = useRef<HTMLDivElement | null>(null);
   const observer = useIntersectionObserver(loadingRef, {});
@@ -44,7 +40,7 @@ export const MessageTimeline: React.FC<Props> = ({ setViewMessage }) => {
   const queryClient = useQueryClient();
   const { data, isFetching, fetchNextPage, hasNextPage, refetch } =
     useInfiniteQuery(
-      'messages',
+      'transactions',
       async ({ pageParam = 0 }) => {
         let createdFilterString = `&created=>=${dayjs()
           .subtract(24, 'hours')
@@ -60,7 +56,7 @@ export const MessageTimeline: React.FC<Props> = ({ setViewMessage }) => {
             .unix()}`;
         }
         const res = await fetchWithCredentials(
-          `/api/v1/namespaces/${selectedNamespace}/messages?count&limit=${ROWS_PER_PAGE}&skip=${
+          `/api/v1/namespaces/${selectedNamespace}/transactions?count&limit=${ROWS_PER_PAGE}&skip=${
             ROWS_PER_PAGE * pageParam
           }${createdFilterString}`
         );
@@ -72,12 +68,12 @@ export const MessageTimeline: React.FC<Props> = ({ setViewMessage }) => {
           };
         } else {
           setMessageType('error');
-          setMessage('Error fetching Messages');
-          throw new Error('Error fetching Messages');
+          setMessage('Error fetching Transactions');
+          throw new Error('Error fetching Transactions');
         }
       },
       {
-        getNextPageParam: (lastPage: IPagedMessageResponse) => {
+        getNextPageParam: (lastPage: IPagedTransactionResponse) => {
           return lastPage.count === ROWS_PER_PAGE
             ? lastPage.pageParam + 1
             : undefined;
@@ -92,7 +88,7 @@ export const MessageTimeline: React.FC<Props> = ({ setViewMessage }) => {
   }, [isVisible, hasNextPage, fetchNextPage]);
 
   useEffect(() => {
-    queryClient.resetQueries('messages');
+    queryClient.resetQueries('transactions');
   }, [createdFilter, queryClient]);
 
   useEffect(() => {
@@ -100,22 +96,19 @@ export const MessageTimeline: React.FC<Props> = ({ setViewMessage }) => {
   }, [lastEvent, refetch]);
 
   const buildTimelineElements = (
-    data: InfiniteData<IPagedMessageResponse> | undefined
+    data: InfiniteData<IPagedTransactionResponse> | undefined
   ) => {
     if (data) {
       const pages = data.pages.map((page) => page.items);
-      return pages.flat().map((message) => ({
-        key: message.header.id,
-        title: message.header.type,
-        description: message.header.tag,
-        author: message.header.author,
-        time: dayjs(message.header.created).format('MM/DD/YYYY h:mm A'),
+      return pages.flat().map((tx) => ({
+        key: tx.id,
+        title: tx.hash,
+        description: tx.status,
+        time: dayjs(tx.created).format('MM/DD/YYYY h:mm A'),
         icon: <BroadcastIcon />,
+        author: tx.subject.signer,
         onClick: () => {
-          setViewMessage(message);
-          history.replace(`/namespace/${selectedNamespace}/messages`, {
-            viewMessage: message,
-          });
+          history.push(`/namespace/${selectedNamespace}/transactions/${tx.id}`);
         },
       }));
     } else {

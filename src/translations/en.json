@@ -34,5 +34,6 @@
   "signer": "Signer",
   "transactionType": "Transaction Type",
   "tag": "Tag",
-  "dataDetails": "Data Details"
+  "dataDetails": "Data Details",
+  "recentTransactions": "Recent Transactions"
 }

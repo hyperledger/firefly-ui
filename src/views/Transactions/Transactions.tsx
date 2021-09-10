@@ -14,45 +14,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useState, useEffect, useContext } from 'react';
-import {
-  Grid,
-  Typography,
-  TablePagination,
-  Box,
-  CircularProgress,
-  makeStyles,
-} from '@material-ui/core';
+import React, { useContext } from 'react';
+import { Grid, Typography, Box, makeStyles } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
-import dayjs from 'dayjs';
-import { useHistory } from 'react-router-dom';
-import BroadcastIcon from 'mdi-react/BroadcastIcon';
-import {
-  IDataTableRecord,
-  ITransaction,
-  ITimelineItem,
-} from '../../interfaces';
-import { DataTable } from '../../components/DataTable/DataTable';
-import { HashPopover } from '../../components/HashPopover';
-import { NamespaceContext } from '../../contexts/NamespaceContext';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { DataTimeline } from '../../components/DataTimeline/DataTimeline';
 import { DataViewSwitch } from '../../components/DataViewSwitch';
 import { FilterSelect } from '../../components/FilterSelect';
-import { fetchWithCredentials } from '../../utils';
-
-const PAGE_LIMITS = [10, 25];
+import { TransactionList } from './TransactionList';
+import { TransactionTimeline } from './TransactionTimeline';
 
 export const Transactions: () => JSX.Element = () => {
-  const history = useHistory();
   const { t } = useTranslation();
   const classes = useStyles();
-  const [loading, setLoading] = useState(false);
-  const [transactions, setTransactions] = useState<ITransaction[]>([]);
-  const { selectedNamespace } = useContext(NamespaceContext);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-  const { dataView, createdFilter, setCreatedFilter, lastEvent } =
+  const { dataView, createdFilter, setCreatedFilter } =
     useContext(ApplicationContext);
 
   const createdQueryOptions = [
@@ -69,116 +43,6 @@ export const Transactions: () => JSX.Element = () => {
       label: t('last30Days'),
     },
   ];
-
-  const columnHeaders = [
-    t('hash'),
-    t('blockNumber'),
-    t('signer'),
-    t('status'),
-    t('dateMined'),
-  ];
-
-  const handleChangePage = (_event: unknown, newPage: number) => {
-    setCurrentPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setCurrentPage(0);
-    setRowsPerPage(+event.target.value);
-  };
-
-  const pagination = (
-    <TablePagination
-      component="div"
-      count={-1}
-      rowsPerPage={rowsPerPage}
-      page={currentPage}
-      onChangePage={handleChangePage}
-      onChangeRowsPerPage={handleChangeRowsPerPage}
-      rowsPerPageOptions={PAGE_LIMITS}
-      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
-      className={classes.pagination}
-    />
-  );
-
-  useEffect(() => {
-    setLoading(true);
-    let createdFilterString = `&created=>=${dayjs()
-      .subtract(24, 'hours')
-      .unix()}`;
-    if (createdFilter === '30days') {
-      createdFilterString = `&created=>=${dayjs().subtract(30, 'days').unix()}`;
-    }
-    if (createdFilter === '7days') {
-      createdFilterString = `&created=>=${dayjs().subtract(7, 'days').unix()}`;
-    }
-
-    fetchWithCredentials(
-      `/api/v1/namespaces/${selectedNamespace}/transactions?limit=${rowsPerPage}&skip=${
-        rowsPerPage * currentPage
-      }${createdFilterString}`
-    )
-      .then(async (response) => {
-        if (response.ok) {
-          setTransactions(await response.json());
-        } else {
-          console.log('error fetching transactions');
-        }
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [rowsPerPage, currentPage, selectedNamespace, createdFilter, lastEvent]);
-
-  const records: IDataTableRecord[] = transactions.map((tx: ITransaction) => ({
-    key: tx.id,
-    columns: [
-      {
-        value: <HashPopover textColor="secondary" address={tx.hash} />,
-      },
-      { value: tx.info?.blockNumber },
-      {
-        value: (
-          <HashPopover textColor="secondary" address={tx.subject.signer} />
-        ),
-      },
-      { value: tx.status },
-      {
-        value: tx.created
-          ? dayjs(tx.created).format('MM/DD/YYYY h:mm A')
-          : undefined,
-      },
-    ],
-    onClick: () => {
-      history.push(`/namespace/${selectedNamespace}/transactions/${tx.id}`);
-    },
-  }));
-
-  const buildTimelineElements = (
-    transactions: ITransaction[]
-  ): ITimelineItem[] => {
-    return transactions.map((tx: ITransaction) => ({
-      key: tx.id,
-      title: tx.hash,
-      description: tx.status,
-      time: dayjs(tx.created).format('MM/DD/YYYY h:mm A'),
-      icon: <BroadcastIcon />,
-      author: tx.subject.signer,
-      onClick: () => {
-        history.push(`/namespace/${selectedNamespace}/transactions/${tx.id}`);
-      },
-    }));
-  };
-
-  if (loading) {
-    return (
-      <Box className={classes.centeredContent}>
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   return (
     <Grid container justify="center">
@@ -209,18 +73,12 @@ export const Transactions: () => JSX.Element = () => {
         </Grid>
         {dataView === 'timeline' && (
           <Grid className={classes.timelineContainer} xs={12} container item>
-            <DataTimeline items={buildTimelineElements(transactions)} />
+            <TransactionTimeline />
           </Grid>
         )}
         {dataView === 'list' && (
           <Grid container item>
-            <DataTable
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              {...{ columnHeaders }}
-              {...{ records }}
-              {...{ pagination }}
-            />
+            <TransactionList />
           </Grid>
         )}
       </Grid>

@@ -15,7 +15,14 @@
 // limitations under the License.
 
 import React, { useContext } from 'react';
-import { Paper, makeStyles, Avatar, Tooltip } from '@material-ui/core';
+import {
+  Paper,
+  makeStyles,
+  Avatar,
+  Tooltip,
+  CircularProgress,
+  Grid,
+} from '@material-ui/core';
 import { Timeline } from '@material-ui/lab';
 import { ITimelineItem } from '../../interfaces';
 import { TimelineItemWrapper } from './TimelineItemWrapper';
@@ -23,9 +30,15 @@ import { ApplicationContext } from '../../contexts/ApplicationContext';
 
 interface Props {
   items: ITimelineItem[];
+  observerRef?: React.MutableRefObject<HTMLDivElement | null>;
+  isFetching?: boolean;
 }
 
-export const DataTimeline: React.FC<Props> = ({ items }) => {
+export const DataTimeline: React.FC<Props> = ({
+  items,
+  observerRef,
+  isFetching,
+}) => {
   const classes = useStyles();
   const { identity, orgName } = useContext(ApplicationContext);
 
@@ -40,7 +53,6 @@ export const DataTimeline: React.FC<Props> = ({ items }) => {
       <Paper className={classes.paper}>
         <Tooltip title={orgName}>
           <Avatar className={classes.avatar} alt={orgName}>
-            {' '}
             {orgName.charAt(0)}
           </Avatar>
         </Tooltip>
@@ -52,6 +64,12 @@ export const DataTimeline: React.FC<Props> = ({ items }) => {
               opposite={determineOpposite(item.author)}
             />
           ))}
+          {isFetching && (
+            <Grid item className={classes.loading}>
+              <CircularProgress className={classes.loading} />
+            </Grid>
+          )}
+          <div ref={observerRef}></div>
         </Timeline>
       </Paper>
     </>
@@ -69,5 +87,9 @@ const useStyles = makeStyles((theme) => ({
     textTransform: 'uppercase',
     backgroundColor: theme.palette.primary.main,
     color: theme.palette.text.primary,
+  },
+  loading: {
+    margin: theme.spacing(1),
+    textAlign: 'center',
   },
 }));

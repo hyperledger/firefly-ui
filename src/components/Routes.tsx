@@ -39,7 +39,15 @@ import { fetchWithCredentials } from '../utils';
 import { CircularProgress } from '@material-ui/core';
 import { SnackbarContext } from '../contexts/SnackbarContext';
 import { MessageSnackbar, SnackbarMessageType } from './MessageSnackbar';
+import { QueryClient, QueryClientProvider } from 'react-query';
 
+const queryClient = new QueryClient({
+  defaultOptions: {
+    queries: {
+      refetchOnWindowFocus: false,
+    },
+  },
+});
 const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 const history = createBrowserHistory({
   basename: process.env.PUBLIC_URL,
@@ -49,7 +57,7 @@ export const Routes: () => JSX.Element = () => {
   const [initializing, setInitializing] = useState(true);
   const [namespaces, setNamespaces] = useState<INamespace[]>([]);
   const [selectedNamespace, setSelectedNamespace] = useState<string>('');
-  const [dataView, setDataView] = useState<DataView>('list');
+  const [dataView, setDataView] = useState<DataView>('timeline');
   const [identity, setIdentity] = useState('');
   const [orgName, setOrgName] = useState('');
   const [createdFilter, setCreatedFilter] =
@@ -175,26 +183,28 @@ export const Routes: () => JSX.Element = () => {
             {...{ setMessage }}
             {...{ messageType }}
           />
-          <Router history={history}>
-            <QueryParamProvider ReactRouterRoute={Route}>
-              <Switch>
-                {routes.map((route, i) => (
-                  <Route
-                    key={i}
-                    exact={route.exact}
-                    path={route.path}
-                    render={() => (
-                      // navigation need to be within the route for access to url params
-                      <NavWrapper>
-                        <route.component />
-                      </NavWrapper>
-                    )}
-                  />
-                ))}
-                <Redirect to="/" />
-              </Switch>
-            </QueryParamProvider>
-          </Router>
+          <QueryClientProvider client={queryClient}>
+            <Router history={history}>
+              <QueryParamProvider ReactRouterRoute={Route}>
+                <Switch>
+                  {routes.map((route, i) => (
+                    <Route
+                      key={i}
+                      exact={route.exact}
+                      path={route.path}
+                      render={() => (
+                        // navigation need to be within the route for access to url params
+                        <NavWrapper>
+                          <route.component />
+                        </NavWrapper>
+                      )}
+                    />
+                  ))}
+                  <Redirect to="/" />
+                </Switch>
+              </QueryParamProvider>
+            </Router>
+          </QueryClientProvider>
         </SnackbarContext.Provider>
       </ApplicationContext.Provider>
     </NamespaceContext.Provider>
