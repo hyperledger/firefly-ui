@@ -92,7 +92,7 @@ export const MessageList: React.FC<Props> = ({ setViewMessage }) => {
       count={-1}
       rowsPerPage={rowsPerPage}
       page={currentPage}
-      onChangePage={handleChangePage}
+      onPageChange={handleChangePage}
       onChangeRowsPerPage={handleChangeRowsPerPage}
       rowsPerPageOptions={PAGE_LIMITS}
       labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
