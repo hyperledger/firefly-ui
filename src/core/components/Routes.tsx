@@ -36,7 +36,7 @@ import { CircularProgress } from '@material-ui/core';
 import { SnackbarContext } from '../contexts/SnackbarContext';
 import { MessageSnackbar, SnackbarMessageType } from './MessageSnackbar';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { DataRoutes } from '../../plugins/data/routes';
+import { DataRoutes } from '../../modules/data/routes';
 
 const queryClient = new QueryClient({
   defaultOptions: {
