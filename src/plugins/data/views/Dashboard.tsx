@@ -26,13 +26,17 @@ import {
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 import dayjs from 'dayjs';
-import { IDataTableRecord, IMessage, ITransaction } from '../interfaces';
-import { DataTable } from '../components/DataTable/DataTable';
-import { HashPopover } from '../components/HashPopover';
-import { ApplicationContext } from '../contexts/ApplicationContext';
-import { RecentTransactions } from '../components/RecentTransactions/RecentTransactions';
-import { FilterSelect } from '../components/FilterSelect';
-import { fetchWithCredentials } from '../utils';
+import {
+  IDataTableRecord,
+  IMessage,
+  ITransaction,
+} from '../../../core/interfaces';
+import { DataTable } from '../../../core/components/DataTable/DataTable';
+import { HashPopover } from '../../../core/components/HashPopover';
+import { ApplicationContext } from '../../../core/contexts/ApplicationContext';
+import { RecentTransactions } from '../../../core/components/RecentTransactions/RecentTransactions';
+import { FilterSelect } from '../../../core/components/FilterSelect';
+import { fetchWithCredentials } from '../../../core/utils';
 
 export const Dashboard: () => JSX.Element = () => {
   const classes = useStyles();

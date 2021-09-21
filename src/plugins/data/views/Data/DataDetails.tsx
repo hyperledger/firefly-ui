@@ -15,10 +15,10 @@
 // limitations under the License.
 
 import React from 'react';
-import { DisplaySlide } from '../../components/Display/DisplaySlide';
+import { DisplaySlide } from '../../../../core/components/Display/DisplaySlide';
 import { Typography, Grid, makeStyles, Paper } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
-import { IData } from '../../interfaces';
+import { IData } from '../../../../core/interfaces';
 import Highlight from 'react-highlight';
 
 interface Props {

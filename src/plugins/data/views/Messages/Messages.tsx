@@ -17,15 +17,15 @@
 import React, { useState, useContext } from 'react';
 import { Grid, Typography, Box, makeStyles } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
-import { IMessage, IHistory } from '../../interfaces';
+import { IMessage, IHistory } from '../../../../core/interfaces';
 import { MessageDetails } from './MessageDetails';
-import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { DataViewSwitch } from '../../components/DataViewSwitch';
+import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
+import { DataViewSwitch } from '../../../../core/components/DataViewSwitch';
 import { useHistory } from 'react-router-dom';
 import { MessageTimeline } from './MessageTimeline';
 import { MessageList } from './MessageList';
-import { FilterSelect } from '../../components/FilterSelect';
-import { NamespaceContext } from '../../contexts/NamespaceContext';
+import { FilterSelect } from '../../../../core/components/FilterSelect';
+import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 
 export const Messages: () => JSX.Element = () => {
   const { t } = useTranslation();

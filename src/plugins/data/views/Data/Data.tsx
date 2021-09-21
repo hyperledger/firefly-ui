@@ -25,14 +25,14 @@ import {
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
-import { IDataTableRecord, IData } from '../../interfaces';
-import { DataTable } from '../../components/DataTable/DataTable';
-import { HashPopover } from '../../components/HashPopover';
-import { NamespaceContext } from '../../contexts/NamespaceContext';
-import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { FilterSelect } from '../../components/FilterSelect';
+import { IDataTableRecord, IData } from '../../../../core/interfaces';
+import { DataTable } from '../../../../core/components/DataTable/DataTable';
+import { HashPopover } from '../../../../core/components/HashPopover';
+import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
+import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
+import { FilterSelect } from '../../../../core/components/FilterSelect';
 import { DataDetails } from './DataDetails';
-import { fetchWithCredentials } from '../../utils';
+import { fetchWithCredentials } from '../../../../core/utils';
 
 const PAGE_LIMITS = [10, 25];
 

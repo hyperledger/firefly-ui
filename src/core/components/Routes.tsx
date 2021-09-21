@@ -27,11 +27,7 @@ import {
   IStatus,
   IRoute,
 } from '../interfaces';
-import { Dashboard } from '../views/Dashboard';
-import { Data } from '../views/Data/Data';
-import { Transactions } from '../views/Transactions/Transactions';
-import { TransactionDetails } from '../views/Transactions/TransactionDetails';
-import { Messages } from '../views/Messages/Messages';
+
 import { NamespaceContext } from '../contexts/NamespaceContext';
 import { ApplicationContext } from '../contexts/ApplicationContext';
 import { NavWrapper } from './NavWrapper';
@@ -40,6 +36,7 @@ import { CircularProgress } from '@material-ui/core';
 import { SnackbarContext } from '../contexts/SnackbarContext';
 import { MessageSnackbar, SnackbarMessageType } from './MessageSnackbar';
 import { QueryClient, QueryClientProvider } from 'react-query';
+import { DataRoutes } from '../../plugins/data/routes';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -118,43 +115,7 @@ export const Routes: () => JSX.Element = () => {
     return <CircularProgress />;
   }
 
-  const routes: IRoute[] = [
-    {
-      exact: true,
-      path: '/namespace/:namespace/transactions/:id',
-      component: TransactionDetails,
-    },
-    {
-      exact: true,
-      path: '/namespace/:namespace/transactions',
-      component: Transactions,
-    },
-    {
-      exact: true,
-      path: '/namespace/:namespace/data',
-      component: Data,
-    },
-    {
-      exact: true,
-      path: '/namespace/:namespace/messages',
-      component: Messages,
-    },
-    {
-      exact: true,
-      path: '/namespace/:namespace',
-      component: Dashboard,
-    },
-    {
-      exact: true,
-      path: '/network',
-      component: Dashboard,
-    },
-    {
-      exact: true,
-      path: '/',
-      component: Dashboard,
-    },
-  ];
+  const routes: IRoute[] = [...DataRoutes];
 
   return (
     <NamespaceContext.Provider

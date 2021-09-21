@@ -15,40 +15,35 @@
 // limitations under the License.
 
 import React, { useState, useEffect, useContext } from 'react';
-import { useHistory } from 'react-router';
 import { TablePagination, makeStyles } from '@material-ui/core';
-import dayjs from 'dayjs';
 import { useTranslation } from 'react-i18next';
-import { IMessage, IDataTableRecord, IHistory } from '../../interfaces';
-import { DataTable } from '../../components/DataTable/DataTable';
-import { HashPopover } from '../../components/HashPopover';
-import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { NamespaceContext } from '../../contexts/NamespaceContext';
-import { fetchWithCredentials } from '../../utils';
-
-interface Props {
-  setViewMessage: React.Dispatch<React.SetStateAction<IMessage | undefined>>;
-}
+import dayjs from 'dayjs';
+import { useHistory } from 'react-router-dom';
+import { IDataTableRecord, ITransaction } from '../../../../core/interfaces';
+import { DataTable } from '../../../../core/components/DataTable/DataTable';
+import { HashPopover } from '../../../../core/components/HashPopover';
+import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
+import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
+import { fetchWithCredentials } from '../../../../core/utils';
 
 const PAGE_LIMITS = [10, 25];
 
-export const MessageList: React.FC<Props> = ({ setViewMessage }) => {
-  const history = useHistory<IHistory>();
+export const TransactionList: React.FC = () => {
+  const history = useHistory();
   const { t } = useTranslation();
   const classes = useStyles();
+  const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const { selectedNamespace } = useContext(NamespaceContext);
-  const { createdFilter, lastEvent } = useContext(ApplicationContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-  const [messages, setMessages] = useState<IMessage[]>([]);
+  const { createdFilter, lastEvent } = useContext(ApplicationContext);
 
   const columnHeaders = [
-    t('author'),
-    t('type'),
-    t('tag'),
-    t('transactionType'),
-    t('dataHash'),
-    t('createdOn'),
+    t('hash'),
+    t('blockNumber'),
+    t('signer'),
+    t('status'),
+    t('dateMined'),
   ];
 
   useEffect(() => {
@@ -63,14 +58,14 @@ export const MessageList: React.FC<Props> = ({ setViewMessage }) => {
     }
 
     fetchWithCredentials(
-      `/api/v1/namespaces/${selectedNamespace}/messages?limit=${rowsPerPage}&skip=${
+      `/api/v1/namespaces/${selectedNamespace}/transactions?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
       }${createdFilterString}`
     ).then(async (response) => {
       if (response.ok) {
-        setMessages(await response.json());
+        setTransactions(await response.json());
       } else {
-        console.log('error fetching messages');
+        console.log('error fetching transactions');
       }
     });
   }, [rowsPerPage, currentPage, selectedNamespace, createdFilter, lastEvent]);
@@ -100,39 +95,30 @@ export const MessageList: React.FC<Props> = ({ setViewMessage }) => {
     />
   );
 
-  const buildTableRecords = (messages: IMessage[]): IDataTableRecord[] => {
-    return messages.map((message: IMessage) => ({
-      key: message.header.id,
+  const buildTableRecords = (
+    transactions: ITransaction[]
+  ): IDataTableRecord[] => {
+    return transactions.map((tx: ITransaction) => ({
+      key: tx.id,
       columns: [
         {
-          value: (
-            <HashPopover
-              textColor="secondary"
-              address={message.header.author}
-            />
-          ),
+          value: <HashPopover textColor="secondary" address={tx.hash} />,
         },
-        { value: message.header.type },
-        { value: message.header.tag },
-        { value: message.header.txtype },
+        { value: tx.info?.blockNumber },
         {
           value: (
-            <HashPopover
-              textColor="secondary"
-              address={message.header.datahash}
-            />
+            <HashPopover textColor="secondary" address={tx.subject.signer} />
           ),
         },
-        { value: dayjs(message.header.created).format('MM/DD/YYYY h:mm A') },
+        { value: tx.status },
+        {
+          value: tx.created
+            ? dayjs(tx.created).format('MM/DD/YYYY h:mm A')
+            : undefined,
+        },
       ],
       onClick: () => {
-        setViewMessage(message);
-        history.replace(
-          `/namespace/${selectedNamespace}/messages` + history.location.search,
-          {
-            viewMessage: message,
-          }
-        );
+        history.push(`/namespace/${selectedNamespace}/transactions/${tx.id}`);
       },
     }));
   };
@@ -141,7 +127,7 @@ export const MessageList: React.FC<Props> = ({ setViewMessage }) => {
     <DataTable
       minHeight="300px"
       maxHeight="calc(100vh - 340px)"
-      records={buildTableRecords(messages)}
+      records={buildTableRecords(transactions)}
       {...{ columnHeaders }}
       {...{ pagination }}
     />

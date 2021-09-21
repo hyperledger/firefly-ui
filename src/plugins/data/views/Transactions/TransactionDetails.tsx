@@ -16,12 +16,12 @@
 
 import React, { useState, useEffect, useContext } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
-import { ITransaction } from '../../interfaces';
-import { NamespaceContext } from '../../contexts/NamespaceContext';
+import { ITransaction } from '../../../../core/interfaces';
+import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { useTranslation } from 'react-i18next';
 import ChevronLeftIcon from 'mdi-react/ChevronLeftIcon';
-import { HashPopover } from '../../components/HashPopover';
-import { StatusChip } from '../../components/StatusChip';
+import { HashPopover } from '../../../../core/components/HashPopover';
+import { StatusChip } from '../../../../core/components/StatusChip';
 import {
   Grid,
   Box,
@@ -32,8 +32,8 @@ import {
   CardContent,
   makeStyles,
 } from '@material-ui/core';
-import { fetchWithCredentials } from '../../utils';
-import { SnackbarContext } from '../../contexts/SnackbarContext';
+import { fetchWithCredentials } from '../../../../core/utils';
+import { SnackbarContext } from '../../../../core/contexts/SnackbarContext';
 
 export const TransactionDetails: () => JSX.Element = () => {
   const history = useHistory();

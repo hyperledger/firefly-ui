@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import React, { useState, useEffect, useContext } from 'react';
-import { DisplaySlide } from '../../components/Display/DisplaySlide';
+import { DisplaySlide } from '../../../../core/components/Display/DisplaySlide';
 import {
   Typography,
   Grid,
@@ -27,16 +27,16 @@ import {
   CircularProgress,
 } from '@material-ui/core';
 import { useTranslation } from 'react-i18next';
-import { IMessage, IBatch, IData } from '../../interfaces';
-import { HashPopover } from '../../components/HashPopover';
+import { IMessage, IBatch, IData } from '../../../../core/interfaces';
+import { HashPopover } from '../../../../core/components/HashPopover';
 import dayjs from 'dayjs';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import clsx from 'clsx';
-import { NamespaceContext } from '../../contexts/NamespaceContext';
+import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { useHistory } from 'react-router-dom';
 import Highlight from 'react-highlight';
-import { fetchWithCredentials } from '../../utils';
-import { SnackbarContext } from '../../contexts/SnackbarContext';
+import { fetchWithCredentials } from '../../../../core/utils';
+import { SnackbarContext } from '../../../../core/contexts/SnackbarContext';
 
 interface Props {
   message: IMessage;

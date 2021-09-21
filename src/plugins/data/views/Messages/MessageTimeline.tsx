@@ -15,17 +15,21 @@
 // limitations under the License.
 
 import React, { useEffect, useContext, useRef } from 'react';
-import { IMessage, IHistory, IPagedMessageResponse } from '../../interfaces';
+import {
+  IMessage,
+  IHistory,
+  IPagedMessageResponse,
+} from '../../../../core/interfaces';
 import { useHistory } from 'react-router';
 import dayjs from 'dayjs';
 import BroadcastIcon from 'mdi-react/BroadcastIcon';
-import { DataTimeline } from '../../components/DataTimeline/DataTimeline';
-import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { NamespaceContext } from '../../contexts/NamespaceContext';
+import { DataTimeline } from '../../../../core/components/DataTimeline/DataTimeline';
+import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
+import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { InfiniteData, useInfiniteQuery, useQueryClient } from 'react-query';
-import useIntersectionObserver from '../../hooks/useIntersectionObserver';
-import { SnackbarContext } from '../../contexts/SnackbarContext';
-import { fetchWithCredentials } from '../../utils';
+import useIntersectionObserver from '../../../../core/hooks/useIntersectionObserver';
+import { SnackbarContext } from '../../../../core/contexts/SnackbarContext';
+import { fetchWithCredentials } from '../../../../core/utils';
 
 const ROWS_PER_PAGE = 25;
 
