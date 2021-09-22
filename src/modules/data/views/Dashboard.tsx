@@ -23,7 +23,6 @@ import {
   CardContent,
   Box,
 } from '@material-ui/core';
-import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router';
 import dayjs from 'dayjs';
 import {
@@ -37,10 +36,11 @@ import { ApplicationContext } from '../../../core/contexts/ApplicationContext';
 import { RecentTransactions } from '../../../core/components/RecentTransactions/RecentTransactions';
 import { FilterSelect } from '../../../core/components/FilterSelect';
 import { fetchWithCredentials } from '../../../core/utils';
+import { useDataTranslation } from '../translations/translations';
 
 export const Dashboard: () => JSX.Element = () => {
   const classes = useStyles();
-  const { t } = useTranslation();
+  const { t } = useDataTranslation();
   const [messages, setMessages] = useState<IMessage[]>([]);
   const [messageTotal, setMessageTotal] = useState(0);
   const [orgTotal, setOrgTotal] = useState(0);

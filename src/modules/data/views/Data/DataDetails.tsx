@@ -17,9 +17,9 @@
 import React from 'react';
 import { DisplaySlide } from '../../../../core/components/Display/DisplaySlide';
 import { Typography, Grid, makeStyles, Paper } from '@material-ui/core';
-import { useTranslation } from 'react-i18next';
 import { IData } from '../../../../core/interfaces';
 import Highlight from 'react-highlight';
+import { useDataTranslation } from '../../translations/translations';
 
 interface Props {
   data: IData;
@@ -28,7 +28,7 @@ interface Props {
 }
 
 export const DataDetails: React.FC<Props> = ({ data, open, onClose }) => {
-  const { t } = useTranslation();
+  const { t } = useDataTranslation();
   const classes = useStyles();
 
   return (

@@ -23,7 +23,6 @@ import {
   Box,
   makeStyles,
 } from '@material-ui/core';
-import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { IDataTableRecord, IData } from '../../../../core/interfaces';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
@@ -33,11 +32,12 @@ import { ApplicationContext } from '../../../../core/contexts/ApplicationContext
 import { FilterSelect } from '../../../../core/components/FilterSelect';
 import { DataDetails } from './DataDetails';
 import { fetchWithCredentials } from '../../../../core/utils';
+import { useDataTranslation } from '../../translations/translations';
 
 const PAGE_LIMITS = [10, 25];
 
 export const Data: () => JSX.Element = () => {
-  const { t } = useTranslation();
+  const { t } = useDataTranslation();
   const classes = useStyles();
   const [loading, setLoading] = useState(false);
   const [dataItems, setDataItems] = useState<IData[]>([]);

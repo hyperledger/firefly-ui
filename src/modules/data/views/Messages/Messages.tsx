@@ -16,7 +16,6 @@
 
 import React, { useState, useContext } from 'react';
 import { Grid, Typography, Box, makeStyles } from '@material-ui/core';
-import { useTranslation } from 'react-i18next';
 import { IMessage, IHistory } from '../../../../core/interfaces';
 import { MessageDetails } from './MessageDetails';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
@@ -26,9 +25,10 @@ import { MessageTimeline } from './MessageTimeline';
 import { MessageList } from './MessageList';
 import { FilterSelect } from '../../../../core/components/FilterSelect';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
+import { useDataTranslation } from '../../translations/translations';
 
 export const Messages: () => JSX.Element = () => {
-  const { t } = useTranslation();
+  const { t } = useDataTranslation();
   const classes = useStyles();
   const history = useHistory<IHistory>();
   const [viewMessage, setViewMessage] = useState<IMessage | undefined>();

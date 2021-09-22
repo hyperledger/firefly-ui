@@ -16,15 +16,15 @@
 
 import React, { useContext } from 'react';
 import { Grid, Typography, Box, makeStyles } from '@material-ui/core';
-import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { DataViewSwitch } from '../../../../core/components/DataViewSwitch';
 import { FilterSelect } from '../../../../core/components/FilterSelect';
 import { TransactionList } from './TransactionList';
 import { TransactionTimeline } from './TransactionTimeline';
+import { useDataTranslation } from '../../translations/translations';
 
 export const Transactions: () => JSX.Element = () => {
-  const { t } = useTranslation();
+  const { t } = useDataTranslation();
   const classes = useStyles();
   const { dataView, createdFilter, setCreatedFilter } =
     useContext(ApplicationContext);

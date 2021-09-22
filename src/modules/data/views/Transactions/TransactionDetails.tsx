@@ -18,7 +18,6 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useHistory, useParams } from 'react-router-dom';
 import { ITransaction } from '../../../../core/interfaces';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
-import { useTranslation } from 'react-i18next';
 import ChevronLeftIcon from 'mdi-react/ChevronLeftIcon';
 import { HashPopover } from '../../../../core/components/HashPopover';
 import { StatusChip } from '../../../../core/components/StatusChip';
@@ -34,11 +33,12 @@ import {
 } from '@material-ui/core';
 import { fetchWithCredentials } from '../../../../core/utils';
 import { SnackbarContext } from '../../../../core/contexts/SnackbarContext';
+import { useDataTranslation } from '../../translations/translations';
 
 export const TransactionDetails: () => JSX.Element = () => {
   const history = useHistory();
   const { id } = useParams<{ id: string }>();
-  const { t } = useTranslation();
+  const { t } = useDataTranslation();
   const { selectedNamespace } = useContext(NamespaceContext);
   const [transaction, setTransaction] = useState<ITransaction>();
   const [loading, setLoading] = useState(false);

@@ -16,7 +16,6 @@
 
 import React, { useState, useEffect, useContext } from 'react';
 import { TablePagination, makeStyles } from '@material-ui/core';
-import { useTranslation } from 'react-i18next';
 import dayjs from 'dayjs';
 import { useHistory } from 'react-router-dom';
 import { IDataTableRecord, ITransaction } from '../../../../core/interfaces';
@@ -25,12 +24,13 @@ import { HashPopover } from '../../../../core/components/HashPopover';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { fetchWithCredentials } from '../../../../core/utils';
+import { useDataTranslation } from '../../translations/translations';
 
 const PAGE_LIMITS = [10, 25];
 
 export const TransactionList: React.FC = () => {
   const history = useHistory();
-  const { t } = useTranslation();
+  const { t } = useDataTranslation();
   const classes = useStyles();
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
   const { selectedNamespace } = useContext(NamespaceContext);

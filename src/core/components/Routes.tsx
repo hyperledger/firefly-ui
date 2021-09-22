@@ -36,7 +36,7 @@ import { CircularProgress } from '@material-ui/core';
 import { SnackbarContext } from '../contexts/SnackbarContext';
 import { MessageSnackbar, SnackbarMessageType } from './MessageSnackbar';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { DataRoutes } from '../../modules/data/routes';
+import { registerModuleRoutes } from '../../modules/routing/routes';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -115,7 +115,7 @@ export const Routes: () => JSX.Element = () => {
     return <CircularProgress />;
   }
 
-  const routes: IRoute[] = [...DataRoutes];
+  const routes: IRoute[] = registerModuleRoutes();
 
   return (
     <NamespaceContext.Provider

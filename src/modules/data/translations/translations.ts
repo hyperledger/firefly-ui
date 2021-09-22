@@ -14,30 +14,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
-import ReactDOM from 'react-dom';
+import useModuleTranslation from '../../../core/hooks/useModuleTranslation';
 import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import en from './core/translations/en.json';
-import './core/index.css';
-import App from './core/App';
-import { registerModuleTranslations } from './modules/translations/translations';
+import enData from './en.json';
 
-i18n.use(initReactI18next).init({
-  resources: {
-    en: { translation: en },
-  },
-  lng: 'en',
-  interpolation: {
-    escapeValue: false,
-  },
-});
+const DATA_TRANSLATIONS_NS = 'data';
 
-registerModuleTranslations();
+export const registerDataTranslations = (): void => {
+  i18n.addResourceBundle('en', DATA_TRANSLATIONS_NS, enData);
+};
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+export const useDataTranslation = (): { t: (key: string) => string } => {
+  return useModuleTranslation(DATA_TRANSLATIONS_NS);
+};

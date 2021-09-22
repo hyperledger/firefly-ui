@@ -18,7 +18,6 @@ import React, { useState, useEffect, useContext } from 'react';
 import { useHistory } from 'react-router';
 import { TablePagination, makeStyles } from '@material-ui/core';
 import dayjs from 'dayjs';
-import { useTranslation } from 'react-i18next';
 import {
   IMessage,
   IDataTableRecord,
@@ -29,6 +28,7 @@ import { HashPopover } from '../../../../core/components/HashPopover';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { fetchWithCredentials } from '../../../../core/utils';
+import { useDataTranslation } from '../../translations/translations';
 
 interface Props {
   setViewMessage: React.Dispatch<React.SetStateAction<IMessage | undefined>>;
@@ -38,7 +38,7 @@ const PAGE_LIMITS = [10, 25];
 
 export const MessageList: React.FC<Props> = ({ setViewMessage }) => {
   const history = useHistory<IHistory>();
-  const { t } = useTranslation();
+  const { t } = useDataTranslation();
   const classes = useStyles();
   const { selectedNamespace } = useContext(NamespaceContext);
   const { createdFilter, lastEvent } = useContext(ApplicationContext);

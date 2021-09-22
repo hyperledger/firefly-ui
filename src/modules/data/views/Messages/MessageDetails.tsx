@@ -26,7 +26,6 @@ import {
   Paper,
   CircularProgress,
 } from '@material-ui/core';
-import { useTranslation } from 'react-i18next';
 import { IMessage, IBatch, IData } from '../../../../core/interfaces';
 import { HashPopover } from '../../../../core/components/HashPopover';
 import dayjs from 'dayjs';
@@ -37,6 +36,7 @@ import { useHistory } from 'react-router-dom';
 import Highlight from 'react-highlight';
 import { fetchWithCredentials } from '../../../../core/utils';
 import { SnackbarContext } from '../../../../core/contexts/SnackbarContext';
+import { useDataTranslation } from '../../translations/translations';
 
 interface Props {
   message: IMessage;
@@ -45,7 +45,7 @@ interface Props {
 }
 
 export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
-  const { t } = useTranslation();
+  const { t } = useDataTranslation();
   const classes = useStyles();
   const history = useHistory();
   const [loading, setLoading] = useState(false);
