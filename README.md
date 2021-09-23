@@ -1,6 +1,6 @@
 # FireFly UI
 
-firefly-ui is the UI explorer for [FireFly](https://github.com/hyperledger-labs/firefly)
+firefly-ui is the UI explorer for [FireFly](https://github.com/hyperledger/firefly)
 
 ### Get started locally
 
