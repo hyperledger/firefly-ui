@@ -21,7 +21,7 @@ import { DataViewSwitch } from '../../../../core/components/DataViewSwitch';
 import { FilterSelect } from '../../../../core/components/FilterSelect';
 import { TransactionList } from './TransactionList';
 import { TransactionTimeline } from './TransactionTimeline';
-import { useDataTranslation } from '../../translations/translations';
+import { useDataTranslation } from '../../registration';
 
 export const Transactions: () => JSX.Element = () => {
   const { t } = useDataTranslation();
@@ -46,13 +46,7 @@ export const Transactions: () => JSX.Element = () => {
 
   return (
     <Grid container justify="center">
-      <Grid
-        container
-        item
-        wrap="nowrap"
-        direction="column"
-        className={classes.root}
-      >
+      <Grid container item wrap="nowrap" direction="column">
         <Grid container spacing={2} item direction="row">
           <Grid item>
             <Typography className={classes.header} variant="h4">
@@ -87,15 +81,6 @@ export const Transactions: () => JSX.Element = () => {
 };
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    paddingTop: 20,
-    paddingLeft: 120,
-    paddingRight: 120,
-    maxWidth: 1920,
-    [theme.breakpoints.down('sm')]: {
-      flexWrap: 'wrap',
-    },
-  },
   header: {
     fontWeight: 'bold',
   },

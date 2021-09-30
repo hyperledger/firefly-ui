@@ -15,57 +15,49 @@
 // limitations under the License.
 
 import React from 'react';
-import { IconButton, Hidden, makeStyles, Box } from '@material-ui/core';
+import { IconButton, makeStyles } from '@material-ui/core';
 import MenuIcon from 'mdi-react/MenuIcon';
+import CloseIcon from 'mdi-react/CloseIcon';
 import { ReactComponent as LogoIconSVG } from '../svg/ff-logo-white-full.svg';
 
 type Props = {
-  navigationOpen: boolean;
-  setNavigationOpen: React.Dispatch<React.SetStateAction<boolean>>;
+  navigationOpen?: boolean;
+  setNavigationOpen?: React.Dispatch<React.SetStateAction<boolean>>;
 };
 
-export const HiddenAppBar: React.FC<Props> = ({
+export const MenuLogo: React.FC<Props> = ({
   navigationOpen,
   setNavigationOpen,
 }) => {
   const classes = useStyles();
 
   return (
-    <Hidden implementation="css" mdUp>
-      <Box className={classes.container}>
-        <div className={classes.item}>
-          <IconButton
-            className={classes.navIcon}
-            size="small"
-            onClick={() => setNavigationOpen(!navigationOpen)}
-          >
-            <MenuIcon />
-          </IconButton>
-          <LogoIconSVG className={classes.logo} />
-        </div>
-      </Box>
-    </Hidden>
+    <div className={classes.item}>
+      <IconButton
+        color="inherit"
+        className={classes.icon}
+        size="small"
+        onClick={() =>
+          setNavigationOpen ? setNavigationOpen(!navigationOpen) : {}
+        }
+      >
+        {navigationOpen ? <CloseIcon /> : <MenuIcon />}
+      </IconButton>
+      <LogoIconSVG className={classes.logo} />
+    </div>
   );
 };
 
 const useStyles = makeStyles((theme) => ({
-  container: {
-    padding: theme.spacing(2, 3),
-    height: theme.mixins.toolbar.height,
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'space-between',
-  },
   item: {
     display: 'flex',
     alignItems: 'center',
   },
-  navIcon: {
-    color: theme.palette.text.primary,
-    marginRight: theme.spacing(1),
+  icon: {
+    marginRight: theme.spacing(2),
   },
   logo: {
-    width: 100,
-    height: 50,
+    width: 125,
+    height: 75,
   },
 }));

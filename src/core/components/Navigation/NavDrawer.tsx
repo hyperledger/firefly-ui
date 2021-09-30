@@ -14,51 +14,52 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Drawer, makeStyles } from '@material-ui/core';
-import React, { useEffect } from 'react';
+import { Drawer, makeStyles, Toolbar } from '@material-ui/core';
+import clsx from 'clsx';
+import React from 'react';
+import { MenuLogo } from '../MenuLogo';
 
 type Props = {
-  open: boolean;
-  setOpen: React.Dispatch<React.SetStateAction<boolean>>;
-  isMobile?: boolean;
-  setIsMobile: React.Dispatch<React.SetStateAction<boolean>>;
+  open?: boolean;
+  setOpen?: React.Dispatch<React.SetStateAction<boolean>>;
+  isPermanentDrawer?: boolean;
   children: JSX.Element;
 };
 
 export const NavDrawer: React.FC<Props> = ({
   open,
   setOpen,
-  isMobile = false,
+  isPermanentDrawer = false,
   children,
-  setIsMobile,
 }: Props) => {
   const classes = useStyles();
 
-  useEffect(() => {
-    if (isMobile) {
-      setOpen(false);
-      setIsMobile(true);
-    }
-  }, [isMobile, setOpen, setIsMobile]);
-
   return (
     <Drawer
-      variant={isMobile ? undefined : 'permanent'}
-      {...{ open }}
-      onClose={() => setOpen(false)}
+      variant={isPermanentDrawer ? 'permanent' : undefined}
+      open={isPermanentDrawer ? true : open}
+      onClose={() => (setOpen ? setOpen(false) : {})}
       anchor="left"
-      className={classes.drawerOpen}
+      transitionDuration={0}
+      className={!isPermanentDrawer ? classes.drawerOpen : undefined}
+      BackdropProps={{ invisible: true }}
       classes={{
-        paper: classes.drawerOpen,
+        paper: clsx(classes.drawerOpen, !isPermanentDrawer && classes.appNav),
         paperAnchorDockedLeft: classes.drawerBorder,
       }}
     >
+      <Toolbar>
+        <MenuLogo navigationOpen={open} setNavigationOpen={setOpen} />
+      </Toolbar>
       {children}
     </Drawer>
   );
 };
 
 const useStyles = makeStyles((theme) => ({
+  appNav: {
+    backgroundColor: 'black',
+  },
   drawerBorder: {
     borderRight: 0,
   },

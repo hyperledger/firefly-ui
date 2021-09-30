@@ -14,8 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { registerDataTranslations } from '../data/translations/translations';
+import { registerDataTranslations } from '../data/registration';
+import { registerHomeTranslations } from '../home/registration';
 
 export const registerModuleTranslations = (): void => {
   registerDataTranslations();
+  registerHomeTranslations();
 };

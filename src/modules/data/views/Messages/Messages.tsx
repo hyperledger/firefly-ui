@@ -25,7 +25,7 @@ import { MessageTimeline } from './MessageTimeline';
 import { MessageList } from './MessageList';
 import { FilterSelect } from '../../../../core/components/FilterSelect';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
-import { useDataTranslation } from '../../translations/translations';
+import { useDataTranslation } from '../../registration';
 
 export const Messages: () => JSX.Element = () => {
   const { t } = useDataTranslation();
@@ -59,12 +59,7 @@ export const Messages: () => JSX.Element = () => {
   return (
     <>
       <Grid container justify="center">
-        <Grid
-          container
-          wrap="nowrap"
-          direction="column"
-          className={classes.root}
-        >
+        <Grid container wrap="nowrap" direction="column">
           <Grid container spacing={2} item direction="row" alignItems="center">
             <Grid item>
               <Typography className={classes.header} variant="h4">
@@ -102,7 +97,7 @@ export const Messages: () => JSX.Element = () => {
           onClose={() => {
             setViewMessage(undefined);
             history.replace(
-              `/namespace/${selectedNamespace}/messages` +
+              `/namespace/${selectedNamespace}/data/messages` +
                 history.location.search,
               undefined
             );
@@ -114,15 +109,6 @@ export const Messages: () => JSX.Element = () => {
 };
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    paddingTop: 20,
-    paddingLeft: 120,
-    paddingRight: 120,
-    maxWidth: 1920,
-    [theme.breakpoints.down('sm')]: {
-      flexWrap: 'wrap',
-    },
-  },
   header: {
     fontWeight: 'bold',
   },

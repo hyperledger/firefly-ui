@@ -33,7 +33,7 @@ import {
 } from '@material-ui/core';
 import { fetchWithCredentials } from '../../../../core/utils';
 import { SnackbarContext } from '../../../../core/contexts/SnackbarContext';
-import { useDataTranslation } from '../../translations/translations';
+import { useDataTranslation } from '../../registration';
 
 export const TransactionDetails: () => JSX.Element = () => {
   const history = useHistory();
@@ -88,13 +88,7 @@ export const TransactionDetails: () => JSX.Element = () => {
 
   return (
     <Grid container justify="center">
-      <Grid
-        container
-        item
-        wrap="nowrap"
-        direction="column"
-        className={classes.root}
-      >
+      <Grid container item wrap="nowrap" direction="column">
         <Grid item>
           <Button
             className={classes.backButton}
@@ -226,15 +220,6 @@ export const TransactionDetails: () => JSX.Element = () => {
 };
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    paddingTop: 20,
-    paddingLeft: 120,
-    paddingRight: 120,
-    maxWidth: 1920,
-    [theme.breakpoints.down('sm')]: {
-      flexWrap: 'wrap',
-    },
-  },
   bold: {
     fontWeight: 'bold',
   },

@@ -36,7 +36,7 @@ import { CircularProgress } from '@material-ui/core';
 import { SnackbarContext } from '../contexts/SnackbarContext';
 import { MessageSnackbar, SnackbarMessageType } from './MessageSnackbar';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { registerModuleRoutes } from '../../modules/routing/routes';
+import { registerModuleRoutes } from '../../modules/registration/routes';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -69,7 +69,12 @@ export const Routes: () => JSX.Element = () => {
     return window.location;
   }, []);
 
-  const pathNamespace = currentPath.split('/')[2];
+  const splitPath = currentPath.split('/');
+  const pathNamespaceIndex = splitPath.findIndex((p) => p === 'namespace');
+  const pathNamespace =
+    splitPath.length >= pathNamespaceIndex + 1
+      ? splitPath[pathNamespaceIndex + 1]
+      : '';
 
   useEffect(() => {
     Promise.all([
@@ -90,7 +95,6 @@ export const Routes: () => JSX.Element = () => {
           ) {
             setSelectedNamespace(pathNamespace);
           } else {
-            history.push(`/namespace/${status.defaults.namespace}`);
             setSelectedNamespace(status.defaults.namespace);
           }
         }
@@ -152,7 +156,7 @@ export const Routes: () => JSX.Element = () => {
                     <Route
                       key={i}
                       exact={route.exact}
-                      path={route.path}
+                      path={route.route}
                       render={() => (
                         // navigation need to be within the route for access to url params
                         <NavWrapper>

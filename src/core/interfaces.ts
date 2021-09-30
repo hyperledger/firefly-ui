@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { MdiReactIconComponentType } from 'mdi-react';
+
 export type DataView = 'timeline' | 'list';
 
 export enum TXStatus {
@@ -28,7 +30,7 @@ export type FilterOptions = CreatedFilterOptions;
 
 export interface IRoute {
   exact?: boolean;
-  path: string;
+  route: string;
   component: (props: any) => JSX.Element;
 }
 
@@ -213,4 +215,22 @@ export interface IPagedTransactionResponse {
   count: number;
   items: ITransaction[];
   total: number;
+}
+
+export interface NavItem {
+  icon: MdiReactIconComponentType;
+  translationNs: string;
+  translationKey: string;
+  routesRequireNamespace: boolean;
+  makePathname: (namespace?: string) => string;
+  isActiveCheck: (namespace?: string, pathname?: string) => boolean;
+}
+
+export interface ModuleNav {
+  makeModulePathnamePrefix: (namespace?: string) => string;
+  includeNamespacePicker: boolean;
+  routesRequireNamespace: boolean;
+  navItems: NavItem[];
+  translationNs: string;
+  translationKey: string;
 }

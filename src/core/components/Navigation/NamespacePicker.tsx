@@ -28,15 +28,21 @@ import {
   List,
   ListItemIcon,
   makeStyles,
+  Typography,
 } from '@material-ui/core';
-import { useHistory } from 'react-router-dom';
+import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { NamespaceContext } from '../../contexts/NamespaceContext';
 import { ReactComponent as NamespaceIcon } from '../../svg/file-table-box-outline.svg';
+import { IRouterParams } from '../../interfaces';
+import { useTranslation } from 'react-i18next';
 
 export const NamespacePicker: React.FC = () => {
   const { selectedNamespace, setSelectedNamespace, namespaces } =
     useContext(NamespaceContext);
   const history = useHistory();
+  const { pathname } = useLocation();
+  const { t } = useTranslation();
+  const { namespace: routerNamespace } = useParams<IRouterParams>();
   const popupState = usePopupState({
     variant: 'popover',
     popupId: 'namespace',
@@ -46,7 +52,13 @@ export const NamespacePicker: React.FC = () => {
   const handleNamespaceSelect = (namespace: string) => {
     popupState.close();
     setSelectedNamespace(namespace);
-    history.push(`/namespace/${namespace}`);
+    history.push(
+      pathname
+        .replace(`/namespace/${routerNamespace}`, `/namespace/${namespace}`)
+        .split('/')
+        .slice(0, 4) // redirect to the moduleRoutePrefix for the module (/namespace/:namespace/MODULE)
+        .join('/')
+    );
   };
 
   return (
@@ -69,11 +81,22 @@ export const NamespacePicker: React.FC = () => {
               key={index}
               onClick={() => handleNamespaceSelect(namespace.name)}
             >
-              <ListItemText primary={namespace.name} />
+              <ListItemText
+                primary={namespace.name}
+                primaryTypographyProps={{
+                  className:
+                    namespace.name === selectedNamespace
+                      ? classes.highlightedText
+                      : classes.regularText,
+                }}
+              />
             </ListItem>
           ))}
         </List>
       </Popover>
+      <ListItem>
+        <Typography variant="overline">{t('namespace')}</Typography>
+      </ListItem>
       <ListItem button {...bindHover(popupState)}>
         <ListItemIcon
           classes={{
@@ -95,11 +118,17 @@ export const NamespacePicker: React.FC = () => {
   );
 };
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   closerText: {
     minWidth: 40,
   },
   navFont: {
     fontSize: '16',
+  },
+  highlightedText: {
+    color: theme.palette.text.primary,
+  },
+  regularText: {
+    color: theme.palette.text.secondary,
   },
 }));

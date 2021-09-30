@@ -1,11 +1,8 @@
 {
-  "dashboard": "Dashboard",
-  "messages": "Messages",
-  "data": "Data",
-  "transactions": "Transactions",
   "list": "List",
   "timeline": "Timeline",
   "last7Days": "Last 7 Days",
   "last30Days": "Last 30 Days",
-  "recentTransactions": "Recent Transactions"
+  "recentTransactions": "Recent Transactions",
+  "namespace": "Namespace"
 }

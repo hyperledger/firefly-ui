@@ -14,16 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import useModuleTranslation from '../../../core/hooks/useModuleTranslation';
-import i18n from 'i18next';
-import enData from './en.json';
+import { IRoute } from '../../core/interfaces';
+import { DataRoutes } from '../data/registration';
+import { HomeRoutes } from '../home/registration';
 
-const DATA_TRANSLATIONS_NS = 'data';
-
-export const registerDataTranslations = (): void => {
-  i18n.addResourceBundle('en', DATA_TRANSLATIONS_NS, enData);
-};
-
-export const useDataTranslation = (): { t: (key: string) => string } => {
-  return useModuleTranslation(DATA_TRANSLATIONS_NS);
+export const registerModuleRoutes = (): IRoute[] => {
+  return [...HomeRoutes, ...DataRoutes];
 };

@@ -111,7 +111,9 @@ export const TransactionTimeline: React.FC = () => {
         icon: <BroadcastIcon />,
         author: tx.subject.signer,
         onClick: () => {
-          history.push(`/namespace/${selectedNamespace}/transactions/${tx.id}`);
+          history.push(
+            `/namespace/${selectedNamespace}/data/transactions/${tx.id}`
+          );
         },
       }));
     } else {

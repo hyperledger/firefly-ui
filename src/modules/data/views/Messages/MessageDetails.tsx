@@ -36,7 +36,7 @@ import { useHistory } from 'react-router-dom';
 import Highlight from 'react-highlight';
 import { fetchWithCredentials } from '../../../../core/utils';
 import { SnackbarContext } from '../../../../core/contexts/SnackbarContext';
-import { useDataTranslation } from '../../translations/translations';
+import { useDataTranslation } from '../../registration';
 
 interface Props {
   message: IMessage;
@@ -134,7 +134,7 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
             className={classes.copyButton}
             onClick={() =>
               history.push(
-                `/namespace/${selectedNamespace}/transactions/${txId}` +
+                `/namespace/${selectedNamespace}/data/transactions/${txId}` +
                   history.location.search,
                 {
                   props: { message: message, open: open },

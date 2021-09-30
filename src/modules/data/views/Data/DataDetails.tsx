@@ -19,7 +19,7 @@ import { DisplaySlide } from '../../../../core/components/Display/DisplaySlide';
 import { Typography, Grid, makeStyles, Paper } from '@material-ui/core';
 import { IData } from '../../../../core/interfaces';
 import Highlight from 'react-highlight';
-import { useDataTranslation } from '../../translations/translations';
+import { useDataTranslation } from '../../registration';
 
 interface Props {
   data: IData;

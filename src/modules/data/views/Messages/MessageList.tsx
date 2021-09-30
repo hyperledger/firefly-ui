@@ -28,7 +28,7 @@ import { HashPopover } from '../../../../core/components/HashPopover';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { fetchWithCredentials } from '../../../../core/utils';
-import { useDataTranslation } from '../../translations/translations';
+import { useDataTranslation } from '../../registration';
 
 interface Props {
   setViewMessage: React.Dispatch<React.SetStateAction<IMessage | undefined>>;
@@ -132,7 +132,8 @@ export const MessageList: React.FC<Props> = ({ setViewMessage }) => {
       onClick: () => {
         setViewMessage(message);
         history.replace(
-          `/namespace/${selectedNamespace}/messages` + history.location.search,
+          `/namespace/${selectedNamespace}/data/messages` +
+            history.location.search,
           {
             viewMessage: message,
           }

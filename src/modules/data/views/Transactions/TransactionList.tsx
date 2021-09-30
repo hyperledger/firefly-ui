@@ -24,7 +24,7 @@ import { HashPopover } from '../../../../core/components/HashPopover';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { fetchWithCredentials } from '../../../../core/utils';
-import { useDataTranslation } from '../../translations/translations';
+import { useDataTranslation } from '../../registration';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -118,7 +118,9 @@ export const TransactionList: React.FC = () => {
         },
       ],
       onClick: () => {
-        history.push(`/namespace/${selectedNamespace}/transactions/${tx.id}`);
+        history.push(
+          `/namespace/${selectedNamespace}/data/transactions/${tx.id}`
+        );
       },
     }));
   };

@@ -36,7 +36,7 @@ import { ApplicationContext } from '../../../core/contexts/ApplicationContext';
 import { RecentTransactions } from '../../../core/components/RecentTransactions/RecentTransactions';
 import { FilterSelect } from '../../../core/components/FilterSelect';
 import { fetchWithCredentials } from '../../../core/utils';
-import { useDataTranslation } from '../translations/translations';
+import { useDataTranslation } from '../registration';
 
 export const Dashboard: () => JSX.Element = () => {
   const classes = useStyles();
@@ -165,17 +165,11 @@ export const Dashboard: () => JSX.Element = () => {
 
   return (
     <Grid container justify="center">
-      <Grid
-        container
-        item
-        wrap="nowrap"
-        className={classes.root}
-        direction="column"
-      >
+      <Grid container item wrap="nowrap" direction="column">
         <Grid container item direction="row">
           <Grid className={classes.headerContainer} item>
             <Typography variant="h4" className={classes.header}>
-              {t('explorer')}
+              {t('dashboard')}
             </Typography>
           </Grid>
           <Box className={classes.separator} />
@@ -227,15 +221,6 @@ export const Dashboard: () => JSX.Element = () => {
 };
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    paddingTop: 20,
-    paddingLeft: 120,
-    paddingRight: 120,
-    maxWidth: 1920,
-    [theme.breakpoints.down('sm')]: {
-      flexWrap: 'wrap',
-    },
-  },
   header: {
     fontWeight: 'bold',
   },

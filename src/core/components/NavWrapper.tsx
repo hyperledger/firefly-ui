@@ -14,33 +14,80 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useState } from 'react';
-import { Navigation } from './Navigation/Navigation';
-import { makeStyles } from '@material-ui/core';
-import { HiddenAppBar } from './HiddenAppBar';
+import React, { useContext, useState } from 'react';
+import { makeStyles, Toolbar } from '@material-ui/core';
+import { AppBar } from './AppBar';
+import clsx from 'clsx';
+import { NavContent } from './Navigation/NavContent';
+import { IRouterParams, ModuleNav, NavItem } from '../interfaces';
+import {
+  registerAppNavigationItems,
+  registerModuleNavigationItems,
+} from '../../modules/registration/navigation';
+import { useLocation, useParams } from 'react-router';
+import { NamespaceContext } from '../contexts/NamespaceContext';
+import { useTranslation } from 'react-i18next';
 
 export const NavWrapper: React.FC = ({ children }) => {
   const classes = useStyles();
-  const [navigationOpen, setNavigationOpen] = useState(true);
+  const { t } = useTranslation();
+  const { pathname } = useLocation();
+  const { namespace: routerNamespace } = useParams<IRouterParams>();
+  const { selectedNamespace } = useContext(NamespaceContext);
+  const namespace = routerNamespace || selectedNamespace;
+
+  const [navigationOpen, setNavigationOpen] = useState(false);
+
+  const navItems: NavItem[] = registerAppNavigationItems();
+  const moduleNavs: ModuleNav[] = registerModuleNavigationItems();
+
+  const moduleNav = moduleNavs.find((m) =>
+    pathname.startsWith(
+      m.makeModulePathnamePrefix(
+        m.routesRequireNamespace ? namespace : undefined
+      )
+    )
+  );
 
   return (
     <div className={classes.root}>
-      <Navigation
-        navigationOpen={navigationOpen}
-        setNavigationOpen={setNavigationOpen}
-      />
       <main className={classes.content}>
-        <HiddenAppBar
+        <AppBar
           navigationOpen={navigationOpen}
           setNavigationOpen={setNavigationOpen}
         />
-        {children}
+        <NavContent
+          navigationOpen={navigationOpen}
+          setNavigationOpen={setNavigationOpen}
+          includeNamespacePicker={false}
+          isPermanentDrawer={false}
+          navItems={navItems}
+        />
+        {moduleNav && (
+          <NavContent
+            includeNamespacePicker={moduleNav.includeNamespacePicker}
+            isPermanentDrawer={true}
+            navItems={moduleNav.navItems}
+            navTitle={t(
+              `${moduleNav.translationNs}:${moduleNav.translationKey}`
+            )}
+          />
+        )}
+        <div
+          className={clsx(
+            classes.panel,
+            (navigationOpen || moduleNav) && classes.navShift
+          )}
+        >
+          <Toolbar />
+          {children}
+        </div>
       </main>
     </div>
   );
 };
 
-const useStyles = makeStyles(() => ({
+const useStyles = makeStyles((theme) => ({
   root: {
     display: 'flex',
   },
@@ -49,5 +96,21 @@ const useStyles = makeStyles(() => ({
     flexDirection: 'column',
     width: '100%',
     overflow: 'hidden',
+  },
+  shift: {
+    marginLeft: '110px',
+  },
+  panel: {
+    paddingTop: theme.spacing(2),
+    paddingLeft: 120,
+    paddingRight: 120,
+    maxWidth: 1920,
+    [theme.breakpoints.down('sm')]: {
+      flexWrap: 'wrap',
+    },
+  },
+  navShift: {
+    paddingLeft: 260,
+    paddingRight: 40,
   },
 }));

@@ -14,9 +14,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { IRoute } from '../../core/interfaces';
-import { DataRoutes } from '../data/routes';
+import { ModuleNav, NavItem } from '../../core/interfaces';
+import { DataAppNavItem, DataModuleNav } from '../data/registration';
+import { HomeAppNavItem } from '../home/registration';
 
-export const registerModuleRoutes = (): IRoute[] => {
-  return [...DataRoutes];
+export const registerAppNavigationItems = (): NavItem[] => {
+  return [HomeAppNavItem, DataAppNavItem];
+};
+
+export const registerModuleNavigationItems = (): ModuleNav[] => {
+  return [DataModuleNav];
 };

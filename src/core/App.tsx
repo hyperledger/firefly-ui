@@ -14,10 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { ThemeProvider, CssBaseline, createMuiTheme } from '@material-ui/core';
+import { ThemeProvider, CssBaseline, createTheme } from '@material-ui/core';
 import { Routes } from './components/Routes';
 
-export const theme = createMuiTheme({
+export const theme = createTheme({
   palette: {
     type: 'dark',
     background: {
@@ -35,6 +35,11 @@ export const theme = createMuiTheme({
     },
     timelineBackground: {
       main: '#2D353C',
+    },
+  },
+  mixins: {
+    toolbar: {
+      height: '66px',
     },
   },
   overrides: {

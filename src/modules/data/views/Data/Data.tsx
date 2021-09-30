@@ -32,7 +32,7 @@ import { ApplicationContext } from '../../../../core/contexts/ApplicationContext
 import { FilterSelect } from '../../../../core/components/FilterSelect';
 import { DataDetails } from './DataDetails';
 import { fetchWithCredentials } from '../../../../core/utils';
-import { useDataTranslation } from '../../translations/translations';
+import { useDataTranslation } from '../../registration';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -152,12 +152,7 @@ export const Data: () => JSX.Element = () => {
   return (
     <>
       <Grid container justify="center">
-        <Grid
-          container
-          wrap="nowrap"
-          direction="column"
-          className={classes.root}
-        >
+        <Grid container wrap="nowrap" direction="column">
           <Grid container spacing={2} item direction="row">
             <Grid item>
               <Typography className={classes.header} variant="h4">
@@ -198,15 +193,6 @@ export const Data: () => JSX.Element = () => {
 };
 
 const useStyles = makeStyles((theme) => ({
-  root: {
-    paddingTop: 20,
-    paddingLeft: 120,
-    paddingRight: 120,
-    maxWidth: 1920,
-    [theme.breakpoints.down('sm')]: {
-      flexWrap: 'wrap',
-    },
-  },
   header: {
     fontWeight: 'bold',
   },

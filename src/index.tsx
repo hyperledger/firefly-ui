@@ -21,7 +21,7 @@ import { initReactI18next } from 'react-i18next';
 import en from './core/translations/en.json';
 import './core/index.css';
 import App from './core/App';
-import { registerModuleTranslations } from './modules/translations/translations';
+import { registerModuleTranslations } from './modules/registration/translations';
 
 i18n.use(initReactI18next).init({
   resources: {
