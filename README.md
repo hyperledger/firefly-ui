@@ -8,6 +8,7 @@ firefly-ui is the UI explorer for [FireFly](https://github.com/hyperledger/firef
 
 ```bash
 git clone https://github.com/kaleido-io/firefly-ui
+cd firefly-ui
 npm i
 npm run start
 ```
