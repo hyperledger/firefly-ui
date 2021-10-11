@@ -94,6 +94,7 @@ export interface IFireflyHeader {
   type: string;
   txtype: string;
   author: string;
+  key: string;
   created: string;
   namespace: string;
   topic: string[];

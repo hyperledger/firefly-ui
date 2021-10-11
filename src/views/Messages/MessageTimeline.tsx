@@ -108,7 +108,7 @@ export const MessageTimeline: React.FC<Props> = ({ setViewMessage }) => {
         key: message.header.id,
         title: message.header.type,
         description: message.header.tag,
-        author: message.header.author,
+        author: message.header.key,
         time: dayjs(message.header.created).format('MM/DD/YYYY h:mm A'),
         icon: <BroadcastIcon />,
         onClick: () => {
