@@ -17,7 +17,6 @@
 import React from 'react';
 import { TextField, MenuItem } from '@mui/material';
 import { FilterOptions, IFilterItem } from '../interfaces';
-import { theme } from '../App';
 
 interface Props {
   filter: FilterOptions;
@@ -42,10 +41,7 @@ export const FilterSelect: React.FC<Props> = ({
         {filterItems.map((item) => (
           <MenuItem
             sx={{
-              color:
-                filter === item.value
-                  ? theme.palette.text.primary
-                  : theme.palette.text.disabled,
+              color: filter === item.value ? 'text.primary' : 'text.disabled',
             }}
             key={item.value}
             value={item.value}

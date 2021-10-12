@@ -39,7 +39,7 @@ export const AppBar: React.FC<Props> = ({
   const classes = useStyles();
 
   return (
-    <Box sx={{ display: 'flex' }}>
+    <Box display="flex">
       <CssBaseline />
       <MaterialAppBar position="fixed">
         <Toolbar>

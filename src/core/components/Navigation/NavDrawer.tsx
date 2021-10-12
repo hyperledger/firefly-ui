@@ -18,7 +18,6 @@ import { Drawer, Toolbar } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 import React from 'react';
-import { theme } from '../../App';
 import { MenuLogo } from '../MenuLogo';
 
 type Props = {
@@ -39,9 +38,10 @@ export const NavDrawer: React.FC<Props> = ({
   return (
     <Drawer
       sx={{
-        zIndex: !isPermanentDrawer
-          ? theme.zIndex.appBar + 1
-          : theme.zIndex.appBar - 1,
+        zIndex: (theme) =>
+          !isPermanentDrawer
+            ? theme.zIndex.appBar + 1
+            : theme.zIndex.appBar - 1,
       }}
       color="primary"
       variant={isPermanentDrawer ? 'permanent' : undefined}
