@@ -32,7 +32,7 @@ import { NamespaceContext } from '../contexts/NamespaceContext';
 import { ApplicationContext } from '../contexts/ApplicationContext';
 import { NavWrapper } from './NavWrapper';
 import { fetchWithCredentials } from '../utils';
-import { CircularProgress } from '@material-ui/core';
+import { CircularProgress } from '@mui/material';
 import { SnackbarContext } from '../contexts/SnackbarContext';
 import { MessageSnackbar, SnackbarMessageType } from './MessageSnackbar';
 import { QueryClient, QueryClientProvider } from 'react-query';

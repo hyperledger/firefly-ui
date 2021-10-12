@@ -15,7 +15,8 @@
 // limitations under the License.
 
 import React, { useContext, useState } from 'react';
-import { makeStyles, Toolbar } from '@material-ui/core';
+import { Toolbar } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { AppBar } from './AppBar';
 import clsx from 'clsx';
 import { NavContent } from './Navigation/NavContent';
@@ -105,7 +106,7 @@ const useStyles = makeStyles((theme) => ({
     paddingLeft: 120,
     paddingRight: 120,
     maxWidth: 1920,
-    [theme.breakpoints.down('sm')]: {
+    [theme.breakpoints.down('md')]: {
       flexWrap: 'wrap',
     },
   },

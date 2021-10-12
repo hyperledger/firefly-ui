@@ -15,15 +15,9 @@
 // limitations under the License.
 
 import React, { useContext } from 'react';
-import {
-  Paper,
-  makeStyles,
-  Avatar,
-  Tooltip,
-  CircularProgress,
-  Grid,
-} from '@material-ui/core';
-import { Timeline } from '@material-ui/lab';
+import { Paper, Avatar, Tooltip, CircularProgress, Grid } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import { Timeline } from '@mui/lab';
 import { ITimelineItem } from '../../interfaces';
 import { TimelineItemWrapper } from './TimelineItemWrapper';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
@@ -85,7 +79,7 @@ const useStyles = makeStyles((theme) => ({
   },
   avatar: {
     textTransform: 'uppercase',
-    backgroundColor: theme.palette.primary.main,
+    backgroundColor: theme.palette.info.dark,
     color: theme.palette.text.primary,
   },
   loading: {

@@ -15,7 +15,8 @@
 // limitations under the License.
 
 import React, { useContext, useEffect } from 'react';
-import { Button, ButtonGroup, makeStyles } from '@material-ui/core';
+import { Button, ButtonGroup } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { DataView } from '../interfaces';
 import { useTranslation } from 'react-i18next';
 import { useQueryParam, StringParam } from 'use-query-params';

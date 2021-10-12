@@ -27,9 +27,9 @@ import {
   ListItemText,
   List,
   ListItemIcon,
-  makeStyles,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { useHistory, useLocation, useParams } from 'react-router-dom';
 import { NamespaceContext } from '../../contexts/NamespaceContext';
 import { ReactComponent as NamespaceIcon } from '../../svg/file-table-box-outline.svg';
@@ -129,6 +129,6 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.primary,
   },
   regularText: {
-    color: theme.palette.text.secondary,
+    color: theme.palette.text.disabled,
   },
 }));

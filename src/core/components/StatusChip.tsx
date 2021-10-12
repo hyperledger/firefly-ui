@@ -15,7 +15,9 @@
 // limitations under the License.
 
 import React from 'react';
-import { Chip, makeStyles } from '@material-ui/core';
+import { Chip } from '@mui/material';
+
+import makeStyles from '@mui/styles/makeStyles';
 
 interface Props {
   status: string;

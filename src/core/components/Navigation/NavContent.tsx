@@ -20,10 +20,10 @@ import {
   ListItem,
   ListItemIcon,
   ListItemText,
-  makeStyles,
   Collapse,
   Typography,
-} from '@material-ui/core';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 import { useLocation, useHistory, useParams } from 'react-router-dom';
 import { NavDrawer } from './NavDrawer';
@@ -168,7 +168,7 @@ const useStyles = makeStyles((theme) => ({
     color: theme.palette.text.primary,
   },
   regularText: {
-    color: theme.palette.text.secondary,
+    color: theme.palette.text.disabled,
   },
   padTitle: {
     paddingTop: theme.spacing(3),

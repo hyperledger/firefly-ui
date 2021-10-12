@@ -15,7 +15,8 @@
 // limitations under the License.
 
 import React, { useState, useEffect, useContext } from 'react';
-import { TablePagination, makeStyles } from '@material-ui/core';
+import { TablePagination } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import dayjs from 'dayjs';
 import { useHistory } from 'react-router-dom';
 import { IDataTableRecord, ITransaction } from '../../../../core/interfaces';
@@ -88,7 +89,7 @@ export const TransactionList: React.FC = () => {
       rowsPerPage={rowsPerPage}
       page={currentPage}
       onPageChange={handleChangePage}
-      onChangeRowsPerPage={handleChangeRowsPerPage}
+      onRowsPerPageChange={handleChangeRowsPerPage}
       rowsPerPageOptions={PAGE_LIMITS}
       labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
       className={classes.pagination}

@@ -16,7 +16,9 @@
 
 import React from 'react';
 import { IDataTableRecord } from '../../interfaces';
-import { TableRow, TableCell, withStyles, makeStyles } from '@material-ui/core';
+import { TableRow, TableCell } from '@mui/material';
+import withStyles from '@mui/styles/withStyles';
+import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 
 interface Props {
@@ -45,7 +47,7 @@ export const DataTableRow: React.FC<Props> = ({ record }) => {
 const StyledTableRow = withStyles((theme) => ({
   root: {
     '&:nth-of-type(even)': {
-      backgroundColor: theme.palette.tableRowAlternate.main,
+      backgroundColor: '#21272D',
     },
     '&:nth-of-type(odd)': {
       backgroundColor: theme.palette.background.paper,

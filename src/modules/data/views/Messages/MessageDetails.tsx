@@ -21,11 +21,11 @@ import {
   Grid,
   Divider,
   Button,
-  makeStyles,
   Box,
   Paper,
   CircularProgress,
-} from '@material-ui/core';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { IMessage, IBatch, IData } from '../../../../core/interfaces';
 import { HashPopover } from '../../../../core/components/HashPopover';
 import dayjs from 'dayjs';
@@ -118,7 +118,12 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
   );
 
   const transactionLink = (txId: string | undefined) => (
-    <Grid alignItems="center" container direction="row" justify="space-between">
+    <Grid
+      alignItems="center"
+      container
+      direction="row"
+      justifyContent="space-between"
+    >
       <Grid item xs={8}>
         <Typography
           noWrap
@@ -212,7 +217,12 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
             </Grid>
           </Grid>
           {data.map((item) => (
-            <Grid container className={classes.dataContainer} item>
+            <Grid
+              container
+              className={classes.dataContainer}
+              item
+              key={item.id}
+            >
               <Grid item>
                 <Paper className={classes.paper}>
                   <Highlight>{JSON.stringify(item.value, null, 2)}</Highlight>

@@ -15,7 +15,8 @@
 // limitations under the License.
 
 import React from 'react';
-import { Slide, Modal, Paper, IconButton, makeStyles } from '@material-ui/core';
+import { Slide, Modal, Paper, IconButton } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import CloseIcon from 'mdi-react/CloseIcon';
 
 export interface Props {
@@ -31,7 +32,11 @@ export const DisplaySlide: React.FC<Props> = ({ children, open, onClose }) => {
       <Modal {...{ open }} {...{ onClose }}>
         <Slide direction="left" in={open} mountOnEnter unmountOnExit>
           <Paper square className={classes.paper}>
-            <IconButton onClick={onClose} className={classes.close}>
+            <IconButton
+              onClick={onClose}
+              className={classes.close}
+              size="large"
+            >
               <CloseIcon />
             </IconButton>
             {children}

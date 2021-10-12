@@ -16,7 +16,8 @@
 
 import React from 'react';
 import { PieCustomLayer, ResponsivePie, PieLayer } from '@nivo/pie';
-import { makeStyles, useTheme, useMediaQuery } from '@material-ui/core';
+import { useTheme, useMediaQuery } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { IPieChartElement } from '../../interfaces';
 import { useTranslation } from 'react-i18next';
 import { LegendProps } from '@nivo/legends';
@@ -36,7 +37,7 @@ export const TransactionPieChart: React.FC<Props> = ({ data }) => {
   const { t } = useTranslation();
 
   const theme = useTheme();
-  const isSmall = useMediaQuery(theme.breakpoints.down('md'));
+  const isSmall = useMediaQuery(theme.breakpoints.down('lg'));
 
   const CenteredMetric: PieCustomLayer<IPieChartElement> = ({
     dataWithArc,
@@ -56,7 +57,7 @@ export const TransactionPieChart: React.FC<Props> = ({ data }) => {
         dominantBaseline="central"
         style={{
           fill: '#9BA7B0',
-          fontSize: '2ch',
+          fontSize: '1.5ch',
         }}
       >
         {total} {t('transactions')}
@@ -102,7 +103,7 @@ export const TransactionPieChart: React.FC<Props> = ({ data }) => {
           arcLinkLabelsTextColor="#9BA7B0"
           arcLinkLabel={(d) => `${d.id}: ${d.value}`}
           // change tooltip text color
-          theme={{ tooltip: { container: { color: 'black' } } }}
+          theme={{ tooltip: { container: { color: '#000000' } } }}
           legends={legends}
           layers={isSmall ? BASE_LAYERS : [...BASE_LAYERS, CenteredMetric]}
         />

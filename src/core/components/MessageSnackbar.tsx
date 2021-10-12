@@ -15,14 +15,9 @@
 // limitations under the License.
 
 import React, { useEffect, useRef, useState } from 'react';
-import {
-  IconButton,
-  makeStyles,
-  Slide,
-  Snackbar,
-  Theme,
-} from '@material-ui/core';
-import { TransitionProps } from '@material-ui/core/transitions';
+import { IconButton, Slide, Snackbar, Theme } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
+import { TransitionProps } from '@mui/material/transitions';
 import AlertCircleIcon from 'mdi-react/AlertCircleIcon';
 import CloseIcon from 'mdi-react/CloseIcon';
 import CheckIcon from 'mdi-react/CheckIcon';
@@ -91,6 +86,7 @@ export const MessageSnackbar: React.FC<MessageSnackbarProps> = ({
           aria-label="close"
           color="inherit"
           onClick={handleClose}
+          size="large"
         >
           <CloseIcon />
         </IconButton>,

@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import React from 'react';
-import { makeStyles } from '@material-ui/core';
+import makeStyles from '@mui/styles/makeStyles';
 import {
   TimelineSeparator,
   TimelineContent,
@@ -23,7 +23,7 @@ import {
   TimelineDot,
   TimelineConnector,
   TimelineItem as TItem,
-} from '@material-ui/lab';
+} from '@mui/lab';
 import { ITimelineItem } from '../../../interfaces';
 import { TimelineContentPanel } from './TimelineContentPanel';
 
@@ -59,6 +59,6 @@ export const TimelineItem: React.FC<Props> = ({ item }) => {
 
 const useStyles = makeStyles((theme) => ({
   dot: {
-    backgroundColor: theme.palette.timelineBackground.main,
+    backgroundColor: '#2D353C',
   },
 }));

@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import React, { useContext, useMemo } from 'react';
-import { TextField, MenuItem } from '@material-ui/core';
+import { TextField, MenuItem } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useQueryParam, StringParam } from 'use-query-params';
 import { CreatedFilterOptions } from '../interfaces';

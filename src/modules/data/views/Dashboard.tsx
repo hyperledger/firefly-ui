@@ -15,14 +15,8 @@
 // limitations under the License.
 
 import React, { useEffect, useState, useContext } from 'react';
-import {
-  Grid,
-  makeStyles,
-  Typography,
-  Card,
-  CardContent,
-  Box,
-} from '@material-ui/core';
+import { Grid, Typography, Card, CardContent, Box } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { useParams } from 'react-router';
 import dayjs from 'dayjs';
 import {
@@ -164,7 +158,7 @@ export const Dashboard: () => JSX.Element = () => {
   );
 
   return (
-    <Grid container justify="center">
+    <Grid container justifyContent="center">
       <Grid container item wrap="nowrap" direction="column">
         <Grid container item direction="row">
           <Grid className={classes.headerContainer} item>

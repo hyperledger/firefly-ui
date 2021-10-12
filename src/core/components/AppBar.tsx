@@ -17,12 +17,12 @@
 import React from 'react';
 import {
   IconButton,
-  makeStyles,
   Box,
   CssBaseline,
   Toolbar,
   AppBar as MaterialAppBar,
-} from '@material-ui/core';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import CogOutlineIcon from 'mdi-react/CogOutlineIcon';
 import BellOutlineIcon from 'mdi-react/BellOutlineIcon';
 import { MenuLogo } from './MenuLogo';
@@ -41,11 +41,7 @@ export const AppBar: React.FC<Props> = ({
   return (
     <Box sx={{ display: 'flex' }}>
       <CssBaseline />
-      <MaterialAppBar
-        position="fixed"
-        color="inherit"
-        className={classes.appBar}
-      >
+      <MaterialAppBar position="fixed">
         <Toolbar>
           <MenuLogo
             navigationOpen={navigationOpen}
@@ -78,9 +74,6 @@ export const AppBar: React.FC<Props> = ({
 const useStyles = makeStyles((theme) => ({
   rightSideIcons: {
     marginLeft: 'auto',
-  },
-  appBar: {
-    zIndex: theme.zIndex.drawer + 1,
   },
   icon: {
     marginRight: theme.spacing(2),

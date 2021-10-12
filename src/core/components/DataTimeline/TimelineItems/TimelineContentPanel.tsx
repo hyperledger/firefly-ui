@@ -15,7 +15,8 @@
 // limitations under the License.
 
 import React from 'react';
-import { makeStyles, Paper, Typography, Grid } from '@material-ui/core';
+import { Paper, Typography, Grid } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 
 interface Props {
@@ -64,7 +65,7 @@ export const TimelineContentPanel: React.FC<Props> = ({
 const useStyles = makeStyles((theme) => ({
   paper: {
     padding: theme.spacing(2),
-    backgroundColor: theme.palette.timelineBackground.main,
+    backgroundColor: '#2D353C',
   },
   titleContainer: {
     maxWidth: 220,
@@ -83,7 +84,7 @@ const useStyles = makeStyles((theme) => ({
     cursor: 'pointer',
   },
   borderPrimary: {
-    borderLeft: `4px solid ${theme.palette.primary.main}`,
+    borderLeft: `4px solid ${theme.palette.info.dark}`,
   },
   borderSecondary: {
     borderLeft: `4px solid ${theme.palette.secondary.main}`,

@@ -20,10 +20,10 @@ import {
   Grid,
   Popover,
   IconButton,
-  makeStyles,
   Typography,
   Theme,
-} from '@material-ui/core';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import ContentCopyIcon from 'mdi-react/ContentCopyIcon';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import clsx from 'clsx';
@@ -83,7 +83,7 @@ export const HashPopover: React.FC<Props> = ({
           </Grid>
           <Grid item>
             <CopyToClipboard text={address}>
-              <IconButton className={classes.button}>
+              <IconButton className={classes.button} size="large">
                 <ContentCopyIcon />
               </IconButton>
             </CopyToClipboard>

@@ -24,8 +24,8 @@ import {
   TableRow,
   Typography,
   Grid,
-  makeStyles,
-} from '@material-ui/core';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { IDataTableRecord } from '../../interfaces';
 import { DataTableRow } from './DataTableRow';
 

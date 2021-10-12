@@ -15,8 +15,9 @@
 // limitations under the License.
 
 import React from 'react';
-import { TextField, MenuItem } from '@material-ui/core';
+import { TextField, MenuItem } from '@mui/material';
 import { FilterOptions, IFilterItem } from '../interfaces';
+import { theme } from '../App';
 
 interface Props {
   filter: FilterOptions;
@@ -39,7 +40,16 @@ export const FilterSelect: React.FC<Props> = ({
         onChange={(event) => setFilter(event.target.value as FilterOptions)}
       >
         {filterItems.map((item) => (
-          <MenuItem key={item.value} value={item.value}>
+          <MenuItem
+            sx={{
+              color:
+                filter === item.value
+                  ? theme.palette.text.primary
+                  : theme.palette.text.disabled,
+            }}
+            key={item.value}
+            value={item.value}
+          >
             {item.label}
           </MenuItem>
         ))}

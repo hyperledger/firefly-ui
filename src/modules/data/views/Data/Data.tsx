@@ -21,8 +21,8 @@ import {
   TablePagination,
   CircularProgress,
   Box,
-  makeStyles,
-} from '@material-ui/core';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import dayjs from 'dayjs';
 import { IDataTableRecord, IData } from '../../../../core/interfaces';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
@@ -88,7 +88,7 @@ export const Data: () => JSX.Element = () => {
       rowsPerPage={rowsPerPage}
       page={currentPage}
       onPageChange={handleChangePage}
-      onChangeRowsPerPage={handleChangeRowsPerPage}
+      onRowsPerPageChange={handleChangeRowsPerPage}
       rowsPerPageOptions={PAGE_LIMITS}
       labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
       className={classes.pagination}
@@ -151,7 +151,7 @@ export const Data: () => JSX.Element = () => {
 
   return (
     <>
-      <Grid container justify="center">
+      <Grid container justifyContent="center">
         <Grid container wrap="nowrap" direction="column">
           <Grid container spacing={2} item direction="row">
             <Grid item>

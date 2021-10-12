@@ -15,7 +15,8 @@
 // limitations under the License.
 
 import React from 'react';
-import { IconButton, makeStyles } from '@material-ui/core';
+import { IconButton } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import MenuIcon from 'mdi-react/MenuIcon';
 import CloseIcon from 'mdi-react/CloseIcon';
 import { ReactComponent as LogoIconSVG } from '../svg/ff-logo-white-full.svg';

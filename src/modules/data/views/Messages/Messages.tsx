@@ -15,7 +15,8 @@
 // limitations under the License.
 
 import React, { useState, useContext } from 'react';
-import { Grid, Typography, Box, makeStyles } from '@material-ui/core';
+import { Grid, Typography, Box } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { IMessage, IHistory } from '../../../../core/interfaces';
 import { MessageDetails } from './MessageDetails';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
@@ -58,7 +59,7 @@ export const Messages: () => JSX.Element = () => {
 
   return (
     <>
-      <Grid container justify="center">
+      <Grid container justifyContent="center">
         <Grid container wrap="nowrap" direction="column">
           <Grid container spacing={2} item direction="row" alignItems="center">
             <Grid item>

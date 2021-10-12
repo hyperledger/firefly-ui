@@ -15,7 +15,8 @@
 // limitations under the License.
 
 import React, { useContext } from 'react';
-import { Grid, Typography, Box, makeStyles } from '@material-ui/core';
+import { Grid, Typography, Box } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { DataViewSwitch } from '../../../../core/components/DataViewSwitch';
 import { FilterSelect } from '../../../../core/components/FilterSelect';
@@ -45,7 +46,7 @@ export const Transactions: () => JSX.Element = () => {
   ];
 
   return (
-    <Grid container justify="center">
+    <Grid container justifyContent="center">
       <Grid container item wrap="nowrap" direction="column">
         <Grid container spacing={2} item direction="row">
           <Grid item>

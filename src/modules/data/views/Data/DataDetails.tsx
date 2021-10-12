@@ -16,7 +16,8 @@
 
 import React from 'react';
 import { DisplaySlide } from '../../../../core/components/Display/DisplaySlide';
-import { Typography, Grid, makeStyles, Paper } from '@material-ui/core';
+import { Typography, Grid, Paper } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { IData } from '../../../../core/interfaces';
 import Highlight from 'react-highlight';
 import { useDataTranslation } from '../../registration';

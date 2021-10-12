@@ -15,7 +15,8 @@
 // limitations under the License.
 
 import React from 'react';
-import { Paper, Grid, makeStyles, Typography } from '@material-ui/core';
+import { Paper, Grid, Typography } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { TransactionPieChart } from './TransactionPieChart';
 import { useTranslation } from 'react-i18next';
 import { ITransaction, TXStatus } from '../../interfaces';
@@ -66,7 +67,7 @@ export const RecentTransactions: React.FC<Props> = ({ transactions }) => {
   return (
     <>
       <Paper className={classes.paper}>
-        <Grid container justify="space-between" direction="row">
+        <Grid container justifyContent="space-between" direction="row">
           <Grid item>
             <Typography className={classes.header}>
               {t('recentTransactions')}

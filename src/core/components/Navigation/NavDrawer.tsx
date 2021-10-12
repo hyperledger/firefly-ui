@@ -14,9 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Drawer, makeStyles, Toolbar } from '@material-ui/core';
+import { Drawer, Toolbar } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import clsx from 'clsx';
 import React from 'react';
+import { theme } from '../../App';
 import { MenuLogo } from '../MenuLogo';
 
 type Props = {
@@ -36,6 +38,12 @@ export const NavDrawer: React.FC<Props> = ({
 
   return (
     <Drawer
+      sx={{
+        zIndex: !isPermanentDrawer
+          ? theme.zIndex.appBar + 1
+          : theme.zIndex.appBar - 1,
+      }}
+      color="primary"
       variant={isPermanentDrawer ? 'permanent' : undefined}
       open={isPermanentDrawer ? true : open}
       onClose={() => (setOpen ? setOpen(false) : {})}

@@ -22,8 +22,8 @@ import {
   TimelineOppositeContent,
   TimelineDot,
   TimelineConnector,
-} from '@material-ui/lab';
-import { makeStyles } from '@material-ui/core';
+} from '@mui/lab';
+import makeStyles from '@mui/styles/makeStyles';
 import { TimelineContentPanel } from './TimelineContentPanel';
 import { ITimelineItem } from '../../../interfaces';
 
@@ -58,6 +58,6 @@ export const OppositeTimelineItem: React.FC<Props> = ({ item }) => {
 
 const useStyles = makeStyles((theme) => ({
   dot: {
-    backgroundColor: theme.palette.timelineBackground.main,
+    backgroundColor: '#2D353C',
   },
 }));

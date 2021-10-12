@@ -14,7 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid, makeStyles, Typography } from '@material-ui/core';
+import { Grid, Typography } from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { useHomeTranslation } from '../registration';
 
 export const Home: () => JSX.Element = () => {
@@ -22,7 +23,7 @@ export const Home: () => JSX.Element = () => {
   const { t } = useHomeTranslation();
 
   return (
-    <Grid container justify="center">
+    <Grid container justifyContent="center">
       <Grid container item wrap="nowrap" direction="column">
         <Grid container item direction="row">
           <Grid className={classes.headerContainer} item>

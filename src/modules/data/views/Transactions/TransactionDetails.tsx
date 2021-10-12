@@ -29,8 +29,8 @@ import {
   CircularProgress,
   Card,
   CardContent,
-  makeStyles,
-} from '@material-ui/core';
+} from '@mui/material';
+import makeStyles from '@mui/styles/makeStyles';
 import { fetchWithCredentials } from '../../../../core/utils';
 import { SnackbarContext } from '../../../../core/contexts/SnackbarContext';
 import { useDataTranslation } from '../../registration';
@@ -87,7 +87,7 @@ export const TransactionDetails: () => JSX.Element = () => {
   }
 
   return (
-    <Grid container justify="center">
+    <Grid container justifyContent="center">
       <Grid container item wrap="nowrap" direction="column">
         <Grid item>
           <Button
