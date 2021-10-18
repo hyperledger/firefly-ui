@@ -56,6 +56,7 @@ export const HashPopover: React.FC<Props> = ({
         ref={anchorRef}
       />
       <Popover
+        sx={{ zIndex: (theme) => theme.zIndex.tooltip + 1 }}
         open={open}
         anchorEl={anchorRef.current}
         onBackdropClick={(event) => {

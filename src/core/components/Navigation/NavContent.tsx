@@ -107,7 +107,9 @@ export const NavContent: React.FC<Props> = ({
         <List>
           {includeNamespacePicker && <NamespacePicker />}
           {navTitle && (
-            <ListItem className={classes.padTitle}>
+            <ListItem
+              className={includeNamespacePicker ? classes.padTitle : undefined}
+            >
               <Typography variant="overline">{navTitle}</Typography>
             </ListItem>
           )}

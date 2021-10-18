@@ -197,10 +197,28 @@ export interface IBatch {
 
 export interface IOrganization {
   created: string;
-  description: string;
+  id: string;
   identity: string;
+  description: string;
   message: string;
   parent: string;
+  name: string;
+}
+
+export interface INode {
+  created: string;
+  id: string;
+  message: string;
+  name: string;
+  owner: string; // owner is IOrganization.identity
+  dx: {
+    endpoint: {
+      cert: string;
+      endpoint: string;
+      id: string;
+    };
+    peer: string;
+  };
 }
 
 export interface IPagedMessageResponse {

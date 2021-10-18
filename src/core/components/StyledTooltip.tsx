@@ -14,12 +14,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { registerDataTranslations } from '../data/registration';
-import { registerHomeTranslations } from '../home/registration';
-import { registerNetworkMapTranslations } from '../network-map/registration';
+import { styled, Tooltip, tooltipClasses, TooltipProps } from '@mui/material';
 
-export const registerModuleTranslations = (): void => {
-  registerDataTranslations();
-  registerHomeTranslations();
-  registerNetworkMapTranslations();
-};
+export const StyledTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    opacity: '0.92 !important',
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.primary.main,
+    maxWidth: 420,
+    border: `1px solid ${theme.palette.primary.main}`,
+  },
+  [`& .${tooltipClasses.arrow}`]: {
+    color: theme.palette.primary.main,
+  },
+}));

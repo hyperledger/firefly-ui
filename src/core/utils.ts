@@ -23,3 +23,12 @@ export const fetchWithCredentials = (
     { ...options, credentials: 'include' }
   );
 };
+
+export const fetchCatcher = async (url: string): Promise<any> => {
+  const response = await fetch(url);
+  if (!response.ok) {
+    console.log(`error fetching orgs ${url}`);
+  } else {
+    return response.json();
+  }
+};
