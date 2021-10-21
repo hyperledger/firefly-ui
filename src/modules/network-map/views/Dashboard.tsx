@@ -65,7 +65,6 @@ export const Dashboard: () => JSX.Element = () => {
     return (
       <>
         <text
-          // onClick={() => alert('label clicked')}
           style={{
             fill: 'white',
             fontWeight: 'bolder',
@@ -108,17 +107,12 @@ export const Dashboard: () => JSX.Element = () => {
     const isNode = p.node.depth === 2 && p.node.value === NODE_VALUE;
     const isIdentity = p.node.depth === 2 && p.node.value === IDENTITY_VALUE;
     let fill = '';
-    // eslint-disable-next-line
-    let onClick = () => {};
     if (isOrg) {
       fill = "url('#orgGradient')";
-      // onClick = () => alert('org circle clicked');
     } else if (isNode) {
       fill = "url('#nodeGradient')";
-      // onClick = () => alert('node circle clicked');
     } else if (isIdentity) {
       fill = "url('#identityGradient')";
-      // onClick = () => alert('identity circle clicked');
     } else {
       fill = "url('#containerGradient')";
     }
@@ -214,7 +208,6 @@ export const Dashboard: () => JSX.Element = () => {
           cy={p.node.y}
           r={p.node.radius}
           fill={fill}
-          onClick={onClick}
         ></circle>
       </svg>
     );
