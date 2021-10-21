@@ -27,7 +27,7 @@ export const fetchWithCredentials = (
 export const fetchCatcher = async (url: string): Promise<any> => {
   const response = await fetch(url);
   if (!response.ok) {
-    console.log(`error fetching orgs ${url}`);
+    console.log(`error fetching ${url}`);
   } else {
     return response.json();
   }
