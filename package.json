@@ -6,7 +6,7 @@
     "@emotion/react": "^11.4.1",
     "@emotion/styled": "^11.3.0",
     "@mui/lab": "^5.0.0-alpha.50",
-    "@mui/material": "^5.0.3",
+    "@mui/material": "5.0.1",
     "@mui/styles": "^5.0.1",
     "@nivo/circle-packing": "^0.74.0",
     "@nivo/core": "^0.70.0",
