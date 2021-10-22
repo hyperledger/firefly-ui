@@ -24,6 +24,7 @@ import { IRoute, ModuleNav, NavItem } from '../../core/interfaces';
 import enTokens from './translations/en.json';
 import { Accounts } from './views/Accounts/Accounts';
 import { Dashboard } from './views/Dashboard';
+import { TokenPoolDetails } from './views/TokenPools/TokenPoolDetails';
 import { TokenPools } from './views/TokenPools/TokenPools';
 import { Transfers } from './views/Transfers/Transfers';
 
@@ -108,6 +109,11 @@ export const TokensRoutes: IRoute[] = [
     exact: true,
     route: `${TOKENS_ROUTE_PREFIX}/tokenPools`,
     component: TokenPools,
+  },
+  {
+    exact: true,
+    route: `${TOKENS_ROUTE_PREFIX}/tokenPools/:name`,
+    component: TokenPoolDetails,
   },
   {
     exact: true,

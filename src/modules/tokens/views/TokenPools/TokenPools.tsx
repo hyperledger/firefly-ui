@@ -26,6 +26,7 @@ import { Box } from '@mui/system';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import Jazzicon from 'react-jazzicon';
+import { useHistory } from 'react-router';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
 import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
 import { HashPopover } from '../../../../core/components/HashPopover';
@@ -38,6 +39,7 @@ import {
 import { useTokensTranslation } from '../../registration';
 
 export const TokenPools: () => JSX.Element = () => {
+  const history = useHistory();
   const classes = useStyles();
   const { t } = useTokensTranslation();
   const [loading, setLoading] = useState(false);
@@ -89,7 +91,7 @@ export const TokenPools: () => JSX.Element = () => {
           value: (
             <HashPopover
               shortHash={true}
-              textColor="secondary"
+              textColor="primary"
               address={tokenPool.key}
             />
           ),
@@ -105,6 +107,11 @@ export const TokenPools: () => JSX.Element = () => {
         },
         { value: dayjs(tokenPool.created).format('MM/DD/YYYY h:mm A') },
       ],
+      onClick: () => {
+        history.push(
+          `/namespace/${selectedNamespace}/tokens/tokenPools/${tokenPool.name}`
+        );
+      },
     })
   );
 

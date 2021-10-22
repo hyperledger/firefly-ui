@@ -40,9 +40,12 @@ import {
   ITokenPool,
   ITokenTransfer,
 } from '../../../core/interfaces';
-import { fetchWithCredentials, jsNumberForAddress } from '../../../core/utils';
+import {
+  fetchWithCredentials,
+  getNumTokensInAllAccounts,
+  jsNumberForAddress,
+} from '../../../core/utils';
 import { useTokensTranslation } from '../registration';
-import { getNumTokensInAllAccounts } from '../utils';
 
 export const Dashboard: () => JSX.Element = () => {
   const classes = useStyles();
@@ -136,7 +139,7 @@ export const Dashboard: () => JSX.Element = () => {
           value: (
             <HashPopover
               shortHash={true}
-              textColor="secondary"
+              textColor="primary"
               address={transfer.tx.id}
             />
           ),
@@ -145,7 +148,7 @@ export const Dashboard: () => JSX.Element = () => {
           value: transfer.from ? (
             <HashPopover
               shortHash={true}
-              textColor="secondary"
+              textColor="primary"
               address={transfer.from}
             />
           ) : (
@@ -156,7 +159,7 @@ export const Dashboard: () => JSX.Element = () => {
           value: (
             <HashPopover
               shortHash={true}
-              textColor="secondary"
+              textColor="primary"
               address={transfer.to}
             />
           ),

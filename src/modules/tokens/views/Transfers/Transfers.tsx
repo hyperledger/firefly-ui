@@ -99,9 +99,9 @@ export const Transfers: () => JSX.Element = () => {
   const tokenTransfersColumnHeaders = [
     t('txHash'),
     t('method'),
+    t('amount'),
     t('from'),
     t('to'),
-    t('protocolID'),
     t('timestamp'),
   ];
 
@@ -121,7 +121,7 @@ export const Transfers: () => JSX.Element = () => {
               <Grid item>
                 <HashPopover
                   shortHash={true}
-                  textColor="secondary"
+                  textColor="primary"
                   address={tokenTransfer.tx.id}
                 />
               </Grid>
@@ -129,11 +129,12 @@ export const Transfers: () => JSX.Element = () => {
           ),
         },
         { value: t(tokenTransfer.type) },
+        { value: tokenTransfer.amount },
         {
           value: tokenTransfer.from ? (
             <HashPopover
               shortHash={true}
-              textColor="secondary"
+              textColor="primary"
               address={tokenTransfer.from}
             />
           ) : (
@@ -144,17 +145,8 @@ export const Transfers: () => JSX.Element = () => {
           value: (
             <HashPopover
               shortHash={true}
-              textColor="secondary"
+              textColor="primary"
               address={tokenTransfer.to}
-            />
-          ),
-        },
-        {
-          value: (
-            <HashPopover
-              shortHash={true}
-              textColor="secondary"
-              address={tokenTransfer.protocolId}
             />
           ),
         },

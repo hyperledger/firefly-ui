@@ -89,29 +89,26 @@ export const Accounts: () => JSX.Element = () => {
 
   const tokenAccountsColumnHeaders = [
     t('address'),
+    t('connector'),
     t('balance'),
-    t('poolProtocolID'),
-    t('tokenIndex'),
     t('lastUpdated'),
   ];
 
   const tokenAccountsRecords: IDataTableRecord[] = tokenAccounts.map(
-    (tokenAccount: ITokenAccount) => ({
-      // TODO: Figure out another unique key
-      key: tokenAccount.updated,
+    (tokenAccount: ITokenAccount, idx: number) => ({
+      key: idx.toString(),
       columns: [
         {
           value: (
             <HashPopover
               shortHash={true}
-              textColor="secondary"
+              textColor="primary"
               address={tokenAccount.key}
             />
           ),
         },
+        { value: tokenAccount.connector },
         { value: tokenAccount.balance },
-        { value: tokenAccount.poolProtocolId },
-        { value: tokenAccount.tokenIndex },
         { value: dayjs(tokenAccount.updated).format('MM/DD/YYYY h:mm A') },
       ],
     })

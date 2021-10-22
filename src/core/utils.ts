@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { ITokenAccount } from './interfaces';
+
 export const fetchWithCredentials = (
   resource: string,
   options?: RequestInit
@@ -31,6 +33,15 @@ export const fetchCatcher = async (url: string): Promise<any> => {
   } else {
     return response.json();
   }
+};
+
+export const getNumTokensInAllAccounts = (
+  accounts: ITokenAccount[]
+): number => {
+  return accounts.reduce(
+    (total, account) => (total += parseInt(account.balance)),
+    0
+  );
 };
 
 export const getShortHash = (hash: string): string => {
