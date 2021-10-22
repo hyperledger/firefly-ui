@@ -14,12 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { IRoute } from '../../core/interfaces';
-import { DataRoutes } from '../data/registration';
-import { HomeRoutes } from '../home/registration';
-import { NetworkMapRoutes } from '../network-map/registration';
-import { TokensRoutes } from '../tokens/registration';
+import { ITokenAccount } from '../../core/interfaces';
 
-export const registerModuleRoutes = (): IRoute[] => {
-  return [...HomeRoutes, ...DataRoutes, ...NetworkMapRoutes, ...TokensRoutes];
+export const getNumTokensInAllAccounts = (
+  accounts: ITokenAccount[]
+): number => {
+  return accounts.reduce(
+    (total, account) => (total += parseInt(account.balance)),
+    0
+  );
 };

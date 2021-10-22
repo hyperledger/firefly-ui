@@ -21,11 +21,17 @@ import {
   NetworkMapAppNavItem,
   NetworkMapModuleNav,
 } from '../network-map/registration';
+import { TokensAppNavItem, TokensModuleNav } from '../tokens/registration';
 
 export const registerAppNavigationItems = (): NavItem[] => {
-  return [HomeAppNavItem, NetworkMapAppNavItem, DataAppNavItem];
+  return [
+    HomeAppNavItem,
+    NetworkMapAppNavItem,
+    DataAppNavItem,
+    TokensAppNavItem,
+  ];
 };
 
 export const registerModuleNavigationItems = (): ModuleNav[] => {
-  return [DataModuleNav, NetworkMapModuleNav];
+  return [DataModuleNav, NetworkMapModuleNav, TokensModuleNav];
 };

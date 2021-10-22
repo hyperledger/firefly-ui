@@ -252,3 +252,70 @@ export interface ModuleNav {
   translationNs: string;
   translationKey: string;
 }
+
+export interface ITokenAccount {
+  poolProtocolId: string;
+  tokenIndex: string;
+  connector: string;
+  key: string;
+  balance: string;
+  updated: string;
+}
+
+export interface ITokenConnector {
+  name: string;
+}
+
+export interface ITokenPool {
+  id: string;
+  type: 'nonfungible' | 'fungible';
+  namespace: string;
+  name: string;
+  protocolId: string;
+  key: string;
+  connector: string;
+  message: string;
+  created: string;
+  tx: {
+    type: string;
+    id: string;
+  };
+}
+
+export interface ITokenTransaction {
+  id: string;
+  hash: string;
+  subject: {
+    signer: string;
+    namespace: string;
+    type: string;
+    reference: string;
+  };
+  created: string;
+  status: string;
+  protocolId: string;
+  info: {
+    blockNumber: string;
+    transactionHash: string;
+    transactionIndex: string;
+  };
+}
+
+export interface ITokenTransfer {
+  type: 'mint' | 'burn' | 'transfer';
+  localId: string;
+  poolProtocolId: string;
+  tokenIndex: string;
+  connector: string;
+  key: string;
+  from?: string;
+  to: string;
+  amount: string;
+  protocolId: string;
+  messageHash: string;
+  created: string;
+  tx: {
+    type: string;
+    id: string;
+  };
+}

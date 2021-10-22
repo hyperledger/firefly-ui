@@ -13,13 +13,4 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-import { IRoute } from '../../core/interfaces';
-import { DataRoutes } from '../data/registration';
-import { HomeRoutes } from '../home/registration';
-import { NetworkMapRoutes } from '../network-map/registration';
-import { TokensRoutes } from '../tokens/registration';
-
-export const registerModuleRoutes = (): IRoute[] => {
-  return [...HomeRoutes, ...DataRoutes, ...NetworkMapRoutes, ...TokensRoutes];
-};
+declare module 'react-jazzicon';

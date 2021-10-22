@@ -14,37 +14,40 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useState, useRef } from 'react';
 import {
   Chip,
   Grid,
-  Popover,
   IconButton,
-  Typography,
+  Popover,
   Theme,
+  Typography,
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
-import ContentCopyIcon from 'mdi-react/ContentCopyIcon';
-import CopyToClipboard from 'react-copy-to-clipboard';
 import clsx from 'clsx';
+import ContentCopyIcon from 'mdi-react/ContentCopyIcon';
+import React, { useRef, useState } from 'react';
+import CopyToClipboard from 'react-copy-to-clipboard';
+import { getShortHash } from '../utils';
 
 interface Props {
   address: string;
+  shortHash?: boolean;
   textColor?: 'primary' | 'secondary';
 }
 
 export const HashPopover: React.FC<Props> = ({
   address,
+  shortHash,
   textColor = 'primary',
 }) => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
-
   return (
     <>
       <Chip
-        label={address}
+        label={shortHash ? getShortHash(address) : address}
+        sx={{ width: shortHash ? 110 : 200 }}
         className={clsx(
           classes.chip,
           textColor === 'secondary' && classes.addressSecondaryText
@@ -97,7 +100,6 @@ export const HashPopover: React.FC<Props> = ({
 
 const useStyles = makeStyles<Theme>((theme) => ({
   chip: {
-    width: 200,
     borderRadius: 2,
     backgroundColor: theme.palette.background.default,
     '&:hover, &:focus': {
