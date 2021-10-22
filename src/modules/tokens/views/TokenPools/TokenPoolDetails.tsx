@@ -190,7 +190,7 @@ export const TokenPoolDetails: () => JSX.Element = () => {
               >
                 <Grid item>
                   <Typography className={classes.header}>
-                    {t('details')}
+                    {t('message')}
                   </Typography>
                 </Grid>
               </Grid>
