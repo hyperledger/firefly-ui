@@ -46,6 +46,7 @@ const makeNetworkMapPathname = (_ns?: string, pathSuffix?: string): string =>
 export const NetworkMapAppNavItem: NavItem = {
   translationNs: NETWORK_MAP_TRANSLATIONS_NS,
   translationKey: 'networkMap',
+  description: 'networkMapDescription',
   icon: WebIcon,
   routesRequireNamespace: false,
   makePathname: makeNetworkMapPathname,

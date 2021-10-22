@@ -14,17 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
 import {
-  IconButton,
+  AppBar as MaterialAppBar,
   Box,
   CssBaseline,
   Toolbar,
-  AppBar as MaterialAppBar,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import CogOutlineIcon from 'mdi-react/CogOutlineIcon';
-import BellOutlineIcon from 'mdi-react/BellOutlineIcon';
+import React from 'react';
 import { MenuLogo } from './MenuLogo';
 
 type Props = {
@@ -36,8 +32,6 @@ export const AppBar: React.FC<Props> = ({
   navigationOpen,
   setNavigationOpen,
 }) => {
-  const classes = useStyles();
-
   return (
     <Box display="flex">
       <CssBaseline />
@@ -47,35 +41,8 @@ export const AppBar: React.FC<Props> = ({
             navigationOpen={navigationOpen}
             setNavigationOpen={setNavigationOpen}
           />
-          <div className={classes.rightSideIcons}>
-            <IconButton
-              className={classes.icon}
-              color="inherit"
-              size="small"
-              onClick={() => alert('pop settings')}
-            >
-              <CogOutlineIcon />
-            </IconButton>
-            <IconButton
-              className={classes.icon}
-              color="inherit"
-              size="small"
-              onClick={() => alert('pop notifications')}
-            >
-              <BellOutlineIcon />
-            </IconButton>
-          </div>
         </Toolbar>
       </MaterialAppBar>
     </Box>
   );
 };
-
-const useStyles = makeStyles((theme) => ({
-  rightSideIcons: {
-    marginLeft: 'auto',
-  },
-  icon: {
-    marginRight: theme.spacing(2),
-  },
-}));

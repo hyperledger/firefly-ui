@@ -47,6 +47,7 @@ export const DataAppNavItem: NavItem = {
   translationNs: DATA_TRANSLATIONS_NS,
   translationKey: 'dataExplorer',
   icon: CubeOutlineIcon,
+  description: 'dataExplorerDescription',
   routesRequireNamespace: true,
   makePathname: makeDataPathname,
   isActiveCheck: (ns?: string, pathname?: string) =>

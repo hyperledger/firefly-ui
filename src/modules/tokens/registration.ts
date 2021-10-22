@@ -44,6 +44,7 @@ const makeTokensPathname = (ns?: string, pathSuffix?: string): string =>
 export const TokensAppNavItem: NavItem = {
   translationNs: TOKENS_TRANSLATIONS_NS,
   translationKey: 'tokens',
+  description: 'tokensDescription',
   icon: AccountBalanceWalletOutlineIcon,
   routesRequireNamespace: true,
   makePathname: makeTokensPathname,
