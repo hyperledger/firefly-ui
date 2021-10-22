@@ -28,8 +28,10 @@ import { HashPopover } from '../../../core/components/HashPopover';
 import dayjs from 'dayjs';
 import { StyledTooltip } from '../../../core/components/StyledTooltip';
 import { DATUM, NODE_VALUE, IDENTITY_VALUE, HARDCODED_DATA } from './constants';
+import { useState } from 'react';
 
 export const Dashboard: () => JSX.Element = () => {
+  const [zoomedId, setZoomedId] = useState<string | null>(null);
   const { t } = useNetworkMapTranslation();
 
   const getOrgsApi = '/api/v1/network/organizations';
@@ -71,7 +73,7 @@ export const Dashboard: () => JSX.Element = () => {
             fontSize: isOrg ? '18px' : '10px',
           }}
           x={p.node.x}
-          y={p.node.y - p.node.radius - 12}
+          y={p.node.y - p.node.radius - (zoomedId === p.node.id ? -12 : 12)}
           textAnchor="middle"
           dominantBaseline="central"
         >
@@ -183,7 +185,15 @@ export const Dashboard: () => JSX.Element = () => {
     );
 
     const circle = (
-      <svg>
+      <svg
+        onClick={
+          isOrg
+            ? () => {
+                setZoomedId(zoomedId === p.node.id ? null : p.node.id);
+              }
+            : undefined
+        }
+      >
         <defs>
           <radialGradient id="containerGradient">
             <stop offset="100%" stopColor="#1E242A" />
@@ -253,6 +263,8 @@ export const Dashboard: () => JSX.Element = () => {
       <CircularProgress />
     ) : (
       <ResponsiveCirclePacking
+        zoomedId={zoomedId}
+        motionConfig="slow" // doesnt seem to work when using a custom circle component :(
         data={useHardcodedData ? HARDCODED_DATA : networkData}
         margin={{ top: 0, right: 0, bottom: 0, left: 0 }}
         padding={isDense ? 150 : 450}
