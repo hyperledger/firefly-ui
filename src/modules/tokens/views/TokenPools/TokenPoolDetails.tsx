@@ -26,12 +26,16 @@ import { makeStyles } from '@mui/styles';
 import { Box } from '@mui/system';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
+import Jazzicon from 'react-jazzicon';
 import { useHistory, useParams } from 'react-router';
 import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
 import { HashPopover } from '../../../../core/components/HashPopover';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { ITokenPool } from '../../../../core/interfaces';
-import { fetchWithCredentials } from '../../../../core/utils';
+import {
+  fetchWithCredentials,
+  jsNumberForAddress,
+} from '../../../../core/utils';
 import { useTokensTranslation } from '../../registration';
 
 export const TokenPoolDetails: () => JSX.Element = () => {
@@ -126,7 +130,17 @@ export const TokenPoolDetails: () => JSX.Element = () => {
           </Breadcrumbs>
         </Grid>
         <Box className={classes.separator} />
-        <Grid item className={classes.paddingBottom}>
+        <Grid
+          item
+          container
+          direction="row"
+          justifyContent="flex-start"
+          alignItems="center"
+          className={classes.paddingBottom}
+        >
+          <div className={classes.paddingRight}>
+            <Jazzicon diameter={34} seed={jsNumberForAddress(tokenPool.id)} />
+          </div>
           <Typography className={classes.bold} variant="h4">
             {tokenPool.name}
           </Typography>
@@ -201,6 +215,7 @@ export const TokenPoolDetails: () => JSX.Element = () => {
             </Paper>
           </Grid>
           <Grid container item>
+            {/* TODO: Add transfer table once API call is fleshed out */}
             <DataTableEmptyState
               message={t('noTokenTransfersToDisplay')}
             ></DataTableEmptyState>
@@ -239,5 +254,8 @@ const useStyles = makeStyles((theme) => ({
   },
   paddingBottom: {
     paddingBottom: theme.spacing(2),
+  },
+  paddingRight: {
+    paddingRight: theme.spacing(2),
   },
 }));
