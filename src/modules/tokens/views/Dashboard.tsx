@@ -31,7 +31,7 @@ import makeStyles from '@mui/styles/makeStyles';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
 import Jazzicon from 'react-jazzicon';
-import { useParams } from 'react-router';
+import { useHistory, useParams } from 'react-router';
 import { DataTable } from '../../../core/components/DataTable/DataTable';
 import { DataTableEmptyState } from '../../../core/components/DataTable/DataTableEmptyState';
 import { HashPopover } from '../../../core/components/HashPopover';
@@ -50,6 +50,7 @@ import { useTokensTranslation } from '../registration';
 export const Dashboard: () => JSX.Element = () => {
   const classes = useStyles();
   const { t } = useTokensTranslation();
+  const history = useHistory();
   const [loading, setLoading] = useState(false);
   const [connectorsTotal, setConnectorsTotal] = useState(0);
   const [tokenPools, setTokenPools] = useState<ITokenPool[]>([]);
@@ -156,12 +157,14 @@ export const Dashboard: () => JSX.Element = () => {
           ),
         },
         {
-          value: (
+          value: transfer.to ? (
             <HashPopover
               shortHash={true}
               textColor="primary"
               address={transfer.to}
             />
+          ) : (
+            '---'
           ),
         },
         { value: dayjs(transfer.created).format('MM/DD/YYYY h:mm A') },
@@ -203,10 +206,18 @@ export const Dashboard: () => JSX.Element = () => {
             );
           })}
         </Grid>
-        <Grid container item direction="row" spacing={3}>
+        <Grid
+          container
+          item
+          direction="row"
+          spacing={3}
+          justifyContent="center"
+          alignItems="flex-start"
+        >
           <Grid container item xs={8}>
             {transfers.length ? (
               <DataTable
+                stickyHeader={true}
                 minHeight="300px"
                 maxHeight="calc(100vh - 340px)"
                 columnHeaders={transfersColumnHeaders}
@@ -230,17 +241,31 @@ export const Dashboard: () => JSX.Element = () => {
                     </Typography>
                   </Grid>
                 </Grid>
-                <List>
-                  {tokenPools.map((tp) => {
+                <List
+                  sx={{
+                    minHeight: '300px',
+                    maxHeight: 'calc(100vh - 600px)',
+                    overflow: 'auto',
+                  }}
+                >
+                  {tokenPools.map((tokenPool) => {
                     return (
-                      <ListItem key={tp.id}>
+                      <ListItem
+                        key={tokenPool.id}
+                        onClick={() => {
+                          history.push(
+                            `/namespace/${namespace}/tokens/tokenPools/${tokenPool.name}`
+                          );
+                        }}
+                        sx={{ cursor: 'pointer' }}
+                      >
                         <ListItemAvatar>
                           <Jazzicon
                             diameter={34}
-                            seed={jsNumberForAddress(tp.id)}
+                            seed={jsNumberForAddress(tokenPool.id)}
                           />
                         </ListItemAvatar>
-                        <ListItemText primary={tp.name} />
+                        <ListItemText primary={tokenPool.name} />
                       </ListItem>
                     );
                   })}

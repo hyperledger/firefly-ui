@@ -24,6 +24,7 @@ import {
 import makeStyles from '@mui/styles/makeStyles';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
+import { useHistory } from 'react-router';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
 import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
 import { HashPopover } from '../../../../core/components/HashPopover';
@@ -35,15 +36,23 @@ import { useTokensTranslation } from '../../registration';
 const PAGE_LIMITS = [10, 25];
 
 export const Accounts: () => JSX.Element = () => {
+  const history = useHistory();
   const classes = useStyles();
   const { t } = useTokensTranslation();
   const [loading, setLoading] = useState(false);
   const [tokenAccounts, setTokenAccounts] = useState<ITokenAccount[]>([]);
+  const [tokenAccountsTotal, setTokenAccountsTotal] = useState(0);
   const { selectedNamespace } = useContext(NamespaceContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
 
   const handleChangePage = (_event: unknown, newPage: number) => {
+    if (
+      newPage > currentPage &&
+      rowsPerPage * (currentPage + 1) >= tokenAccountsTotal
+    ) {
+      return;
+    }
     setCurrentPage(newPage);
   };
 
@@ -73,11 +82,13 @@ export const Accounts: () => JSX.Element = () => {
     fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/tokens/accounts?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
-      }`
+      }&count`
     )
       .then(async (tokenAccountsResponse) => {
         if (tokenAccountsResponse.ok) {
-          setTokenAccounts(await tokenAccountsResponse.json());
+          const tokenAccounts = await tokenAccountsResponse.json();
+          setTokenAccountsTotal(tokenAccounts.total);
+          setTokenAccounts(tokenAccounts.items);
         } else {
           console.log('error fetching token accounts');
         }
@@ -111,6 +122,11 @@ export const Accounts: () => JSX.Element = () => {
         { value: tokenAccount.balance },
         { value: dayjs(tokenAccount.updated).format('MM/DD/YYYY h:mm A') },
       ],
+      onClick: () => {
+        history.push(
+          `/namespace/${selectedNamespace}/tokens/accounts/${tokenAccount.poolProtocolId}`
+        );
+      },
     })
   );
 
@@ -137,15 +153,12 @@ export const Accounts: () => JSX.Element = () => {
           <Grid container item>
             {tokenAccounts.length ? (
               <DataTable
+                stickyHeader={true}
                 minHeight="300px"
                 maxHeight="calc(100vh - 340px)"
                 columnHeaders={tokenAccountsColumnHeaders}
                 records={tokenAccountsRecords}
-                pagination={
-                  tokenAccountsRecords.length > rowsPerPage
-                    ? pagination
-                    : undefined
-                }
+                {...{ pagination }}
               />
             ) : (
               <DataTableEmptyState

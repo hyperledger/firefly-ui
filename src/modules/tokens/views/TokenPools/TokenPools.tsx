@@ -19,6 +19,7 @@ import {
   ListItem,
   ListItemAvatar,
   ListItemText,
+  TablePagination,
   Typography,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
@@ -38,6 +39,8 @@ import {
 } from '../../../../core/utils';
 import { useTokensTranslation } from '../../registration';
 
+const PAGE_LIMITS = [10, 25];
+
 export const TokenPools: () => JSX.Element = () => {
   const history = useHistory();
   const classes = useStyles();
@@ -45,13 +48,53 @@ export const TokenPools: () => JSX.Element = () => {
   const [loading, setLoading] = useState(false);
   const { selectedNamespace } = useContext(NamespaceContext);
   const [tokenPools, setTokenPools] = useState<ITokenPool[]>([]);
+  const [tokenPoolsTotal, setTokenPoolsTotal] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
+
+  const handleChangePage = (_event: unknown, newPage: number) => {
+    if (
+      newPage > currentPage &&
+      rowsPerPage * (currentPage + 1) >= tokenPoolsTotal
+    ) {
+      return;
+    }
+    setCurrentPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setCurrentPage(0);
+    setRowsPerPage(+event.target.value);
+  };
+
+  const pagination = (
+    <TablePagination
+      component="div"
+      count={-1}
+      rowsPerPage={rowsPerPage}
+      page={currentPage}
+      onPageChange={handleChangePage}
+      onRowsPerPageChange={handleChangeRowsPerPage}
+      rowsPerPageOptions={PAGE_LIMITS}
+      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
+      className={classes.pagination}
+    />
+  );
 
   useEffect(() => {
     setLoading(true);
-    fetchWithCredentials(`/api/v1/namespaces/${selectedNamespace}/tokens/pools`)
+    fetchWithCredentials(
+      `/api/v1/namespaces/${selectedNamespace}/tokens/pools?limit=${rowsPerPage}&skip=${
+        rowsPerPage * currentPage
+      }&count`
+    )
       .then(async (tokenPoolsResponse) => {
         if (tokenPoolsResponse.ok) {
-          setTokenPools(await tokenPoolsResponse.json());
+          const tokenPools = await tokenPoolsResponse.json();
+          setTokenPoolsTotal(tokenPools.total);
+          setTokenPools(tokenPools.items);
         } else {
           console.log('error fetching token pools');
         }
@@ -59,13 +102,13 @@ export const TokenPools: () => JSX.Element = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [selectedNamespace]);
+  }, [rowsPerPage, currentPage, selectedNamespace]);
 
   const tokenPoolsColumnHeaders = [
     t('name'),
     t('address'),
     t('type'),
-    t('connector'),
+    t('standard'),
     t('protocolID'),
     t('lastUpdated'),
   ];
@@ -100,7 +143,7 @@ export const TokenPools: () => JSX.Element = () => {
           value: t(tokenPool.type),
         },
         {
-          value: tokenPool.connector,
+          value: tokenPool.standard,
         },
         {
           value: tokenPool.protocolId,
@@ -137,10 +180,12 @@ export const TokenPools: () => JSX.Element = () => {
         <Grid container item>
           {tokenPools.length ? (
             <DataTable
+              stickyHeader={true}
               minHeight="300px"
               maxHeight="calc(100vh - 340px)"
               columnHeaders={tokenPoolsColumnHeaders}
               records={tokenPoolsRecords}
+              {...{ pagination }}
             />
           ) : (
             <DataTableEmptyState
@@ -154,9 +199,6 @@ export const TokenPools: () => JSX.Element = () => {
 };
 
 const useStyles = makeStyles((theme) => ({
-  cardContainer: {
-    paddingBottom: theme.spacing(4),
-  },
   centeredContent: {
     display: 'flex',
     flexDirection: 'column',
@@ -165,29 +207,16 @@ const useStyles = makeStyles((theme) => ({
     height: 'calc(100vh - 300px)',
     overflow: 'auto',
   },
-  content: {
-    padding: theme.spacing(3),
-  },
   header: {
     fontWeight: 'bold',
   },
   headerContainer: {
     marginBottom: theme.spacing(5),
   },
-  paper: {
-    width: '100%',
-    height: '100%',
-    padding: theme.spacing(3),
+  pagination: {
+    color: theme.palette.text.secondary,
   },
   separator: {
     flexGrow: 1,
-  },
-  summaryLabel: {
-    color: theme.palette.text.secondary,
-    textTransform: 'uppercase',
-    fontSize: 12,
-  },
-  summaryValue: {
-    fontSize: 32,
   },
 }));
