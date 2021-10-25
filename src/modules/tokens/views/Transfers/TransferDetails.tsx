@@ -248,9 +248,6 @@ const useStyles = makeStyles((theme) => ({
     height: 'calc(100vh - 300px)',
     overflow: 'auto',
   },
-  content: {
-    padding: theme.spacing(3),
-  },
   header: {
     fontWeight: 'bold',
   },
@@ -270,8 +267,5 @@ const useStyles = makeStyles((theme) => ({
   },
   paddingRight: {
     paddingRight: theme.spacing(2),
-  },
-  pagination: {
-    color: theme.palette.text.secondary,
   },
 }));
