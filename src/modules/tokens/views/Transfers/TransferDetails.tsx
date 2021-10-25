@@ -20,87 +20,36 @@ import {
   Link,
   List,
   Paper,
-  TablePagination,
   Typography,
 } from '@mui/material';
 import { makeStyles } from '@mui/styles';
 import { Box } from '@mui/system';
 import dayjs from 'dayjs';
-import FireIcon from 'mdi-react/FireIcon';
-import StamperIcon from 'mdi-react/StamperIcon';
-import SwapHorizontalIcon from 'mdi-react/SwapHorizontalIcon';
 import React, { useContext, useEffect, useState } from 'react';
-import Jazzicon from 'react-jazzicon';
 import { useHistory, useParams } from 'react-router';
-import { DataTable } from '../../../../core/components/DataTable/DataTable';
-import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
 import { HashPopover } from '../../../../core/components/HashPopover';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
-import {
-  IDataTableRecord,
-  ITokenPool,
-  ITokenTransfer,
-} from '../../../../core/interfaces';
-import {
-  fetchWithCredentials,
-  jsNumberForAddress,
-} from '../../../../core/utils';
+import { ITokenTransfer } from '../../../../core/interfaces';
+import { fetchWithCredentials } from '../../../../core/utils';
 import { useTokensTranslation } from '../../registration';
 
-const PAGE_LIMITS = [5, 10];
-
-export const TokenPoolDetails: () => JSX.Element = () => {
+export const TransferDetails: () => JSX.Element = () => {
   const history = useHistory();
   const { t } = useTokensTranslation();
-  const { name } = useParams<{ name: string }>();
+  const { id } = useParams<{ id: string }>();
   const classes = useStyles();
   const { selectedNamespace } = useContext(NamespaceContext);
   const [loading, setLoading] = useState(false);
-  const [tokenPool, setTokenPool] = useState<ITokenPool>();
-  const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>([]);
-  const [tokenTransfersTotal, setTokenTransfersTotal] = useState<number>(0);
-  const [currentPage, setCurrentPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-
-  const handleChangePage = (_event: unknown, newPage: number) => {
-    if (
-      newPage > currentPage &&
-      rowsPerPage * (currentPage + 1) >= tokenTransfersTotal
-    ) {
-      return;
-    }
-    setCurrentPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setCurrentPage(0);
-    setRowsPerPage(+event.target.value);
-  };
-
-  const pagination = (
-    <TablePagination
-      component="div"
-      count={-1}
-      rowsPerPage={rowsPerPage}
-      page={currentPage}
-      onPageChange={handleChangePage}
-      onRowsPerPageChange={handleChangeRowsPerPage}
-      rowsPerPageOptions={PAGE_LIMITS}
-      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
-      className={classes.pagination}
-    />
-  );
+  const [tokenTransfer, setTokenTransfer] = useState<ITokenTransfer>();
 
   useEffect(() => {
     setLoading(true);
     fetchWithCredentials(
-      `/api/v1/namespaces/${selectedNamespace}/tokens/pools/${name}`
+      `/api/v1/namespaces/${selectedNamespace}/tokens/transfers/${id}`
     )
-      .then(async (tokenPoolResponse) => {
-        if (tokenPoolResponse.ok) {
-          setTokenPool(await tokenPoolResponse.json());
+      .then(async (tokenTransferResponse) => {
+        if (tokenTransferResponse.ok) {
+          setTokenTransfer(await tokenTransferResponse.json());
         } else {
           console.log('error fetching token pool');
         }
@@ -108,91 +57,7 @@ export const TokenPoolDetails: () => JSX.Element = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [selectedNamespace, name]);
-
-  useEffect(() => {
-    tokenPool &&
-      fetchWithCredentials(
-        `/api/v1/namespaces/${selectedNamespace}/tokens/transfers?poolprotocolid=${
-          tokenPool.protocolId
-        }&limit=${rowsPerPage}&skip=${rowsPerPage * currentPage}&count`
-      ).then(async (tokenTransfersResponse) => {
-        if (tokenTransfersResponse.ok) {
-          const tokenTransfers = await tokenTransfersResponse.json();
-          setTokenTransfersTotal(tokenTransfers.total);
-          setTokenTransfers(tokenTransfers.items);
-        } else {
-          console.log('error fetching token pool');
-        }
-      });
-  }, [rowsPerPage, currentPage, tokenPool, selectedNamespace]);
-
-  const transferIconMap = {
-    burn: <FireIcon />,
-    mint: <StamperIcon />,
-    transfer: <SwapHorizontalIcon />,
-  };
-
-  const tokenTransfersColumnHeaders = [
-    t('txHash'),
-    t('method'),
-    t('amount'),
-    t('from'),
-    t('to'),
-    t('timestamp'),
-  ];
-
-  const tokenTransfersRecords: IDataTableRecord[] = tokenTransfers.map(
-    (tokenTransfer: ITokenTransfer) => ({
-      key: tokenTransfer.tx.id,
-      columns: [
-        {
-          value: (
-            <Grid
-              container
-              direction="row"
-              justifyContent="flex-start"
-              alignItems="center"
-            >
-              <Grid item>{transferIconMap[tokenTransfer.type]}</Grid>
-              <Grid item>
-                <HashPopover
-                  shortHash={true}
-                  textColor="primary"
-                  address={tokenTransfer.tx.id}
-                />
-              </Grid>
-            </Grid>
-          ),
-        },
-        { value: t(tokenTransfer.type) },
-        { value: tokenTransfer.amount },
-        {
-          value: tokenTransfer.from ? (
-            <HashPopover
-              shortHash={true}
-              textColor="primary"
-              address={tokenTransfer.from}
-            />
-          ) : (
-            '---'
-          ),
-        },
-        {
-          value: tokenTransfer.to ? (
-            <HashPopover
-              shortHash={true}
-              textColor="primary"
-              address={tokenTransfer.to}
-            />
-          ) : (
-            '---'
-          ),
-        },
-        { value: dayjs(tokenTransfer.created).format('MM/DD/YYYY h:mm A') },
-      ],
-    })
-  );
+  }, [selectedNamespace, id]);
 
   if (loading) {
     return (
@@ -202,42 +67,65 @@ export const TokenPoolDetails: () => JSX.Element = () => {
     );
   }
 
-  if (!tokenPool) {
+  if (!tokenTransfer) {
     return <></>;
   }
 
   const detailsData = [
+    { label: t('type'), value: t(tokenTransfer.type) },
     {
-      label: t('id'),
-      value: <HashPopover address={tokenPool.id}></HashPopover>,
+      label: t('localID'),
+      value: <HashPopover address={tokenTransfer.localId}></HashPopover>,
     },
-    { label: t('type'), value: t(tokenPool.type) },
-    { label: t('namespace'), value: tokenPool.namespace },
-    { label: t('name'), value: tokenPool.name },
-    { label: t('protocolID'), value: tokenPool.protocolId },
+    { label: t('poolProtocolID'), value: tokenTransfer.poolProtocolId },
+    {
+      label: t('tokenIndex'),
+      value: tokenTransfer.tokenIndex ? tokenTransfer.tokenIndex : '---',
+    },
+    { label: t('connector'), value: t(tokenTransfer.connector) },
     {
       label: t('key'),
-      value: <HashPopover address={tokenPool.key}></HashPopover>,
+      value: <HashPopover address={tokenTransfer.key}></HashPopover>,
     },
-    { label: t('standard'), value: tokenPool.standard },
+    {
+      label: t('from'),
+      value: tokenTransfer.from ? (
+        <HashPopover address={tokenTransfer.from}></HashPopover>
+      ) : (
+        '---'
+      ),
+    },
+    {
+      label: t('to'),
+      value: tokenTransfer.to ? (
+        <HashPopover address={tokenTransfer.to}></HashPopover>
+      ) : (
+        '---'
+      ),
+    },
+    { label: t('amount'), value: t(tokenTransfer.amount) },
+    {
+      label: t('protocolID'),
+      value: <HashPopover address={tokenTransfer.protocolId}></HashPopover>,
+    },
   ];
 
   const messageData = [
     {
       label: t('created'),
-      value: dayjs(tokenPool.created).format('MM/DD/YYYY h:mm A'),
+      value: dayjs(tokenTransfer.created).format('MM/DD/YYYY h:mm A'),
     },
     {
       label: t('type'),
-      value: t('tokenPool'),
+      value: t('tokenTransfer'),
     },
     {
       label: t('id'),
-      value: <HashPopover address={tokenPool.id}></HashPopover>,
+      value: <HashPopover address={tokenTransfer.localId}></HashPopover>,
     },
     {
       label: t('message'),
-      value: <HashPopover address={tokenPool.message}></HashPopover>,
+      value: <HashPopover address={tokenTransfer.messageHash}></HashPopover>,
     },
   ];
 
@@ -252,14 +140,14 @@ export const TokenPoolDetails: () => JSX.Element = () => {
               sx={{ cursor: 'pointer' }}
               onClick={() =>
                 history.push(
-                  `/namespace/${selectedNamespace}/tokens/tokenPools/`
+                  `/namespace/${selectedNamespace}/tokens/transfers/`
                 )
               }
             >
-              {t('tokenPools')}
+              {t('tokenTransfers')}
             </Link>
             <Link underline="none" color="text.primary">
-              {tokenPool.name}
+              {t('transferDetails')}
             </Link>
           </Breadcrumbs>
         </Grid>
@@ -272,11 +160,8 @@ export const TokenPoolDetails: () => JSX.Element = () => {
           alignItems="center"
           className={classes.paddingBottom}
         >
-          <div className={classes.paddingRight}>
-            <Jazzicon diameter={34} seed={jsNumberForAddress(tokenPool.id)} />
-          </div>
           <Typography className={classes.bold} variant="h4">
-            {tokenPool.name}
+            {t('transferDetails')}
           </Typography>
         </Grid>
         <Grid container spacing={4} item direction="row">
@@ -348,22 +233,6 @@ export const TokenPoolDetails: () => JSX.Element = () => {
               </List>
             </Paper>
           </Grid>
-          <Grid container item>
-            {tokenTransfers.length ? (
-              <DataTable
-                header={t('transferHistory')}
-                minHeight="300px"
-                maxHeight="calc(100vh - 340px)"
-                columnHeaders={tokenTransfersColumnHeaders}
-                records={tokenTransfersRecords}
-                {...{ pagination }}
-              />
-            ) : (
-              <DataTableEmptyState
-                message={t('noTokenTransfersToDisplay')}
-              ></DataTableEmptyState>
-            )}
-          </Grid>
         </Grid>
       </Grid>
     </Grid>
@@ -378,6 +247,9 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     height: 'calc(100vh - 300px)',
     overflow: 'auto',
+  },
+  content: {
+    padding: theme.spacing(3),
   },
   header: {
     fontWeight: 'bold',

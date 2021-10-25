@@ -1,7 +1,10 @@
 {
   "accounts": "Accounts",
+  "accountDetails": "Account Details",
   "address": "Address",
+  "amount": "Amount",
   "balance": "Balance",
+  "burn": "Burn",
   "connector": "Connector",
   "created": "Created",
   "dashboard": "Dashboard",
@@ -12,6 +15,7 @@
   "key": "Key",
   "lastUpdated": "Last Updated",
   "latestTransfers": "Latest Transfers",
+  "localID":"Local ID",
   "message": "Message",
   "method": "Method",
   "mint": "Mint",
@@ -24,6 +28,7 @@
   "poolProtocolID": "Pool Protocol ID",
   "pools": "Pools",
   "protocolID": "Protocol ID",
+  "standard":"Standard",
   "supply": "Supply",
   "timestamp": "Timestamp",
   "to": "To",
@@ -31,7 +36,13 @@
   "tokenIndex": "Token Index",
   "tokenPool": "token_pool",
   "tokenPools": "Token Pools",
+  "tokenTransfer": "token_transfer",
+  "tokenTransfers": "Token Transfers",
+  "transfer": "Transfer",
+  "transferHistory": "Transfer History",
   "transfers": "Transfers",
+  "transferDetails": "Transfer Details",
   "txHash": "TX Hash",
-  "type": "Type"
+  "type": "Type",
+  "updated": "Updated"
 }

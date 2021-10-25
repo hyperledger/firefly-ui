@@ -272,41 +272,43 @@ export interface ITokenPool {
   type: 'nonfungible' | 'fungible';
   namespace: string;
   name: string;
+  standard: string;
   protocolId: string;
   key: string;
   connector: string;
   message: string;
   created: string;
-  tx: {
-    type: string;
-    id: string;
-  };
+  tx: ITokenTx;
 }
 
 export interface ITokenTransaction {
   id: string;
   hash: string;
-  subject: {
-    signer: string;
-    namespace: string;
-    type: string;
-    reference: string;
-  };
+  subject: ITokenTransactionSubject;
   created: string;
   status: string;
   protocolId: string;
-  info: {
-    blockNumber: string;
-    transactionHash: string;
-    transactionIndex: string;
-  };
+  info: ITokenTransactionInfo;
+}
+
+export interface ITokenTransactionInfo {
+  blockNumber: string;
+  transactionHash: string;
+  transactionIndex: string;
+}
+
+export interface ITokenTransactionSubject {
+  signer: string;
+  namespace: string;
+  type: string;
+  reference: string;
 }
 
 export interface ITokenTransfer {
   type: 'mint' | 'burn' | 'transfer';
   localId: string;
   poolProtocolId: string;
-  tokenIndex: string;
+  tokenIndex?: string | null;
   connector: string;
   key: string;
   from?: string;
@@ -315,8 +317,10 @@ export interface ITokenTransfer {
   protocolId: string;
   messageHash: string;
   created: string;
-  tx: {
-    type: string;
-    id: string;
-  };
+  tx: ITokenTx;
+}
+
+export interface ITokenTx {
+  type: string;
+  id: string;
 }
