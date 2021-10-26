@@ -18,7 +18,7 @@ import { styled, Tooltip, tooltipClasses, TooltipProps } from '@mui/material';
 
 export const StyledTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
-))(({ theme }) => ({
+))(({ theme }: any) => ({
   [`& .${tooltipClasses.tooltip}`]: {
     opacity: '0.92 !important',
     backgroundColor: theme.palette.background.paper,

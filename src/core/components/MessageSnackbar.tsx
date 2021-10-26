@@ -17,7 +17,6 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { IconButton, Slide, SlideProps, Snackbar, Theme } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
-import { TransitionProps } from '@mui/material/transitions';
 import AlertCircleIcon from 'mdi-react/AlertCircleIcon';
 import CloseIcon from 'mdi-react/CloseIcon';
 import CheckIcon from 'mdi-react/CheckIcon';
