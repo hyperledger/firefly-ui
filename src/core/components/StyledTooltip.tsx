@@ -18,6 +18,7 @@ import { styled, Tooltip, tooltipClasses, TooltipProps } from '@mui/material';
 
 export const StyledTooltip = styled(({ className, ...props }: TooltipProps) => (
   <Tooltip {...props} classes={{ popper: className }} />
+  //TODO: remove any once this is solved in mui https://github.com/mui-org/material-ui/issues/29307
 ))(({ theme }: any) => ({
   [`& .${tooltipClasses.tooltip}`]: {
     opacity: '0.92 !important',
