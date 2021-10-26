@@ -66,6 +66,9 @@ export const HashPopover: React.FC<Props> = ({
           event.stopPropagation();
           setOpen(false);
         }}
+        onClick={(e) => {
+          e.stopPropagation();
+        }}
         anchorOrigin={{
           vertical: 'top',
           horizontal: 'left',
