@@ -1,0 +1,21 @@
+{
+  "networkMap": "Network Map",
+  "dashboard": "Dashboard",
+  "organizations": "Organizations",
+  "nodes": "Nodes",
+  "organization": "Organization",
+  "fireflyNodes": "FireFly Nodes",
+  "orgId": "Org ID",
+  "identity": "Identity",
+  "joined": "Joined",
+  "nodeName": "Node Name",
+  "size": "Size",
+  "nodeId": "Node ID",
+  "created": "Created",
+  "status": "Status",
+  "small": "Small",
+  "live": "Live",
+  "node": "Node",
+  "name": "Name",
+  "id": "ID"
+}

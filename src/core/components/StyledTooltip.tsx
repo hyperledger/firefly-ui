@@ -14,30 +14,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import en from './core/translations/en.json';
-import './core/index.css';
-import App from './core/App';
-import { registerModuleTranslations } from './modules/registration/translations';
+import { styled, Tooltip, tooltipClasses, TooltipProps } from '@mui/material';
 
-i18n.use(initReactI18next).init({
-  resources: {
-    en: { translation: en },
+export const StyledTooltip = styled(({ className, ...props }: TooltipProps) => (
+  <Tooltip {...props} classes={{ popper: className }} />
+))(({ theme }) => ({
+  [`& .${tooltipClasses.tooltip}`]: {
+    opacity: '0.92 !important',
+    backgroundColor: theme.palette.background.paper,
+    color: theme.palette.primary.main,
+    maxWidth: 420,
+    border: `1px solid ${theme.palette.primary.main}`,
   },
-  lng: 'en',
-  interpolation: {
-    escapeValue: false,
+  [`& .${tooltipClasses.arrow}`]: {
+    color: theme.palette.primary.main,
   },
-});
-
-registerModuleTranslations();
-
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+}));
