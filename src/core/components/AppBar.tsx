@@ -14,30 +14,35 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import {
+  AppBar as MaterialAppBar,
+  Box,
+  CssBaseline,
+  Toolbar,
+} from '@mui/material';
 import React from 'react';
-import ReactDOM from 'react-dom';
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import en from './core/translations/en.json';
-import './core/index.css';
-import App from './core/App';
-import { registerModuleTranslations } from './modules/registration/translations';
+import { MenuLogo } from './MenuLogo';
 
-i18n.use(initReactI18next).init({
-  resources: {
-    en: { translation: en },
-  },
-  lng: 'en',
-  interpolation: {
-    escapeValue: false,
-  },
-});
+type Props = {
+  navigationOpen: boolean;
+  setNavigationOpen: React.Dispatch<React.SetStateAction<boolean>>;
+};
 
-registerModuleTranslations();
-
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+export const AppBar: React.FC<Props> = ({
+  navigationOpen,
+  setNavigationOpen,
+}) => {
+  return (
+    <Box display="flex">
+      <CssBaseline />
+      <MaterialAppBar position="fixed">
+        <Toolbar>
+          <MenuLogo
+            navigationOpen={navigationOpen}
+            setNavigationOpen={setNavigationOpen}
+          />
+        </Toolbar>
+      </MaterialAppBar>
+    </Box>
+  );
+};

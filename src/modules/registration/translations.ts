@@ -14,30 +14,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
-import ReactDOM from 'react-dom';
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import en from './core/translations/en.json';
-import './core/index.css';
-import App from './core/App';
-import { registerModuleTranslations } from './modules/registration/translations';
+import { registerDataTranslations } from '../data/registration';
+import { registerHomeTranslations } from '../home/registration';
+import { registerNetworkMapTranslations } from '../network-map/registration';
+import { registerTokensTranslations } from '../tokens/registration';
 
-i18n.use(initReactI18next).init({
-  resources: {
-    en: { translation: en },
-  },
-  lng: 'en',
-  interpolation: {
-    escapeValue: false,
-  },
-});
-
-registerModuleTranslations();
-
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+export const registerModuleTranslations = (): void => {
+  registerDataTranslations();
+  registerHomeTranslations();
+  registerNetworkMapTranslations();
+  registerTokensTranslations();
+};

@@ -15,29 +15,23 @@
 // limitations under the License.
 
 import React from 'react';
-import ReactDOM from 'react-dom';
-import i18n from 'i18next';
-import { initReactI18next } from 'react-i18next';
-import en from './core/translations/en.json';
-import './core/index.css';
-import App from './core/App';
-import { registerModuleTranslations } from './modules/registration/translations';
+import { Chip } from '@mui/material';
 
-i18n.use(initReactI18next).init({
-  resources: {
-    en: { translation: en },
+import makeStyles from '@mui/styles/makeStyles';
+
+interface Props {
+  status: string;
+}
+
+export const StatusChip: React.FC<Props> = ({ status }) => {
+  const classes = useStyles();
+
+  return <Chip className={classes.root} label={status} variant="outlined" />;
+};
+
+const useStyles = makeStyles((theme) => ({
+  root: {
+    padding: theme.spacing(1),
+    backgroundColor: '#6E7780',
   },
-  lng: 'en',
-  interpolation: {
-    escapeValue: false,
-  },
-});
-
-registerModuleTranslations();
-
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+}));
