@@ -79,27 +79,6 @@ export const Dashboard: () => JSX.Element = () => {
         >
           {isOrg ? org?.name : node?.name}
         </text>
-        {/* code to show the org id is below */}
-        {/* {isOrg && org && (
-          <text
-            style={{
-              fill: 'white',
-              fontWeight: 'bolder',
-              fontSize: '12px',
-              outline: '1px solid white',
-              outlineOffset: '3px',
-            }}
-            x={p.node.x}
-            y={p.node.y - p.node.radius / 1.25}
-            textAnchor="middle"
-            dominantBaseline="central"
-          >
-            {`${org.id.slice(0, 5)}...${org.id.slice(
-              org.id.length - 5,
-              org.id.length
-            )}`}
-          </text>
-        )} */}
       </>
     );
   };
