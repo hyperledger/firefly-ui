@@ -5,5 +5,13 @@
   "last30Days": "Last 30 Days",
   "recentTransactions": "Recent Transactions",
   "namespace": "Namespace",
-  "transactions": "Transactions"
+  "transactions": "Transactions",
+  "addFilter": "Add Filter",
+  "cancel": "Cancel",
+  "save": "Save",
+  "operator": "Operator",
+  "field": "Field",
+  "value": "Value",
+  "selectedFilters": "Selected Filters",
+  "clear": "Clear"
 }

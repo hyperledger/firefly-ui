@@ -29,7 +29,7 @@ import { HashPopover } from '../../../core/components/HashPopover';
 import { ApplicationContext } from '../../../core/contexts/ApplicationContext';
 import { RecentTransactions } from '../../../core/components/RecentTransactions/RecentTransactions';
 import { FilterSelect } from '../../../core/components/FilterSelect';
-import { fetchWithCredentials } from '../../../core/utils';
+import { fetchWithCredentials, getShortHash } from '../../../core/utils';
 import { useDataTranslation } from '../registration';
 
 export const Dashboard: () => JSX.Element = () => {
@@ -134,8 +134,9 @@ export const Dashboard: () => JSX.Element = () => {
         {
           value: (
             <HashPopover
+              shortHash
               textColor="secondary"
-              address={message.header.author}
+              address={getShortHash(message.header.author)}
             />
           ),
         },
@@ -145,8 +146,9 @@ export const Dashboard: () => JSX.Element = () => {
         {
           value: (
             <HashPopover
+              shortHash
               textColor="secondary"
-              address={message.header.datahash}
+              address={getShortHash(message.header.datahash)}
             />
           ),
         },

@@ -53,3 +53,16 @@ export const jsNumberForAddress = (address: string): number => {
   const seed = parseInt(addr, 16);
   return seed;
 };
+
+export const filterOperators = [
+  '=',
+  '>',
+  '>=',
+  '<',
+  '<=',
+  '@',
+  '^',
+  '!',
+  '!@',
+  '!^',
+];

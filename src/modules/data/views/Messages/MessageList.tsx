@@ -33,11 +33,15 @@ import { useDataTranslation } from '../../registration';
 
 interface Props {
   setViewMessage: React.Dispatch<React.SetStateAction<IMessage | undefined>>;
+  filterString?: string;
 }
 
 const PAGE_LIMITS = [10, 25];
 
-export const MessageList: React.FC<Props> = ({ setViewMessage }) => {
+export const MessageList: React.FC<Props> = ({
+  setViewMessage,
+  filterString,
+}) => {
   const history = useHistory<IHistory>();
   const { t } = useDataTranslation();
   const classes = useStyles();
@@ -70,7 +74,7 @@ export const MessageList: React.FC<Props> = ({ setViewMessage }) => {
     fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/messages?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
-      }${createdFilterString}`
+      }${createdFilterString}${filterString !== undefined ? filterString : ''}`
     ).then(async (response) => {
       if (response.ok) {
         setMessages(await response.json());
@@ -78,7 +82,14 @@ export const MessageList: React.FC<Props> = ({ setViewMessage }) => {
         console.log('error fetching messages');
       }
     });
-  }, [rowsPerPage, currentPage, selectedNamespace, createdFilter, lastEvent]);
+  }, [
+    rowsPerPage,
+    currentPage,
+    selectedNamespace,
+    createdFilter,
+    lastEvent,
+    filterString,
+  ]);
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setCurrentPage(newPage);

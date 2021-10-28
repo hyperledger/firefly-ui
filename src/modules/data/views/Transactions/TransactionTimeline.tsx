@@ -28,11 +28,15 @@ import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { InfiniteData, useInfiniteQuery, useQueryClient } from 'react-query';
 import useIntersectionObserver from '../../../../core/hooks/useIntersectionObserver';
 import { SnackbarContext } from '../../../../core/contexts/SnackbarContext';
-import { fetchWithCredentials } from '../../../../core/utils';
+import { fetchWithCredentials, getShortHash } from '../../../../core/utils';
 
 const ROWS_PER_PAGE = 25;
 
-export const TransactionTimeline: React.FC = () => {
+interface Props {
+  filterString?: string;
+}
+
+export const TransactionTimeline: React.FC<Props> = ({ filterString }) => {
   const history = useHistory<IHistory>();
   const loadingRef = useRef<HTMLDivElement | null>(null);
   const observer = useIntersectionObserver(loadingRef, {});
@@ -61,7 +65,9 @@ export const TransactionTimeline: React.FC = () => {
         const res = await fetchWithCredentials(
           `/api/v1/namespaces/${selectedNamespace}/transactions?count&limit=${ROWS_PER_PAGE}&skip=${
             ROWS_PER_PAGE * pageParam
-          }${createdFilterString}`
+          }${createdFilterString}${
+            filterString !== undefined ? filterString : ''
+          }`
         );
         if (res.ok) {
           const data = await res.json();
@@ -91,8 +97,8 @@ export const TransactionTimeline: React.FC = () => {
   }, [isVisible, hasNextPage, fetchNextPage]);
 
   useEffect(() => {
-    queryClient.resetQueries('transactions');
-  }, [createdFilter, queryClient]);
+    refetch();
+  }, [createdFilter, queryClient, filterString, refetch]);
 
   useEffect(() => {
     refetch({ refetchPage: (_page, index) => index === 0 });
@@ -105,7 +111,7 @@ export const TransactionTimeline: React.FC = () => {
       const pages = data.pages.map((page) => page.items);
       return pages.flat().map((tx) => ({
         key: tx.id,
-        title: tx.hash,
+        title: getShortHash(tx.hash),
         description: tx.status,
         time: dayjs(tx.created).format('MM/DD/YYYY h:mm A'),
         icon: <BroadcastIcon />,

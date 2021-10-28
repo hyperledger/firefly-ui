@@ -33,5 +33,6 @@
   "transactionType": "Transaction Type",
   "tag": "Tag",
   "dataDetails": "Data Details",
-  "dataExplorer": "Data Explorer"
+  "dataExplorer": "Data Explorer",
+  "filter": "Filter"
 }

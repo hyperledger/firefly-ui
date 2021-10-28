@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import React from 'react';
-import { TextField, MenuItem } from '@mui/material';
+import { Select, MenuItem } from '@mui/material';
 import { FilterOptions, IFilterItem } from '../interfaces';
 
 interface Props {
@@ -31,8 +31,7 @@ export const FilterSelect: React.FC<Props> = ({
 }) => {
   return (
     <>
-      <TextField
-        select
+      <Select
         size="small"
         variant="outlined"
         value={filter}
@@ -49,7 +48,7 @@ export const FilterSelect: React.FC<Props> = ({
             {item.label}
           </MenuItem>
         ))}
-      </TextField>
+      </Select>
     </>
   );
 };

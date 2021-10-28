@@ -14,13 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useContext, useMemo } from 'react';
+import React, { useContext, useMemo, useEffect } from 'react';
 import { TextField, MenuItem } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useQueryParam, StringParam } from 'use-query-params';
 import { CreatedFilterOptions } from '../interfaces';
 import { ApplicationContext } from '../contexts/ApplicationContext';
-import { useEffect } from 'react';
 
 export const DatePicker: React.FC = () => {
   const { t } = useTranslation();
