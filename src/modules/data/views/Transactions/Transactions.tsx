@@ -109,7 +109,11 @@ export const Transactions: () => JSX.Element = () => {
             </Grid>
             <Box className={classes.separator} />
             <Grid item>
-              <Button variant="outlined" onClick={handleOpenFilter}>
+              <Button
+                className={classes.filterButton}
+                variant="outlined"
+                onClick={handleOpenFilter}
+              >
                 <Typography>{t('filter')}</Typography>
               </Button>
             </Grid>
@@ -183,5 +187,8 @@ const useStyles = makeStyles((theme) => ({
   filterContainer: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
+  },
+  filterButton: {
+    height: 40,
   },
 }));
