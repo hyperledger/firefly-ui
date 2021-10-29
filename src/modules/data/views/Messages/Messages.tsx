@@ -113,7 +113,7 @@ export const Messages: () => JSX.Element = () => {
     'topics',
     'txtype',
     'type',
-    "state"
+    'state',
   ];
 
   return (
