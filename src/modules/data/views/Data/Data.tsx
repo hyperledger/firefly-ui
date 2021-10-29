@@ -21,6 +21,7 @@ import {
   TablePagination,
   CircularProgress,
   Box,
+  Button,
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import dayjs from 'dayjs';
@@ -31,8 +32,11 @@ import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { FilterSelect } from '../../../../core/components/FilterSelect';
 import { DataDetails } from './DataDetails';
-import { fetchWithCredentials } from '../../../../core/utils';
+import { fetchWithCredentials, filterOperators } from '../../../../core/utils';
 import { useDataTranslation } from '../../registration';
+import { ArrayParam, useQueryParam, withDefault } from 'use-query-params';
+import { FilterModal } from '../../../../core/components/FilterModal';
+import { FilterDisplay } from '../../../../core/components/FilterDisplay';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -47,6 +51,54 @@ export const Data: () => JSX.Element = () => {
   const [viewData, setViewData] = useState<IData | undefined>();
   const { createdFilter, setCreatedFilter, lastEvent } =
     useContext(ApplicationContext);
+  const [filterAnchor, setFilterAnchor] = useState<HTMLButtonElement | null>(
+    null
+  );
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [filterString, setFilterString] = useState('');
+  const [filterQuery, setFilterQuery] = useQueryParam(
+    'filters',
+    withDefault(ArrayParam, [])
+  );
+
+  useEffect(() => {
+    // set filters if they are present in the URL
+    if (filterQuery.length !== 0) {
+      setActiveFilters(filterQuery as string[]);
+    }
+  }, [setActiveFilters, filterQuery]);
+
+  useEffect(() => {
+    //set query param state
+    setFilterQuery(activeFilters);
+    if (activeFilters.length === 0) {
+      setFilterString('');
+      return;
+    }
+
+    setFilterString(`&${activeFilters.join('&')}`);
+  }, [activeFilters, setFilterQuery]);
+
+  const handleOpenFilter = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setFilterAnchor(event.currentTarget);
+  };
+
+  const handleAddFilter = (filter: string) => {
+    setActiveFilters((activeFilters) => [...activeFilters, filter]);
+  };
+
+  const filterFields = [
+    'blob.hash',
+    'blob.public',
+    'created',
+    'datatype.name',
+    'datatype.version',
+    'hash',
+    'id',
+    'key',
+    'namespace',
+    'validator',
+  ];
 
   const createdQueryOptions = [
     {
@@ -110,7 +162,7 @@ export const Data: () => JSX.Element = () => {
     fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/data?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
-      }${createdFilterString}`
+      }${createdFilterString}${filterString !== undefined ? filterString : ''}`
     )
       .then(async (response) => {
         if (response.ok) {
@@ -122,7 +174,14 @@ export const Data: () => JSX.Element = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace, createdFilter, lastEvent]);
+  }, [
+    rowsPerPage,
+    currentPage,
+    selectedNamespace,
+    createdFilter,
+    lastEvent,
+    filterString,
+  ]);
 
   const records: IDataTableRecord[] = dataItems.map((data: IData) => ({
     key: data.id,
@@ -161,6 +220,15 @@ export const Data: () => JSX.Element = () => {
             </Grid>
             <Box className={classes.separator} />
             <Grid item>
+              <Button
+                className={classes.filterButton}
+                variant="outlined"
+                onClick={handleOpenFilter}
+              >
+                <Typography>{t('filter')}</Typography>
+              </Button>
+            </Grid>
+            <Grid item>
               <FilterSelect
                 filter={createdFilter}
                 setFilter={setCreatedFilter}
@@ -168,6 +236,14 @@ export const Data: () => JSX.Element = () => {
               />
             </Grid>
           </Grid>
+          {activeFilters.length > 0 && (
+            <Grid container className={classes.filterContainer}>
+              <FilterDisplay
+                filters={activeFilters}
+                setFilters={setActiveFilters}
+              />
+            </Grid>
+          )}
           <Grid container item>
             <DataTable
               minHeight="300px"
@@ -186,6 +262,17 @@ export const Data: () => JSX.Element = () => {
             setViewData(undefined);
           }}
           data={viewData}
+        />
+      )}
+      {filterAnchor && (
+        <FilterModal
+          anchor={filterAnchor}
+          onClose={() => {
+            setFilterAnchor(null);
+          }}
+          fields={filterFields}
+          operators={filterOperators}
+          addFilter={handleAddFilter}
         />
       )}
     </>
@@ -212,5 +299,12 @@ const useStyles = makeStyles((theme) => ({
   },
   separator: {
     flexGrow: 1,
+  },
+  filterContainer: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+  filterButton: {
+    height: 40,
   },
 }));

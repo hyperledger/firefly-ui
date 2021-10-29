@@ -53,3 +53,17 @@ export const jsNumberForAddress = (address: string): number => {
   const seed = parseInt(addr, 16);
   return seed;
 };
+
+// https://github.com/hyperledger/firefly/blob/04cd7184e0562a3a5a5344b0430bf68cc76415b1/internal/apiserver/restfilter.go#L126
+export const filterOperators = [
+  '=',
+  '>',
+  '>=',
+  '<',
+  '<=',
+  '@',
+  '^',
+  '!',
+  '!@',
+  '!^',
+];

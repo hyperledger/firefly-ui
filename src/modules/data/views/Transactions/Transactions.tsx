@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useContext } from 'react';
-import { Grid, Typography, Box } from '@mui/material';
+import React, { useContext, useState, useEffect } from 'react';
+import { Grid, Typography, Box, Button } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { DataViewSwitch } from '../../../../core/components/DataViewSwitch';
@@ -23,12 +23,25 @@ import { FilterSelect } from '../../../../core/components/FilterSelect';
 import { TransactionList } from './TransactionList';
 import { TransactionTimeline } from './TransactionTimeline';
 import { useDataTranslation } from '../../registration';
+import { FilterDisplay } from '../../../../core/components/FilterDisplay';
+import { ArrayParam, withDefault, useQueryParam } from 'use-query-params';
+import { FilterModal } from '../../../../core/components/FilterModal';
+import { filterOperators } from '../../../../core/utils';
 
 export const Transactions: () => JSX.Element = () => {
   const { t } = useDataTranslation();
   const classes = useStyles();
   const { dataView, createdFilter, setCreatedFilter } =
     useContext(ApplicationContext);
+  const [filterAnchor, setFilterAnchor] = useState<HTMLButtonElement | null>(
+    null
+  );
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [filterString, setFilterString] = useState('');
+  const [filterQuery, setFilterQuery] = useQueryParam(
+    'filters',
+    withDefault(ArrayParam, [])
+  );
 
   const createdQueryOptions = [
     {
@@ -45,39 +58,108 @@ export const Transactions: () => JSX.Element = () => {
     },
   ];
 
+  const filterFields = [
+    'created',
+    'id',
+    'info',
+    'namespace',
+    'protocolid',
+    'reference',
+    'sequence',
+    'signer',
+    'status',
+    'type',
+  ];
+
+  const handleOpenFilter = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setFilterAnchor(event.currentTarget);
+  };
+
+  const handleAddFilter = (filter: string) => {
+    setActiveFilters((activeFilters) => [...activeFilters, filter]);
+  };
+
+  useEffect(() => {
+    // set filters if they are present in the URL
+    if (filterQuery.length !== 0) {
+      setActiveFilters(filterQuery as string[]);
+    }
+  }, [setActiveFilters, filterQuery]);
+
+  useEffect(() => {
+    //set query param state
+    setFilterQuery(activeFilters);
+    if (activeFilters.length === 0) {
+      setFilterString('');
+      return;
+    }
+
+    setFilterString(`&${activeFilters.join('&')}`);
+  }, [activeFilters, setFilterQuery]);
+
   return (
-    <Grid container justifyContent="center">
-      <Grid container item wrap="nowrap" direction="column">
-        <Grid container spacing={2} item direction="row">
-          <Grid item>
-            <Typography className={classes.header} variant="h4">
-              {t('transactions')}
-            </Typography>
+    <>
+      <Grid container justifyContent="center">
+        <Grid container item wrap="nowrap" direction="column">
+          <Grid container spacing={2} item direction="row">
+            <Grid item>
+              <Typography className={classes.header} variant="h4">
+                {t('transactions')}
+              </Typography>
+            </Grid>
+            <Box className={classes.separator} />
+            <Grid item>
+              <Button
+                className={classes.filterButton}
+                variant="outlined"
+                onClick={handleOpenFilter}
+              >
+                <Typography>{t('filter')}</Typography>
+              </Button>
+            </Grid>
+            <Grid item>
+              <FilterSelect
+                filter={createdFilter}
+                setFilter={setCreatedFilter}
+                filterItems={createdQueryOptions}
+              />
+            </Grid>
+            <Grid item>
+              <DataViewSwitch />
+            </Grid>
           </Grid>
-          <Box className={classes.separator} />
-          <Grid item>
-            <FilterSelect
-              filter={createdFilter}
-              setFilter={setCreatedFilter}
-              filterItems={createdQueryOptions}
-            />
-          </Grid>
-          <Grid item>
-            <DataViewSwitch />
-          </Grid>
+          {activeFilters.length > 0 && (
+            <Grid container className={classes.filterContainer}>
+              <FilterDisplay
+                filters={activeFilters}
+                setFilters={setActiveFilters}
+              />
+            </Grid>
+          )}
+          {dataView === 'timeline' && (
+            <Grid className={classes.timelineContainer} xs={12} container item>
+              <TransactionTimeline filterString={filterString} />
+            </Grid>
+          )}
+          {dataView === 'list' && (
+            <Grid container item>
+              <TransactionList filterString={filterString} />
+            </Grid>
+          )}
         </Grid>
-        {dataView === 'timeline' && (
-          <Grid className={classes.timelineContainer} xs={12} container item>
-            <TransactionTimeline />
-          </Grid>
-        )}
-        {dataView === 'list' && (
-          <Grid container item>
-            <TransactionList />
-          </Grid>
-        )}
       </Grid>
-    </Grid>
+      {filterAnchor && (
+        <FilterModal
+          anchor={filterAnchor}
+          onClose={() => {
+            setFilterAnchor(null);
+          }}
+          fields={filterFields}
+          operators={filterOperators}
+          addFilter={handleAddFilter}
+        />
+      )}
+    </>
   );
 };
 
@@ -101,5 +183,12 @@ const useStyles = makeStyles((theme) => ({
   },
   separator: {
     flexGrow: 1,
+  },
+  filterContainer: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+  filterButton: {
+    height: 40,
   },
 }));

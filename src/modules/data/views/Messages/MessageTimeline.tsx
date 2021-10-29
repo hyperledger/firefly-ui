@@ -35,9 +35,13 @@ const ROWS_PER_PAGE = 25;
 
 interface Props {
   setViewMessage: React.Dispatch<React.SetStateAction<IMessage | undefined>>;
+  filterString?: string;
 }
 
-export const MessageTimeline: React.FC<Props> = ({ setViewMessage }) => {
+export const MessageTimeline: React.FC<Props> = ({
+  setViewMessage,
+  filterString,
+}) => {
   const history = useHistory<IHistory>();
   const loadingRef = useRef<HTMLDivElement | null>(null);
   const observer = useIntersectionObserver(loadingRef, {});
@@ -66,7 +70,9 @@ export const MessageTimeline: React.FC<Props> = ({ setViewMessage }) => {
         const res = await fetchWithCredentials(
           `/api/v1/namespaces/${selectedNamespace}/messages?count&limit=${ROWS_PER_PAGE}&skip=${
             ROWS_PER_PAGE * pageParam
-          }${createdFilterString}`
+          }${createdFilterString}${
+            filterString !== undefined ? filterString : ''
+          }`
         );
         if (res.ok) {
           const data = await res.json();
@@ -96,8 +102,8 @@ export const MessageTimeline: React.FC<Props> = ({ setViewMessage }) => {
   }, [isVisible, hasNextPage, fetchNextPage]);
 
   useEffect(() => {
-    queryClient.resetQueries('messages');
-  }, [createdFilter, queryClient]);
+    refetch();
+  }, [createdFilter, queryClient, filterString, refetch]);
 
   useEffect(() => {
     refetch({ refetchPage: (_page, index) => index === 0 });

@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useState, useContext } from 'react';
-import { Grid, Typography, Box } from '@mui/material';
+import React, { useState, useContext, useEffect } from 'react';
+import { Grid, Typography, Box, Button } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import { IMessage, IHistory } from '../../../../core/interfaces';
 import { MessageDetails } from './MessageDetails';
@@ -25,8 +25,12 @@ import { useHistory } from 'react-router-dom';
 import { MessageTimeline } from './MessageTimeline';
 import { MessageList } from './MessageList';
 import { FilterSelect } from '../../../../core/components/FilterSelect';
+import { FilterModal } from '../../../../core/components/FilterModal';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { useDataTranslation } from '../../registration';
+import { FilterDisplay } from '../../../../core/components/FilterDisplay';
+import { ArrayParam, withDefault, useQueryParam } from 'use-query-params';
+import { filterOperators } from '../../../../core/utils';
 
 export const Messages: () => JSX.Element = () => {
   const { t } = useDataTranslation();
@@ -36,6 +40,15 @@ export const Messages: () => JSX.Element = () => {
   const { dataView, createdFilter, setCreatedFilter } =
     useContext(ApplicationContext);
   const { selectedNamespace } = useContext(NamespaceContext);
+  const [filterAnchor, setFilterAnchor] = useState<HTMLButtonElement | null>(
+    null
+  );
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [filterString, setFilterString] = useState('');
+  const [filterQuery, setFilterQuery] = useQueryParam(
+    'filters',
+    withDefault(ArrayParam, [])
+  );
 
   const createdQueryOptions = [
     {
@@ -57,17 +70,72 @@ export const Messages: () => JSX.Element = () => {
     setViewMessage(history.location.state.viewMessage);
   }
 
+  const handleOpenFilter = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setFilterAnchor(event.currentTarget);
+  };
+
+  const handleAddFilter = (filter: string) => {
+    setActiveFilters((activeFilters) => [...activeFilters, filter]);
+  };
+
+  useEffect(() => {
+    // set filters if they are present in the URL
+    if (filterQuery.length !== 0) {
+      setActiveFilters(filterQuery as string[]);
+    }
+  }, [setActiveFilters, filterQuery]);
+
+  useEffect(() => {
+    //set query param state
+    setFilterQuery(activeFilters);
+    if (activeFilters.length === 0) {
+      setFilterString('');
+      return;
+    }
+
+    setFilterString(`&${activeFilters.join('&')}`);
+  }, [activeFilters, setFilterQuery]);
+
+  const filterFields = [
+    'author',
+    'batch',
+    'cid',
+    'confirmed',
+    'created',
+    'group',
+    'hash',
+    'id',
+    'key',
+    'namespace',
+    'pins',
+    'sequence',
+    'tag',
+    'topics',
+    'txtype',
+    'type',
+    'state',
+  ];
+
   return (
     <>
       <Grid container justifyContent="center">
         <Grid container wrap="nowrap" direction="column">
           <Grid container spacing={2} item direction="row" alignItems="center">
             <Grid item>
-              <Typography className={classes.header} variant="h4">
+              <Typography className={classes.bold} variant="h4">
                 {t('messages')}
               </Typography>
             </Grid>
             <Box className={classes.separator} />
+            <Grid item>
+              <Button
+                className={classes.filterButton}
+                variant="outlined"
+                onClick={handleOpenFilter}
+              >
+                <Typography>{t('filter')}</Typography>
+              </Button>
+            </Grid>
             <Grid item>
               <FilterSelect
                 filter={createdFilter}
@@ -79,14 +147,28 @@ export const Messages: () => JSX.Element = () => {
               <DataViewSwitch />
             </Grid>
           </Grid>
+          {activeFilters.length > 0 && (
+            <Grid container className={classes.filterContainer}>
+              <FilterDisplay
+                filters={activeFilters}
+                setFilters={setActiveFilters}
+              />
+            </Grid>
+          )}
           {dataView === 'timeline' && (
             <Grid className={classes.timelineContainer} xs={12} container item>
-              <MessageTimeline {...{ setViewMessage }} />
+              <MessageTimeline
+                filterString={filterString}
+                {...{ setViewMessage }}
+              />
             </Grid>
           )}
           {dataView === 'list' && (
             <Grid container item>
-              <MessageList {...{ setViewMessage }} />
+              <MessageList
+                filterString={filterString}
+                {...{ setViewMessage }}
+              />
             </Grid>
           )}
         </Grid>
@@ -105,12 +187,23 @@ export const Messages: () => JSX.Element = () => {
           }}
         />
       )}
+      {filterAnchor && (
+        <FilterModal
+          anchor={filterAnchor}
+          onClose={() => {
+            setFilterAnchor(null);
+          }}
+          fields={filterFields}
+          operators={filterOperators}
+          addFilter={handleAddFilter}
+        />
+      )}
     </>
   );
 };
 
 const useStyles = makeStyles((theme) => ({
-  header: {
+  bold: {
     fontWeight: 'bold',
   },
   timelineContainer: {
@@ -118,5 +211,12 @@ const useStyles = makeStyles((theme) => ({
   },
   separator: {
     flexGrow: 1,
+  },
+  filterContainer: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+  filterButton: {
+    height: 40,
   },
 }));

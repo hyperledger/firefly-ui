@@ -85,6 +85,9 @@ export const theme = createTheme(
             borderColor: '#9BA7B0',
           },
         },
+        notchedOutline: {
+          borderColor: '#9BA7B0',
+        },
       },
       MuiFormLabel: {
         root: {
