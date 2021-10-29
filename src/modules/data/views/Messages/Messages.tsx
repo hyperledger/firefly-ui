@@ -106,16 +106,14 @@ export const Messages: () => JSX.Element = () => {
     'hash',
     'id',
     'key',
-    'local',
     'namespace',
-    'pending',
     'pins',
-    'rejected',
     'sequence',
     'tag',
     'topics',
     'txtype',
     'type',
+    "state"
   ];
 
   return (
