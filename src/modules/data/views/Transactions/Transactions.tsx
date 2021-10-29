@@ -19,7 +19,6 @@ import { Grid, Typography, Box, Button } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { DataViewSwitch } from '../../../../core/components/DataViewSwitch';
-import { FilterSelect } from '../../../../core/components/FilterSelect';
 import { TransactionList } from './TransactionList';
 import { TransactionTimeline } from './TransactionTimeline';
 import { useDataTranslation } from '../../registration';
@@ -27,12 +26,12 @@ import { FilterDisplay } from '../../../../core/components/FilterDisplay';
 import { ArrayParam, withDefault, useQueryParam } from 'use-query-params';
 import { FilterModal } from '../../../../core/components/FilterModal';
 import { filterOperators } from '../../../../core/utils';
+import { DatePicker } from '../../../../core/components/DatePicker';
 
 export const Transactions: () => JSX.Element = () => {
   const { t } = useDataTranslation();
   const classes = useStyles();
-  const { dataView, createdFilter, setCreatedFilter } =
-    useContext(ApplicationContext);
+  const { dataView } = useContext(ApplicationContext);
   const [filterAnchor, setFilterAnchor] = useState<HTMLButtonElement | null>(
     null
   );
@@ -42,21 +41,6 @@ export const Transactions: () => JSX.Element = () => {
     'filters',
     withDefault(ArrayParam, [])
   );
-
-  const createdQueryOptions = [
-    {
-      value: '24hours',
-      label: t('last24Hours'),
-    },
-    {
-      value: '7days',
-      label: t('last7Days'),
-    },
-    {
-      value: '30days',
-      label: t('last30Days'),
-    },
-  ];
 
   const filterFields = [
     'created',
@@ -118,11 +102,7 @@ export const Transactions: () => JSX.Element = () => {
               </Button>
             </Grid>
             <Grid item>
-              <FilterSelect
-                filter={createdFilter}
-                setFilter={setCreatedFilter}
-                filterItems={createdQueryOptions}
-              />
+              <DatePicker />
             </Grid>
             <Grid item>
               <DataViewSwitch />

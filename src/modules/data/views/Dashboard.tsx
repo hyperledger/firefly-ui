@@ -28,9 +28,9 @@ import { DataTable } from '../../../core/components/DataTable/DataTable';
 import { HashPopover } from '../../../core/components/HashPopover';
 import { ApplicationContext } from '../../../core/contexts/ApplicationContext';
 import { RecentTransactions } from '../../../core/components/RecentTransactions/RecentTransactions';
-import { FilterSelect } from '../../../core/components/FilterSelect';
 import { fetchWithCredentials, getShortHash } from '../../../core/utils';
 import { useDataTranslation } from '../registration';
+import { DatePicker } from '../../../core/components/DatePicker';
 
 export const Dashboard: () => JSX.Element = () => {
   const classes = useStyles();
@@ -41,24 +41,8 @@ export const Dashboard: () => JSX.Element = () => {
   const [dataTotal, setDataTotal] = useState(0);
   const [txTotal, setTxTotal] = useState(0);
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
-  const { lastEvent, createdFilter, setCreatedFilter } =
-    useContext(ApplicationContext);
+  const { lastEvent, createdFilter } = useContext(ApplicationContext);
   const { namespace } = useParams<{ namespace: string }>();
-
-  const createdQueryOptions = [
-    {
-      value: '24hours',
-      label: t('last24Hours'),
-    },
-    {
-      value: '7days',
-      label: t('last7Days'),
-    },
-    {
-      value: '30days',
-      label: t('last30Days'),
-    },
-  ];
 
   useEffect(() => {
     let createdFilterString = `&created=>=${dayjs()
@@ -170,11 +154,7 @@ export const Dashboard: () => JSX.Element = () => {
           </Grid>
           <Box className={classes.separator} />
           <Grid item>
-            <FilterSelect
-              filter={createdFilter}
-              setFilter={setCreatedFilter}
-              filterItems={createdQueryOptions}
-            />
+            <DatePicker />
           </Grid>
         </Grid>
         <Grid
