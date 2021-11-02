@@ -58,6 +58,7 @@ export const AccountDetails: () => JSX.Element = () => {
   const { selectedNamespace } = useContext(NamespaceContext);
   const { lastEvent } = useContext(ApplicationContext);
   const [loading, setLoading] = useState(false);
+  const [transfersUpdated, setTransfersUpdated] = useState(0);
   const [tokenBalances, setTokenBalances] = useState<ITokenBalance[]>();
   const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>([]);
   const [tokenTransfersTotal, setTokenTransfersTotal] = useState(0);
@@ -96,6 +97,15 @@ export const AccountDetails: () => JSX.Element = () => {
   );
 
   useEffect(() => {
+    if (lastEvent && lastEvent.data) {
+      const eventJson = JSON.parse(lastEvent.data);
+      if (eventJson.type === 'token_transfer_confirmed') {
+        setTransfersUpdated(new Date().getTime());
+      }
+    }
+  }, [lastEvent]);
+
+  useEffect(() => {
     setLoading(true);
     fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/tokens/balances?key=${key}&balance=>0`
@@ -104,33 +114,29 @@ export const AccountDetails: () => JSX.Element = () => {
         if (tokenAccountResponse.ok) {
           setTokenBalances(await tokenAccountResponse.json());
         } else {
-          console.log('error fetching token pool');
+          console.log('error fetching token balances');
         }
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [selectedNamespace, key, lastEvent]);
+  }, [selectedNamespace, key, transfersUpdated]);
 
   useEffect(() => {
     fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/tokens/transfers?fromOrTo=${key}&limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
       }&count`
-    )
-      .then(async (tokenTransfersResponse) => {
-        if (tokenTransfersResponse.ok) {
-          const tokenTransfers = await tokenTransfersResponse.json();
-          setTokenTransfersTotal(tokenTransfers.total);
-          setTokenTransfers(tokenTransfers.items);
-        } else {
-          console.log('error fetching token pool');
-        }
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [rowsPerPage, currentPage, selectedNamespace, key, lastEvent]);
+    ).then(async (tokenTransfersResponse) => {
+      if (tokenTransfersResponse.ok) {
+        const tokenTransfers = await tokenTransfersResponse.json();
+        setTokenTransfersTotal(tokenTransfers.total);
+        setTokenTransfers(tokenTransfers.items);
+      } else {
+        console.log('error fetching token transfers');
+      }
+    });
+  }, [rowsPerPage, currentPage, selectedNamespace, key, transfersUpdated]);
 
   const transferIconMap = {
     burn: <FireIcon />,

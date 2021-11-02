@@ -44,6 +44,7 @@ export const Transfers: () => JSX.Element = () => {
   const classes = useStyles();
   const { t } = useTokensTranslation();
   const [loading, setLoading] = useState(false);
+  const [transfersUpdated, setTransfersUpdated] = useState(0);
   const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>([]);
   const [tokenTransfersTotal, setTokenTransfersTotal] = useState<number>(0);
   const { selectedNamespace } = useContext(NamespaceContext);
@@ -83,6 +84,15 @@ export const Transfers: () => JSX.Element = () => {
   );
 
   useEffect(() => {
+    if (lastEvent && lastEvent.data) {
+      const eventJson = JSON.parse(lastEvent.data);
+      if (eventJson.type === 'token_transfer_confirmed') {
+        setTransfersUpdated(new Date().getTime());
+      }
+    }
+  }, [lastEvent]);
+
+  useEffect(() => {
     setLoading(true);
     fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/tokens/transfers?limit=${rowsPerPage}&skip=${
@@ -101,7 +111,7 @@ export const Transfers: () => JSX.Element = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace, lastEvent]);
+  }, [rowsPerPage, currentPage, selectedNamespace, transfersUpdated]);
 
   const transferIconMap = {
     burn: <FireIcon />,

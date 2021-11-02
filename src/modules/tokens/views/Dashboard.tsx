@@ -53,6 +53,7 @@ export const Dashboard: () => JSX.Element = () => {
   const { t } = useTokensTranslation();
   const history = useHistory();
   const [loading, setLoading] = useState(false);
+  const [tokensUpdated, setTokensUpdated] = useState(0);
   const [connectorsTotal, setConnectorsTotal] = useState(0);
   const [tokenPools, setTokenPools] = useState<ITokenPool[]>([]);
   const [tokenPoolsTotal, setTokenPoolsTotal] = useState(0);
@@ -61,6 +62,18 @@ export const Dashboard: () => JSX.Element = () => {
   const [tokensTotal, setTokensTotal] = useState(0);
   const { namespace } = useParams<{ namespace: string }>();
   const { lastEvent } = useContext(ApplicationContext);
+
+  useEffect(() => {
+    if (lastEvent && lastEvent.data) {
+      const eventJson = JSON.parse(lastEvent.data);
+      if (
+        eventJson.type === 'token_pool_confirmed' ||
+        eventJson.type === 'token_transfer_confirmed'
+      ) {
+        setTokensUpdated(new Date().getTime());
+      }
+    }
+  }, [lastEvent]);
 
   useEffect(() => {
     setLoading(true);
@@ -105,7 +118,7 @@ export const Dashboard: () => JSX.Element = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [namespace, lastEvent]);
+  }, [namespace, tokensUpdated]);
 
   const summaryPanelList = [
     { data: connectorsTotal, title: 'connectors' },

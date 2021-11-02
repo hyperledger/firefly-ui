@@ -44,6 +44,7 @@ export const Accounts: () => JSX.Element = () => {
   const classes = useStyles();
   const { t } = useTokensTranslation();
   const [loading, setLoading] = useState(false);
+  const [transfersUpdated, setTransfersUpdated] = useState(0);
   const [tokenAccounts, setTokenAccounts] = useState<ITokenAccount[]>([]);
   const [tokenAccountsTotal, setTokenAccountsTotal] = useState(0);
   const { selectedNamespace } = useContext(NamespaceContext);
@@ -83,6 +84,15 @@ export const Accounts: () => JSX.Element = () => {
   );
 
   useEffect(() => {
+    if (lastEvent && lastEvent.data) {
+      const eventJson = JSON.parse(lastEvent.data);
+      if (eventJson.type === 'token_transfer_confirmed') {
+        setTransfersUpdated(new Date().getTime());
+      }
+    }
+  }, [lastEvent]);
+
+  useEffect(() => {
     setLoading(true);
     fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/tokens/accounts?limit=${rowsPerPage}&skip=${
@@ -102,7 +112,7 @@ export const Accounts: () => JSX.Element = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace, lastEvent]);
+  }, [rowsPerPage, currentPage, selectedNamespace, transfersUpdated]);
 
   const tokenAccountsColumnHeaders = [t('address')];
 

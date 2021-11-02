@@ -47,6 +47,7 @@ export const TokenPools: () => JSX.Element = () => {
   const classes = useStyles();
   const { t } = useTokensTranslation();
   const [loading, setLoading] = useState(false);
+  const [poolsUpdated, setPoolsUpdated] = useState(0);
   const { selectedNamespace } = useContext(NamespaceContext);
   const { lastEvent } = useContext(ApplicationContext);
   const [tokenPools, setTokenPools] = useState<ITokenPool[]>([]);
@@ -86,6 +87,15 @@ export const TokenPools: () => JSX.Element = () => {
   );
 
   useEffect(() => {
+    if (lastEvent && lastEvent.data) {
+      const eventJson = JSON.parse(lastEvent.data);
+      if (eventJson.type === 'token_pool_confirmed') {
+        setPoolsUpdated(new Date().getTime());
+      }
+    }
+  }, [lastEvent]);
+
+  useEffect(() => {
     setLoading(true);
     fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/tokens/pools?limit=${rowsPerPage}&skip=${
@@ -104,7 +114,7 @@ export const TokenPools: () => JSX.Element = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace, lastEvent]);
+  }, [rowsPerPage, currentPage, selectedNamespace, poolsUpdated]);
 
   const tokenPoolsColumnHeaders = [
     t('name'),
