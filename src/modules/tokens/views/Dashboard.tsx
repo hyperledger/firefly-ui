@@ -74,31 +74,31 @@ export const Dashboard: () => JSX.Element = () => {
       fetchWithCredentials(
         `/api/v1/namespaces/${namespace}/tokens/transfers?limit=5&count`
       ),
-      fetchWithCredentials(`/api/v1/namespaces/${namespace}/tokens/accounts`),
+      fetchWithCredentials(`/api/v1/namespaces/${namespace}/tokens/balances`),
     ])
       .then(
         async ([
           connectorsResponse,
           tokenPoolsResponse,
           transfersResponse,
-          accountsResponse,
+          balancesResponse,
         ]) => {
           if (
             connectorsResponse.ok &&
             tokenPoolsResponse.ok &&
             transfersResponse.ok &&
-            accountsResponse.ok
+            balancesResponse.ok
           ) {
             const connectorsJson = await connectorsResponse.json();
             const tokenPoolsJson = await tokenPoolsResponse.json();
             const transfersJson = await transfersResponse.json();
-            const accountsJson = await accountsResponse.json();
+            const balancesJson = await balancesResponse.json();
             setConnectorsTotal(connectorsJson.length);
             setTokenPools(tokenPoolsJson.items);
             setTokenPoolsTotal(tokenPoolsJson.total);
             setTransfers(transfersJson.items);
             setTransfersTotal(transfersJson.total);
-            setTokensTotal(getNumTokensInAllAccounts(accountsJson));
+            setTokensTotal(getNumTokensInAllAccounts(balancesJson));
           }
         }
       )

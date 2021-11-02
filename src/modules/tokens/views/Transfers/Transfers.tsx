@@ -111,6 +111,7 @@ export const Transfers: () => JSX.Element = () => {
 
   const tokenTransfersColumnHeaders = [
     t('txHash'),
+    t('poolID'),
     t('method'),
     t('amount'),
     t('from'),
@@ -139,6 +140,15 @@ export const Transfers: () => JSX.Element = () => {
                 />
               </Grid>
             </Grid>
+          ),
+        },
+        {
+          value: (
+            <HashPopover
+              shortHash={true}
+              textColor="primary"
+              address={tokenTransfer.pool}
+            />
           ),
         },
         { value: t(tokenTransfer.type) },

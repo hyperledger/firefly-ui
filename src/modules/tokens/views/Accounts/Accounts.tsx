@@ -29,7 +29,11 @@ import { DataTableEmptyState } from '../../../../core/components/DataTable/DataT
 import { HashPopover } from '../../../../core/components/HashPopover';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
-import { IDataTableRecord, ITokenAccount } from '../../../../core/interfaces';
+import {
+  IDataTableRecord,
+  IPagedTokenAccountResponse,
+  ITokenAccount,
+} from '../../../../core/interfaces';
 import { fetchWithCredentials } from '../../../../core/utils';
 import { useTokensTranslation } from '../../registration';
 
@@ -87,7 +91,8 @@ export const Accounts: () => JSX.Element = () => {
     )
       .then(async (tokenAccountsResponse) => {
         if (tokenAccountsResponse.ok) {
-          const tokenAccounts = await tokenAccountsResponse.json();
+          const tokenAccounts: IPagedTokenAccountResponse =
+            await tokenAccountsResponse.json();
           setTokenAccountsTotal(tokenAccounts.total);
           setTokenAccounts(tokenAccounts.items);
         } else {
@@ -99,33 +104,19 @@ export const Accounts: () => JSX.Element = () => {
       });
   }, [rowsPerPage, currentPage, selectedNamespace, lastEvent]);
 
-  const tokenAccountsColumnHeaders = [
-    t('address'),
-    t('connector'),
-    t('balance'),
-    t('lastUpdated'),
-  ];
+  const tokenAccountsColumnHeaders = [t('address')];
 
-  const tokenAccountsRecords: IDataTableRecord[] = tokenAccounts.map(
+  const tokenAccountsRecords: IDataTableRecord[] = tokenAccounts?.map(
     (tokenAccount: ITokenAccount, idx: number) => ({
       key: idx.toString(),
       columns: [
         {
-          value: (
-            <HashPopover
-              shortHash={true}
-              textColor="primary"
-              address={tokenAccount.key}
-            />
-          ),
+          value: <HashPopover textColor="primary" address={tokenAccount.key} />,
         },
-        { value: tokenAccount.connector },
-        { value: tokenAccount.balance },
-        { value: dayjs(tokenAccount.updated).format('MM/DD/YYYY h:mm A') },
       ],
       onClick: () => {
         history.push(
-          `/namespace/${selectedNamespace}/tokens/accounts/${tokenAccount.poolProtocolId}`
+          `/namespace/${selectedNamespace}/tokens/accounts/${tokenAccount.key}`
         );
       },
     })
@@ -152,7 +143,7 @@ export const Accounts: () => JSX.Element = () => {
             <Box className={classes.separator} />
           </Grid>
           <Grid container item>
-            {tokenAccounts.length ? (
+            {tokenAccounts?.length ? (
               <DataTable
                 stickyHeader={true}
                 minHeight="300px"

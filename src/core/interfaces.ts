@@ -255,12 +255,23 @@ export interface ModuleNav {
 }
 
 export interface ITokenAccount {
-  poolProtocolId: string;
+  key: string;
+}
+
+export interface ITokenBalance {
+  pool: string;
   tokenIndex: string;
   connector: string;
   key: string;
   balance: string;
   updated: string;
+}
+
+export interface IPagedTokenAccountResponse {
+  pageParam: number;
+  count: number;
+  items: ITokenAccount[];
+  total: number;
 }
 
 export interface ITokenConnector {
@@ -307,7 +318,7 @@ export interface ITokenTransactionSubject {
 export interface ITokenTransfer {
   type: 'mint' | 'burn' | 'transfer';
   localId: string;
-  poolProtocolId: string;
+  pool: string;
   tokenIndex?: string | null;
   connector: string;
   key: string;

@@ -38,7 +38,7 @@ import { ApplicationContext } from '../../../../core/contexts/ApplicationContext
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import {
   IDataTableRecord,
-  ITokenAccount,
+  ITokenBalance,
   ITokenTransfer,
 } from '../../../../core/interfaces';
 import { fetchWithCredentials } from '../../../../core/utils';
@@ -46,15 +46,19 @@ import { useTokensTranslation } from '../../registration';
 
 const PAGE_LIMITS = [5, 10];
 
+interface AccountBoxOptions {
+  balance: ITokenBalance;
+}
+
 export const AccountDetails: () => JSX.Element = () => {
   const history = useHistory();
   const { t } = useTokensTranslation();
-  const { poolProtocolID } = useParams<{ poolProtocolID: string }>();
+  const { key } = useParams<{ key: string }>();
   const classes = useStyles();
   const { selectedNamespace } = useContext(NamespaceContext);
   const { lastEvent } = useContext(ApplicationContext);
   const [loading, setLoading] = useState(false);
-  const [tokenAccount, setTokenAccount] = useState<ITokenAccount>();
+  const [tokenBalances, setTokenBalances] = useState<ITokenBalance[]>();
   const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>([]);
   const [tokenTransfersTotal, setTokenTransfersTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
@@ -94,11 +98,11 @@ export const AccountDetails: () => JSX.Element = () => {
   useEffect(() => {
     setLoading(true);
     fetchWithCredentials(
-      `/api/v1/namespaces/${selectedNamespace}/tokens/accounts?poolprotocolid=${poolProtocolID}`
+      `/api/v1/namespaces/${selectedNamespace}/tokens/balances?key=${key}&balance=>0`
     )
       .then(async (tokenAccountResponse) => {
         if (tokenAccountResponse.ok) {
-          setTokenAccount((await tokenAccountResponse.json())[0]);
+          setTokenBalances(await tokenAccountResponse.json());
         } else {
           console.log('error fetching token pool');
         }
@@ -106,11 +110,11 @@ export const AccountDetails: () => JSX.Element = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [selectedNamespace, poolProtocolID, lastEvent]);
+  }, [selectedNamespace, key, lastEvent]);
 
   useEffect(() => {
     fetchWithCredentials(
-      `/api/v1/namespaces/${selectedNamespace}/tokens/transfers?poolprotocolid=${poolProtocolID}&limit=${rowsPerPage}&skip=${
+      `/api/v1/namespaces/${selectedNamespace}/tokens/transfers?fromOrTo=${key}&limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
       }&count`
     )
@@ -126,7 +130,7 @@ export const AccountDetails: () => JSX.Element = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace, poolProtocolID, lastEvent]);
+  }, [rowsPerPage, currentPage, selectedNamespace, key, lastEvent]);
 
   const transferIconMap = {
     burn: <FireIcon />,
@@ -136,6 +140,7 @@ export const AccountDetails: () => JSX.Element = () => {
 
   const tokenTransfersColumnHeaders = [
     t('txHash'),
+    t('poolID'),
     t('method'),
     t('amount'),
     t('from'),
@@ -166,6 +171,15 @@ export const AccountDetails: () => JSX.Element = () => {
                 />
               </Grid>
             </Grid>
+          ),
+        },
+        {
+          value: (
+            <HashPopover
+              shortHash={true}
+              textColor="primary"
+              address={tokenTransfer.pool}
+            />
           ),
         },
         { value: t(tokenTransfer.type) },
@@ -205,27 +219,9 @@ export const AccountDetails: () => JSX.Element = () => {
     );
   }
 
-  if (!tokenAccount) {
+  if (!tokenBalances) {
     return <></>;
   }
-
-  const detailsData = [
-    { label: t('poolProtocolID'), value: t(tokenAccount.poolProtocolId) },
-    {
-      label: t('tokenIndex'),
-      value: tokenAccount.tokenIndex ? t(tokenAccount.tokenIndex) : '---',
-    },
-    { label: t('connector'), value: tokenAccount.connector },
-    {
-      label: t('key'),
-      value: <HashPopover address={tokenAccount.key}></HashPopover>,
-    },
-    { label: t('balance'), value: tokenAccount.balance },
-    {
-      label: t('updated'),
-      value: dayjs(tokenAccount.updated).format('MM/DD/YYYY h:mm A'),
-    },
-  ];
 
   return (
     <Grid container justifyContent="center">
@@ -243,7 +239,7 @@ export const AccountDetails: () => JSX.Element = () => {
               {t('accounts')}
             </Link>
             <Link underline="none" color="text.primary">
-              {t('accountDetails')}
+              {key}
             </Link>
           </Breadcrumbs>
         </Grid>
@@ -261,40 +257,9 @@ export const AccountDetails: () => JSX.Element = () => {
           </Typography>
         </Grid>
         <Grid container spacing={4} item direction="row">
-          <Grid item xs={6}>
-            <Paper className={classes.paper}>
-              <Grid
-                container
-                justifyContent="space-between"
-                direction="row"
-                className={classes.paddingBottom}
-              >
-                <Grid item>
-                  <Typography className={classes.header}>
-                    {t('details')}
-                  </Typography>
-                </Grid>
-              </Grid>
-              <List>
-                <Grid container spacing={2}>
-                  {detailsData.map((data) => {
-                    return (
-                      <React.Fragment key={data.label}>
-                        <Grid item xs={4}>
-                          <Typography color="text.secondary" variant="body1">
-                            {data.label}
-                          </Typography>
-                        </Grid>
-                        <Grid item xs={8}>
-                          <Typography>{data.value}</Typography>
-                        </Grid>
-                      </React.Fragment>
-                    );
-                  })}
-                </Grid>
-              </List>
-            </Paper>
-          </Grid>
+          {tokenBalances.map((b) => (
+            <AccountBox balance={b} key={`${b.pool}:${b.tokenIndex}`} />
+          ))}
           <Grid container item>
             {tokenTransfers.length ? (
               <DataTable
@@ -317,6 +282,59 @@ export const AccountDetails: () => JSX.Element = () => {
   );
 };
 
+const AccountBox = (options: AccountBoxOptions): JSX.Element => {
+  const { t } = useTokensTranslation();
+  const classes = useStyles();
+  const { balance } = options;
+  const detailsData = [
+    {
+      label: t('poolID'),
+      value: <HashPopover address={balance.pool}></HashPopover>,
+    },
+    {
+      label: t('tokenIndex'),
+      value: balance.tokenIndex ? t(balance.tokenIndex) : '---',
+    },
+    {
+      label: t('connector'),
+      value: balance.connector,
+    },
+    {
+      label: t('balance'),
+      value: balance.balance,
+    },
+    {
+      label: t('updated'),
+      value: dayjs(balance.updated).format('MM/DD/YYYY h:mm A'),
+    },
+  ];
+
+  return (
+    <Grid item xs={6}>
+      <Paper className={classes.paper}>
+        <List>
+          <Grid container spacing={2}>
+            {detailsData.map((data) => {
+              return (
+                <React.Fragment key={data.label}>
+                  <Grid item xs={4}>
+                    <Typography color="text.secondary" variant="body1">
+                      {data.label}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={8}>
+                    <Typography>{data.value}</Typography>
+                  </Grid>
+                </React.Fragment>
+              );
+            })}
+          </Grid>
+        </List>
+      </Paper>
+    </Grid>
+  );
+};
+
 const useStyles = makeStyles((theme) => ({
   centeredContent: {
     display: 'flex',
@@ -332,7 +350,7 @@ const useStyles = makeStyles((theme) => ({
   paper: {
     width: '100%',
     height: '100%',
-    padding: theme.spacing(3),
+    padding: theme.spacing(2),
   },
   separator: {
     flexGrow: 1,
