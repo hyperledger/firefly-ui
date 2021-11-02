@@ -39,6 +39,7 @@ import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import {
   IDataTableRecord,
   ITokenBalance,
+  ITokenPoolBalance,
   ITokenTransfer,
 } from '../../../../core/interfaces';
 import { fetchWithCredentials } from '../../../../core/utils';
@@ -47,7 +48,7 @@ import { useTokensTranslation } from '../../registration';
 const PAGE_LIMITS = [5, 10];
 
 interface AccountBoxOptions {
-  balance: ITokenBalance;
+  balance: ITokenPoolBalance;
 }
 
 export const AccountDetails: () => JSX.Element = () => {
@@ -59,7 +60,7 @@ export const AccountDetails: () => JSX.Element = () => {
   const { lastEvent } = useContext(ApplicationContext);
   const [loading, setLoading] = useState(false);
   const [transfersUpdated, setTransfersUpdated] = useState(0);
-  const [tokenBalances, setTokenBalances] = useState<ITokenBalance[]>();
+  const [tokenBalances, setTokenBalances] = useState<ITokenPoolBalance[]>();
   const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>([]);
   const [tokenTransfersTotal, setTokenTransfersTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
@@ -108,11 +109,12 @@ export const AccountDetails: () => JSX.Element = () => {
   useEffect(() => {
     setLoading(true);
     fetchWithCredentials(
-      `/api/v1/namespaces/${selectedNamespace}/tokens/balances?key=${key}&balance=>0`
+      `/api/v1/namespaces/${selectedNamespace}/tokens/balances?key=${key}&balance=>0&limit=250`
     )
-      .then(async (tokenAccountResponse) => {
-        if (tokenAccountResponse.ok) {
-          setTokenBalances(await tokenAccountResponse.json());
+      .then(async (tokenBalanceResponse) => {
+        if (tokenBalanceResponse.ok) {
+          const balances: ITokenBalance[] = await tokenBalanceResponse.json();
+          setTokenBalances(aggregatePoolBalances(balances));
         } else {
           console.log('error fetching token balances');
         }
@@ -264,7 +266,7 @@ export const AccountDetails: () => JSX.Element = () => {
         </Grid>
         <Grid container spacing={4} item direction="row">
           {tokenBalances.map((b) => (
-            <AccountBox balance={b} key={`${b.pool}:${b.tokenIndex}`} />
+            <AccountBox balance={b} key={b.pool} />
           ))}
           <Grid container item>
             {tokenTransfers.length ? (
@@ -288,22 +290,52 @@ export const AccountDetails: () => JSX.Element = () => {
   );
 };
 
+const aggregatePoolBalances = (
+  balances: ITokenBalance[]
+): ITokenPoolBalance[] => {
+  const poolBalances = new Map<string, ITokenPoolBalance>();
+  for (const balance of balances) {
+    let poolBalance: ITokenPoolBalance;
+    const existing = poolBalances.get(balance.pool);
+    if (existing !== undefined) {
+      poolBalance = existing;
+    } else {
+      poolBalance = {
+        pool: balance.pool,
+        connector: balance.connector,
+        updated: balance.updated,
+        balance: 0,
+        tokenIndexes: [],
+      };
+      poolBalances.set(balance.pool, poolBalance);
+    }
+    if (balance.tokenIndex !== undefined && balance.tokenIndex !== '') {
+      poolBalance.tokenIndexes.push(balance.tokenIndex);
+    }
+    if (balance.balance !== undefined) {
+      poolBalance.balance += parseInt(balance.balance);
+    }
+  }
+  return Array.from(poolBalances.values());
+};
+
 const AccountBox = (options: AccountBoxOptions): JSX.Element => {
   const { t } = useTokensTranslation();
   const classes = useStyles();
   const { balance } = options;
+  const joinedIndexes = balance.tokenIndexes.join(', ');
   const detailsData = [
     {
       label: t('poolID'),
       value: <HashPopover address={balance.pool}></HashPopover>,
     },
     {
-      label: t('tokenIndex'),
-      value: balance.tokenIndex ? t(balance.tokenIndex) : '---',
-    },
-    {
       label: t('connector'),
       value: balance.connector,
+    },
+    {
+      label: t('tokenIndexes'),
+      value: joinedIndexes !== '' ? joinedIndexes : '---',
     },
     {
       label: t('balance'),

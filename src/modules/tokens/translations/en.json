@@ -34,6 +34,7 @@
   "to": "To",
   "tokens": "Tokens",
   "tokenIndex": "Token Index",
+  "tokenIndexes": "Token Indexes",
   "tokenPool": "token_pool",
   "tokenPools": "Token Pools",
   "tokenTransfer": "token_transfer",

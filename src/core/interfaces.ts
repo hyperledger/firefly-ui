@@ -267,6 +267,14 @@ export interface ITokenBalance {
   updated: string;
 }
 
+export interface ITokenPoolBalance {
+  pool: string;
+  connector: string;
+  balance: number;
+  tokenIndexes: string[];
+  updated: string;
+}
+
 export interface IPagedTokenAccountResponse {
   pageParam: number;
   count: number;
