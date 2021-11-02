@@ -31,6 +31,7 @@ import { useHistory } from 'react-router';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
 import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
 import { HashPopover } from '../../../../core/components/HashPopover';
+import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { IDataTableRecord, ITokenPool } from '../../../../core/interfaces';
 import {
@@ -47,6 +48,7 @@ export const TokenPools: () => JSX.Element = () => {
   const { t } = useTokensTranslation();
   const [loading, setLoading] = useState(false);
   const { selectedNamespace } = useContext(NamespaceContext);
+  const { lastEvent } = useContext(ApplicationContext);
   const [tokenPools, setTokenPools] = useState<ITokenPool[]>([]);
   const [tokenPoolsTotal, setTokenPoolsTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
@@ -102,7 +104,7 @@ export const TokenPools: () => JSX.Element = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace]);
+  }, [rowsPerPage, currentPage, selectedNamespace, lastEvent]);
 
   const tokenPoolsColumnHeaders = [
     t('name'),

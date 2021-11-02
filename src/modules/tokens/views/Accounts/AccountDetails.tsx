@@ -34,6 +34,7 @@ import { useHistory, useParams } from 'react-router';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
 import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
 import { HashPopover } from '../../../../core/components/HashPopover';
+import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import {
   IDataTableRecord,
@@ -51,6 +52,7 @@ export const AccountDetails: () => JSX.Element = () => {
   const { poolProtocolID } = useParams<{ poolProtocolID: string }>();
   const classes = useStyles();
   const { selectedNamespace } = useContext(NamespaceContext);
+  const { lastEvent } = useContext(ApplicationContext);
   const [loading, setLoading] = useState(false);
   const [tokenAccount, setTokenAccount] = useState<ITokenAccount>();
   const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>([]);
@@ -104,7 +106,7 @@ export const AccountDetails: () => JSX.Element = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [selectedNamespace, poolProtocolID]);
+  }, [selectedNamespace, poolProtocolID, lastEvent]);
 
   useEffect(() => {
     fetchWithCredentials(
@@ -124,7 +126,7 @@ export const AccountDetails: () => JSX.Element = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace, poolProtocolID]);
+  }, [rowsPerPage, currentPage, selectedNamespace, poolProtocolID, lastEvent]);
 
   const transferIconMap = {
     burn: <FireIcon />,

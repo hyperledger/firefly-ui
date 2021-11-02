@@ -22,12 +22,12 @@ import {
   Typography,
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
-import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
 import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
 import { HashPopover } from '../../../../core/components/HashPopover';
+import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { IDataTableRecord, ITokenAccount } from '../../../../core/interfaces';
 import { fetchWithCredentials } from '../../../../core/utils';
@@ -43,6 +43,7 @@ export const Accounts: () => JSX.Element = () => {
   const [tokenAccounts, setTokenAccounts] = useState<ITokenAccount[]>([]);
   const [tokenAccountsTotal, setTokenAccountsTotal] = useState(0);
   const { selectedNamespace } = useContext(NamespaceContext);
+  const { lastEvent } = useContext(ApplicationContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
 
@@ -96,7 +97,7 @@ export const Accounts: () => JSX.Element = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace]);
+  }, [rowsPerPage, currentPage, selectedNamespace, lastEvent]);
 
   const tokenAccountsColumnHeaders = [
     t('address'),

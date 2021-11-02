@@ -29,12 +29,13 @@ import {
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import dayjs from 'dayjs';
-import React, { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Jazzicon from 'react-jazzicon';
 import { useHistory, useParams } from 'react-router';
 import { DataTable } from '../../../core/components/DataTable/DataTable';
 import { DataTableEmptyState } from '../../../core/components/DataTable/DataTableEmptyState';
 import { HashPopover } from '../../../core/components/HashPopover';
+import { ApplicationContext } from '../../../core/contexts/ApplicationContext';
 import {
   IDataTableRecord,
   ITokenPool,
@@ -59,6 +60,7 @@ export const Dashboard: () => JSX.Element = () => {
   const [transfersTotal, setTransfersTotal] = useState(0);
   const [tokensTotal, setTokensTotal] = useState(0);
   const { namespace } = useParams<{ namespace: string }>();
+  const { lastEvent } = useContext(ApplicationContext);
 
   useEffect(() => {
     setLoading(true);
@@ -103,7 +105,7 @@ export const Dashboard: () => JSX.Element = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [namespace]);
+  }, [namespace, lastEvent]);
 
   const summaryPanelList = [
     { data: connectorsTotal, title: 'connectors' },
