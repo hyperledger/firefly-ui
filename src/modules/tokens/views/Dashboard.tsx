@@ -29,50 +29,67 @@ import {
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import dayjs from 'dayjs';
-import React, { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import Jazzicon from 'react-jazzicon';
 import { useHistory, useParams } from 'react-router';
 import { DataTable } from '../../../core/components/DataTable/DataTable';
 import { DataTableEmptyState } from '../../../core/components/DataTable/DataTableEmptyState';
 import { HashPopover } from '../../../core/components/HashPopover';
+import { ApplicationContext } from '../../../core/contexts/ApplicationContext';
 import {
   IDataTableRecord,
   ITokenPool,
   ITokenTransfer,
 } from '../../../core/interfaces';
-import {
-  fetchWithCredentials,
-  getNumTokensInAllAccounts,
-  jsNumberForAddress,
-} from '../../../core/utils';
+import { fetchWithCredentials, jsNumberForAddress } from '../../../core/utils';
 import { useTokensTranslation } from '../registration';
+
+const MAX_ACCOUNTS = 100;
 
 export const Dashboard: () => JSX.Element = () => {
   const classes = useStyles();
   const { t } = useTokensTranslation();
   const history = useHistory();
   const [loading, setLoading] = useState(false);
+  const [tokensUpdated, setTokensUpdated] = useState(0);
   const [connectorsTotal, setConnectorsTotal] = useState(0);
   const [tokenPools, setTokenPools] = useState<ITokenPool[]>([]);
   const [tokenPoolsTotal, setTokenPoolsTotal] = useState(0);
   const [transfers, setTransfers] = useState<ITokenTransfer[]>([]);
   const [transfersTotal, setTransfersTotal] = useState(0);
-  const [tokensTotal, setTokensTotal] = useState(0);
+  const [accountsTotal, setAccountsTotal] = useState('0');
   const { namespace } = useParams<{ namespace: string }>();
+  const { lastEvent } = useContext(ApplicationContext);
+
+  useEffect(() => {
+    if (lastEvent && lastEvent.data) {
+      const eventJson = JSON.parse(lastEvent.data);
+      if (
+        eventJson.type === 'token_pool_confirmed' ||
+        eventJson.type === 'token_transfer_confirmed'
+      ) {
+        setTokensUpdated(new Date().getTime());
+      }
+    }
+  }, [lastEvent]);
 
   useEffect(() => {
     setLoading(true);
     Promise.all([
       fetchWithCredentials(
-        `/api/v1/namespaces/${namespace}/tokens/connectors?count`
+        `/api/v1/namespaces/${namespace}/tokens/connectors?limit=1&count`
       ),
       fetchWithCredentials(
-        `/api/v1/namespaces/${namespace}/tokens/pools?count`
+        `/api/v1/namespaces/${namespace}/tokens/pools?limit=25&count`
       ),
       fetchWithCredentials(
         `/api/v1/namespaces/${namespace}/tokens/transfers?limit=5&count`
       ),
-      fetchWithCredentials(`/api/v1/namespaces/${namespace}/tokens/accounts`),
+      fetchWithCredentials(
+        `/api/v1/namespaces/${namespace}/tokens/accounts?limit=${
+          MAX_ACCOUNTS + 1
+        }`
+      ),
     ])
       .then(
         async ([
@@ -96,20 +113,24 @@ export const Dashboard: () => JSX.Element = () => {
             setTokenPoolsTotal(tokenPoolsJson.total);
             setTransfers(transfersJson.items);
             setTransfersTotal(transfersJson.total);
-            setTokensTotal(getNumTokensInAllAccounts(accountsJson));
+            setAccountsTotal(
+              accountsJson.length <= MAX_ACCOUNTS
+                ? accountsJson.length
+                : `${MAX_ACCOUNTS}+`
+            ); // "count" currently doesn't work reliably for accounts
           }
         }
       )
       .finally(() => {
         setLoading(false);
       });
-  }, [namespace]);
+  }, [namespace, tokensUpdated]);
 
   const summaryPanelList = [
     { data: connectorsTotal, title: 'connectors' },
     { data: tokenPoolsTotal, title: 'tokenPools' },
     { data: transfersTotal, title: 'transfers' },
-    { data: tokensTotal, title: 'tokens' },
+    { data: accountsTotal, title: 'accounts' },
   ];
 
   const summaryPanel = (label: string, value: string | number) => (

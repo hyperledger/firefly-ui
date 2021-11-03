@@ -34,10 +34,12 @@ import { useHistory, useParams } from 'react-router';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
 import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
 import { HashPopover } from '../../../../core/components/HashPopover';
+import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import {
   IDataTableRecord,
-  ITokenAccount,
+  ITokenBalance,
+  ITokenPoolBalance,
   ITokenTransfer,
 } from '../../../../core/interfaces';
 import { fetchWithCredentials } from '../../../../core/utils';
@@ -45,14 +47,20 @@ import { useTokensTranslation } from '../../registration';
 
 const PAGE_LIMITS = [5, 10];
 
+interface AccountBoxOptions {
+  balance: ITokenPoolBalance;
+}
+
 export const AccountDetails: () => JSX.Element = () => {
   const history = useHistory();
   const { t } = useTokensTranslation();
-  const { poolProtocolID } = useParams<{ poolProtocolID: string }>();
+  const { key } = useParams<{ key: string }>();
   const classes = useStyles();
   const { selectedNamespace } = useContext(NamespaceContext);
+  const { lastEvent } = useContext(ApplicationContext);
   const [loading, setLoading] = useState(false);
-  const [tokenAccount, setTokenAccount] = useState<ITokenAccount>();
+  const [transfersUpdated, setTransfersUpdated] = useState(0);
+  const [tokenBalances, setTokenBalances] = useState<ITokenPoolBalance[]>();
   const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>([]);
   const [tokenTransfersTotal, setTokenTransfersTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
@@ -90,41 +98,47 @@ export const AccountDetails: () => JSX.Element = () => {
   );
 
   useEffect(() => {
+    if (lastEvent && lastEvent.data) {
+      const eventJson = JSON.parse(lastEvent.data);
+      if (eventJson.type === 'token_transfer_confirmed') {
+        setTransfersUpdated(new Date().getTime());
+      }
+    }
+  }, [lastEvent]);
+
+  useEffect(() => {
     setLoading(true);
     fetchWithCredentials(
-      `/api/v1/namespaces/${selectedNamespace}/tokens/accounts?poolprotocolid=${poolProtocolID}`
+      `/api/v1/namespaces/${selectedNamespace}/tokens/balances?key=${key}&balance=>0&limit=250`
     )
-      .then(async (tokenAccountResponse) => {
-        if (tokenAccountResponse.ok) {
-          setTokenAccount((await tokenAccountResponse.json())[0]);
+      .then(async (tokenBalanceResponse) => {
+        if (tokenBalanceResponse.ok) {
+          const balances: ITokenBalance[] = await tokenBalanceResponse.json();
+          setTokenBalances(aggregatePoolBalances(balances));
         } else {
-          console.log('error fetching token pool');
+          console.log('error fetching token balances');
         }
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [selectedNamespace, poolProtocolID]);
+  }, [selectedNamespace, key, transfersUpdated]);
 
   useEffect(() => {
     fetchWithCredentials(
-      `/api/v1/namespaces/${selectedNamespace}/tokens/transfers?poolprotocolid=${poolProtocolID}&limit=${rowsPerPage}&skip=${
+      `/api/v1/namespaces/${selectedNamespace}/tokens/transfers?fromOrTo=${key}&limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
       }&count`
-    )
-      .then(async (tokenTransfersResponse) => {
-        if (tokenTransfersResponse.ok) {
-          const tokenTransfers = await tokenTransfersResponse.json();
-          setTokenTransfersTotal(tokenTransfers.total);
-          setTokenTransfers(tokenTransfers.items);
-        } else {
-          console.log('error fetching token pool');
-        }
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  }, [rowsPerPage, currentPage, selectedNamespace, poolProtocolID]);
+    ).then(async (tokenTransfersResponse) => {
+      if (tokenTransfersResponse.ok) {
+        const tokenTransfers = await tokenTransfersResponse.json();
+        setTokenTransfersTotal(tokenTransfers.total);
+        setTokenTransfers(tokenTransfers.items);
+      } else {
+        console.log('error fetching token transfers');
+      }
+    });
+  }, [rowsPerPage, currentPage, selectedNamespace, key, transfersUpdated]);
 
   const transferIconMap = {
     burn: <FireIcon />,
@@ -134,6 +148,7 @@ export const AccountDetails: () => JSX.Element = () => {
 
   const tokenTransfersColumnHeaders = [
     t('txHash'),
+    t('poolID'),
     t('method'),
     t('amount'),
     t('from'),
@@ -164,6 +179,15 @@ export const AccountDetails: () => JSX.Element = () => {
                 />
               </Grid>
             </Grid>
+          ),
+        },
+        {
+          value: (
+            <HashPopover
+              shortHash={true}
+              textColor="primary"
+              address={tokenTransfer.pool}
+            />
           ),
         },
         { value: t(tokenTransfer.type) },
@@ -203,27 +227,9 @@ export const AccountDetails: () => JSX.Element = () => {
     );
   }
 
-  if (!tokenAccount) {
+  if (!tokenBalances) {
     return <></>;
   }
-
-  const detailsData = [
-    { label: t('poolProtocolID'), value: t(tokenAccount.poolProtocolId) },
-    {
-      label: t('tokenIndex'),
-      value: tokenAccount.tokenIndex ? t(tokenAccount.tokenIndex) : '---',
-    },
-    { label: t('connector'), value: tokenAccount.connector },
-    {
-      label: t('key'),
-      value: <HashPopover address={tokenAccount.key}></HashPopover>,
-    },
-    { label: t('balance'), value: tokenAccount.balance },
-    {
-      label: t('updated'),
-      value: dayjs(tokenAccount.updated).format('MM/DD/YYYY h:mm A'),
-    },
-  ];
 
   return (
     <Grid container justifyContent="center">
@@ -241,7 +247,7 @@ export const AccountDetails: () => JSX.Element = () => {
               {t('accounts')}
             </Link>
             <Link underline="none" color="text.primary">
-              {t('accountDetails')}
+              {key}
             </Link>
           </Breadcrumbs>
         </Grid>
@@ -259,40 +265,9 @@ export const AccountDetails: () => JSX.Element = () => {
           </Typography>
         </Grid>
         <Grid container spacing={4} item direction="row">
-          <Grid item xs={6}>
-            <Paper className={classes.paper}>
-              <Grid
-                container
-                justifyContent="space-between"
-                direction="row"
-                className={classes.paddingBottom}
-              >
-                <Grid item>
-                  <Typography className={classes.header}>
-                    {t('details')}
-                  </Typography>
-                </Grid>
-              </Grid>
-              <List>
-                <Grid container spacing={2}>
-                  {detailsData.map((data) => {
-                    return (
-                      <React.Fragment key={data.label}>
-                        <Grid item xs={4}>
-                          <Typography color="text.secondary" variant="body1">
-                            {data.label}
-                          </Typography>
-                        </Grid>
-                        <Grid item xs={8}>
-                          <Typography>{data.value}</Typography>
-                        </Grid>
-                      </React.Fragment>
-                    );
-                  })}
-                </Grid>
-              </List>
-            </Paper>
-          </Grid>
+          {tokenBalances.map((b) => (
+            <AccountBox balance={b} key={b.pool} />
+          ))}
           <Grid container item>
             {tokenTransfers.length ? (
               <DataTable
@@ -315,6 +290,89 @@ export const AccountDetails: () => JSX.Element = () => {
   );
 };
 
+const aggregatePoolBalances = (
+  balances: ITokenBalance[]
+): ITokenPoolBalance[] => {
+  const poolBalances = new Map<string, ITokenPoolBalance>();
+  for (const balance of balances) {
+    let poolBalance: ITokenPoolBalance;
+    const existing = poolBalances.get(balance.pool);
+    if (existing !== undefined) {
+      poolBalance = existing;
+    } else {
+      poolBalance = {
+        pool: balance.pool,
+        connector: balance.connector,
+        updated: balance.updated,
+        balance: 0,
+        tokenIndexes: [],
+      };
+      poolBalances.set(balance.pool, poolBalance);
+    }
+    if (balance.tokenIndex !== undefined && balance.tokenIndex !== '') {
+      poolBalance.tokenIndexes.push(balance.tokenIndex);
+    }
+    if (balance.balance !== undefined) {
+      poolBalance.balance += parseInt(balance.balance);
+    }
+  }
+  return Array.from(poolBalances.values());
+};
+
+const AccountBox = (options: AccountBoxOptions): JSX.Element => {
+  const { t } = useTokensTranslation();
+  const classes = useStyles();
+  const { balance } = options;
+  const joinedIndexes = balance.tokenIndexes.join(', ');
+  const detailsData = [
+    {
+      label: t('poolID'),
+      value: <HashPopover address={balance.pool}></HashPopover>,
+    },
+    {
+      label: t('connector'),
+      value: balance.connector,
+    },
+    {
+      label: t('tokenIndexes'),
+      value: joinedIndexes !== '' ? joinedIndexes : '---',
+    },
+    {
+      label: t('balance'),
+      value: balance.balance,
+    },
+    {
+      label: t('updated'),
+      value: dayjs(balance.updated).format('MM/DD/YYYY h:mm A'),
+    },
+  ];
+
+  return (
+    <Grid item xs={6}>
+      <Paper className={classes.paper}>
+        <List>
+          <Grid container spacing={2}>
+            {detailsData.map((data) => {
+              return (
+                <React.Fragment key={data.label}>
+                  <Grid item xs={4}>
+                    <Typography color="text.secondary" variant="body1">
+                      {data.label}
+                    </Typography>
+                  </Grid>
+                  <Grid item xs={8}>
+                    <Typography>{data.value}</Typography>
+                  </Grid>
+                </React.Fragment>
+              );
+            })}
+          </Grid>
+        </List>
+      </Paper>
+    </Grid>
+  );
+};
+
 const useStyles = makeStyles((theme) => ({
   centeredContent: {
     display: 'flex',
@@ -330,7 +388,7 @@ const useStyles = makeStyles((theme) => ({
   paper: {
     width: '100%',
     height: '100%',
-    padding: theme.spacing(3),
+    padding: theme.spacing(2),
   },
   separator: {
     flexGrow: 1,

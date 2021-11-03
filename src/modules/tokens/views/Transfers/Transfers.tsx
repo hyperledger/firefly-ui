@@ -31,6 +31,7 @@ import { useHistory } from 'react-router';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
 import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
 import { HashPopover } from '../../../../core/components/HashPopover';
+import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { IDataTableRecord, ITokenTransfer } from '../../../../core/interfaces';
 import { fetchWithCredentials } from '../../../../core/utils';
@@ -43,9 +44,11 @@ export const Transfers: () => JSX.Element = () => {
   const classes = useStyles();
   const { t } = useTokensTranslation();
   const [loading, setLoading] = useState(false);
+  const [transfersUpdated, setTransfersUpdated] = useState(0);
   const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>([]);
   const [tokenTransfersTotal, setTokenTransfersTotal] = useState<number>(0);
   const { selectedNamespace } = useContext(NamespaceContext);
+  const { lastEvent } = useContext(ApplicationContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
 
@@ -81,6 +84,15 @@ export const Transfers: () => JSX.Element = () => {
   );
 
   useEffect(() => {
+    if (lastEvent && lastEvent.data) {
+      const eventJson = JSON.parse(lastEvent.data);
+      if (eventJson.type === 'token_transfer_confirmed') {
+        setTransfersUpdated(new Date().getTime());
+      }
+    }
+  }, [lastEvent]);
+
+  useEffect(() => {
     setLoading(true);
     fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/tokens/transfers?limit=${rowsPerPage}&skip=${
@@ -99,7 +111,7 @@ export const Transfers: () => JSX.Element = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace]);
+  }, [rowsPerPage, currentPage, selectedNamespace, transfersUpdated]);
 
   const transferIconMap = {
     burn: <FireIcon />,
@@ -109,6 +121,7 @@ export const Transfers: () => JSX.Element = () => {
 
   const tokenTransfersColumnHeaders = [
     t('txHash'),
+    t('poolID'),
     t('method'),
     t('amount'),
     t('from'),
@@ -137,6 +150,15 @@ export const Transfers: () => JSX.Element = () => {
                 />
               </Grid>
             </Grid>
+          ),
+        },
+        {
+          value: (
+            <HashPopover
+              shortHash={true}
+              textColor="primary"
+              address={tokenTransfer.pool}
+            />
           ),
         },
         { value: t(tokenTransfer.type) },

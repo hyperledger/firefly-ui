@@ -28,21 +28,35 @@ import { useHistory } from 'react-router';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
 import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
 import { HashPopover } from '../../../../core/components/HashPopover';
+import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
-import { IDataTableRecord, ITokenAccount } from '../../../../core/interfaces';
+import {
+  IDataTableRecord,
+  IPagedTokenAccountResponse,
+  ITokenAccount,
+  ITokenAccountWithPools,
+  ITokenBalance,
+  ITokenPool,
+} from '../../../../core/interfaces';
 import { fetchWithCredentials } from '../../../../core/utils';
 import { useTokensTranslation } from '../../registration';
 
 const PAGE_LIMITS = [10, 25];
+const MAX_BALANCE_QUERY = 25;
+const MAX_POOLS_SHOWN = 3;
 
 export const Accounts: () => JSX.Element = () => {
   const history = useHistory();
   const classes = useStyles();
   const { t } = useTokensTranslation();
   const [loading, setLoading] = useState(false);
-  const [tokenAccounts, setTokenAccounts] = useState<ITokenAccount[]>([]);
+  const [transfersUpdated, setTransfersUpdated] = useState(0);
+  const [tokenAccounts, setTokenAccounts] = useState<ITokenAccountWithPools[]>(
+    []
+  );
   const [tokenAccountsTotal, setTokenAccountsTotal] = useState(0);
   const { selectedNamespace } = useContext(NamespaceContext);
+  const { lastEvent } = useContext(ApplicationContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
 
@@ -78,17 +92,29 @@ export const Accounts: () => JSX.Element = () => {
   );
 
   useEffect(() => {
+    if (lastEvent && lastEvent.data) {
+      const eventJson = JSON.parse(lastEvent.data);
+      if (eventJson.type === 'token_transfer_confirmed') {
+        setTransfersUpdated(new Date().getTime());
+      }
+    }
+  }, [lastEvent]);
+
+  useEffect(() => {
     setLoading(true);
     fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/tokens/accounts?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
-      }&count`
+      }&count&sort=key`
     )
       .then(async (tokenAccountsResponse) => {
         if (tokenAccountsResponse.ok) {
-          const tokenAccounts = await tokenAccountsResponse.json();
+          const tokenAccounts: IPagedTokenAccountResponse =
+            await tokenAccountsResponse.json();
           setTokenAccountsTotal(tokenAccounts.total);
-          setTokenAccounts(tokenAccounts.items);
+          setTokenAccounts(
+            await fetchAccountDetails(selectedNamespace, tokenAccounts.items)
+          );
         } else {
           console.log('error fetching token accounts');
         }
@@ -96,35 +122,31 @@ export const Accounts: () => JSX.Element = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace]);
+  }, [rowsPerPage, currentPage, selectedNamespace, transfersUpdated]);
 
   const tokenAccountsColumnHeaders = [
     t('address'),
-    t('connector'),
-    t('balance'),
+    t('pools'),
     t('lastUpdated'),
   ];
 
-  const tokenAccountsRecords: IDataTableRecord[] = tokenAccounts.map(
-    (tokenAccount: ITokenAccount, idx: number) => ({
+  const tokenAccountsRecords: IDataTableRecord[] = tokenAccounts?.map(
+    (tokenAccount: ITokenAccountWithPools, idx: number) => ({
       key: idx.toString(),
       columns: [
         {
-          value: (
-            <HashPopover
-              shortHash={true}
-              textColor="primary"
-              address={tokenAccount.key}
-            />
-          ),
+          value: <HashPopover textColor="primary" address={tokenAccount.key} />,
         },
-        { value: tokenAccount.connector },
-        { value: tokenAccount.balance },
-        { value: dayjs(tokenAccount.updated).format('MM/DD/YYYY h:mm A') },
+        {
+          value: tokenAccount.pools,
+        },
+        {
+          value: tokenAccount.updated,
+        },
       ],
       onClick: () => {
         history.push(
-          `/namespace/${selectedNamespace}/tokens/accounts/${tokenAccount.poolProtocolId}`
+          `/namespace/${selectedNamespace}/tokens/accounts/${tokenAccount.key}`
         );
       },
     })
@@ -151,7 +173,7 @@ export const Accounts: () => JSX.Element = () => {
             <Box className={classes.separator} />
           </Grid>
           <Grid container item>
-            {tokenAccounts.length ? (
+            {tokenAccounts?.length ? (
               <DataTable
                 stickyHeader={true}
                 minHeight="300px"
@@ -170,6 +192,60 @@ export const Accounts: () => JSX.Element = () => {
       </Grid>
     </>
   );
+};
+
+const fetchAccountDetails = async (
+  namespace: string,
+  accounts: ITokenAccount[]
+): Promise<ITokenAccountWithPools[]> => {
+  const result: ITokenAccountWithPools[] = [];
+  for (const account of accounts) {
+    const balanceResponse = await fetchWithCredentials(
+      `/api/v1/namespaces/${namespace}/tokens/balances?limit=${
+        MAX_BALANCE_QUERY + 1
+      }&sort=-updated`
+    );
+    if (!balanceResponse.ok) {
+      console.log(`error fetching token balances for account ${account.key}`);
+      continue;
+    }
+    const balances: ITokenBalance[] = await balanceResponse.json();
+    if (balances.length === 0) {
+      continue;
+    }
+
+    const poolIds = new Set(balances.map((b) => b.pool));
+    const hasMore =
+      poolIds.size > MAX_POOLS_SHOWN || balances.length > MAX_BALANCE_QUERY;
+    const pools = await fetchPoolDetails(
+      namespace,
+      Array.from(poolIds).slice(0, MAX_POOLS_SHOWN)
+    );
+    result.push({
+      key: account.key,
+      pools: pools.map((p) => p.name).join(', ') + (hasMore ? '...' : ''),
+      updated: dayjs(balances[0].updated).format('MM/DD/YYYY h:mm A'),
+    });
+  }
+  return result;
+};
+
+const fetchPoolDetails = async (
+  namespace: string,
+  poolIds: string[]
+): Promise<ITokenPool[]> => {
+  const result: ITokenPool[] = [];
+  for (const id of poolIds) {
+    const response = await fetchWithCredentials(
+      `/api/v1/namespaces/${namespace}/tokens/pools/${id}`
+    );
+    if (response.ok) {
+      result.push(await response.json());
+    } else {
+      console.log(`error fetching token pool ${id}`);
+    }
+  }
+  return result;
 };
 
 const useStyles = makeStyles((theme) => ({

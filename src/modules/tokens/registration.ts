@@ -125,7 +125,7 @@ export const TokensRoutes: IRoute[] = [
   },
   {
     exact: true,
-    route: `${TOKENS_ROUTE_PREFIX}/accounts/:poolProtocolID`,
+    route: `${TOKENS_ROUTE_PREFIX}/accounts/:key`,
     component: AccountDetails,
   },
   {

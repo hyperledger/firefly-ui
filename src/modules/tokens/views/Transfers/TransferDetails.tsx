@@ -72,17 +72,26 @@ export const TransferDetails: () => JSX.Element = () => {
   }
 
   const detailsData = [
-    { label: t('type'), value: t(tokenTransfer.type) },
+    {
+      label: t('type'),
+      value: t(tokenTransfer.type),
+    },
     {
       label: t('localID'),
       value: <HashPopover address={tokenTransfer.localId}></HashPopover>,
     },
-    { label: t('poolProtocolID'), value: tokenTransfer.poolProtocolId },
+    {
+      label: t('poolID'),
+      value: <HashPopover address={tokenTransfer.pool}></HashPopover>,
+    },
     {
       label: t('tokenIndex'),
       value: tokenTransfer.tokenIndex ? tokenTransfer.tokenIndex : '---',
     },
-    { label: t('connector'), value: t(tokenTransfer.connector) },
+    {
+      label: t('connector'),
+      value: t(tokenTransfer.connector),
+    },
     {
       label: t('key'),
       value: <HashPopover address={tokenTransfer.key}></HashPopover>,
