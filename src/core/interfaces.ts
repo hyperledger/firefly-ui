@@ -258,6 +258,12 @@ export interface ITokenAccount {
   key: string;
 }
 
+export interface ITokenAccountWithPools {
+  key: string;
+  pools: string;
+  updated: string;
+}
+
 export interface ITokenBalance {
   pool: string;
   tokenIndex: string;

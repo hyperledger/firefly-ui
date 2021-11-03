@@ -22,6 +22,7 @@ import {
   Typography,
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
+import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
@@ -33,11 +34,16 @@ import {
   IDataTableRecord,
   IPagedTokenAccountResponse,
   ITokenAccount,
+  ITokenAccountWithPools,
+  ITokenBalance,
+  ITokenPool,
 } from '../../../../core/interfaces';
 import { fetchWithCredentials } from '../../../../core/utils';
 import { useTokensTranslation } from '../../registration';
 
 const PAGE_LIMITS = [10, 25];
+const MAX_BALANCE_QUERY = 25;
+const MAX_POOLS_SHOWN = 3;
 
 export const Accounts: () => JSX.Element = () => {
   const history = useHistory();
@@ -45,7 +51,9 @@ export const Accounts: () => JSX.Element = () => {
   const { t } = useTokensTranslation();
   const [loading, setLoading] = useState(false);
   const [transfersUpdated, setTransfersUpdated] = useState(0);
-  const [tokenAccounts, setTokenAccounts] = useState<ITokenAccount[]>([]);
+  const [tokenAccounts, setTokenAccounts] = useState<ITokenAccountWithPools[]>(
+    []
+  );
   const [tokenAccountsTotal, setTokenAccountsTotal] = useState(0);
   const { selectedNamespace } = useContext(NamespaceContext);
   const { lastEvent } = useContext(ApplicationContext);
@@ -97,14 +105,16 @@ export const Accounts: () => JSX.Element = () => {
     fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/tokens/accounts?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
-      }&count`
+      }&count&sort=key`
     )
       .then(async (tokenAccountsResponse) => {
         if (tokenAccountsResponse.ok) {
           const tokenAccounts: IPagedTokenAccountResponse =
             await tokenAccountsResponse.json();
           setTokenAccountsTotal(tokenAccounts.total);
-          setTokenAccounts(tokenAccounts.items);
+          setTokenAccounts(
+            await fetchAccountDetails(selectedNamespace, tokenAccounts.items)
+          );
         } else {
           console.log('error fetching token accounts');
         }
@@ -114,14 +124,24 @@ export const Accounts: () => JSX.Element = () => {
       });
   }, [rowsPerPage, currentPage, selectedNamespace, transfersUpdated]);
 
-  const tokenAccountsColumnHeaders = [t('address')];
+  const tokenAccountsColumnHeaders = [
+    t('address'),
+    t('pools'),
+    t('lastUpdated'),
+  ];
 
   const tokenAccountsRecords: IDataTableRecord[] = tokenAccounts?.map(
-    (tokenAccount: ITokenAccount, idx: number) => ({
+    (tokenAccount: ITokenAccountWithPools, idx: number) => ({
       key: idx.toString(),
       columns: [
         {
           value: <HashPopover textColor="primary" address={tokenAccount.key} />,
+        },
+        {
+          value: tokenAccount.pools,
+        },
+        {
+          value: tokenAccount.updated,
         },
       ],
       onClick: () => {
@@ -172,6 +192,60 @@ export const Accounts: () => JSX.Element = () => {
       </Grid>
     </>
   );
+};
+
+const fetchAccountDetails = async (
+  namespace: string,
+  accounts: ITokenAccount[]
+): Promise<ITokenAccountWithPools[]> => {
+  const result: ITokenAccountWithPools[] = [];
+  for (const account of accounts) {
+    const balanceResponse = await fetchWithCredentials(
+      `/api/v1/namespaces/${namespace}/tokens/balances?limit=${
+        MAX_BALANCE_QUERY + 1
+      }&sort=-updated`
+    );
+    if (!balanceResponse.ok) {
+      console.log(`error fetching token balances for account ${account.key}`);
+      continue;
+    }
+    const balances: ITokenBalance[] = await balanceResponse.json();
+    if (balances.length === 0) {
+      continue;
+    }
+
+    const poolIds = new Set(balances.map((b) => b.pool));
+    const hasMore =
+      poolIds.size > MAX_POOLS_SHOWN || balances.length > MAX_BALANCE_QUERY;
+    const pools = await fetchPoolDetails(
+      namespace,
+      Array.from(poolIds).slice(0, MAX_POOLS_SHOWN)
+    );
+    result.push({
+      key: account.key,
+      pools: pools.map((p) => p.name).join(', ') + (hasMore ? '...' : ''),
+      updated: dayjs(balances[0].updated).format('MM/DD/YYYY h:mm A'),
+    });
+  }
+  return result;
+};
+
+const fetchPoolDetails = async (
+  namespace: string,
+  poolIds: string[]
+): Promise<ITokenPool[]> => {
+  const result: ITokenPool[] = [];
+  for (const id of poolIds) {
+    const response = await fetchWithCredentials(
+      `/api/v1/namespaces/${namespace}/tokens/pools/${id}`
+    );
+    if (response.ok) {
+      result.push(await response.json());
+    } else {
+      console.log(`error fetching token pool ${id}`);
+    }
+  }
+  return result;
 };
 
 const useStyles = makeStyles((theme) => ({
