@@ -24,21 +24,20 @@ import { DataViewSwitch } from '../../../../core/components/DataViewSwitch';
 import { useHistory } from 'react-router-dom';
 import { MessageTimeline } from './MessageTimeline';
 import { MessageList } from './MessageList';
-import { FilterSelect } from '../../../../core/components/FilterSelect';
 import { FilterModal } from '../../../../core/components/FilterModal';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { useDataTranslation } from '../../registration';
 import { FilterDisplay } from '../../../../core/components/FilterDisplay';
 import { ArrayParam, withDefault, useQueryParam } from 'use-query-params';
 import { filterOperators } from '../../../../core/utils';
+import { DatePicker } from '../../../../core/components/DatePicker';
 
 export const Messages: () => JSX.Element = () => {
   const { t } = useDataTranslation();
   const classes = useStyles();
   const history = useHistory<IHistory>();
   const [viewMessage, setViewMessage] = useState<IMessage | undefined>();
-  const { dataView, createdFilter, setCreatedFilter } =
-    useContext(ApplicationContext);
+  const { dataView } = useContext(ApplicationContext);
   const { selectedNamespace } = useContext(NamespaceContext);
   const [filterAnchor, setFilterAnchor] = useState<HTMLButtonElement | null>(
     null
@@ -49,21 +48,6 @@ export const Messages: () => JSX.Element = () => {
     'filters',
     withDefault(ArrayParam, [])
   );
-
-  const createdQueryOptions = [
-    {
-      value: '24hours',
-      label: t('last24Hours'),
-    },
-    {
-      value: '7days',
-      label: t('last7Days'),
-    },
-    {
-      value: '30days',
-      label: t('last30Days'),
-    },
-  ];
 
   // make sure to view MessageDetails panel if it was open when navigating to a linked page and user goes back
   if (history.location.state && !viewMessage) {
@@ -137,11 +121,7 @@ export const Messages: () => JSX.Element = () => {
               </Button>
             </Grid>
             <Grid item>
-              <FilterSelect
-                filter={createdFilter}
-                setFilter={setCreatedFilter}
-                filterItems={createdQueryOptions}
-              />
+              <DatePicker />
             </Grid>
             <Grid item>
               <DataViewSwitch />

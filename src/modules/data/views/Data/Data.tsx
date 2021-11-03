@@ -30,13 +30,13 @@ import { DataTable } from '../../../../core/components/DataTable/DataTable';
 import { HashPopover } from '../../../../core/components/HashPopover';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
-import { FilterSelect } from '../../../../core/components/FilterSelect';
 import { DataDetails } from './DataDetails';
 import { fetchWithCredentials, filterOperators } from '../../../../core/utils';
 import { useDataTranslation } from '../../registration';
 import { ArrayParam, useQueryParam, withDefault } from 'use-query-params';
 import { FilterModal } from '../../../../core/components/FilterModal';
 import { FilterDisplay } from '../../../../core/components/FilterDisplay';
+import { DatePicker } from '../../../../core/components/DatePicker';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -49,8 +49,7 @@ export const Data: () => JSX.Element = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
   const [viewData, setViewData] = useState<IData | undefined>();
-  const { createdFilter, setCreatedFilter, lastEvent } =
-    useContext(ApplicationContext);
+  const { createdFilter, lastEvent } = useContext(ApplicationContext);
   const [filterAnchor, setFilterAnchor] = useState<HTMLButtonElement | null>(
     null
   );
@@ -98,21 +97,6 @@ export const Data: () => JSX.Element = () => {
     'key',
     'namespace',
     'validator',
-  ];
-
-  const createdQueryOptions = [
-    {
-      value: '24hours',
-      label: t('last24Hours'),
-    },
-    {
-      value: '7days',
-      label: t('last7Days'),
-    },
-    {
-      value: '30days',
-      label: t('last30Days'),
-    },
   ];
 
   const columnHeaders = [
@@ -229,11 +213,7 @@ export const Data: () => JSX.Element = () => {
               </Button>
             </Grid>
             <Grid item>
-              <FilterSelect
-                filter={createdFilter}
-                setFilter={setCreatedFilter}
-                filterItems={createdQueryOptions}
-              />
+              <DatePicker />
             </Grid>
           </Grid>
           {activeFilters.length > 0 && (
