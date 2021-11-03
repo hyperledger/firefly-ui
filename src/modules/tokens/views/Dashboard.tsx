@@ -41,12 +41,10 @@ import {
   ITokenPool,
   ITokenTransfer,
 } from '../../../core/interfaces';
-import {
-  fetchWithCredentials,
-  getNumTokensInAllAccounts,
-  jsNumberForAddress,
-} from '../../../core/utils';
+import { fetchWithCredentials, jsNumberForAddress } from '../../../core/utils';
 import { useTokensTranslation } from '../registration';
+
+const MAX_ACCOUNTS = 100;
 
 export const Dashboard: () => JSX.Element = () => {
   const classes = useStyles();
@@ -59,7 +57,7 @@ export const Dashboard: () => JSX.Element = () => {
   const [tokenPoolsTotal, setTokenPoolsTotal] = useState(0);
   const [transfers, setTransfers] = useState<ITokenTransfer[]>([]);
   const [transfersTotal, setTransfersTotal] = useState(0);
-  const [tokensTotal, setTokensTotal] = useState(0);
+  const [accountsTotal, setAccountsTotal] = useState('0');
   const { namespace } = useParams<{ namespace: string }>();
   const { lastEvent } = useContext(ApplicationContext);
 
@@ -79,39 +77,47 @@ export const Dashboard: () => JSX.Element = () => {
     setLoading(true);
     Promise.all([
       fetchWithCredentials(
-        `/api/v1/namespaces/${namespace}/tokens/connectors?count`
+        `/api/v1/namespaces/${namespace}/tokens/connectors?limit=1&count`
       ),
       fetchWithCredentials(
-        `/api/v1/namespaces/${namespace}/tokens/pools?count`
+        `/api/v1/namespaces/${namespace}/tokens/pools?limit=25&count`
       ),
       fetchWithCredentials(
         `/api/v1/namespaces/${namespace}/tokens/transfers?limit=5&count`
       ),
-      fetchWithCredentials(`/api/v1/namespaces/${namespace}/tokens/balances`),
+      fetchWithCredentials(
+        `/api/v1/namespaces/${namespace}/tokens/accounts?limit=${
+          MAX_ACCOUNTS + 1
+        }`
+      ),
     ])
       .then(
         async ([
           connectorsResponse,
           tokenPoolsResponse,
           transfersResponse,
-          balancesResponse,
+          accountsResponse,
         ]) => {
           if (
             connectorsResponse.ok &&
             tokenPoolsResponse.ok &&
             transfersResponse.ok &&
-            balancesResponse.ok
+            accountsResponse.ok
           ) {
             const connectorsJson = await connectorsResponse.json();
             const tokenPoolsJson = await tokenPoolsResponse.json();
             const transfersJson = await transfersResponse.json();
-            const balancesJson = await balancesResponse.json();
+            const accountsJson = await accountsResponse.json();
             setConnectorsTotal(connectorsJson.length);
             setTokenPools(tokenPoolsJson.items);
             setTokenPoolsTotal(tokenPoolsJson.total);
             setTransfers(transfersJson.items);
             setTransfersTotal(transfersJson.total);
-            setTokensTotal(getNumTokensInAllAccounts(balancesJson));
+            setAccountsTotal(
+              accountsJson.length <= MAX_ACCOUNTS
+                ? accountsJson.length
+                : `${MAX_ACCOUNTS}+`
+            ); // "count" currently doesn't work reliably for accounts
           }
         }
       )
@@ -124,7 +130,7 @@ export const Dashboard: () => JSX.Element = () => {
     { data: connectorsTotal, title: 'connectors' },
     { data: tokenPoolsTotal, title: 'tokenPools' },
     { data: transfersTotal, title: 'transfers' },
-    { data: tokensTotal, title: 'tokens' },
+    { data: accountsTotal, title: 'accounts' },
   ];
 
   const summaryPanel = (label: string, value: string | number) => (

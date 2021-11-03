@@ -34,10 +34,7 @@ import FileIcon from 'mdi-react/FileIcon';
 import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router';
 import { NamespaceContext } from '../../../core/contexts/NamespaceContext';
-import {
-  fetchWithCredentials,
-  getNumTokensInAllAccounts,
-} from '../../../core/utils';
+import { fetchWithCredentials } from '../../../core/utils';
 import { registerAppNavigationItems } from '../../registration/navigation';
 import { useHomeTranslation } from '../registration';
 
@@ -49,7 +46,7 @@ export const Home: () => JSX.Element = () => {
   const [networkMembersTotal, setNetworkMembersTotal] = useState(0);
   const [fireflyNodesTotal, setFireflyNodesTotal] = useState(0);
   const [messagesTotal, setMessagesTotal] = useState(0);
-  const [tokensTotal, setTokensTotal] = useState(0);
+  const [transfersTotal, setTransfersTotal] = useState(0);
   const { selectedNamespace } = useContext(NamespaceContext);
   const moduleNav = registerAppNavigationItems().filter(
     (nav) => nav.translationKey !== 'home'
@@ -64,7 +61,7 @@ export const Home: () => JSX.Element = () => {
         `/api/v1/namespaces/${selectedNamespace}/messages?limit=1&count`
       ),
       fetchWithCredentials(
-        `/api/v1/namespaces/${selectedNamespace}/tokens/accounts?count`
+        `/api/v1/namespaces/${selectedNamespace}/tokens/transfers?limit=1&count`
       ),
     ])
       .then(
@@ -72,22 +69,22 @@ export const Home: () => JSX.Element = () => {
           networkMembersResponse,
           fireflyNodesResponse,
           messagesResponse,
-          accountsResponse,
+          transfersResponse,
         ]) => {
           if (
             networkMembersResponse.ok &&
             fireflyNodesResponse.ok &&
             messagesResponse.ok &&
-            accountsResponse.ok
+            transfersResponse.ok
           ) {
             const networkMembersJson = await networkMembersResponse.json();
             const fireflyNodesJson = await fireflyNodesResponse.json();
             const messagesJson = await messagesResponse.json();
-            const accountsJson = await accountsResponse.json();
+            const transfersJson = await transfersResponse.json();
             setNetworkMembersTotal(networkMembersJson.total);
             setFireflyNodesTotal(fireflyNodesJson.total);
             setMessagesTotal(messagesJson.total);
-            setTokensTotal(getNumTokensInAllAccounts(accountsJson.items));
+            setTransfersTotal(transfersJson.total);
           }
         }
       )
@@ -133,7 +130,7 @@ export const Home: () => JSX.Element = () => {
     { data: networkMembersTotal, title: 'networkMembers' },
     { data: fireflyNodesTotal, title: 'fireflyNodes' },
     { data: messagesTotal, title: 'messages' },
-    { data: tokensTotal, title: 'tokens' },
+    { data: transfersTotal, title: 'tokenTransfers' },
   ];
 
   const summaryPanel = (label: string, value: string | number) => (
