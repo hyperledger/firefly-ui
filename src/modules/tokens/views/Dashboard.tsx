@@ -174,7 +174,7 @@ export const Dashboard: () => JSX.Element = () => {
               address={transfer.from}
             />
           ) : (
-            '---'
+            '--'
           ),
         },
         {
@@ -185,7 +185,7 @@ export const Dashboard: () => JSX.Element = () => {
               address={transfer.to}
             />
           ) : (
-            '---'
+            '--'
           ),
         },
         { value: dayjs(transfer.created).format('MM/DD/YYYY h:mm A') },

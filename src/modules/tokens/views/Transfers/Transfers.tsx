@@ -171,7 +171,7 @@ export const Transfers: () => JSX.Element = () => {
               address={tokenTransfer.from}
             />
           ) : (
-            '---'
+            '--'
           ),
         },
         {
@@ -182,7 +182,7 @@ export const Transfers: () => JSX.Element = () => {
               address={tokenTransfer.to}
             />
           ) : (
-            '---'
+            '--'
           ),
         },
         { value: dayjs(tokenTransfer.created).format('MM/DD/YYYY h:mm A') },
