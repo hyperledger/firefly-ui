@@ -42,7 +42,7 @@ import {
   ITokenPool,
   ITokenTransfer,
 } from '../../../../core/interfaces';
-import { fetchWithCredentials } from '../../../../core/utils';
+import { fetchWithCredentials, getShortHash } from '../../../../core/utils';
 import { useTokensTranslation } from '../../registration';
 
 const PAGE_LIMITS = [5, 10];
@@ -315,7 +315,7 @@ export const AccountDetails: () => JSX.Element = () => {
                 )
               }
             >
-              {key}
+              {getShortHash(key)}
             </Link>
             <Link underline="none" color="text.primary">
               {pool}
