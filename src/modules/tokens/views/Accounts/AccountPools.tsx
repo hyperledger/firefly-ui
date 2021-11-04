@@ -275,6 +275,25 @@ export const AccountPools: () => JSX.Element = () => {
   );
 };
 
+const poolCache = new Map<string, ITokenPool>();
+const fetchPool = async (
+  namespace: string,
+  id: string
+): Promise<ITokenPool | undefined> => {
+  if (poolCache.has(id)) {
+    return poolCache.get(id);
+  }
+  const response = await fetchWithCredentials(
+    `/api/v1/namespaces/${namespace}/tokens/pools/${id}`
+  );
+  if (!response.ok) {
+    return undefined;
+  }
+  const pool = await response.json();
+  poolCache.set(id, pool);
+  return pool;
+};
+
 const fetchPoolDetails = async (
   namespace: string,
   key: string,
@@ -282,16 +301,14 @@ const fetchPoolDetails = async (
 ): Promise<ITokenPoolWithBalance[]> => {
   const pools: ITokenPoolWithBalance[] = [];
   for (const id of ids) {
-    const [poolResponse, balanceResponse] = await Promise.all([
-      fetchWithCredentials(
-        `/api/v1/namespaces/${namespace}/tokens/pools/${id}`
-      ),
+    const [pool, balanceResponse] = await Promise.all([
+      fetchPool(namespace, id),
       fetchWithCredentials(
         `/api/v1/namespaces/${namespace}/tokens/balances?key=${key}&pool=${id}&sort=-updated&limit=1`
       ),
     ]);
 
-    if (!poolResponse.ok) {
+    if (pool === undefined) {
       console.log(`error fetching token pool ${id}`);
       continue;
     }
@@ -300,7 +317,6 @@ const fetchPoolDetails = async (
       continue;
     }
 
-    const pool: ITokenPool = await poolResponse.json();
     const isNFT = pool.type === 'nonfungible';
     const balances: ITokenBalance[] = await balanceResponse.json();
     if (balances.length === 0) {
@@ -341,9 +357,6 @@ const useStyles = makeStyles((theme) => ({
   },
   paddingBottom: {
     paddingBottom: theme.spacing(2),
-  },
-  paddingRight: {
-    paddingRight: theme.spacing(2),
   },
   pagination: {
     color: theme.palette.text.secondary,
