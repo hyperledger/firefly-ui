@@ -46,5 +46,6 @@
   "transferDetails": "Transfer Details",
   "txHash": "TX Hash",
   "type": "Type",
-  "updated": "Updated"
+  "updated": "Updated",
+  "emptyPlaceholder": "--"
 }

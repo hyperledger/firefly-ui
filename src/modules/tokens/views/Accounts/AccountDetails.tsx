@@ -261,7 +261,7 @@ export const AccountDetails: () => JSX.Element = () => {
         },
         { value: t(tokenTransfer.type) },
         isNFT
-          ? { value: tokenTransfer.tokenIndex ?? '--' }
+          ? { value: tokenTransfer.tokenIndex ?? t('emptyPlaceholder') }
           : { value: tokenTransfer.amount },
         {
           value: tokenTransfer.from ? (
@@ -271,7 +271,7 @@ export const AccountDetails: () => JSX.Element = () => {
               address={tokenTransfer.from}
             />
           ) : (
-            '--'
+            t('emptyPlaceholder')
           ),
         },
         {
@@ -282,7 +282,7 @@ export const AccountDetails: () => JSX.Element = () => {
               address={tokenTransfer.to}
             />
           ) : (
-            '--'
+            t('emptyPlaceholder')
           ),
         },
         { value: dayjs(tokenTransfer.created).format('MM/DD/YYYY h:mm A') },

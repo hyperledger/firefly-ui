@@ -86,7 +86,9 @@ export const TransferDetails: () => JSX.Element = () => {
     },
     {
       label: t('tokenIndex'),
-      value: tokenTransfer.tokenIndex ? tokenTransfer.tokenIndex : '--',
+      value: tokenTransfer.tokenIndex
+        ? tokenTransfer.tokenIndex
+        : t('emptyPlaceholder'),
     },
     {
       label: t('connector'),
@@ -101,7 +103,7 @@ export const TransferDetails: () => JSX.Element = () => {
       value: tokenTransfer.from ? (
         <HashPopover address={tokenTransfer.from}></HashPopover>
       ) : (
-        '--'
+        t('emptyPlaceholder')
       ),
     },
     {
@@ -109,7 +111,7 @@ export const TransferDetails: () => JSX.Element = () => {
       value: tokenTransfer.to ? (
         <HashPopover address={tokenTransfer.to}></HashPopover>
       ) : (
-        '--'
+        t('emptyPlaceholder')
       ),
     },
     { label: t('amount'), value: t(tokenTransfer.amount) },
