@@ -145,13 +145,13 @@ export const AccountDetails: () => JSX.Element = () => {
           const details: ITokenPool = await tokenPoolResponse.json();
           setPoolDetails(details);
         } else {
-          console.log('error fetching token balances');
+          console.log('error fetching token pool details');
         }
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [selectedNamespace, key, pool]);
+  }, [selectedNamespace, pool]);
 
   useEffect(() => {
     if (poolDetails === undefined) {
@@ -217,7 +217,6 @@ export const AccountDetails: () => JSX.Element = () => {
 
   const tokenTransfersColumnHeaders = [
     t('txHash'),
-    t('poolID'),
     t('method'),
     isNFT ? t('tokenIndex') : t('amount'),
     t('from'),
@@ -260,15 +259,6 @@ export const AccountDetails: () => JSX.Element = () => {
             </Grid>
           ),
         },
-        {
-          value: (
-            <HashPopover
-              shortHash={true}
-              textColor="primary"
-              address={tokenTransfer.pool}
-            />
-          ),
-        },
         { value: t(tokenTransfer.type) },
         isNFT
           ? { value: tokenTransfer.tokenIndex ?? '--' }
@@ -299,14 +289,6 @@ export const AccountDetails: () => JSX.Element = () => {
       ],
     })
   );
-
-  if (loading) {
-    return (
-      <Box className={classes.centeredContent}>
-        <CircularProgress />
-      </Box>
-    );
-  }
 
   return (
     <Grid container justifyContent="center">
@@ -354,8 +336,15 @@ export const AccountDetails: () => JSX.Element = () => {
           </Typography>
         </Grid>
         <Grid container spacing={4} item direction="row">
-          {poolDetails && tokenBalances.length > 0 && (
-            <PoolDetails pool={poolDetails} balance={tokenBalances[0]} />
+          {loading ? (
+            <Grid item>
+              <CircularProgress />
+            </Grid>
+          ) : (
+            poolDetails &&
+            tokenBalances.length > 0 && (
+              <PoolDetails pool={poolDetails} balance={tokenBalances[0]} />
+            )
           )}
           {isNFT && (
             <Grid container item>
@@ -452,14 +441,6 @@ const PoolDetails = (options: PoolDetailsOptions): JSX.Element => {
 };
 
 const useStyles = makeStyles((theme) => ({
-  centeredContent: {
-    display: 'flex',
-    flexDirection: 'column',
-    justifyContent: 'center',
-    alignItems: 'center',
-    height: 'calc(100vh - 300px)',
-    overflow: 'auto',
-  },
   header: {
     fontWeight: 'bold',
   },

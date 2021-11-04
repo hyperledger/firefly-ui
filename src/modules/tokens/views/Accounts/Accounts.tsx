@@ -242,17 +242,34 @@ const fetchAccountDetails = async (
   return result;
 };
 
+const poolCache = new Map<string, ITokenPool>();
+const fetchPool = async (
+  namespace: string,
+  id: string
+): Promise<ITokenPool | undefined> => {
+  if (poolCache.has(id)) {
+    return poolCache.get(id);
+  }
+  const response = await fetchWithCredentials(
+    `/api/v1/namespaces/${namespace}/tokens/pools/${id}`
+  );
+  if (!response.ok) {
+    return undefined;
+  }
+  const pool = await response.json();
+  poolCache.set(id, pool);
+  return pool;
+};
+
 const fetchPoolDetails = async (
   namespace: string,
   poolIds: string[]
 ): Promise<ITokenPool[]> => {
   const result: ITokenPool[] = [];
   for (const id of poolIds) {
-    const response = await fetchWithCredentials(
-      `/api/v1/namespaces/${namespace}/tokens/pools/${id}`
-    );
-    if (response.ok) {
-      result.push(await response.json());
+    const pool = await fetchPool(namespace, id);
+    if (pool !== undefined) {
+      result.push(pool);
     } else {
       console.log(`error fetching token pool ${id}`);
     }
