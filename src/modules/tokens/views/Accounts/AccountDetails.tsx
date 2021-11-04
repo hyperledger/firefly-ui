@@ -48,8 +48,9 @@ import { useTokensTranslation } from '../../registration';
 const PAGE_LIMITS = [5, 10];
 
 interface PoolDetailsOptions {
+  accountKey: string;
   pool: ITokenPool;
-  balance: ITokenBalance;
+  balance?: ITokenBalance;
 }
 
 export const AccountDetails: () => JSX.Element = () => {
@@ -341,9 +342,12 @@ export const AccountDetails: () => JSX.Element = () => {
               <CircularProgress />
             </Grid>
           ) : (
-            poolDetails &&
-            tokenBalances.length > 0 && (
-              <PoolDetails pool={poolDetails} balance={tokenBalances[0]} />
+            poolDetails && (
+              <PoolDetails
+                accountKey={key}
+                pool={poolDetails}
+                balance={tokenBalances[0]}
+              />
             )
           )}
           {isNFT && (
@@ -359,7 +363,7 @@ export const AccountDetails: () => JSX.Element = () => {
                 />
               ) : (
                 <DataTableEmptyState
-                  message={t('noTokenTransfersToDisplay')}
+                  message={t('noTokenBalancesToDisplay')}
                 ></DataTableEmptyState>
               )}
             </Grid>
@@ -389,12 +393,12 @@ export const AccountDetails: () => JSX.Element = () => {
 const PoolDetails = (options: PoolDetailsOptions): JSX.Element => {
   const { t } = useTokensTranslation();
   const classes = useStyles();
-  const { pool, balance } = options;
+  const { accountKey, pool, balance } = options;
   const isNFT = pool.type === 'nonfungible';
   const detailsData = [
     {
       label: t('key'),
-      value: <HashPopover address={balance.key}></HashPopover>,
+      value: <HashPopover address={accountKey}></HashPopover>,
     },
     {
       label: t('poolID'),
@@ -403,16 +407,18 @@ const PoolDetails = (options: PoolDetailsOptions): JSX.Element => {
     { label: t('name'), value: pool.name },
     { label: t('type'), value: t(pool.type) },
     { label: t('standard'), value: pool.standard },
-    {
+  ];
+  if (balance !== undefined) {
+    detailsData.push({
       label: t('updated'),
       value: dayjs(balance.updated).format('MM/DD/YYYY h:mm A'),
-    },
-  ];
-  if (!isNFT) {
-    detailsData.push({
-      label: t('balance'),
-      value: balance.balance,
     });
+    if (!isNFT) {
+      detailsData.push({
+        label: t('balance'),
+        value: balance.balance,
+      });
+    }
   }
   return (
     <Grid item xs={6}>
