@@ -33,7 +33,12 @@ import { DataTableEmptyState } from '../../../../core/components/DataTable/DataT
 import { HashPopover } from '../../../../core/components/HashPopover';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
-import { IDataTableRecord, ITokenTransfer } from '../../../../core/interfaces';
+import {
+  IDataTableRecord,
+  ITokenPool,
+  ITokenTransfer,
+  ITokenTransferWithPool,
+} from '../../../../core/interfaces';
 import { fetchWithCredentials } from '../../../../core/utils';
 import { useTokensTranslation } from '../../registration';
 
@@ -45,7 +50,9 @@ export const Transfers: () => JSX.Element = () => {
   const { t } = useTokensTranslation();
   const [loading, setLoading] = useState(false);
   const [transfersUpdated, setTransfersUpdated] = useState(0);
-  const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>([]);
+  const [tokenTransfers, setTokenTransfers] = useState<
+    ITokenTransferWithPool[]
+  >([]);
   const [tokenTransfersTotal, setTokenTransfersTotal] = useState<number>(0);
   const { selectedNamespace } = useContext(NamespaceContext);
   const { lastEvent } = useContext(ApplicationContext);
@@ -103,7 +110,22 @@ export const Transfers: () => JSX.Element = () => {
         if (tokenTransfersResponse.ok) {
           const tokenTransfers = await tokenTransfersResponse.json();
           setTokenTransfersTotal(tokenTransfers.total);
-          setTokenTransfers(tokenTransfers.items);
+
+          if (tokenTransfers.count > 0) {
+            const transfersWithPool: ITokenTransferWithPool[] = [];
+            for (const transfer of tokenTransfers.items as ITokenTransfer[]) {
+              const pool = await fetchPool(selectedNamespace, transfer.pool);
+              if (pool !== undefined) {
+                transfersWithPool.push({
+                  ...transfer,
+                  poolName: pool.name,
+                });
+              }
+            }
+            setTokenTransfers(transfersWithPool);
+          } else {
+            setTokenTransfers([]);
+          }
         } else {
           console.log('error fetching token transfers');
         }
@@ -121,8 +143,9 @@ export const Transfers: () => JSX.Element = () => {
 
   const tokenTransfersColumnHeaders = [
     t('txHash'),
-    t('poolID'),
+    t('pool'),
     t('method'),
+    t('tokenIndex'),
     t('amount'),
     t('from'),
     t('to'),
@@ -130,7 +153,7 @@ export const Transfers: () => JSX.Element = () => {
   ];
 
   const tokenTransfersRecords: IDataTableRecord[] = tokenTransfers.map(
-    (tokenTransfer: ITokenTransfer) => ({
+    (tokenTransfer: ITokenTransferWithPool) => ({
       key: tokenTransfer.tx.id,
       columns: [
         {
@@ -152,16 +175,9 @@ export const Transfers: () => JSX.Element = () => {
             </Grid>
           ),
         },
-        {
-          value: (
-            <HashPopover
-              shortHash={true}
-              textColor="primary"
-              address={tokenTransfer.pool}
-            />
-          ),
-        },
+        { value: tokenTransfer.poolName },
         { value: t(tokenTransfer.type) },
+        { value: tokenTransfer.tokenIndex ?? t('emptyPlaceholder') },
         { value: tokenTransfer.amount },
         {
           value: tokenTransfer.from ? (
@@ -235,6 +251,25 @@ export const Transfers: () => JSX.Element = () => {
       </Grid>
     </>
   );
+};
+
+const poolCache = new Map<string, ITokenPool>();
+const fetchPool = async (
+  namespace: string,
+  id: string
+): Promise<ITokenPool | undefined> => {
+  if (poolCache.has(id)) {
+    return poolCache.get(id);
+  }
+  const response = await fetchWithCredentials(
+    `/api/v1/namespaces/${namespace}/tokens/pools/${id}`
+  );
+  if (!response.ok) {
+    return undefined;
+  }
+  const pool = await response.json();
+  poolCache.set(id, pool);
+  return pool;
 };
 
 const useStyles = makeStyles((theme) => ({

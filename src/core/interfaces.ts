@@ -345,6 +345,10 @@ export interface ITokenTransfer {
   tx: ITokenTx;
 }
 
+export interface ITokenTransferWithPool extends ITokenTransfer {
+  poolName: string;
+}
+
 export interface ITokenTx {
   type: string;
   id: string;
