@@ -211,32 +211,25 @@ export const TokenPoolDetails: () => JSX.Element = () => {
       label: t('id'),
       value: <HashPopover address={tokenPool.id}></HashPopover>,
     },
-    { label: t('type'), value: t(tokenPool.type) },
-    { label: t('namespace'), value: tokenPool.namespace },
-    { label: t('name'), value: tokenPool.name },
-    { label: t('protocolID'), value: tokenPool.protocolId },
     {
-      label: t('key'),
+      label: t('creator'),
       value: <HashPopover address={tokenPool.key}></HashPopover>,
     },
+    { label: t('namespace'), value: tokenPool.namespace },
+    { label: t('name'), value: tokenPool.name },
+    { label: t('type'), value: t(tokenPool.type) },
+    { label: t('protocolID'), value: tokenPool.protocolId },
+    { label: t('connector'), value: tokenPool.connector },
     { label: t('standard'), value: tokenPool.standard },
   ];
 
   const messageData = [
-    {
-      label: t('created'),
-      value: dayjs(tokenPool.created).format('MM/DD/YYYY h:mm A'),
-    },
     {
       label: t('type'),
       value: t('tokenPool'),
     },
     {
       label: t('id'),
-      value: <HashPopover address={tokenPool.id}></HashPopover>,
-    },
-    {
-      label: t('message'),
       value: <HashPopover address={tokenPool.message}></HashPopover>,
     },
   ];

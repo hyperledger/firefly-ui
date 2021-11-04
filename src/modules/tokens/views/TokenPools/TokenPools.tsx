@@ -30,7 +30,6 @@ import Jazzicon from 'react-jazzicon';
 import { useHistory } from 'react-router';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
 import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
-import { HashPopover } from '../../../../core/components/HashPopover';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { IDataTableRecord, ITokenPool } from '../../../../core/interfaces';
@@ -118,11 +117,10 @@ export const TokenPools: () => JSX.Element = () => {
 
   const tokenPoolsColumnHeaders = [
     t('name'),
-    t('address'),
     t('type'),
     t('standard'),
     t('protocolID'),
-    t('lastUpdated'),
+    t('created'),
   ];
 
   const tokenPoolsRecords: IDataTableRecord[] = tokenPools.map(
@@ -140,15 +138,6 @@ export const TokenPools: () => JSX.Element = () => {
               </ListItemAvatar>
               <ListItemText primary={tokenPool.name} />
             </ListItem>
-          ),
-        },
-        {
-          value: (
-            <HashPopover
-              shortHash={true}
-              textColor="primary"
-              address={tokenPool.key}
-            />
           ),
         },
         {
