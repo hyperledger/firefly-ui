@@ -29,6 +29,7 @@ import dayjs from 'dayjs';
 import FireIcon from 'mdi-react/FireIcon';
 import StamperIcon from 'mdi-react/StamperIcon';
 import SwapHorizontalIcon from 'mdi-react/SwapHorizontalIcon';
+import MessageIcon from '@mui/icons-material/Message';
 import React, { useContext, useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
@@ -46,6 +47,8 @@ import { fetchWithCredentials, getShortHash } from '../../../../core/utils';
 import { useTokensTranslation } from '../../registration';
 
 const PAGE_LIMITS = [5, 10];
+const NO_MESSAGE =
+  '0000000000000000000000000000000000000000000000000000000000000000';
 
 interface PoolDetailsOptions {
   accountKey: string;
@@ -222,6 +225,7 @@ export const AccountDetails: () => JSX.Element = () => {
     isNFT ? t('tokenIndex') : t('amount'),
     t('from'),
     t('to'),
+    t('message'),
     t('timestamp'),
   ];
 
@@ -286,8 +290,17 @@ export const AccountDetails: () => JSX.Element = () => {
             t('emptyPlaceholder')
           ),
         },
+        {
+          value:
+            tokenTransfer.messageHash === NO_MESSAGE ? '' : <MessageIcon />,
+        },
         { value: dayjs(tokenTransfer.created).format('MM/DD/YYYY h:mm A') },
       ],
+      onClick: () => {
+        history.push(
+          `/namespace/${selectedNamespace}/tokens/transfers/${tokenTransfer.localId}`
+        );
+      },
     })
   );
 
