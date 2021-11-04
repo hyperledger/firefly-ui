@@ -122,7 +122,20 @@ export const TransferDetails: () => JSX.Element = () => {
     {
       label: t('from'),
       value: tokenTransfer.from ? (
-        <HashPopover address={tokenTransfer.from}></HashPopover>
+        <>
+          <HashPopover address={tokenTransfer.from}></HashPopover>
+          <IconButton
+            className={classes.button}
+            size="large"
+            onClick={() => {
+              history.push(
+                `/namespace/${selectedNamespace}/tokens/accounts/${tokenTransfer.from}/${tokenPool?.name}`
+              );
+            }}
+          >
+            <LaunchIcon />
+          </IconButton>
+        </>
       ) : (
         t('emptyPlaceholder')
       ),
@@ -130,7 +143,20 @@ export const TransferDetails: () => JSX.Element = () => {
     {
       label: t('to'),
       value: tokenTransfer.to ? (
-        <HashPopover address={tokenTransfer.to}></HashPopover>
+        <>
+          <HashPopover address={tokenTransfer.to}></HashPopover>
+          <IconButton
+            className={classes.button}
+            size="large"
+            onClick={() => {
+              history.push(
+                `/namespace/${selectedNamespace}/tokens/accounts/${tokenTransfer.to}/${tokenPool?.name}`
+              );
+            }}
+          >
+            <LaunchIcon />
+          </IconButton>
+        </>
       ) : (
         t('emptyPlaceholder')
       ),
