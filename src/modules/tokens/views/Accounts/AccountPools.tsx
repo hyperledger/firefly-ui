@@ -45,6 +45,7 @@ import {
 } from '../../../../core/interfaces';
 import {
   fetchWithCredentials,
+  getShortHash,
   jsNumberForAddress,
 } from '../../../../core/utils';
 import { useTokensTranslation } from '../../registration';
@@ -213,7 +214,7 @@ export const AccountPools: () => JSX.Element = () => {
               {t('accounts')}
             </Link>
             <Link underline="none" color="text.primary">
-              <HashPopover address={key} />
+              {getShortHash(key)}
             </Link>
           </Breadcrumbs>
         </Grid>

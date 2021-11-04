@@ -137,7 +137,13 @@ export const Accounts: () => JSX.Element = () => {
       key: idx.toString(),
       columns: [
         {
-          value: <HashPopover textColor="primary" address={tokenAccount.key} />,
+          value: (
+            <HashPopover
+              textColor="primary"
+              address={tokenAccount.key}
+              shortHash={true}
+            />
+          ),
         },
         {
           value: tokenAccount.pools,
