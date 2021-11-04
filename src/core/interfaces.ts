@@ -258,9 +258,17 @@ export interface ITokenAccount {
   key: string;
 }
 
-export interface ITokenAccountWithPools {
-  key: string;
+export interface ITokenAccountPool {
+  pool: string;
+}
+
+export interface ITokenAccountWithPools extends ITokenAccount {
   pools: string;
+  updated: string;
+}
+
+export interface ITokenPoolWithBalance extends ITokenPool {
+  balance: string;
   updated: string;
 }
 
@@ -270,14 +278,6 @@ export interface ITokenBalance {
   connector: string;
   key: string;
   balance: string;
-  updated: string;
-}
-
-export interface ITokenPoolBalance {
-  pool: string;
-  connector: string;
-  balance: number;
-  tokenIndexes: string[];
   updated: string;
 }
 
