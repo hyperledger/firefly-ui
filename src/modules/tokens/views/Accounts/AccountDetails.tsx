@@ -350,7 +350,7 @@ export const AccountDetails: () => JSX.Element = () => {
           className={classes.paddingBottom}
         >
           <Typography className={classes.bold} variant="h4">
-            {t('accountDetails')}
+            {pool}
           </Typography>
         </Grid>
         <Grid container spacing={4} item direction="row">
