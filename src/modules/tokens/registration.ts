@@ -22,6 +22,7 @@ import ViewDashboardOutlineIcon from 'mdi-react/ViewDashboardOutlineIcon';
 import useModuleTranslation from '../../core/hooks/useModuleTranslation';
 import { IRoute, ModuleNav, NavItem } from '../../core/interfaces';
 import enTokens from './translations/en.json';
+import { AccountPools } from './views/Accounts/AccountPools';
 import { AccountDetails } from './views/Accounts/AccountDetails';
 import { Accounts } from './views/Accounts/Accounts';
 import { Dashboard } from './views/Dashboard';
@@ -126,6 +127,11 @@ export const TokensRoutes: IRoute[] = [
   {
     exact: true,
     route: `${TOKENS_ROUTE_PREFIX}/accounts/:key`,
+    component: AccountPools,
+  },
+  {
+    exact: true,
+    route: `${TOKENS_ROUTE_PREFIX}/accounts/:key/:pool`,
     component: AccountDetails,
   },
   {

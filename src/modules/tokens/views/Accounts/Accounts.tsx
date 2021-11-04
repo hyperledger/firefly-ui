@@ -33,7 +33,7 @@ import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import {
   IDataTableRecord,
   IPagedTokenAccountResponse,
-  ITokenAccount,
+  ITokenAccountPool,
   ITokenAccountWithPools,
   ITokenBalance,
   ITokenPool,
@@ -42,7 +42,6 @@ import { fetchWithCredentials } from '../../../../core/utils';
 import { useTokensTranslation } from '../../registration';
 
 const PAGE_LIMITS = [10, 25];
-const MAX_BALANCE_QUERY = 25;
 const MAX_POOLS_SHOWN = 3;
 
 export const Accounts: () => JSX.Element = () => {
@@ -113,7 +112,10 @@ export const Accounts: () => JSX.Element = () => {
             await tokenAccountsResponse.json();
           setTokenAccountsTotal(tokenAccounts.total);
           setTokenAccounts(
-            await fetchAccountDetails(selectedNamespace, tokenAccounts.items)
+            await fetchAccountDetails(
+              selectedNamespace,
+              tokenAccounts.items.map((a) => a.key)
+            )
           );
         } else {
           console.log('error fetching token accounts');
@@ -196,33 +198,43 @@ export const Accounts: () => JSX.Element = () => {
 
 const fetchAccountDetails = async (
   namespace: string,
-  accounts: ITokenAccount[]
+  keys: string[]
 ): Promise<ITokenAccountWithPools[]> => {
   const result: ITokenAccountWithPools[] = [];
-  for (const account of accounts) {
-    const balanceResponse = await fetchWithCredentials(
-      `/api/v1/namespaces/${namespace}/tokens/balances?limit=${
-        MAX_BALANCE_QUERY + 1
-      }&sort=-updated`
-    );
+  for (const key of keys) {
+    const [balanceResponse, poolsResponse] = await Promise.all([
+      fetchWithCredentials(
+        `/api/v1/namespaces/${namespace}/tokens/balances?limit=1&sort=-updated`
+      ),
+      fetchWithCredentials(
+        `/api/v1/namespaces/${namespace}/tokens/accounts/${key}/pools?limit=${
+          MAX_POOLS_SHOWN + 1
+        }`
+      ),
+    ]);
+
     if (!balanceResponse.ok) {
-      console.log(`error fetching token balances for account ${account.key}`);
+      console.log(`error fetching token balances for account ${key}`);
       continue;
     }
+    if (!poolsResponse.ok) {
+      console.log(`error fetching token pools for account ${key}`);
+      continue;
+    }
+
     const balances: ITokenBalance[] = await balanceResponse.json();
     if (balances.length === 0) {
       continue;
     }
 
-    const poolIds = new Set(balances.map((b) => b.pool));
-    const hasMore =
-      poolIds.size > MAX_POOLS_SHOWN || balances.length > MAX_BALANCE_QUERY;
+    const poolIds: ITokenAccountPool[] = await poolsResponse.json();
+    const hasMore = poolIds.length > MAX_POOLS_SHOWN;
     const pools = await fetchPoolDetails(
       namespace,
-      Array.from(poolIds).slice(0, MAX_POOLS_SHOWN)
+      poolIds.slice(0, MAX_POOLS_SHOWN).map((p) => p.pool)
     );
     result.push({
-      key: account.key,
+      key,
       pools: pools.map((p) => p.name).join(', ') + (hasMore ? '...' : ''),
       updated: dayjs(balances[0].updated).format('MM/DD/YYYY h:mm A'),
     });

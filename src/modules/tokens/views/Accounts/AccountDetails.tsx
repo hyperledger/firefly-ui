@@ -39,7 +39,7 @@ import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import {
   IDataTableRecord,
   ITokenBalance,
-  ITokenPoolBalance,
+  ITokenPool,
   ITokenTransfer,
 } from '../../../../core/interfaces';
 import { fetchWithCredentials } from '../../../../core/utils';
@@ -47,49 +47,78 @@ import { useTokensTranslation } from '../../registration';
 
 const PAGE_LIMITS = [5, 10];
 
-interface AccountBoxOptions {
-  balance: ITokenPoolBalance;
+interface PoolDetailsOptions {
+  pool: ITokenPool;
+  balance: ITokenBalance;
 }
 
 export const AccountDetails: () => JSX.Element = () => {
   const history = useHistory();
   const { t } = useTokensTranslation();
-  const { key } = useParams<{ key: string }>();
+  const { key, pool } = useParams<{ key: string; pool: string }>();
   const classes = useStyles();
   const { selectedNamespace } = useContext(NamespaceContext);
   const { lastEvent } = useContext(ApplicationContext);
   const [loading, setLoading] = useState(false);
   const [transfersUpdated, setTransfersUpdated] = useState(0);
-  const [tokenBalances, setTokenBalances] = useState<ITokenPoolBalance[]>();
+  const [poolDetails, setPoolDetails] = useState<ITokenPool | undefined>();
+  const [tokenBalances, setTokenBalances] = useState<ITokenBalance[]>([]);
+  const [tokenBalancesTotal, setTokenBalancesTotal] = useState(0);
   const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>([]);
   const [tokenTransfersTotal, setTokenTransfersTotal] = useState(0);
-  const [currentPage, setCurrentPage] = useState(0);
+  const [tokensPage, setTokensPage] = useState(0);
+  const [transfersPage, setTransfersPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
 
-  const handleChangePage = (_event: unknown, newPage: number) => {
+  const changeTokensPage = (_event: unknown, newPage: number) => {
     if (
-      newPage > currentPage &&
-      rowsPerPage * (currentPage + 1) >= tokenTransfersTotal
+      newPage > tokensPage &&
+      rowsPerPage * (tokensPage + 1) >= tokenBalancesTotal
     ) {
       return;
     }
-    setCurrentPage(newPage);
+    setTokensPage(newPage);
+  };
+
+  const changeTransfersPage = (_event: unknown, newPage: number) => {
+    if (
+      newPage > transfersPage &&
+      rowsPerPage * (transfersPage + 1) >= tokenTransfersTotal
+    ) {
+      return;
+    }
+    setTransfersPage(newPage);
   };
 
   const handleChangeRowsPerPage = (
     event: React.ChangeEvent<HTMLInputElement>
   ) => {
-    setCurrentPage(0);
+    setTokensPage(0);
+    setTransfersPage(0);
     setRowsPerPage(+event.target.value);
   };
 
-  const pagination = (
+  const tokensPagination = (
     <TablePagination
       component="div"
       count={-1}
       rowsPerPage={rowsPerPage}
-      page={currentPage}
-      onPageChange={handleChangePage}
+      page={tokensPage}
+      onPageChange={changeTokensPage}
+      onRowsPerPageChange={handleChangeRowsPerPage}
+      rowsPerPageOptions={PAGE_LIMITS}
+      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
+      className={classes.pagination}
+    />
+  );
+
+  const transfersPagination = (
+    <TablePagination
+      component="div"
+      count={-1}
+      rowsPerPage={rowsPerPage}
+      page={transfersPage}
+      onPageChange={changeTransfersPage}
       onRowsPerPageChange={handleChangeRowsPerPage}
       rowsPerPageOptions={PAGE_LIMITS}
       labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
@@ -109,12 +138,12 @@ export const AccountDetails: () => JSX.Element = () => {
   useEffect(() => {
     setLoading(true);
     fetchWithCredentials(
-      `/api/v1/namespaces/${selectedNamespace}/tokens/balances?key=${key}&balance=>0&limit=250`
+      `/api/v1/namespaces/${selectedNamespace}/tokens/pools/${pool}`
     )
-      .then(async (tokenBalanceResponse) => {
-        if (tokenBalanceResponse.ok) {
-          const balances: ITokenBalance[] = await tokenBalanceResponse.json();
-          setTokenBalances(aggregatePoolBalances(balances));
+      .then(async (tokenPoolResponse) => {
+        if (tokenPoolResponse.ok) {
+          const details: ITokenPool = await tokenPoolResponse.json();
+          setPoolDetails(details);
         } else {
           console.log('error fetching token balances');
         }
@@ -122,13 +151,42 @@ export const AccountDetails: () => JSX.Element = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [selectedNamespace, key, transfersUpdated]);
+  }, [selectedNamespace, key, pool]);
 
   useEffect(() => {
+    if (poolDetails === undefined) {
+      return;
+    }
     fetchWithCredentials(
-      `/api/v1/namespaces/${selectedNamespace}/tokens/transfers?fromOrTo=${key}&limit=${rowsPerPage}&skip=${
-        rowsPerPage * currentPage
-      }&count`
+      `/api/v1/namespaces/${selectedNamespace}/tokens/balances?key=${key}&pool=${
+        poolDetails.id
+      }&balance=>0&count&limit=${rowsPerPage}&skip=${rowsPerPage * tokensPage}`
+    ).then(async (tokenBalanceResponse) => {
+      if (tokenBalanceResponse.ok) {
+        const balances = await tokenBalanceResponse.json();
+        setTokenBalancesTotal(balances.total);
+        setTokenBalances(balances.items);
+      } else {
+        console.log('error fetching token balances');
+      }
+    });
+  }, [
+    rowsPerPage,
+    tokensPage,
+    selectedNamespace,
+    key,
+    transfersUpdated,
+    poolDetails,
+  ]);
+
+  useEffect(() => {
+    if (poolDetails === undefined) {
+      return;
+    }
+    fetchWithCredentials(
+      `/api/v1/namespaces/${selectedNamespace}/tokens/transfers?fromOrTo=${key}&pool=${
+        poolDetails.id
+      }&limit=${rowsPerPage}&skip=${rowsPerPage * transfersPage}&count`
     ).then(async (tokenTransfersResponse) => {
       if (tokenTransfersResponse.ok) {
         const tokenTransfers = await tokenTransfersResponse.json();
@@ -138,7 +196,16 @@ export const AccountDetails: () => JSX.Element = () => {
         console.log('error fetching token transfers');
       }
     });
-  }, [rowsPerPage, currentPage, selectedNamespace, key, transfersUpdated]);
+  }, [
+    rowsPerPage,
+    transfersPage,
+    selectedNamespace,
+    key,
+    transfersUpdated,
+    poolDetails,
+  ]);
+
+  const isNFT = poolDetails?.type === 'nonfungible';
 
   const transferIconMap = {
     burn: <FireIcon />,
@@ -146,17 +213,29 @@ export const AccountDetails: () => JSX.Element = () => {
     transfer: <SwapHorizontalIcon />,
   };
 
+  const tokenIndexColumnHeaders = [t('tokenIndex'), t('updated')];
+
   const tokenTransfersColumnHeaders = [
     t('txHash'),
     t('poolID'),
     t('method'),
-    t('amount'),
+    isNFT ? t('tokenIndex') : t('amount'),
     t('from'),
     t('to'),
     t('timestamp'),
   ];
 
-  const tokenTransfersRecords: IDataTableRecord[] = tokenTransfers.map(
+  const tokenIndexRecords: IDataTableRecord[] = tokenBalances?.map(
+    (balance: ITokenBalance) => ({
+      key: balance.pool + ':' + balance.tokenIndex,
+      columns: [
+        { value: balance.tokenIndex },
+        { value: dayjs(balance.updated).format('MM/DD/YYYY h:mm A') },
+      ],
+    })
+  );
+
+  const tokenTransfersRecords: IDataTableRecord[] = tokenTransfers?.map(
     (tokenTransfer: ITokenTransfer) => ({
       key: tokenTransfer.tx.id,
       columns: [
@@ -191,7 +270,9 @@ export const AccountDetails: () => JSX.Element = () => {
           ),
         },
         { value: t(tokenTransfer.type) },
-        { value: tokenTransfer.amount },
+        isNFT
+          ? { value: tokenTransfer.tokenIndex ?? '--' }
+          : { value: tokenTransfer.amount },
         {
           value: tokenTransfer.from ? (
             <HashPopover
@@ -227,10 +308,6 @@ export const AccountDetails: () => JSX.Element = () => {
     );
   }
 
-  if (!tokenBalances) {
-    return <></>;
-  }
-
   return (
     <Grid container justifyContent="center">
       <Grid container item wrap="nowrap" direction="column">
@@ -246,8 +323,20 @@ export const AccountDetails: () => JSX.Element = () => {
             >
               {t('accounts')}
             </Link>
-            <Link underline="none" color="text.primary">
+            <Link
+              underline="hover"
+              color="inherit"
+              sx={{ cursor: 'pointer' }}
+              onClick={() =>
+                history.push(
+                  `/namespace/${selectedNamespace}/tokens/accounts/${key}`
+                )
+              }
+            >
               {key}
+            </Link>
+            <Link underline="none" color="text.primary">
+              {pool}
             </Link>
           </Breadcrumbs>
         </Grid>
@@ -265,9 +354,27 @@ export const AccountDetails: () => JSX.Element = () => {
           </Typography>
         </Grid>
         <Grid container spacing={4} item direction="row">
-          {tokenBalances.map((b) => (
-            <AccountBox balance={b} key={b.pool} />
-          ))}
+          {poolDetails && tokenBalances.length > 0 && (
+            <PoolDetails pool={poolDetails} balance={tokenBalances[0]} />
+          )}
+          {isNFT && (
+            <Grid container item>
+              {tokenBalances.length ? (
+                <DataTable
+                  header={t('tokenIndexes')}
+                  minHeight="300px"
+                  maxHeight="calc(100vh - 340px)"
+                  columnHeaders={tokenIndexColumnHeaders}
+                  records={tokenIndexRecords}
+                  {...{ pagination: tokensPagination }}
+                />
+              ) : (
+                <DataTableEmptyState
+                  message={t('noTokenTransfersToDisplay')}
+                ></DataTableEmptyState>
+              )}
+            </Grid>
+          )}
           <Grid container item>
             {tokenTransfers.length ? (
               <DataTable
@@ -276,7 +383,7 @@ export const AccountDetails: () => JSX.Element = () => {
                 maxHeight="calc(100vh - 340px)"
                 columnHeaders={tokenTransfersColumnHeaders}
                 records={tokenTransfersRecords}
-                {...{ pagination }}
+                {...{ pagination: transfersPagination }}
               />
             ) : (
               <DataTableEmptyState
@@ -290,63 +397,34 @@ export const AccountDetails: () => JSX.Element = () => {
   );
 };
 
-const aggregatePoolBalances = (
-  balances: ITokenBalance[]
-): ITokenPoolBalance[] => {
-  const poolBalances = new Map<string, ITokenPoolBalance>();
-  for (const balance of balances) {
-    let poolBalance: ITokenPoolBalance;
-    const existing = poolBalances.get(balance.pool);
-    if (existing !== undefined) {
-      poolBalance = existing;
-    } else {
-      poolBalance = {
-        pool: balance.pool,
-        connector: balance.connector,
-        updated: balance.updated,
-        balance: 0,
-        tokenIndexes: [],
-      };
-      poolBalances.set(balance.pool, poolBalance);
-    }
-    if (balance.tokenIndex !== undefined && balance.tokenIndex !== '') {
-      poolBalance.tokenIndexes.push(balance.tokenIndex);
-    }
-    if (balance.balance !== undefined) {
-      poolBalance.balance += parseInt(balance.balance);
-    }
-  }
-  return Array.from(poolBalances.values());
-};
-
-const AccountBox = (options: AccountBoxOptions): JSX.Element => {
+const PoolDetails = (options: PoolDetailsOptions): JSX.Element => {
   const { t } = useTokensTranslation();
   const classes = useStyles();
-  const { balance } = options;
-  const joinedIndexes = balance.tokenIndexes.join(', ');
+  const { pool, balance } = options;
+  const isNFT = pool.type === 'nonfungible';
   const detailsData = [
     {
+      label: t('key'),
+      value: <HashPopover address={balance.key}></HashPopover>,
+    },
+    {
       label: t('poolID'),
-      value: <HashPopover address={balance.pool}></HashPopover>,
+      value: <HashPopover address={pool.id}></HashPopover>,
     },
-    {
-      label: t('connector'),
-      value: balance.connector,
-    },
-    {
-      label: t('tokenIndexes'),
-      value: joinedIndexes !== '' ? joinedIndexes : '---',
-    },
-    {
-      label: t('balance'),
-      value: balance.balance,
-    },
+    { label: t('name'), value: pool.name },
+    { label: t('type'), value: t(pool.type) },
+    { label: t('standard'), value: pool.standard },
     {
       label: t('updated'),
       value: dayjs(balance.updated).format('MM/DD/YYYY h:mm A'),
     },
   ];
-
+  if (!isNFT) {
+    detailsData.push({
+      label: t('balance'),
+      value: balance.balance,
+    });
+  }
   return (
     <Grid item xs={6}>
       <Paper className={classes.paper}>
