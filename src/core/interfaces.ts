@@ -353,3 +353,47 @@ export interface ITokenTx {
   type: string;
   id: string;
 }
+
+export enum OperationStatus {
+  Succeeded = 'Succeeded',
+  Pending = 'Pending',
+  Failed = 'Failed',
+}
+
+export interface IDataType {
+  id: string;
+  message: string;
+  validator: string;
+  namespace: string;
+  name: string;
+  version: string;
+  hash: string;
+  created: string;
+  // Todo: below is a json object...not sure how to define it
+  value: any;
+}
+
+export interface IEvent {
+  id: string;
+  sequence: number;
+  type: string;
+  namespace: string;
+  reference: string;
+  created: string;
+}
+
+export interface IOperation {
+  id: string;
+  namespace: string;
+  tx: string;
+  type: string;
+  status: OperationStatus;
+  plugin: string;
+  backendId: string;
+  output: {
+    id: string;
+    success: boolean;
+  };
+  created: string;
+  updated: string;
+}
