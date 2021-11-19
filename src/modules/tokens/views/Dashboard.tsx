@@ -44,8 +44,6 @@ import {
 import { fetchWithCredentials, jsNumberForAddress } from '../../../core/utils';
 import { useTokensTranslation } from '../registration';
 
-const MAX_ACCOUNTS = 100;
-
 export const Dashboard: () => JSX.Element = () => {
   const classes = useStyles();
   const { t } = useTokensTranslation();
@@ -86,9 +84,7 @@ export const Dashboard: () => JSX.Element = () => {
         `/api/v1/namespaces/${namespace}/tokens/transfers?limit=5&count`
       ),
       fetchWithCredentials(
-        `/api/v1/namespaces/${namespace}/tokens/accounts?limit=${
-          MAX_ACCOUNTS + 1
-        }`
+        `/api/v1/namespaces/${namespace}/tokens/accounts?limit=1&count`
       ),
     ])
       .then(
@@ -113,11 +109,7 @@ export const Dashboard: () => JSX.Element = () => {
             setTokenPoolsTotal(tokenPoolsJson.total);
             setTransfers(transfersJson.items);
             setTransfersTotal(transfersJson.total);
-            setAccountsTotal(
-              accountsJson.length <= MAX_ACCOUNTS
-                ? accountsJson.length
-                : `${MAX_ACCOUNTS}+`
-            ); // "count" currently doesn't work reliably for accounts
+            setAccountsTotal(accountsJson.total);
           }
         }
       )
