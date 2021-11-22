@@ -232,7 +232,7 @@ export const AccountDetails: () => JSX.Element = () => {
       key: balance.pool + ':' + balance.tokenIndex,
       columns: [
         { value: balance.tokenIndex },
-        { value: balance.uri },
+        { value: <HashPopover address={balance.uri ?? ''} /> },
         { value: dayjs(balance.updated).format('MM/DD/YYYY h:mm A') },
       ],
     })
