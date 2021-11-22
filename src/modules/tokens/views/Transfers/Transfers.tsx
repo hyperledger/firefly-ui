@@ -44,8 +44,6 @@ import { fetchWithCredentials } from '../../../../core/utils';
 import { useTokensTranslation } from '../../registration';
 
 const PAGE_LIMITS = [10, 25];
-const NO_MESSAGE =
-  '0000000000000000000000000000000000000000000000000000000000000000';
 
 export const Transfers: () => JSX.Element = () => {
   const history = useHistory();
@@ -206,8 +204,7 @@ export const Transfers: () => JSX.Element = () => {
           ),
         },
         {
-          value:
-            tokenTransfer.messageHash === NO_MESSAGE ? '' : <MessageIcon />,
+          value: tokenTransfer.message === undefined ? '' : <MessageIcon />,
         },
         { value: dayjs(tokenTransfer.created).format('MM/DD/YYYY h:mm A') },
       ],

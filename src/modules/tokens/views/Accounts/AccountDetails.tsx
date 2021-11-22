@@ -47,8 +47,6 @@ import { fetchWithCredentials, getShortHash } from '../../../../core/utils';
 import { useTokensTranslation } from '../../registration';
 
 const PAGE_LIMITS = [5, 10];
-const NO_MESSAGE =
-  '0000000000000000000000000000000000000000000000000000000000000000';
 
 interface PoolDetailsOptions {
   accountKey: string;
@@ -292,8 +290,7 @@ export const AccountDetails: () => JSX.Element = () => {
           ),
         },
         {
-          value:
-            tokenTransfer.messageHash === NO_MESSAGE ? '' : <MessageIcon />,
+          value: tokenTransfer.message === undefined ? '' : <MessageIcon />,
         },
         { value: dayjs(tokenTransfer.created).format('MM/DD/YYYY h:mm A') },
       ],
