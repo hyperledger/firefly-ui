@@ -342,7 +342,8 @@ export interface ITokenTransfer {
   to: string;
   amount: string;
   protocolId: string;
-  messageHash: string;
+  message?: string;
+  messageHash?: string;
   created: string;
   tx: ITokenTx;
 }
