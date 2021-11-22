@@ -217,7 +217,7 @@ export const AccountDetails: () => JSX.Element = () => {
     transfer: <SwapHorizontalIcon />,
   };
 
-  const tokenIndexColumnHeaders = [t('tokenIndex'), t('updated')];
+  const tokenIndexColumnHeaders = [t('tokenIndex'), t('uri'), t('updated')];
 
   const tokenTransfersColumnHeaders = [
     t('txHash'),
@@ -234,6 +234,7 @@ export const AccountDetails: () => JSX.Element = () => {
       key: balance.pool + ':' + balance.tokenIndex,
       columns: [
         { value: balance.tokenIndex },
+        { value: balance.uri },
         { value: dayjs(balance.updated).format('MM/DD/YYYY h:mm A') },
       ],
     })
