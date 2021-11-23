@@ -13,4 +13,4 @@ npm i
 npm run start
 ```
 
-![FireFly Explorer Dashboard](./docs/ff-dashboard.png)
+![FireFly Explorer Dashboard](./images/firefly_explorer.png)
