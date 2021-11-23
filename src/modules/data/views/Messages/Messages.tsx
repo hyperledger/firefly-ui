@@ -71,7 +71,7 @@ export const Messages: () => JSX.Element = () => {
 
   useEffect(() => {
     //set query param state
-    setFilterQuery(activeFilters);
+    setFilterQuery(activeFilters, 'replaceIn');
     if (activeFilters.length === 0) {
       setFilterString('');
       return;
