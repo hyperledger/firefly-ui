@@ -19,6 +19,7 @@
   "networkMapDescription": "View organizations and nodes within your network",
   "networkMembers": "Network Members",
   "reference": "Reference",
+  "tokens":"Tokens",
   "tokenTransfers": "Token Transfers",
   "tokensDescription": "View tokens, accounts, and transfers within your network",
   "welcome": "Welcome!"

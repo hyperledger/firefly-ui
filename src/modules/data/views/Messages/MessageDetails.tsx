@@ -13,146 +13,51 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-
-import React, { useState, useEffect, useContext } from 'react';
-import { DisplaySlide } from '../../../../core/components/Display/DisplaySlide';
 import {
-  Typography,
-  Grid,
-  Divider,
-  Button,
-  Box,
-  Paper,
+  Breadcrumbs,
   CircularProgress,
+  Grid,
+  Link,
+  List,
+  Paper,
+  Typography,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import { IMessage, IBatch, IData } from '../../../../core/interfaces';
-import { HashPopover } from '../../../../core/components/HashPopover';
+import { makeStyles } from '@mui/styles';
+import { Box } from '@mui/system';
 import dayjs from 'dayjs';
-import CopyToClipboard from 'react-copy-to-clipboard';
-import clsx from 'clsx';
+import React, { useContext, useEffect, useState } from 'react';
+import { useHistory, useParams } from 'react-router';
+import { HashPopover } from '../../../../core/components/HashPopover';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
-import { useHistory } from 'react-router-dom';
-import Highlight from 'react-highlight';
-import { fetchWithCredentials } from '../../../../core/utils';
-import { SnackbarContext } from '../../../../core/contexts/SnackbarContext';
+import { IDataMessage } from '../../../../core/interfaces';
+import { fetchWithCredentials, getShortHash } from '../../../../core/utils';
 import { useDataTranslation } from '../../registration';
 
-interface Props {
-  message: IMessage;
-  open: boolean;
-  onClose: () => void;
-}
-
-export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
-  const { t } = useDataTranslation();
-  const classes = useStyles();
+export const MessageDetails: () => JSX.Element = () => {
   const history = useHistory();
-  const [loading, setLoading] = useState(false);
-  const [txId, setTxId] = useState<string>();
-  const [data, setData] = useState<IData[]>([]);
+  const { t } = useDataTranslation();
+  const { id } = useParams<{ id: string }>();
+  const classes = useStyles();
   const { selectedNamespace } = useContext(NamespaceContext);
-  const { setMessage, setMessageType } = useContext(SnackbarContext);
-
-  const detailItem = (label: string, value: string | JSX.Element) => (
-    <>
-      <Grid item xs={12}>
-        <Typography className={classes.detailLabel}>{label}</Typography>
-      </Grid>
-      <Grid item xs={12}>
-        {value}
-      </Grid>
-    </>
-  );
+  const [loading, setLoading] = useState(false);
+  const [message, setMessage] = useState<IDataMessage>();
 
   useEffect(() => {
     setLoading(true);
-    Promise.all([
-      fetchWithCredentials(
-        `/api/v1/namespaces/${selectedNamespace}/batches/${message.batch}`
-      ),
-      fetchWithCredentials(
-        `/api/v1/namespaces/${selectedNamespace}/messages/${message.header.id}?data`
-      ),
-    ])
-      .then(async ([batchResponse, messageDataResponse]) => {
-        if (batchResponse.ok && messageDataResponse.ok) {
-          setData((await messageDataResponse.json()).data);
-          const batch: IBatch = await batchResponse.json();
-          setTxId(batch.payload.tx.id);
+    fetchWithCredentials(
+      `/api/v1/namespaces/${selectedNamespace}/messages/${id}`
+    )
+      .then(async (messageResponse) => {
+        if (messageResponse.ok) {
+          setMessage(await messageResponse.json());
         } else {
-          setMessageType('error');
-          setMessage(`Error loading details for message ${message.header.id}`);
+          console.log('error fetching message');
         }
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [
-    message.batch,
-    selectedNamespace,
-    message.header.id,
-    setMessage,
-    setMessageType,
-  ]);
-
-  const copyableHash = (hash: string) => (
-    <Grid alignItems="center" container direction="row">
-      <Grid item xs={8}>
-        <Typography
-          title={hash}
-          noWrap
-          className={clsx(classes.detailValue, classes.paddingRight)}
-        >
-          {hash}
-        </Typography>
-      </Grid>
-      <Grid item xs={4}>
-        <CopyToClipboard text={hash}>
-          <Button size="small" className={classes.copyButton}>
-            {t('copy')}
-          </Button>
-        </CopyToClipboard>
-      </Grid>
-    </Grid>
-  );
-
-  const transactionLink = (txId: string | undefined) => (
-    <Grid
-      alignItems="center"
-      container
-      direction="row"
-      justifyContent="space-between"
-    >
-      <Grid item xs={8}>
-        <Typography
-          noWrap
-          className={clsx(classes.detailValue, classes.paddingRight)}
-        >
-          {txId}
-        </Typography>
-      </Grid>
-      {txId && (
-        <Grid item xs={4}>
-          <Button
-            size="small"
-            className={classes.copyButton}
-            onClick={() =>
-              history.push(
-                `/namespace/${selectedNamespace}/data/transactions/${txId}` +
-                  history.location.search,
-                {
-                  props: { message: message, open: open },
-                }
-              )
-            }
-          >
-            {t('viewTx')}
-          </Button>
-        </Grid>
-      )}
-    </Grid>
-  );
+  }, [selectedNamespace, id]);
 
   if (loading) {
     return (
@@ -162,115 +67,158 @@ export const MessageDetails: React.FC<Props> = ({ message, open, onClose }) => {
     );
   }
 
+  if (!message) {
+    return <></>;
+  }
+
+  const detailsData = [
+    {
+      label: t('id'),
+      value: <HashPopover address={message.header.id}></HashPopover>,
+    },
+    {
+      label: t('type'),
+      value: message?.header.type,
+    },
+    { label: t('topic'), value: message.header.topics.join(',') },
+    {
+      label: t('author'),
+      value: <HashPopover address={message.header.author}></HashPopover>,
+    },
+    {
+      label: t('dataHash'),
+      value: <HashPopover address={message.header.datahash}></HashPopover>,
+    },
+    {
+      label: t('createdOn'),
+      value: dayjs(message.header.created).format('MM/DD/YYYY h:mm A'),
+    },
+  ];
+
   return (
-    <>
-      <DisplaySlide open={open} onClose={onClose}>
-        <Grid container direction="column">
-          <Grid className={classes.headerContainer} item>
-            <Typography className={classes.header}>
-              {t('messageDetail')}
-            </Typography>
-          </Grid>
-          <Grid
-            className={classes.detailsContainer}
-            container
-            item
-            direction="row"
-          >
-            <Grid className={classes.detailItem} sm={12} md={6} container item>
-              {detailItem(t('id'), <HashPopover address={message.header.id} />)}
-            </Grid>
-            <Grid className={classes.detailItem} sm={12} md={6} container item>
-              {detailItem(t('tag'), message.header.tag)}
-            </Grid>
-            <Grid className={classes.detailItem} sm={12} md={6} container item>
-              {detailItem(t('type'), message.header.type)}
-            </Grid>
-            <Grid className={classes.detailItem} sm={12} md={6} container item>
-              {detailItem(t('transactionType'), message.header.txtype)}
-            </Grid>
-            <Grid className={classes.detailItem} sm={12} md={6} container item>
-              {detailItem(
-                t('author'),
-                <HashPopover address={message.header.author} />
-              )}
-            </Grid>
-            <Grid className={classes.detailItem} sm={12} md={6} container item>
-              {detailItem(
-                t('createdOn'),
-                dayjs(message.header.created).format('MM/DD/YYYY h:mm A')
-              )}
-            </Grid>
-          </Grid>
-          <Divider className={classes.divider} />
-          <Grid
-            className={classes.detailsContainer}
-            container
-            item
-            direction="row"
-          >
-            <Grid className={classes.detailItem} sm={12} container item>
-              {detailItem(t('transaction'), transactionLink(txId))}
-            </Grid>
-            <Grid className={classes.detailItem} sm={12} container item>
-              {detailItem(t('dataHash'), copyableHash(message.header.datahash))}
-            </Grid>
-          </Grid>
-          {data.map((item) => (
-            <Grid
-              container
-              className={classes.dataContainer}
-              item
-              key={item.id}
+    <Grid container justifyContent="center">
+      <Grid container item wrap="nowrap" direction="column">
+        <Grid item>
+          <Breadcrumbs className={classes.paddingBottom}>
+            <Link
+              underline="hover"
+              color="inherit"
+              sx={{ cursor: 'pointer' }}
+              onClick={() =>
+                history.push(`/namespace/${selectedNamespace}/data/messages`)
+              }
             >
-              <Grid item>
-                <Paper className={classes.paper}>
-                  <Highlight>{JSON.stringify(item.value, null, 2)}</Highlight>
-                </Paper>
-              </Grid>
-            </Grid>
-          ))}
+              {t('messages')}
+            </Link>
+            <Link underline="none" color="text.primary">
+              {getShortHash(message.header.id)}
+            </Link>
+          </Breadcrumbs>
         </Grid>
-      </DisplaySlide>
-    </>
+        <Box className={classes.separator} />
+        <Grid
+          item
+          container
+          direction="row"
+          justifyContent="flex-start"
+          alignItems="center"
+          className={classes.paddingBottom}
+        >
+          <Typography className={classes.bold} variant="h4">
+            {t('messageDetails')}
+          </Typography>
+        </Grid>
+        <Grid container spacing={4} item direction="row">
+          <Grid item xs={6}>
+            <Paper className={classes.paper}>
+              <Grid
+                container
+                justifyContent="space-between"
+                direction="row"
+                className={classes.paddingBottom}
+              >
+                <Grid item>
+                  <Typography className={classes.header}>
+                    {t('details')}
+                  </Typography>
+                </Grid>
+              </Grid>
+              <List>
+                <Grid container spacing={2}>
+                  {detailsData.map((data) => {
+                    return (
+                      <React.Fragment key={data.label}>
+                        <Grid item xs={4}>
+                          <Typography color="text.secondary" variant="body1">
+                            {data.label}
+                          </Typography>
+                        </Grid>
+                        <Grid item xs={8}>
+                          <Typography>{data.value}</Typography>
+                        </Grid>
+                      </React.Fragment>
+                    );
+                  })}
+                </Grid>
+              </List>
+            </Paper>
+          </Grid>
+          <Grid item xs={6}>
+            <Paper className={classes.paper}>
+              <Grid
+                container
+                justifyContent="space-between"
+                direction="row"
+                className={classes.paddingBottom}
+              >
+                <Grid item>
+                  <Typography className={classes.header}>
+                    {t('dataAttachments')}
+                  </Typography>
+                </Grid>
+              </Grid>
+              <List>
+                <Grid container spacing={2}>
+                  {message.data.map((data) => {
+                    return (
+                      <React.Fragment key={data.id}>
+                        <Paper
+                          elevation={3}
+                          className={classes.paperAttachment}
+                        >
+                          <Grid
+                            container
+                            className={classes.container}
+                            direction="column"
+                          >
+                            <Grid className={classes.titleContainer} item>
+                              <Typography noWrap className={classes.title}>
+                                {t('id')}:{' '}
+                                <HashPopover address={data.id}></HashPopover>
+                              </Typography>
+                            </Grid>
+                            <Grid item>
+                              <Typography className={classes.description}>
+                                {t('hash')}:{' '}
+                                <HashPopover address={data.hash}></HashPopover>
+                              </Typography>
+                            </Grid>
+                          </Grid>
+                        </Paper>
+                      </React.Fragment>
+                    );
+                  })}
+                </Grid>
+              </List>
+            </Paper>
+          </Grid>
+        </Grid>
+      </Grid>
+    </Grid>
   );
 };
 
 const useStyles = makeStyles((theme) => ({
-  detailsContainer: {
-    padding: theme.spacing(3),
-  },
-  detailItem: {
-    paddingBottom: theme.spacing(1),
-  },
-  header: {
-    fontWeight: 'bold',
-  },
-  headerContainer: {
-    paddingLeft: theme.spacing(3),
-    paddingRight: theme.spacing(3),
-    paddingTop: theme.spacing(3),
-  },
-  detailLabel: {
-    fontSize: 10,
-    color: theme.palette.text.secondary,
-    textTransform: 'uppercase',
-  },
-  detailValue: {
-    fontSize: 14,
-  },
-  divider: {
-    backgroundColor: theme.palette.background.default,
-    height: 2,
-  },
-  copyButton: {
-    backgroundColor: theme.palette.primary.dark,
-    borderRadius: 20,
-    fontSize: 10,
-  },
-  paddingRight: {
-    paddingRight: theme.spacing(1),
-  },
   centeredContent: {
     display: 'flex',
     flexDirection: 'column',
@@ -279,11 +227,42 @@ const useStyles = makeStyles((theme) => ({
     height: 'calc(100vh - 300px)',
     overflow: 'auto',
   },
-  paper: {
-    backgroundColor: theme.palette.background.default,
-    minWidth: '40vw',
+  header: {
+    fontWeight: 'bold',
   },
-  dataContainer: {
-    overflow: 'auto',
+  paper: {
+    width: '100%',
+    height: '100%',
+    padding: theme.spacing(3),
+  },
+  separator: {
+    flexGrow: 1,
+  },
+  bold: {
+    fontWeight: 'bold',
+  },
+  paddingBottom: {
+    paddingBottom: theme.spacing(2),
+  },
+  paddingRight: {
+    paddingRight: theme.spacing(2),
+  },
+  paperAttachment: {
+    backgroundColor: '#2D353C',
+    padding: theme.spacing(2),
+    width: '100%',
+  },
+  titleContainer: {
+    maxWidth: 220,
+  },
+  title: {
+    fontWeight: 'bold',
+    fontSize: 14,
+  },
+  description: {
+    fontSize: 12,
+  },
+  container: {
+    alignItems: 'flex-start',
   },
 }));

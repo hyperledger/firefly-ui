@@ -14,23 +14,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useState, useContext, useEffect } from 'react';
-import { Grid, Typography, Box, Button } from '@mui/material';
+import { Box, Button, Grid, Typography } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
-import { IMessage, IHistory } from '../../../../core/interfaces';
-import { MessageDetails } from './MessageDetails';
-import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
-import { DataViewSwitch } from '../../../../core/components/DataViewSwitch';
+import React, { useContext, useEffect, useState } from 'react';
 import { useHistory } from 'react-router-dom';
-import { MessageTimeline } from './MessageTimeline';
-import { MessageList } from './MessageList';
-import { FilterModal } from '../../../../core/components/FilterModal';
-import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
-import { useDataTranslation } from '../../registration';
-import { FilterDisplay } from '../../../../core/components/FilterDisplay';
-import { ArrayParam, withDefault, useQueryParam } from 'use-query-params';
-import { filterOperators } from '../../../../core/utils';
+import { ArrayParam, useQueryParam, withDefault } from 'use-query-params';
+import { DataViewSwitch } from '../../../../core/components/DataViewSwitch';
 import { DatePicker } from '../../../../core/components/DatePicker';
+import { FilterDisplay } from '../../../../core/components/FilterDisplay';
+import { FilterModal } from '../../../../core/components/FilterModal';
+import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
+import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
+import { IHistory, IMessage } from '../../../../core/interfaces';
+import { filterOperators } from '../../../../core/utils';
+import { useDataTranslation } from '../../registration';
+import { MessageList } from './MessageList';
+import { MessageTimeline } from './MessageTimeline';
 
 export const Messages: () => JSX.Element = () => {
   const { t } = useDataTranslation();
@@ -153,20 +152,6 @@ export const Messages: () => JSX.Element = () => {
           )}
         </Grid>
       </Grid>
-      {viewMessage && (
-        <MessageDetails
-          open={!!viewMessage}
-          message={viewMessage}
-          onClose={() => {
-            setViewMessage(undefined);
-            history.replace(
-              `/namespace/${selectedNamespace}/data/messages` +
-                history.location.search,
-              undefined
-            );
-          }}
-        />
-      )}
       {filterAnchor && (
         <FilterModal
           anchor={filterAnchor}

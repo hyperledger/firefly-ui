@@ -28,6 +28,7 @@ import enData from './translations/en.json';
 import { Dashboard } from './views/Dashboard';
 import { Data } from './views/Data/Data';
 import { Events } from './views/Events/Events';
+import { MessageDetails } from './views/Messages/MessageDetails';
 import { Messages } from './views/Messages/Messages';
 import { Operations } from './views/Operations/Operations';
 import { TransactionDetails } from './views/Transactions/TransactionDetails';
@@ -151,6 +152,11 @@ export const DataRoutes: IRoute[] = [
     exact: true,
     route: `${DATA_ROUTE_PREFIX}/messages`,
     component: Messages,
+  },
+  {
+    exact: true,
+    route: `${DATA_ROUTE_PREFIX}/messages/:id`,
+    component: MessageDetails,
   },
   {
     exact: true,

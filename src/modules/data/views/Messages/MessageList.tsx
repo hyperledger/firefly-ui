@@ -143,12 +143,8 @@ export const MessageList: React.FC<Props> = ({
       ],
       onClick: () => {
         setViewMessage(message);
-        history.replace(
-          `/namespace/${selectedNamespace}/data/messages` +
-            history.location.search,
-          {
-            viewMessage: message,
-          }
+        history.push(
+          `/namespace/${selectedNamespace}/data/messages/${message.header.id}`
         );
       },
     }));

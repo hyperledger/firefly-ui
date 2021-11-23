@@ -123,9 +123,9 @@ export const MessageTimeline: React.FC<Props> = ({
         icon: <BroadcastIcon />,
         onClick: () => {
           setViewMessage(message);
-          history.replace(`/namespace/${selectedNamespace}/data/messages`, {
-            viewMessage: message,
-          });
+          history.push(
+            `/namespace/${selectedNamespace}/data/messages/${message.header.id}`
+          );
         },
       }));
     } else {
