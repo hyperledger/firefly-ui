@@ -52,7 +52,7 @@ export const DatePicker: React.FC = () => {
     }
 
     // use time from state and update the url
-    setTime(createdFilter);
+    setTime(createdFilter, 'replaceIn');
   }, [time, setTime, setCreatedFilter, createdQueryOptions, createdFilter]);
 
   return (
