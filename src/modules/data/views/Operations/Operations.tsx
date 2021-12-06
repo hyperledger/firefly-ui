@@ -17,6 +17,7 @@
 import {
   Box,
   Button,
+  Card,
   CircularProgress,
   Grid,
   TablePagination,
@@ -29,18 +30,27 @@ import CloseThickIcon from 'mdi-react/CloseThickIcon';
 import TimerSandEmptyIcon from 'mdi-react/TimerSandEmptyIcon';
 import React, { useContext, useEffect, useState } from 'react';
 import { ArrayParam, useQueryParam, withDefault } from 'use-query-params';
+import { Histogram } from '../../../../core/components/Charts/Histogram';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
+import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
+import { DatePicker } from '../../../../core/components/DatePicker';
 import { FilterDisplay } from '../../../../core/components/FilterDisplay';
 import { FilterModal } from '../../../../core/components/FilterModal';
 import { HashPopover } from '../../../../core/components/HashPopover';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import {
+  ICreatedFilter,
   IDataTableRecord,
+  IMetric,
   IOperation,
   OperationStatus,
 } from '../../../../core/interfaces';
-import { fetchWithCredentials, filterOperators } from '../../../../core/utils';
+import {
+  fetchWithCredentials,
+  filterOperators,
+  getCreatedFilter,
+} from '../../../../core/utils';
 import { useDataTranslation } from '../../registration';
 
 const PAGE_LIMITS = [10, 25];
@@ -50,6 +60,7 @@ export const Operations: () => JSX.Element = () => {
   const classes = useStyles();
   const [loading, setLoading] = useState(false);
   const [operationItems, setOperationItems] = useState<IOperation[]>([]);
+  const [operationMetrics, setOperationMetrics] = useState<IMetric[]>();
   const { selectedNamespace } = useContext(NamespaceContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
@@ -136,30 +147,22 @@ export const Operations: () => JSX.Element = () => {
     />
   );
 
+  // Table
   useEffect(() => {
     setLoading(true);
-    let createdFilterString = `&created=>=${dayjs()
-      .subtract(24, 'hours')
-      .unix()}`;
-    if (createdFilter === '30days') {
-      createdFilterString = `&created=>=${dayjs().subtract(30, 'days').unix()}`;
-    }
-    if (createdFilter === '7days') {
-      createdFilterString = `&created=>=${dayjs().subtract(7, 'days').unix()}`;
-    }
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
     fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/operations?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
-      }${createdFilterString}${filterString !== undefined ? filterString : ''}`
+      }${createdFilterObject.filterString}${
+        filterString !== undefined ? filterString : ''
+      }`
     )
-      .then(async (response) => {
-        if (response.ok) {
-          // Todo - remove
-          const res: IOperation[] = await response.json();
-          res[1].status = OperationStatus.Failed;
-          res[3].status = OperationStatus.Pending;
-          setOperationItems(res);
+      .then(async (opsResponse) => {
+        if (opsResponse.ok) {
+          const opsJson: IOperation[] = await opsResponse.json();
+          setOperationItems(opsJson);
         } else {
           console.log('error fetching data');
         }
@@ -175,6 +178,23 @@ export const Operations: () => JSX.Element = () => {
     lastEvent,
     filterString,
   ]);
+
+  // Chart
+  useEffect(() => {
+    const currentTime = dayjs().unix();
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+
+    fetchWithCredentials(
+      `/api/v1/namespaces/${selectedNamespace}/charts/histogram/operations?startTime=${createdFilterObject.filterTime}&endTime=${currentTime}&buckets=100`
+    ).then(async (opsMetricsResponse) => {
+      if (opsMetricsResponse.ok) {
+        const opsMetricsJson: IMetric[] = await opsMetricsResponse.json();
+        setOperationMetrics(opsMetricsJson);
+      } else {
+        console.log('error fetching metrics data');
+      }
+    });
+  }, [selectedNamespace, createdFilter]);
 
   const records: IDataTableRecord[] = operationItems.map(
     (data: IOperation) => ({
@@ -242,6 +262,9 @@ export const Operations: () => JSX.Element = () => {
                 <Typography>{t('filter')}</Typography>
               </Button>
             </Grid>
+            <Grid item>
+              <DatePicker />
+            </Grid>
           </Grid>
           {activeFilters.length > 0 && (
             <Grid container className={classes.filterContainer}>
@@ -251,15 +274,40 @@ export const Operations: () => JSX.Element = () => {
               />
             </Grid>
           )}
-          <Grid container item>
-            <DataTable
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              {...{ columnHeaders }}
-              {...{ records }}
-              {...{ pagination }}
-            />
-          </Grid>
+          {records.length ? (
+            <>
+              <Grid className={classes.cardContainer} container>
+                <Card sx={{ height: '200px', width: '100%' }}>
+                  {operationMetrics?.find((m) => m.count !== '0') && (
+                    <Histogram
+                      colors={['#462DE0']}
+                      data={operationMetrics}
+                      indexBy={'timestamp'}
+                      keys={['count']}
+                      xAxisTitle={''}
+                      yAxisTitle={''}
+                    />
+                  )}
+                </Card>
+              </Grid>
+              <Grid container item>
+                <DataTable
+                  stickyHeader={true}
+                  minHeight="300px"
+                  maxHeight="calc(100vh - 340px)"
+                  columnHeaders={columnHeaders}
+                  records={records}
+                  {...{ pagination }}
+                />
+              </Grid>
+            </>
+          ) : (
+            <Grid container item className={classes.spacing}>
+              <DataTableEmptyState
+                message={t('noOperationsToDisplay')}
+              ></DataTableEmptyState>
+            </Grid>
+          )}
         </Grid>
       </Grid>
       {filterAnchor && (
@@ -284,6 +332,10 @@ const useStyles = makeStyles((theme) => ({
   pagination: {
     color: theme.palette.text.secondary,
   },
+  cardContainer: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+  },
   centeredContent: {
     display: 'flex',
     flexDirection: 'column',
@@ -301,5 +353,22 @@ const useStyles = makeStyles((theme) => ({
   },
   filterButton: {
     height: 40,
+  },
+  headerContainer: {
+    marginBottom: theme.spacing(5),
+  },
+  spacing: {
+    paddingTop: theme.spacing(4),
+  },
+  summaryLabel: {
+    color: theme.palette.text.secondary,
+    textTransform: 'uppercase',
+    fontSize: 12,
+  },
+  summaryValue: {
+    fontSize: 32,
+  },
+  content: {
+    padding: theme.spacing(3),
   },
 }));

@@ -1,5 +1,6 @@
 {
   "architecture": "Architecture",
+  "default": "default",
   "dataExplorer": "Data Explorer",
   "dataExplorerDescription": "Data, messages, and transactions within your network",
   "docsArchitectureDescription": "Architecture diagrams of components of a FireFly deployment",

@@ -17,6 +17,7 @@
 import {
   Box,
   Button,
+  Card,
   CircularProgress,
   Grid,
   TablePagination,
@@ -26,14 +27,26 @@ import makeStyles from '@mui/styles/makeStyles';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { ArrayParam, useQueryParam, withDefault } from 'use-query-params';
+import { Histogram } from '../../../../core/components/Charts/Histogram';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
+import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
+import { DatePicker } from '../../../../core/components/DatePicker';
 import { FilterDisplay } from '../../../../core/components/FilterDisplay';
 import { FilterModal } from '../../../../core/components/FilterModal';
 import { HashPopover } from '../../../../core/components/HashPopover';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
-import { IDataTableRecord, IEvent } from '../../../../core/interfaces';
-import { fetchWithCredentials, filterOperators } from '../../../../core/utils';
+import {
+  ICreatedFilter,
+  IDataTableRecord,
+  IEvent,
+  IMetric,
+} from '../../../../core/interfaces';
+import {
+  fetchWithCredentials,
+  filterOperators,
+  getCreatedFilter,
+} from '../../../../core/utils';
 import { useDataTranslation } from '../../registration';
 
 const PAGE_LIMITS = [10, 25];
@@ -43,6 +56,7 @@ export const Events: () => JSX.Element = () => {
   const classes = useStyles();
   const [loading, setLoading] = useState(false);
   const [eventItems, setEventItems] = useState<IEvent[]>([]);
+  const [eventMetrics, setEventMetrics] = useState<IMetric[]>([]);
   const { selectedNamespace } = useContext(NamespaceContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
@@ -129,26 +143,21 @@ export const Events: () => JSX.Element = () => {
     />
   );
 
+  // Table
   useEffect(() => {
     setLoading(true);
-    let createdFilterString = `&created=>=${dayjs()
-      .subtract(24, 'hours')
-      .unix()}`;
-    if (createdFilter === '30days') {
-      createdFilterString = `&created=>=${dayjs().subtract(30, 'days').unix()}`;
-    }
-    if (createdFilter === '7days') {
-      createdFilterString = `&created=>=${dayjs().subtract(7, 'days').unix()}`;
-    }
-
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
     fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/events?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
-      }${createdFilterString}${filterString !== undefined ? filterString : ''}`
+      }${createdFilterObject.filterString}${
+        filterString !== undefined ? filterString : ''
+      }`
     )
-      .then(async (response) => {
-        if (response.ok) {
-          setEventItems(await response.json());
+      .then(async (eventsResponse) => {
+        if (eventsResponse.ok) {
+          const eventsJson: IEvent[] = await eventsResponse.json();
+          setEventItems(eventsJson);
         } else {
           console.log('error fetching data');
         }
@@ -164,6 +173,23 @@ export const Events: () => JSX.Element = () => {
     lastEvent,
     filterString,
   ]);
+
+  // Chart
+  useEffect(() => {
+    const currentTime = dayjs().unix();
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+
+    fetchWithCredentials(
+      `/api/v1/namespaces/${selectedNamespace}/charts/histogram/events?startTime=${createdFilterObject.filterTime}&endTime=${currentTime}&buckets=100`
+    ).then(async (eventsMetricsResponse) => {
+      if (eventsMetricsResponse.ok) {
+        const eventsMetricsJson: IMetric[] = await eventsMetricsResponse.json();
+        setEventMetrics(eventsMetricsJson);
+      } else {
+        console.log('error fetching data');
+      }
+    });
+  }, [selectedNamespace, createdFilter]);
 
   const records: IDataTableRecord[] = eventItems.map((data: IEvent) => ({
     key: data.id,
@@ -224,6 +250,9 @@ export const Events: () => JSX.Element = () => {
                 <Typography>{t('filter')}</Typography>
               </Button>
             </Grid>
+            <Grid item>
+              <DatePicker />
+            </Grid>
           </Grid>
           {activeFilters.length > 0 && (
             <Grid container className={classes.filterContainer}>
@@ -233,15 +262,41 @@ export const Events: () => JSX.Element = () => {
               />
             </Grid>
           )}
-          <Grid container item>
-            <DataTable
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              {...{ columnHeaders }}
-              {...{ records }}
-              {...{ pagination }}
-            />
-          </Grid>
+
+          {records.length ? (
+            <>
+              <Grid className={classes.cardContainer} container>
+                <Card sx={{ height: '200px', width: '100%' }}>
+                  {eventMetrics?.find((m) => m.count !== '0') && (
+                    <Histogram
+                      colors={['#462DE0']}
+                      data={eventMetrics}
+                      indexBy={'timestamp'}
+                      keys={['count']}
+                      xAxisTitle={''}
+                      yAxisTitle={''}
+                    />
+                  )}
+                </Card>
+              </Grid>
+              <Grid container item>
+                <DataTable
+                  stickyHeader={true}
+                  minHeight="300px"
+                  maxHeight="calc(100vh - 340px)"
+                  columnHeaders={columnHeaders}
+                  records={records}
+                  {...{ pagination }}
+                />
+              </Grid>
+            </>
+          ) : (
+            <Grid container item className={classes.spacing}>
+              <DataTableEmptyState
+                message={t('noEventsToDisplay')}
+              ></DataTableEmptyState>
+            </Grid>
+          )}
         </Grid>
       </Grid>
       {filterAnchor && (
@@ -266,6 +321,10 @@ const useStyles = makeStyles((theme) => ({
   pagination: {
     color: theme.palette.text.secondary,
   },
+  cardContainer: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+  },
   centeredContent: {
     display: 'flex',
     flexDirection: 'column',
@@ -276,6 +335,9 @@ const useStyles = makeStyles((theme) => ({
   },
   separator: {
     flexGrow: 1,
+  },
+  spacing: {
+    paddingTop: theme.spacing(4),
   },
   filterContainer: {
     marginTop: theme.spacing(2),

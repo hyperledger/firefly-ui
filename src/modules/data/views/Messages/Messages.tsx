@@ -24,7 +24,6 @@ import { DatePicker } from '../../../../core/components/DatePicker';
 import { FilterDisplay } from '../../../../core/components/FilterDisplay';
 import { FilterModal } from '../../../../core/components/FilterModal';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
-import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { IHistory, IMessage } from '../../../../core/interfaces';
 import { filterOperators } from '../../../../core/utils';
 import { useDataTranslation } from '../../registration';
@@ -37,7 +36,6 @@ export const Messages: () => JSX.Element = () => {
   const history = useHistory<IHistory>();
   const [viewMessage, setViewMessage] = useState<IMessage | undefined>();
   const { dataView } = useContext(ApplicationContext);
-  const { selectedNamespace } = useContext(NamespaceContext);
   const [filterAnchor, setFilterAnchor] = useState<HTMLButtonElement | null>(
     null
   );

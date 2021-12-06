@@ -15,17 +15,22 @@
 // limitations under the License.
 
 import React, { useState, useEffect, useContext } from 'react';
-import { TablePagination } from '@mui/material';
+import { Grid, TablePagination } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import dayjs from 'dayjs';
 import { useHistory } from 'react-router-dom';
-import { IDataTableRecord, ITransaction } from '../../../../core/interfaces';
+import {
+  ICreatedFilter,
+  IDataTableRecord,
+  ITransaction,
+} from '../../../../core/interfaces';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
 import { HashPopover } from '../../../../core/components/HashPopover';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
-import { fetchWithCredentials } from '../../../../core/utils';
+import { fetchWithCredentials, getCreatedFilter } from '../../../../core/utils';
 import { useDataTranslation } from '../../registration';
+import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -52,20 +57,13 @@ export const TransactionList: React.FC<Props> = ({ filterString }) => {
   ];
 
   useEffect(() => {
-    let createdFilterString = `&created=>=${dayjs()
-      .subtract(24, 'hours')
-      .unix()}`;
-    if (createdFilter === '30days') {
-      createdFilterString = `&created=>=${dayjs().subtract(30, 'days').unix()}`;
-    }
-    if (createdFilter === '7days') {
-      createdFilterString = `&created=>=${dayjs().subtract(7, 'days').unix()}`;
-    }
-
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
     fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/transactions?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
-      }${createdFilterString}${filterString !== undefined ? filterString : ''}`
+      }${createdFilterObject.filterString}${
+        filterString !== undefined ? filterString : ''
+      }`
     ).then(async (response) => {
       if (response.ok) {
         setTransactions(await response.json());
@@ -137,7 +135,7 @@ export const TransactionList: React.FC<Props> = ({ filterString }) => {
     }));
   };
 
-  return (
+  return buildTableRecords(transactions).length ? (
     <DataTable
       minHeight="300px"
       maxHeight="calc(100vh - 340px)"
@@ -145,11 +143,19 @@ export const TransactionList: React.FC<Props> = ({ filterString }) => {
       {...{ columnHeaders }}
       {...{ pagination }}
     />
+  ) : (
+    <Grid container item className={classes.spacing}>
+      <DataTableEmptyState
+        message={t('noTransactionsToDisplay')}
+      ></DataTableEmptyState>
+    </Grid>
   );
 };
-
 const useStyles = makeStyles((theme) => ({
   pagination: {
     color: theme.palette.text.secondary,
+  },
+  spacing: {
+    paddingTop: theme.spacing(4),
   },
 }));

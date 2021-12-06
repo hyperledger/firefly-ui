@@ -14,11 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
 import { IconButton } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
-import MenuIcon from 'mdi-react/MenuIcon';
 import CloseIcon from 'mdi-react/CloseIcon';
+import MenuIcon from 'mdi-react/MenuIcon';
+import React from 'react';
+import { useHistory } from 'react-router';
 import { ReactComponent as LogoIconSVG } from '../svg/HyperledgerFireFly-Logo-White.svg';
 
 type Props = {
@@ -31,6 +32,7 @@ export const MenuLogo: React.FC<Props> = ({
   setNavigationOpen,
 }) => {
   const classes = useStyles();
+  const history = useHistory();
 
   return (
     <div className={classes.item}>
@@ -44,7 +46,7 @@ export const MenuLogo: React.FC<Props> = ({
       >
         {navigationOpen ? <CloseIcon /> : <MenuIcon />}
       </IconButton>
-      <LogoIconSVG className={classes.logo} />
+      <LogoIconSVG className={classes.logo} onClick={() => history.push('/')} />
     </div>
   );
 };
@@ -58,6 +60,7 @@ const useStyles = makeStyles((theme) => ({
     marginRight: theme.spacing(2),
   },
   logo: {
+    cursor: 'pointer',
     width: 125,
     height: 75,
   },

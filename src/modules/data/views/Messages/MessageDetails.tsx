@@ -29,7 +29,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router';
 import { HashPopover } from '../../../../core/components/HashPopover';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
-import { IDataMessage } from '../../../../core/interfaces';
+import { IMessage } from '../../../../core/interfaces';
 import { fetchWithCredentials, getShortHash } from '../../../../core/utils';
 import { useDataTranslation } from '../../registration';
 
@@ -40,7 +40,7 @@ export const MessageDetails: () => JSX.Element = () => {
   const classes = useStyles();
   const { selectedNamespace } = useContext(NamespaceContext);
   const [loading, setLoading] = useState(false);
-  const [message, setMessage] = useState<IDataMessage>();
+  const [message, setMessage] = useState<IMessage>();
 
   useEffect(() => {
     setLoading(true);
@@ -193,14 +193,12 @@ export const MessageDetails: () => JSX.Element = () => {
                           >
                             <Grid className={classes.titleContainer} item>
                               <Typography noWrap className={classes.title}>
-                                {t('id')}:{' '}
-                                <HashPopover address={data.id}></HashPopover>
+                                {t('id')}: {data.id}
                               </Typography>
                             </Grid>
                             <Grid item>
                               <Typography className={classes.description}>
-                                {t('hash')}:{' '}
-                                <HashPopover address={data.hash}></HashPopover>
+                                {t('hash')}: {data.hash}
                               </Typography>
                             </Grid>
                           </Grid>

@@ -14,29 +14,38 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useState, useEffect, useContext } from 'react';
 import {
-  Grid,
-  Typography,
-  TablePagination,
-  CircularProgress,
   Box,
   Button,
+  CircularProgress,
+  Grid,
+  TablePagination,
+  Typography,
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import dayjs from 'dayjs';
-import { IDataTableRecord, IData } from '../../../../core/interfaces';
-import { DataTable } from '../../../../core/components/DataTable/DataTable';
-import { HashPopover } from '../../../../core/components/HashPopover';
-import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
-import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
-import { DataDetails } from './DataDetails';
-import { fetchWithCredentials, filterOperators } from '../../../../core/utils';
-import { useDataTranslation } from '../../registration';
+import React, { useContext, useEffect, useState } from 'react';
 import { ArrayParam, useQueryParam, withDefault } from 'use-query-params';
-import { FilterModal } from '../../../../core/components/FilterModal';
-import { FilterDisplay } from '../../../../core/components/FilterDisplay';
+import { DataTable } from '../../../../core/components/DataTable/DataTable';
+import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
 import { DatePicker } from '../../../../core/components/DatePicker';
+import { FilterDisplay } from '../../../../core/components/FilterDisplay';
+import { FilterModal } from '../../../../core/components/FilterModal';
+import { HashPopover } from '../../../../core/components/HashPopover';
+import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
+import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
+import {
+  ICreatedFilter,
+  IData,
+  IDataTableRecord,
+} from '../../../../core/interfaces';
+import {
+  fetchWithCredentials,
+  filterOperators,
+  getCreatedFilter,
+} from '../../../../core/utils';
+import { useDataTranslation } from '../../registration';
+import { DataDetails } from './DataDetails';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -133,20 +142,13 @@ export const Data: () => JSX.Element = () => {
 
   useEffect(() => {
     setLoading(true);
-    let createdFilterString = `&created=>=${dayjs()
-      .subtract(24, 'hours')
-      .unix()}`;
-    if (createdFilter === '30days') {
-      createdFilterString = `&created=>=${dayjs().subtract(30, 'days').unix()}`;
-    }
-    if (createdFilter === '7days') {
-      createdFilterString = `&created=>=${dayjs().subtract(7, 'days').unix()}`;
-    }
-
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
     fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/data?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
-      }${createdFilterString}${filterString !== undefined ? filterString : ''}`
+      }${createdFilterObject.filterString}${
+        filterString !== undefined ? filterString : ''
+      }`
     )
       .then(async (response) => {
         if (response.ok) {
@@ -225,13 +227,21 @@ export const Data: () => JSX.Element = () => {
             </Grid>
           )}
           <Grid container item>
-            <DataTable
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              {...{ columnHeaders }}
-              {...{ records }}
-              {...{ pagination }}
-            />
+            {records.length ? (
+              <DataTable
+                minHeight="300px"
+                maxHeight="calc(100vh - 340px)"
+                {...{ columnHeaders }}
+                {...{ records }}
+                {...{ pagination }}
+              />
+            ) : (
+              <Grid container item className={classes.spacing}>
+                <DataTableEmptyState
+                  message={t('noDataToDisplay')}
+                ></DataTableEmptyState>
+              </Grid>
+            )}
           </Grid>
         </Grid>
       </Grid>
@@ -279,6 +289,9 @@ const useStyles = makeStyles((theme) => ({
   },
   separator: {
     flexGrow: 1,
+  },
+  spacing: {
+    paddingTop: theme.spacing(4),
   },
   filterContainer: {
     marginTop: theme.spacing(2),

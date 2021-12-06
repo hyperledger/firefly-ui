@@ -18,13 +18,27 @@ import { MdiReactIconComponentType } from 'mdi-react';
 
 export type DataView = 'timeline' | 'list';
 
+export enum MSGStatus {
+  Confirmed = 'confirmed',
+  Pending = 'pending',
+  Ready = 'ready',
+  Staged = 'staged',
+  Rejected = 'rejected',
+}
+
+export enum OPStatus {
+  Succeeded = 'Succeeded',
+  Pending = 'Pending',
+  Failed = 'Failed',
+}
+
 export enum TXStatus {
   Succeeded = 'Succeeded',
   Pending = 'Pending',
   Error = 'Error',
 }
 
-export type CreatedFilterOptions = '24hours' | '7days' | '30days';
+export type CreatedFilterOptions = '1hour' | '24hours' | '7days' | '30days';
 
 export type FilterOptions = CreatedFilterOptions;
 
@@ -99,7 +113,7 @@ export interface IFireflyHeader {
   key: string;
   created: string;
   namespace: string;
-  topic: string[];
+  topics: string[];
   tag: string;
   datahash: string;
 }
@@ -396,4 +410,20 @@ export interface IOperation {
   };
   created: string;
   updated: string;
+}
+
+export interface ICreatedFilter {
+  filterString: string;
+  filterTime: number;
+}
+
+export interface IMetric {
+  count: string;
+  timestamp: string;
+}
+
+export interface IGenericPagedResponse {
+  count: number;
+  items: any[];
+  total: number;
 }

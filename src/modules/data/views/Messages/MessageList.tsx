@@ -16,20 +16,22 @@
 
 import React, { useState, useEffect, useContext } from 'react';
 import { useHistory } from 'react-router';
-import { TablePagination } from '@mui/material';
+import { Grid, TablePagination } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import dayjs from 'dayjs';
 import {
   IMessage,
   IDataTableRecord,
   IHistory,
+  ICreatedFilter,
 } from '../../../../core/interfaces';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
 import { HashPopover } from '../../../../core/components/HashPopover';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
-import { fetchWithCredentials } from '../../../../core/utils';
+import { fetchWithCredentials, getCreatedFilter } from '../../../../core/utils';
 import { useDataTranslation } from '../../registration';
+import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
 
 interface Props {
   setViewMessage: React.Dispatch<React.SetStateAction<IMessage | undefined>>;
@@ -49,7 +51,7 @@ export const MessageList: React.FC<Props> = ({
   const { createdFilter, lastEvent } = useContext(ApplicationContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-  const [messages, setMessages] = useState<IMessage[]>([]);
+  const [messages, setMessages] = useState<IMessage[] | undefined>(undefined);
 
   const columnHeaders = [
     t('author'),
@@ -61,20 +63,13 @@ export const MessageList: React.FC<Props> = ({
   ];
 
   useEffect(() => {
-    let createdFilterString = `&created=>=${dayjs()
-      .subtract(24, 'hours')
-      .unix()}`;
-    if (createdFilter === '30days') {
-      createdFilterString = `&created=>=${dayjs().subtract(30, 'days').unix()}`;
-    }
-    if (createdFilter === '7days') {
-      createdFilterString = `&created=>=${dayjs().subtract(7, 'days').unix()}`;
-    }
-
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
     fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/messages?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
-      }${createdFilterString}${filterString !== undefined ? filterString : ''}`
+      }${createdFilterObject.filterString}${
+        filterString !== undefined ? filterString : ''
+      }`
     ).then(async (response) => {
       if (response.ok) {
         setMessages(await response.json());
@@ -150,7 +145,7 @@ export const MessageList: React.FC<Props> = ({
     }));
   };
 
-  return (
+  return messages?.length ? (
     <DataTable
       minHeight="300px"
       maxHeight="calc(100vh - 340px)"
@@ -158,11 +153,20 @@ export const MessageList: React.FC<Props> = ({
       {...{ columnHeaders }}
       {...{ pagination }}
     />
+  ) : (
+    <Grid container item className={classes.spacing}>
+      <DataTableEmptyState
+        message={t('noMessagesToDisplay')}
+      ></DataTableEmptyState>
+    </Grid>
   );
 };
 
 const useStyles = makeStyles((theme) => ({
   pagination: {
     color: theme.palette.text.secondary,
+  },
+  spacing: {
+    paddingTop: theme.spacing(4),
   },
 }));

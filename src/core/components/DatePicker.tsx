@@ -29,6 +29,10 @@ export const DatePicker: React.FC = () => {
   const createdQueryOptions = useMemo(
     () => [
       {
+        value: '1hour',
+        label: t('last1Hour'),
+      },
+      {
         value: '24hours',
         label: t('last24Hours'),
       },

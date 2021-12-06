@@ -32,9 +32,19 @@ import { FilterModal } from '../../../../core/components/FilterModal';
 import { HashPopover } from '../../../../core/components/HashPopover';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
-import { IDataTableRecord, IDataType } from '../../../../core/interfaces';
-import { fetchWithCredentials, filterOperators } from '../../../../core/utils';
+import {
+  ICreatedFilter,
+  IDataTableRecord,
+  IDataType,
+} from '../../../../core/interfaces';
+import {
+  fetchWithCredentials,
+  filterOperators,
+  getCreatedFilter,
+} from '../../../../core/utils';
 import { useDataTranslation } from '../../registration';
+import { DatePicker } from '../../../../core/components/DatePicker';
+import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -131,24 +141,19 @@ export const Types: () => JSX.Element = () => {
 
   useEffect(() => {
     setLoading(true);
-    let createdFilterString = `&created=>=${dayjs()
-      .subtract(24, 'hours')
-      .unix()}`;
-    if (createdFilter === '30days') {
-      createdFilterString = `&created=>=${dayjs().subtract(30, 'days').unix()}`;
-    }
-    if (createdFilter === '7days') {
-      createdFilterString = `&created=>=${dayjs().subtract(7, 'days').unix()}`;
-    }
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
     fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/datatypes?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
-      }${createdFilterString}${filterString !== undefined ? filterString : ''}`
+      }${createdFilterObject.filterString}${
+        filterString !== undefined ? filterString : ''
+      }`
     )
       .then(async (response) => {
         if (response.ok) {
-          setDataTypeItems(await response.json());
+          const dataTypes: IDataType[] = await response.json();
+          setDataTypeItems(dataTypes);
         } else {
           console.log('error fetching data');
         }
@@ -224,6 +229,9 @@ export const Types: () => JSX.Element = () => {
                 <Typography>{t('filter')}</Typography>
               </Button>
             </Grid>
+            <Grid item>
+              <DatePicker />
+            </Grid>
           </Grid>
           {activeFilters.length > 0 && (
             <Grid container className={classes.filterContainer}>
@@ -233,14 +241,23 @@ export const Types: () => JSX.Element = () => {
               />
             </Grid>
           )}
-          <Grid container item>
-            <DataTable
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              {...{ columnHeaders }}
-              {...{ records }}
-              {...{ pagination }}
-            />
+          <Grid container item className={classes.spacing}>
+            {records.length ? (
+              <DataTable
+                stickyHeader={true}
+                minHeight="300px"
+                maxHeight="calc(100vh - 340px)"
+                columnHeaders={columnHeaders}
+                records={records}
+                {...{ pagination }}
+              />
+            ) : (
+              <>
+                <DataTableEmptyState
+                  message={t('noDataTypesToDisplay')}
+                ></DataTableEmptyState>
+              </>
+            )}
           </Grid>
         </Grid>
       </Grid>
@@ -280,6 +297,9 @@ const useStyles = makeStyles((theme) => ({
   filterContainer: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
+  },
+  spacing: {
+    paddingTop: theme.spacing(4),
   },
   filterButton: {
     height: 40,
