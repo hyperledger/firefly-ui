@@ -212,7 +212,7 @@ export const Home: () => JSX.Element = () => {
                         sx={{ cursor: 'pointer' }}
                         alignItems="center"
                         onClick={() => {
-                          history.push(module.makePathname(t('default')));
+                          history.push(module.makePathname(selectedNamespace));
                         }}
                       >
                         <ListItemAvatar>

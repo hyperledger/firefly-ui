@@ -288,7 +288,8 @@ export interface ITokenPoolWithBalance extends ITokenPool {
 
 export interface ITokenBalance {
   pool: string;
-  tokenIndex: string;
+  tokenIndex?: string;
+  uri?: string;
   connector: string;
   key: string;
   balance: string;
@@ -348,13 +349,15 @@ export interface ITokenTransfer {
   localId: string;
   pool: string;
   tokenIndex?: string | null;
+  uri?: string;
   connector: string;
   key: string;
   from?: string;
   to: string;
   amount: string;
   protocolId: string;
-  messageHash: string;
+  message?: string;
+  messageHash?: string;
   created: string;
   tx: ITokenTx;
 }

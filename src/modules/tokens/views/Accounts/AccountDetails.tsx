@@ -47,8 +47,6 @@ import { fetchWithCredentials, getShortHash } from '../../../../core/utils';
 import { useTokensTranslation } from '../../registration';
 
 const PAGE_LIMITS = [5, 10];
-const NO_MESSAGE =
-  '0000000000000000000000000000000000000000000000000000000000000000';
 
 interface PoolDetailsOptions {
   accountKey: string;
@@ -217,7 +215,7 @@ export const AccountDetails: () => JSX.Element = () => {
     transfer: <SwapHorizontalIcon />,
   };
 
-  const tokenIndexColumnHeaders = [t('tokenIndex'), t('updated')];
+  const tokenIndexColumnHeaders = [t('tokenIndex'), t('uri'), t('updated')];
 
   const tokenTransfersColumnHeaders = [
     t('txHash'),
@@ -234,6 +232,7 @@ export const AccountDetails: () => JSX.Element = () => {
       key: balance.pool + ':' + balance.tokenIndex,
       columns: [
         { value: balance.tokenIndex },
+        { value: <HashPopover address={balance.uri ?? ''} /> },
         { value: dayjs(balance.updated).format('MM/DD/YYYY h:mm A') },
       ],
     })
@@ -291,8 +290,7 @@ export const AccountDetails: () => JSX.Element = () => {
           ),
         },
         {
-          value:
-            tokenTransfer.messageHash === NO_MESSAGE ? '' : <MessageIcon />,
+          value: tokenTransfer.message === undefined ? '' : <MessageIcon />,
         },
         { value: dayjs(tokenTransfer.created).format('MM/DD/YYYY h:mm A') },
       ],

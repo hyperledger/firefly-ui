@@ -23,5 +23,6 @@
   "tokens":"Tokens",
   "tokenTransfers": "Token Transfers",
   "tokensDescription": "View tokens, accounts, and transfers within your network",
-  "welcome": "Welcome!"
+  "welcome": "Welcome!",
+  "tokens": "Tokens"
 }

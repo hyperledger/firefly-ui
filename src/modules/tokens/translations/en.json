@@ -49,5 +49,6 @@
   "txHash": "TX Hash",
   "type": "Type",
   "updated": "Updated",
+  "uri": "URI",
   "emptyPlaceholder": "--"
 }

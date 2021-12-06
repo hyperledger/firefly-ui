@@ -36,7 +36,7 @@ export const DataViewSwitch: React.FC = () => {
     }
 
     // use view from state and update the url
-    setView(dataView);
+    setView(dataView, 'replaceIn');
   }, [view, setView, setDataView, dataView]);
 
   return (

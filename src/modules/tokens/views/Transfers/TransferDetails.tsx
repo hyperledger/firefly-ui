@@ -35,9 +35,6 @@ import { fetchWithCredentials } from '../../../../core/utils';
 import { useTokensTranslation } from '../../registration';
 import LaunchIcon from '@mui/icons-material/Launch';
 
-const NO_MESSAGE =
-  '0000000000000000000000000000000000000000000000000000000000000000';
-
 export const TransferDetails: () => JSX.Element = () => {
   const history = useHistory();
   const { t } = useTokensTranslation();
@@ -47,7 +44,6 @@ export const TransferDetails: () => JSX.Element = () => {
   const [loading, setLoading] = useState(false);
   const [tokenTransfer, setTokenTransfer] = useState<ITokenTransfer>();
   const [tokenPool, setTokenPool] = useState<ITokenPool>();
-  const [messageID, setMessageID] = useState<string>();
 
   useEffect(() => {
     setLoading(true);
@@ -59,15 +55,9 @@ export const TransferDetails: () => JSX.Element = () => {
           const transfer: ITokenTransfer = await tokenTransferResponse.json();
           setTokenTransfer(transfer);
 
-          const [pool, messageID] = await Promise.all([
-            fetchPoolDetails(selectedNamespace, transfer.pool),
-            fetchMessageID(selectedNamespace, transfer.messageHash),
-          ]);
+          const pool = await fetchPoolDetails(selectedNamespace, transfer.pool);
           if (pool !== undefined) {
             setTokenPool(pool);
-          }
-          if (messageID !== undefined) {
-            setMessageID(messageID);
           }
         } else {
           console.log('error fetching token transfer');
@@ -180,18 +170,20 @@ export const TransferDetails: () => JSX.Element = () => {
 
   const messageData = [
     {
-      label: t('hash'),
-      value: <HashPopover address={tokenTransfer.messageHash}></HashPopover>,
-    },
-    {
       label: t('id'),
-      value: messageID && (
+      value: tokenTransfer.message && (
         <>
-          <HashPopover address={messageID}></HashPopover>
+          <HashPopover address={tokenTransfer.message}></HashPopover>
           <IconButton className={classes.button} size="large">
             <LaunchIcon />
           </IconButton>
         </>
+      ),
+    },
+    {
+      label: t('hash'),
+      value: tokenTransfer.messageHash && (
+        <HashPopover address={tokenTransfer.messageHash}></HashPopover>
       ),
     },
   ];
@@ -266,7 +258,7 @@ export const TransferDetails: () => JSX.Element = () => {
               </List>
             </Paper>
           </Grid>
-          {messageID && (
+          {tokenTransfer.message && (
             <Grid item xs={6}>
               <Paper className={classes.paper}>
                 <Grid
@@ -319,26 +311,6 @@ const fetchPoolDetails = async (
     return response.json();
   }
   console.log('error fetching token pool');
-  return undefined;
-};
-
-const fetchMessageID = async (
-  namespace: string,
-  hash: string
-): Promise<string | undefined> => {
-  if (hash === NO_MESSAGE) {
-    return undefined;
-  }
-  const messageResponse = await fetchWithCredentials(
-    `/api/v1/namespaces/${namespace}/messages?hash=${hash}`
-  );
-  if (messageResponse.ok) {
-    const messages = await messageResponse.json();
-    if (messages.length > 0) {
-      return messages[0].header.id;
-    }
-  }
-  console.log('error fetching transfer message');
   return undefined;
 };
 
