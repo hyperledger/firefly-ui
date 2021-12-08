@@ -24,10 +24,10 @@ export const fetchWithCredentials = (
   );
 };
 
-export const fetchCatcher = async (url: string): Promise<any> => {
-  const response = await fetch(url);
+export const fetchCatcher = async (resource: string): Promise<any> => {
+  const response = await fetchWithCredentials(resource);
   if (!response.ok) {
-    console.log(`error fetching ${url}`);
+    console.log(`error fetching ${resource}`);
   } else {
     return response.json();
   }
