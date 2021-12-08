@@ -290,12 +290,10 @@ export const Dashboard: () => JSX.Element = () => {
       chart:
         latestTx !== undefined ? (
           <>
-            <div className={classes.paper}>
-              <PieChart
-                data={mapPieChartData(latestTx, TX_STATUS_COLORS, TXStatus)}
-                dataType={t('transactions')}
-              ></PieChart>
-            </div>
+            <PieChart
+              data={mapPieChartData(latestTx, TX_STATUS_COLORS, TXStatus)}
+              dataType={t('transactions')}
+            ></PieChart>
           </>
         ) : (
           <CircularProgress />
