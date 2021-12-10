@@ -17,6 +17,7 @@
 import {
   Box,
   Button,
+  Card,
   CircularProgress,
   Grid,
   TablePagination,
@@ -26,6 +27,7 @@ import makeStyles from '@mui/styles/makeStyles';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { ArrayParam, useQueryParam, withDefault } from 'use-query-params';
+import { Histogram } from '../../../../core/components/Charts/Histogram';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
 import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
 import { DatePicker } from '../../../../core/components/DatePicker';
@@ -35,9 +37,11 @@ import { HashPopover } from '../../../../core/components/HashPopover';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import {
+  FFColors,
   ICreatedFilter,
-  IData,
   IDataTableRecord,
+  IEvent,
+  IMetric,
 } from '../../../../core/interfaces';
 import {
   fetchWithCredentials,
@@ -45,19 +49,18 @@ import {
   getCreatedFilter,
 } from '../../../../core/utils';
 import { useDataTranslation } from '../../registration';
-import { DataDetails } from './DataDetails';
 
 const PAGE_LIMITS = [10, 25];
 
-export const Data: () => JSX.Element = () => {
+export const Events: () => JSX.Element = () => {
   const { t } = useDataTranslation();
   const classes = useStyles();
   const [loading, setLoading] = useState(false);
-  const [dataItems, setDataItems] = useState<IData[]>([]);
+  const [eventItems, setEventItems] = useState<IEvent[]>([]);
+  const [eventMetrics, setEventMetrics] = useState<IMetric[]>([]);
   const { selectedNamespace } = useContext(NamespaceContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-  const [viewData, setViewData] = useState<IData | undefined>();
   const { createdFilter, lastEvent } = useContext(ApplicationContext);
   const [filterAnchor, setFilterAnchor] = useState<HTMLButtonElement | null>(
     null
@@ -78,7 +81,7 @@ export const Data: () => JSX.Element = () => {
 
   useEffect(() => {
     //set query param state
-    setFilterQuery(activeFilters, 'replaceIn');
+    setFilterQuery(activeFilters);
     if (activeFilters.length === 0) {
       setFilterString('');
       return;
@@ -110,9 +113,10 @@ export const Data: () => JSX.Element = () => {
 
   const columnHeaders = [
     t('id'),
-    t('validator'),
-    t('dataHash'),
-    t('createdOn'),
+    t('sequence'),
+    t('type'),
+    t('reference'),
+    t('timestamp'),
   ];
 
   const handleChangePage = (_event: unknown, newPage: number) => {
@@ -140,19 +144,21 @@ export const Data: () => JSX.Element = () => {
     />
   );
 
+  // Table
   useEffect(() => {
     setLoading(true);
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
     fetchWithCredentials(
-      `/api/v1/namespaces/${selectedNamespace}/data?limit=${rowsPerPage}&skip=${
+      `/api/v1/namespaces/${selectedNamespace}/events?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
       }${createdFilterObject.filterString}${
         filterString !== undefined ? filterString : ''
       }`
     )
-      .then(async (response) => {
-        if (response.ok) {
-          setDataItems(await response.json());
+      .then(async (eventsResponse) => {
+        if (eventsResponse.ok) {
+          const eventsJson: IEvent[] = await eventsResponse.json();
+          setEventItems(eventsJson);
         } else {
           console.log('error fetching data');
         }
@@ -169,21 +175,52 @@ export const Data: () => JSX.Element = () => {
     filterString,
   ]);
 
-  const records: IDataTableRecord[] = dataItems.map((data: IData) => ({
+  // Chart
+  useEffect(() => {
+    const currentTime = dayjs().unix();
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+
+    fetchWithCredentials(
+      `/api/v1/namespaces/${selectedNamespace}/charts/histogram/events?startTime=${createdFilterObject.filterTime}&endTime=${currentTime}&buckets=100`
+    ).then(async (eventsMetricsResponse) => {
+      if (eventsMetricsResponse.ok) {
+        const eventsMetricsJson: IMetric[] = await eventsMetricsResponse.json();
+        setEventMetrics(eventsMetricsJson);
+      } else {
+        console.log('error fetching data');
+      }
+    });
+  }, [selectedNamespace, createdFilter]);
+
+  const records: IDataTableRecord[] = eventItems.map((data: IEvent) => ({
     key: data.id,
     columns: [
       {
-        value: <HashPopover textColor="secondary" address={data.id} />,
+        value: (
+          <HashPopover
+            textColor="secondary"
+            shortHash={true}
+            address={data.id}
+          />
+        ),
       },
-      { value: data.validator },
+      { value: data.sequence || t('emptyPlaceholder') },
       {
-        value: <HashPopover textColor="secondary" address={data.hash} />,
+        value: data.type,
+      },
+      {
+        value: data.reference ? (
+          <HashPopover
+            textColor="secondary"
+            shortHash={true}
+            address={data.reference}
+          />
+        ) : (
+          t('emptyPlaceholder')
+        ),
       },
       { value: dayjs(data.created).format('MM/DD/YYYY h:mm A') },
     ],
-    onClick: () => {
-      setViewData(data);
-    },
   }));
 
   if (loading) {
@@ -201,7 +238,7 @@ export const Data: () => JSX.Element = () => {
           <Grid container spacing={2} item direction="row">
             <Grid item>
               <Typography className={classes.header} variant="h4">
-                {t('data')}
+                {t('events')}
               </Typography>
             </Grid>
             <Box className={classes.separator} />
@@ -226,34 +263,43 @@ export const Data: () => JSX.Element = () => {
               />
             </Grid>
           )}
-          <Grid container item>
-            {records.length ? (
-              <DataTable
-                minHeight="300px"
-                maxHeight="calc(100vh - 340px)"
-                {...{ columnHeaders }}
-                {...{ records }}
-                {...{ pagination }}
-              />
-            ) : (
-              <Grid container item className={classes.spacing}>
-                <DataTableEmptyState
-                  message={t('noDataToDisplay')}
-                ></DataTableEmptyState>
+
+          {records.length ? (
+            <>
+              <Grid className={classes.cardContainer} container>
+                <Card sx={{ height: '200px', width: '100%' }}>
+                  {eventMetrics?.find((m) => m.count !== '0') && (
+                    <Histogram
+                      colors={[FFColors.Blue]}
+                      data={eventMetrics}
+                      indexBy={'timestamp'}
+                      keys={['count']}
+                      xAxisTitle={''}
+                      yAxisTitle={''}
+                    />
+                  )}
+                </Card>
               </Grid>
-            )}
-          </Grid>
+              <Grid container item>
+                <DataTable
+                  stickyHeader={true}
+                  minHeight="300px"
+                  maxHeight="calc(100vh - 340px)"
+                  columnHeaders={columnHeaders}
+                  records={records}
+                  {...{ pagination }}
+                />
+              </Grid>
+            </>
+          ) : (
+            <Grid container item className={classes.spacing}>
+              <DataTableEmptyState
+                message={t('noEventsToDisplay')}
+              ></DataTableEmptyState>
+            </Grid>
+          )}
         </Grid>
       </Grid>
-      {viewData && (
-        <DataDetails
-          open={!!viewData}
-          onClose={() => {
-            setViewData(undefined);
-          }}
-          data={viewData}
-        />
-      )}
       {filterAnchor && (
         <FilterModal
           anchor={filterAnchor}
@@ -276,6 +322,10 @@ const useStyles = makeStyles((theme) => ({
   pagination: {
     color: theme.palette.text.secondary,
   },
+  cardContainer: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+  },
   centeredContent: {
     display: 'flex',
     flexDirection: 'column',
@@ -283,9 +333,6 @@ const useStyles = makeStyles((theme) => ({
     alignItems: 'center',
     height: 'calc(100vh - 300px)',
     overflow: 'auto',
-  },
-  timelineContainer: {
-    paddingTop: theme.spacing(4),
   },
   separator: {
     flexGrow: 1,

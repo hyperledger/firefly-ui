@@ -14,22 +14,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useEffect, useContext, useRef } from 'react';
-import {
-  IMessage,
-  IHistory,
-  IPagedMessageResponse,
-} from '../../../../core/interfaces';
-import { useHistory } from 'react-router';
 import dayjs from 'dayjs';
 import BroadcastIcon from 'mdi-react/BroadcastIcon';
+import React, { useContext, useEffect, useRef } from 'react';
+import { InfiniteData, useInfiniteQuery, useQueryClient } from 'react-query';
+import { useHistory } from 'react-router';
+import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
 import { DataTimeline } from '../../../../core/components/DataTimeline/DataTimeline';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
-import { InfiniteData, useInfiniteQuery, useQueryClient } from 'react-query';
-import useIntersectionObserver from '../../../../core/hooks/useIntersectionObserver';
 import { SnackbarContext } from '../../../../core/contexts/SnackbarContext';
-import { fetchWithCredentials } from '../../../../core/utils';
+import useIntersectionObserver from '../../../../core/hooks/useIntersectionObserver';
+import {
+  ICreatedFilter,
+  IHistory,
+  IMessage,
+  IPagedMessageResponse,
+} from '../../../../core/interfaces';
+import { fetchWithCredentials, getCreatedFilter } from '../../../../core/utils';
+import { useDataTranslation } from '../../registration';
 
 const ROWS_PER_PAGE = 25;
 
@@ -42,6 +45,7 @@ export const MessageTimeline: React.FC<Props> = ({
   setViewMessage,
   filterString,
 }) => {
+  const { t } = useDataTranslation();
   const history = useHistory<IHistory>();
   const loadingRef = useRef<HTMLDivElement | null>(null);
   const observer = useIntersectionObserver(loadingRef, {});
@@ -54,23 +58,12 @@ export const MessageTimeline: React.FC<Props> = ({
     useInfiniteQuery(
       'messages',
       async ({ pageParam = 0 }) => {
-        let createdFilterString = `&created=>=${dayjs()
-          .subtract(24, 'hours')
-          .unix()}`;
-        if (createdFilter === '30days') {
-          createdFilterString = `&created=>=${dayjs()
-            .subtract(30, 'days')
-            .unix()}`;
-        }
-        if (createdFilter === '7days') {
-          createdFilterString = `&created=>=${dayjs()
-            .subtract(7, 'days')
-            .unix()}`;
-        }
+        const createdFilterObject: ICreatedFilter =
+          getCreatedFilter(createdFilter);
         const res = await fetchWithCredentials(
           `/api/v1/namespaces/${selectedNamespace}/messages?count&limit=${ROWS_PER_PAGE}&skip=${
             ROWS_PER_PAGE * pageParam
-          }${createdFilterString}${
+          }${createdFilterObject.filterString}${
             filterString !== undefined ? filterString : ''
           }`
         );
@@ -123,9 +116,9 @@ export const MessageTimeline: React.FC<Props> = ({
         icon: <BroadcastIcon />,
         onClick: () => {
           setViewMessage(message);
-          history.replace(`/namespace/${selectedNamespace}/data/messages`, {
-            viewMessage: message,
-          });
+          history.push(
+            `/namespace/${selectedNamespace}/data/messages/${message.header.id}`
+          );
         },
       }));
     } else {
@@ -133,11 +126,15 @@ export const MessageTimeline: React.FC<Props> = ({
     }
   };
 
-  return (
+  return buildTimelineElements(data).length ? (
     <DataTimeline
       items={buildTimelineElements(data)}
       observerRef={loadingRef}
       {...{ isFetching }}
     />
+  ) : (
+    <DataTableEmptyState
+      message={t('noMessagesToDisplay')}
+    ></DataTableEmptyState>
   );
 };

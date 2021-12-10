@@ -16,6 +16,7 @@
 
 import React, { useEffect, useContext, useRef } from 'react';
 import {
+  ICreatedFilter,
   IHistory,
   IPagedTransactionResponse,
 } from '../../../../core/interfaces';
@@ -28,7 +29,13 @@ import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { InfiniteData, useInfiniteQuery, useQueryClient } from 'react-query';
 import useIntersectionObserver from '../../../../core/hooks/useIntersectionObserver';
 import { SnackbarContext } from '../../../../core/contexts/SnackbarContext';
-import { fetchWithCredentials, getShortHash } from '../../../../core/utils';
+import {
+  fetchWithCredentials,
+  getCreatedFilter,
+  getShortHash,
+} from '../../../../core/utils';
+import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
+import { useDataTranslation } from '../../registration';
 
 const ROWS_PER_PAGE = 25;
 
@@ -37,6 +44,7 @@ interface Props {
 }
 
 export const TransactionTimeline: React.FC<Props> = ({ filterString }) => {
+  const { t } = useDataTranslation();
   const history = useHistory<IHistory>();
   const loadingRef = useRef<HTMLDivElement | null>(null);
   const observer = useIntersectionObserver(loadingRef, {});
@@ -49,23 +57,13 @@ export const TransactionTimeline: React.FC<Props> = ({ filterString }) => {
     useInfiniteQuery(
       'transactions',
       async ({ pageParam = 0 }) => {
-        let createdFilterString = `&created=>=${dayjs()
-          .subtract(24, 'hours')
-          .unix()}`;
-        if (createdFilter === '30days') {
-          createdFilterString = `&created=>=${dayjs()
-            .subtract(30, 'days')
-            .unix()}`;
-        }
-        if (createdFilter === '7days') {
-          createdFilterString = `&created=>=${dayjs()
-            .subtract(7, 'days')
-            .unix()}`;
-        }
+        const createdFilterObject: ICreatedFilter =
+          getCreatedFilter(createdFilter);
+
         const res = await fetchWithCredentials(
           `/api/v1/namespaces/${selectedNamespace}/transactions?count&limit=${ROWS_PER_PAGE}&skip=${
             ROWS_PER_PAGE * pageParam
-          }${createdFilterString}${
+          }${createdFilterObject.filterString}${
             filterString !== undefined ? filterString : ''
           }`
         );
@@ -127,11 +125,15 @@ export const TransactionTimeline: React.FC<Props> = ({ filterString }) => {
     }
   };
 
-  return (
+  return buildTimelineElements(data).length ? (
     <DataTimeline
       items={buildTimelineElements(data)}
       observerRef={loadingRef}
       {...{ isFetching }}
     />
+  ) : (
+    <DataTableEmptyState
+      message={t('noTransactionsToDisplay')}
+    ></DataTableEmptyState>
   );
 };

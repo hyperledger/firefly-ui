@@ -27,20 +27,22 @@ export const DataTableEmptyState: React.FC<Props> = ({ header, message }) => {
   const classes = useStyles();
 
   return (
-    <Paper className={classes.paper}>
-      {header && (
-        <Grid container justifyContent="space-between" direction="row">
-          <Grid item>
-            <Typography className={classes.header}>{header}</Typography>
+    <>
+      <Paper className={classes.paper}>
+        {header && (
+          <Grid container justifyContent="space-between" direction="row">
+            <Grid item>
+              <Typography className={classes.header}>{header}</Typography>
+            </Grid>
           </Grid>
-        </Grid>
-      )}
-      {message && (
-        <Grid container justifyContent="center">
-          <Typography>{message}</Typography>
-        </Grid>
-      )}
-    </Paper>
+        )}
+        {message && (
+          <Grid container justifyContent="center">
+            <Typography>{message}</Typography>
+          </Grid>
+        )}
+      </Paper>
+    </>
   );
 };
 

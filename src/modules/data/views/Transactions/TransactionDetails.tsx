@@ -103,9 +103,6 @@ export const TransactionDetails: () => JSX.Element = () => {
             {t('transactionDetails')}
           </Typography>
         </Grid>
-        <Grid item className={classes.paddingBottom}>
-          <Typography className={classes.bold}>{transaction.hash}</Typography>
-        </Grid>
         <Grid container spacing={4} item direction="row">
           <Grid item xs={6}>
             <Card>

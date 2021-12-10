@@ -27,8 +27,6 @@ import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { ArrayParam, useQueryParam, withDefault } from 'use-query-params';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
-import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
-import { DatePicker } from '../../../../core/components/DatePicker';
 import { FilterDisplay } from '../../../../core/components/FilterDisplay';
 import { FilterModal } from '../../../../core/components/FilterModal';
 import { HashPopover } from '../../../../core/components/HashPopover';
@@ -36,8 +34,8 @@ import { ApplicationContext } from '../../../../core/contexts/ApplicationContext
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import {
   ICreatedFilter,
-  IData,
   IDataTableRecord,
+  IDataType,
 } from '../../../../core/interfaces';
 import {
   fetchWithCredentials,
@@ -45,19 +43,19 @@ import {
   getCreatedFilter,
 } from '../../../../core/utils';
 import { useDataTranslation } from '../../registration';
-import { DataDetails } from './DataDetails';
+import { DatePicker } from '../../../../core/components/DatePicker';
+import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
 
 const PAGE_LIMITS = [10, 25];
 
-export const Data: () => JSX.Element = () => {
+export const Types: () => JSX.Element = () => {
   const { t } = useDataTranslation();
   const classes = useStyles();
   const [loading, setLoading] = useState(false);
-  const [dataItems, setDataItems] = useState<IData[]>([]);
+  const [dataTypeItems, setDataTypeItems] = useState<IDataType[]>([]);
   const { selectedNamespace } = useContext(NamespaceContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-  const [viewData, setViewData] = useState<IData | undefined>();
   const { createdFilter, lastEvent } = useContext(ApplicationContext);
   const [filterAnchor, setFilterAnchor] = useState<HTMLButtonElement | null>(
     null
@@ -78,7 +76,7 @@ export const Data: () => JSX.Element = () => {
 
   useEffect(() => {
     //set query param state
-    setFilterQuery(activeFilters, 'replaceIn');
+    setFilterQuery(activeFilters);
     if (activeFilters.length === 0) {
       setFilterString('');
       return;
@@ -109,10 +107,11 @@ export const Data: () => JSX.Element = () => {
   ];
 
   const columnHeaders = [
-    t('id'),
-    t('validator'),
-    t('dataHash'),
-    t('createdOn'),
+    t('hash'),
+    t('name'),
+    t('message'),
+    t('version'),
+    t('timestamp'),
   ];
 
   const handleChangePage = (_event: unknown, newPage: number) => {
@@ -143,8 +142,9 @@ export const Data: () => JSX.Element = () => {
   useEffect(() => {
     setLoading(true);
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+
     fetchWithCredentials(
-      `/api/v1/namespaces/${selectedNamespace}/data?limit=${rowsPerPage}&skip=${
+      `/api/v1/namespaces/${selectedNamespace}/datatypes?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
       }${createdFilterObject.filterString}${
         filterString !== undefined ? filterString : ''
@@ -152,7 +152,8 @@ export const Data: () => JSX.Element = () => {
     )
       .then(async (response) => {
         if (response.ok) {
-          setDataItems(await response.json());
+          const dataTypes: IDataType[] = await response.json();
+          setDataTypeItems(dataTypes);
         } else {
           console.log('error fetching data');
         }
@@ -169,21 +170,35 @@ export const Data: () => JSX.Element = () => {
     filterString,
   ]);
 
-  const records: IDataTableRecord[] = dataItems.map((data: IData) => ({
+  const records: IDataTableRecord[] = dataTypeItems.map((data: IDataType) => ({
     key: data.id,
     columns: [
       {
-        value: <HashPopover textColor="secondary" address={data.id} />,
+        value: (
+          <HashPopover
+            textColor="secondary"
+            shortHash={true}
+            address={data.hash}
+          />
+        ),
       },
-      { value: data.validator },
       {
-        value: <HashPopover textColor="secondary" address={data.hash} />,
+        value: data.name,
+      },
+      {
+        value: (
+          <HashPopover
+            textColor="secondary"
+            shortHash={true}
+            address={data.message}
+          />
+        ),
+      },
+      {
+        value: data.version,
       },
       { value: dayjs(data.created).format('MM/DD/YYYY h:mm A') },
     ],
-    onClick: () => {
-      setViewData(data);
-    },
   }));
 
   if (loading) {
@@ -201,7 +216,7 @@ export const Data: () => JSX.Element = () => {
           <Grid container spacing={2} item direction="row">
             <Grid item>
               <Typography className={classes.header} variant="h4">
-                {t('data')}
+                {t('dataTypes')}
               </Typography>
             </Grid>
             <Box className={classes.separator} />
@@ -226,34 +241,26 @@ export const Data: () => JSX.Element = () => {
               />
             </Grid>
           )}
-          <Grid container item>
+          <Grid container item className={classes.spacing}>
             {records.length ? (
               <DataTable
+                stickyHeader={true}
                 minHeight="300px"
                 maxHeight="calc(100vh - 340px)"
-                {...{ columnHeaders }}
-                {...{ records }}
+                columnHeaders={columnHeaders}
+                records={records}
                 {...{ pagination }}
               />
             ) : (
-              <Grid container item className={classes.spacing}>
+              <>
                 <DataTableEmptyState
-                  message={t('noDataToDisplay')}
+                  message={t('noDataTypesToDisplay')}
                 ></DataTableEmptyState>
-              </Grid>
+              </>
             )}
           </Grid>
         </Grid>
       </Grid>
-      {viewData && (
-        <DataDetails
-          open={!!viewData}
-          onClose={() => {
-            setViewData(undefined);
-          }}
-          data={viewData}
-        />
-      )}
       {filterAnchor && (
         <FilterModal
           anchor={filterAnchor}
@@ -284,18 +291,15 @@ const useStyles = makeStyles((theme) => ({
     height: 'calc(100vh - 300px)',
     overflow: 'auto',
   },
-  timelineContainer: {
-    paddingTop: theme.spacing(4),
-  },
   separator: {
     flexGrow: 1,
-  },
-  spacing: {
-    paddingTop: theme.spacing(4),
   },
   filterContainer: {
     marginTop: theme.spacing(2),
     marginBottom: theme.spacing(2),
+  },
+  spacing: {
+    paddingTop: theme.spacing(4),
   },
   filterButton: {
     height: 40,

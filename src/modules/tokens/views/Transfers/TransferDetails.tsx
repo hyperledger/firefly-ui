@@ -174,7 +174,15 @@ export const TransferDetails: () => JSX.Element = () => {
       value: tokenTransfer.message && (
         <>
           <HashPopover address={tokenTransfer.message}></HashPopover>
-          <IconButton className={classes.button} size="large">
+          <IconButton
+            className={classes.button}
+            size="large"
+            onClick={() => {
+              history.push(
+                `/namespace/${selectedNamespace}/data/messages/${tokenTransfer.message}`
+              );
+            }}
+          >
             <LaunchIcon />
           </IconButton>
         </>

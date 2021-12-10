@@ -1,10 +1,12 @@
 {
   "list": "List",
   "timeline": "Timeline",
+  "last1Hour": "Last 1 Hour",
   "last24Hours": "Last 24 Hours",
   "last7Days": "Last 7 Days",
   "last30Days": "Last 30 Days",
   "recentTransactions": "Recent Transactions",
+  "messages":"Messages",
   "namespace": "Namespace",
   "transactions": "Transactions",
   "addFilter": "Add Filter",
