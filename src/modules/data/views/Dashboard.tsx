@@ -427,7 +427,7 @@ export const Dashboard: () => JSX.Element = () => {
         >
           {summaryPanels.map((panel: ISummaryPanel, idx: number) => {
             return (
-              <Grid xs={3} item key={idx}>
+              <Grid sm={12} md={6} lg={3} item key={idx}>
                 {summaryPanel(panel)}
               </Grid>
             );
@@ -439,7 +439,8 @@ export const Dashboard: () => JSX.Element = () => {
               <Grid
                 container
                 item
-                xs={4}
+                md={12}
+                lg={4}
                 key={idx}
                 className={classes.chartPanel}
               >
