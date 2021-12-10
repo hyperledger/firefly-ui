@@ -13,13 +13,15 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+import LaunchIcon from '@mui/icons-material/Launch';
 import {
   Breadcrumbs,
-  Button,
   CircularProgress,
   Grid,
+  IconButton,
   Link,
   List,
+  Modal,
   Paper,
   Typography,
 } from '@mui/material';
@@ -27,6 +29,7 @@ import { makeStyles } from '@mui/styles';
 import { Box } from '@mui/system';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
+import Highlight from 'react-highlight';
 import { useHistory, useParams } from 'react-router';
 import { HashPopover } from '../../../../core/components/HashPopover';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
@@ -42,7 +45,17 @@ export const MessageDetails: () => JSX.Element = () => {
   const { selectedNamespace } = useContext(NamespaceContext);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<IMessage>();
-  const [txId, setTxId] = useState<string>();
+  const [batch, setBatch] = useState<IBatch>();
+  const [openDataModal, setOpenDataModal] = useState(false);
+  const [dataModalText, setDataModalText] = useState('');
+  const handleDataModalOpen = (text: string) => {
+    setDataModalText(text);
+    setOpenDataModal(true);
+  };
+  const handleDataModalClose = () => {
+    setOpenDataModal(false);
+    setDataModalText('');
+  };
 
   // Message
   useEffect(() => {
@@ -70,7 +83,7 @@ export const MessageDetails: () => JSX.Element = () => {
         .then(async (batchResponse) => {
           if (batchResponse.ok) {
             const batch: IBatch = await batchResponse.json();
-            setTxId(batch.payload.tx.id);
+            setBatch(batch);
           } else {
             console.log('error fetching batch');
           }
@@ -111,24 +124,28 @@ export const MessageDetails: () => JSX.Element = () => {
       value: <HashPopover address={message.header.datahash}></HashPopover>,
     },
     {
+      label: t('transactionID'),
+      value: batch?.payload.tx.id && (
+        <>
+          <HashPopover address={batch.payload.tx.id}></HashPopover>
+          <IconButton
+            className={classes.button}
+            size="large"
+            onClick={() => {
+              history.push(
+                `/namespace/${selectedNamespace}/data/transactions/${batch.payload.tx.id}`
+              );
+            }}
+          >
+            <LaunchIcon />
+          </IconButton>
+        </>
+      ),
+    },
+
+    {
       label: t('createdOn'),
       value: dayjs(message.header.created).format('MM/DD/YYYY h:mm A'),
-    },
-    {
-      label: '',
-      value: (
-        <Button
-          className={classes.copyButton}
-          onClick={() =>
-            history.push(
-              `/namespace/${selectedNamespace}/data/transactions/${txId}` +
-                history.location.search
-            )
-          }
-        >
-          {t('viewTx')}
-        </Button>
-      ),
     },
   ];
 
@@ -220,15 +237,16 @@ export const MessageDetails: () => JSX.Element = () => {
               </Grid>
               <List>
                 <Grid container spacing={2}>
-                  {message.data.map((data) => {
+                  {batch?.payload.data.map((data) => {
                     return (
                       <React.Fragment key={data.id}>
                         <Paper
                           elevation={3}
                           className={classes.paperAttachment}
+                          onClick={() => handleDataModalOpen(data.value || '')}
                         >
                           <Grid item className={classes.container}>
-                            <Grid className={classes.titleContainer} item>
+                            <Grid item>
                               <Typography noWrap className={classes.title}>
                                 {t('id')}: {data.id}
                               </Typography>
@@ -243,6 +261,19 @@ export const MessageDetails: () => JSX.Element = () => {
                             </Grid>
                           </Grid>
                         </Paper>
+                        <Modal
+                          open={openDataModal}
+                          onClose={handleDataModalClose}
+                          aria-labelledby="modal-modal-title"
+                          aria-describedby="modal-modal-description"
+                          className={classes.dataContainer}
+                        >
+                          <Paper sx={modalStyle}>
+                            <Highlight>
+                              {JSON.stringify(dataModalText, null, 2)}
+                            </Highlight>
+                          </Paper>
+                        </Modal>
                       </React.Fragment>
                     );
                   })}
@@ -263,6 +294,9 @@ const useStyles = makeStyles((theme) => ({
     justifyContent: 'center',
     alignItems: 'center',
     height: 'calc(100vh - 300px)',
+    overflow: 'auto',
+  },
+  dataContainer: {
     overflow: 'auto',
   },
   header: {
@@ -289,9 +323,7 @@ const useStyles = makeStyles((theme) => ({
     backgroundColor: '#2D353C',
     padding: theme.spacing(2),
     width: '100%',
-  },
-  titleContainer: {
-    maxWidth: 220,
+    cursor: 'pointer',
   },
   title: {
     fontWeight: 'bold',
@@ -308,4 +340,22 @@ const useStyles = makeStyles((theme) => ({
     borderRadius: 20,
     fontSize: 12,
   },
+  button: {
+    color: theme.palette.text.primary,
+    padding: 0,
+    paddingLeft: theme.spacing(1),
+  },
 }));
+
+const modalStyle = {
+  position: 'absolute' as const,
+  overflow: 'auto',
+  top: '50%',
+  left: '50%',
+  transform: 'translate(-50%, -50%)',
+  width: '40%',
+  bgcolor: 'background.paper',
+  border: '2px solid #000',
+  boxShadow: 24,
+  p: 4,
+};

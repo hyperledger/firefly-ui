@@ -55,6 +55,7 @@
   "tokens": "Tokens",
   "topic": "Topic",
   "transactionDetails": "Transaction Details",
+  "transactionID": "Transaction ID",
   "transactionType": "Transaction Type",
   "transactions": "Transactions",
   "type": "Type",
