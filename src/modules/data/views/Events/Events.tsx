@@ -37,6 +37,7 @@ import { HashPopover } from '../../../../core/components/HashPopover';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import {
+  FFColors,
   ICreatedFilter,
   IDataTableRecord,
   IEvent,
@@ -269,7 +270,7 @@ export const Events: () => JSX.Element = () => {
                 <Card sx={{ height: '200px', width: '100%' }}>
                   {eventMetrics?.find((m) => m.count !== '0') && (
                     <Histogram
-                      colors={['#462DE0']}
+                      colors={[FFColors.Blue]}
                       data={eventMetrics}
                       indexBy={'timestamp'}
                       keys={['count']}

@@ -38,6 +38,12 @@ export enum TXStatus {
   Error = 'Error',
 }
 
+export enum FFColors {
+  Blue = '#462DE0',
+  Yellow = '#FFCA00',
+  Red = '#FF0000',
+}
+
 export type CreatedFilterOptions = '1hour' | '24hours' | '7days' | '30days';
 
 export type FilterOptions = CreatedFilterOptions;

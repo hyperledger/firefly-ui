@@ -15,6 +15,7 @@
 // limitations under the License.
 import {
   Breadcrumbs,
+  Button,
   CircularProgress,
   Grid,
   Link,
@@ -29,7 +30,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useHistory, useParams } from 'react-router';
 import { HashPopover } from '../../../../core/components/HashPopover';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
-import { IMessage } from '../../../../core/interfaces';
+import { IBatch, IMessage } from '../../../../core/interfaces';
 import { fetchWithCredentials, getShortHash } from '../../../../core/utils';
 import { useDataTranslation } from '../../registration';
 
@@ -41,7 +42,9 @@ export const MessageDetails: () => JSX.Element = () => {
   const { selectedNamespace } = useContext(NamespaceContext);
   const [loading, setLoading] = useState(false);
   const [message, setMessage] = useState<IMessage>();
+  const [txId, setTxId] = useState<string>();
 
+  // Message
   useEffect(() => {
     setLoading(true);
     fetchWithCredentials(
@@ -58,6 +61,24 @@ export const MessageDetails: () => JSX.Element = () => {
         setLoading(false);
       });
   }, [selectedNamespace, id]);
+  // Transaction ID
+  useEffect(() => {
+    message &&
+      fetchWithCredentials(
+        `/api/v1/namespaces/${selectedNamespace}/batches/${message.batch}`
+      )
+        .then(async (batchResponse) => {
+          if (batchResponse.ok) {
+            const batch: IBatch = await batchResponse.json();
+            setTxId(batch.payload.tx.id);
+          } else {
+            console.log('error fetching batch');
+          }
+        })
+        .finally(() => {
+          setLoading(false);
+        });
+  }, [selectedNamespace, id, message]);
 
   if (loading) {
     return (
@@ -92,6 +113,22 @@ export const MessageDetails: () => JSX.Element = () => {
     {
       label: t('createdOn'),
       value: dayjs(message.header.created).format('MM/DD/YYYY h:mm A'),
+    },
+    {
+      label: '',
+      value: (
+        <Button
+          className={classes.copyButton}
+          onClick={() =>
+            history.push(
+              `/namespace/${selectedNamespace}/data/transactions/${txId}` +
+                history.location.search
+            )
+          }
+        >
+          {t('viewTx')}
+        </Button>
+      ),
     },
   ];
 
@@ -149,12 +186,16 @@ export const MessageDetails: () => JSX.Element = () => {
                     return (
                       <React.Fragment key={data.label}>
                         <Grid item xs={4}>
-                          <Typography color="text.secondary" variant="body1">
+                          <Typography
+                            noWrap
+                            color="text.secondary"
+                            variant="body1"
+                          >
                             {data.label}
                           </Typography>
                         </Grid>
                         <Grid item xs={8}>
-                          <Typography>{data.value}</Typography>
+                          <Typography noWrap>{data.value}</Typography>
                         </Grid>
                       </React.Fragment>
                     );
@@ -186,18 +227,17 @@ export const MessageDetails: () => JSX.Element = () => {
                           elevation={3}
                           className={classes.paperAttachment}
                         >
-                          <Grid
-                            container
-                            className={classes.container}
-                            direction="column"
-                          >
+                          <Grid item className={classes.container}>
                             <Grid className={classes.titleContainer} item>
                               <Typography noWrap className={classes.title}>
                                 {t('id')}: {data.id}
                               </Typography>
                             </Grid>
                             <Grid item>
-                              <Typography className={classes.description}>
+                              <Typography
+                                noWrap
+                                className={classes.description}
+                              >
                                 {t('hash')}: {data.hash}
                               </Typography>
                             </Grid>
@@ -262,5 +302,10 @@ const useStyles = makeStyles((theme) => ({
   },
   container: {
     alignItems: 'flex-start',
+  },
+  copyButton: {
+    backgroundColor: theme.palette.primary.dark,
+    borderRadius: 20,
+    fontSize: 12,
   },
 }));

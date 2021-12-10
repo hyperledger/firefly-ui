@@ -36,6 +36,7 @@ import {
 import { DatePicker } from '../../../core/components/DatePicker';
 import { ApplicationContext } from '../../../core/contexts/ApplicationContext';
 import {
+  FFColors,
   ICreatedFilter,
   IGenericPagedResponse,
   IMetric,
@@ -60,21 +61,21 @@ interface ISummaryPanel {
 }
 
 const MSG_STATUS_COLORS: { [key in MSGStatus]: string } = {
-  confirmed: '#462DE0',
-  ready: '#FFCA00',
-  pending: '#FFCA00',
-  staged: '#FFCA00',
-  rejected: '#FF0000',
+  confirmed: FFColors.Blue,
+  ready: FFColors.Yellow,
+  pending: FFColors.Yellow,
+  staged: FFColors.Yellow,
+  rejected: FFColors.Red,
 };
 const OP_STATUS_COLORS: { [key in OPStatus]: string } = {
-  Succeeded: '#462DE0',
-  Pending: '#FFCA00',
-  Failed: '#FF0000',
+  Succeeded: FFColors.Blue,
+  Pending: FFColors.Yellow,
+  Failed: FFColors.Red,
 };
 const TX_STATUS_COLORS: { [key in TXStatus]: string } = {
-  Succeeded: '#462DE0',
-  Pending: '#FFCA00',
-  Error: '#FF0000',
+  Succeeded: FFColors.Blue,
+  Pending: FFColors.Yellow,
+  Error: FFColors.Red,
 };
 
 export const Dashboard: () => JSX.Element = () => {
@@ -394,7 +395,7 @@ export const Dashboard: () => JSX.Element = () => {
       </CardContent>
       <Grid container sx={{ height: '45px', width: '100%' }}>
         <HistogramSparkChart
-          colors={['#462DE0']}
+          colors={[FFColors.Blue]}
           data={data.metrics}
           indexBy={'timestamp'}
           keys={['count']}

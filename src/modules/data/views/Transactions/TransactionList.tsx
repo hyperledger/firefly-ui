@@ -15,13 +15,15 @@
 // limitations under the License.
 
 import React, { useState, useEffect, useContext } from 'react';
-import { Grid, TablePagination } from '@mui/material';
+import { Card, Grid, TablePagination } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import dayjs from 'dayjs';
 import { useHistory } from 'react-router-dom';
 import {
+  FFColors,
   ICreatedFilter,
   IDataTableRecord,
+  IMetric,
   ITransaction,
 } from '../../../../core/interfaces';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
@@ -31,6 +33,7 @@ import { ApplicationContext } from '../../../../core/contexts/ApplicationContext
 import { fetchWithCredentials, getCreatedFilter } from '../../../../core/utils';
 import { useDataTranslation } from '../../registration';
 import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
+import { Histogram } from '../../../../core/components/Charts/Histogram';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -43,6 +46,7 @@ export const TransactionList: React.FC<Props> = ({ filterString }) => {
   const { t } = useDataTranslation();
   const classes = useStyles();
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
+  const [txMetrics, setTxMetrics] = useState<IMetric[]>();
   const { selectedNamespace } = useContext(NamespaceContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
@@ -79,6 +83,23 @@ export const TransactionList: React.FC<Props> = ({ filterString }) => {
     lastEvent,
     filterString,
   ]);
+
+  // Chart
+  useEffect(() => {
+    const currentTime = dayjs().unix();
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+
+    fetchWithCredentials(
+      `/api/v1/namespaces/${selectedNamespace}/charts/histogram/transactions?startTime=${createdFilterObject.filterTime}&endTime=${currentTime}&buckets=100`
+    ).then(async (txMetricsResponse) => {
+      if (txMetricsResponse.ok) {
+        const txMetricsJson: IMetric[] = await txMetricsResponse.json();
+        setTxMetrics(txMetricsJson);
+      } else {
+        console.log('error fetching metrics data');
+      }
+    });
+  }, [selectedNamespace, createdFilter]);
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setCurrentPage(newPage);
@@ -136,13 +157,31 @@ export const TransactionList: React.FC<Props> = ({ filterString }) => {
   };
 
   return buildTableRecords(transactions).length ? (
-    <DataTable
-      minHeight="300px"
-      maxHeight="calc(100vh - 340px)"
-      records={buildTableRecords(transactions)}
-      {...{ columnHeaders }}
-      {...{ pagination }}
-    />
+    <>
+      <Grid className={classes.cardContainer} container>
+        <Card sx={{ height: '200px', width: '100%' }}>
+          {txMetrics?.find((m) => m.count !== '0') && (
+            <Histogram
+              colors={[FFColors.Blue]}
+              data={txMetrics}
+              indexBy={'timestamp'}
+              keys={['count']}
+              xAxisTitle={''}
+              yAxisTitle={''}
+            />
+          )}
+        </Card>
+      </Grid>
+      <Grid container item>
+        <DataTable
+          minHeight="300px"
+          maxHeight="calc(100vh - 340px)"
+          records={buildTableRecords(transactions)}
+          {...{ columnHeaders }}
+          {...{ pagination }}
+        />
+      </Grid>
+    </>
   ) : (
     <Grid container item className={classes.spacing}>
       <DataTableEmptyState
@@ -152,6 +191,10 @@ export const TransactionList: React.FC<Props> = ({ filterString }) => {
   );
 };
 const useStyles = makeStyles((theme) => ({
+  cardContainer: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+  },
   pagination: {
     color: theme.palette.text.secondary,
   },

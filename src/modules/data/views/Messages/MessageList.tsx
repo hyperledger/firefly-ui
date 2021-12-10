@@ -16,7 +16,7 @@
 
 import React, { useState, useEffect, useContext } from 'react';
 import { useHistory } from 'react-router';
-import { Grid, TablePagination } from '@mui/material';
+import { Card, Grid, TablePagination } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import dayjs from 'dayjs';
 import {
@@ -24,6 +24,8 @@ import {
   IDataTableRecord,
   IHistory,
   ICreatedFilter,
+  IMetric,
+  FFColors,
 } from '../../../../core/interfaces';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
 import { HashPopover } from '../../../../core/components/HashPopover';
@@ -32,6 +34,7 @@ import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { fetchWithCredentials, getCreatedFilter } from '../../../../core/utils';
 import { useDataTranslation } from '../../registration';
 import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
+import { Histogram } from '../../../../core/components/Charts/Histogram';
 
 interface Props {
   setViewMessage: React.Dispatch<React.SetStateAction<IMessage | undefined>>;
@@ -52,6 +55,7 @@ export const MessageList: React.FC<Props> = ({
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
   const [messages, setMessages] = useState<IMessage[] | undefined>(undefined);
+  const [messageMetrics, setMessageMetrics] = useState<IMetric[]>();
 
   const columnHeaders = [
     t('author'),
@@ -85,6 +89,23 @@ export const MessageList: React.FC<Props> = ({
     lastEvent,
     filterString,
   ]);
+
+  // Chart
+  useEffect(() => {
+    const currentTime = dayjs().unix();
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+
+    fetchWithCredentials(
+      `/api/v1/namespaces/${selectedNamespace}/charts/histogram/messages?startTime=${createdFilterObject.filterTime}&endTime=${currentTime}&buckets=100`
+    ).then(async (msgMetricsResponse) => {
+      if (msgMetricsResponse.ok) {
+        const msgMetricsJson: IMetric[] = await msgMetricsResponse.json();
+        setMessageMetrics(msgMetricsJson);
+      } else {
+        console.log('error fetching metrics data');
+      }
+    });
+  }, [selectedNamespace, createdFilter]);
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setCurrentPage(newPage);
@@ -146,13 +167,31 @@ export const MessageList: React.FC<Props> = ({
   };
 
   return messages?.length ? (
-    <DataTable
-      minHeight="300px"
-      maxHeight="calc(100vh - 340px)"
-      records={buildTableRecords(messages)}
-      {...{ columnHeaders }}
-      {...{ pagination }}
-    />
+    <>
+      <Grid className={classes.cardContainer} container>
+        <Card sx={{ height: '200px', width: '100%' }}>
+          {messageMetrics?.find((m) => m.count !== '0') && (
+            <Histogram
+              colors={[FFColors.Blue]}
+              data={messageMetrics}
+              indexBy={'timestamp'}
+              keys={['count']}
+              xAxisTitle={''}
+              yAxisTitle={''}
+            />
+          )}
+        </Card>
+      </Grid>
+      <Grid container item>
+        <DataTable
+          minHeight="300px"
+          maxHeight="calc(100vh - 340px)"
+          records={buildTableRecords(messages)}
+          {...{ columnHeaders }}
+          {...{ pagination }}
+        />
+      </Grid>
+    </>
   ) : (
     <Grid container item className={classes.spacing}>
       <DataTableEmptyState
@@ -163,6 +202,10 @@ export const MessageList: React.FC<Props> = ({
 };
 
 const useStyles = makeStyles((theme) => ({
+  cardContainer: {
+    paddingTop: theme.spacing(4),
+    paddingBottom: theme.spacing(4),
+  },
   pagination: {
     color: theme.palette.text.secondary,
   },
