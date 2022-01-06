@@ -46,11 +46,7 @@ export const FilterDisplay: React.FC<Props> = ({ filters, setFilters }) => {
         </Grid>
         {filters.map((filter, index) => (
           <Grid key={`${filter}${index}`} item>
-            <Chip
-              onClick={handleClear}
-              onDelete={() => handleRemoveFilter(filter)}
-              label={filter}
-            />
+            <Chip onDelete={() => handleRemoveFilter(filter)} label={filter} />
           </Grid>
         ))}
         <Grid item>

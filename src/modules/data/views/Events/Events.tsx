@@ -36,6 +36,7 @@ import { FilterModal } from '../../../../core/components/FilterModal';
 import { HashPopover } from '../../../../core/components/HashPopover';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
+import { SnackbarContext } from '../../../../core/contexts/SnackbarContext';
 import {
   FFColors,
   ICreatedFilter,
@@ -43,11 +44,7 @@ import {
   IEvent,
   IMetric,
 } from '../../../../core/interfaces';
-import {
-  fetchWithCredentials,
-  filterOperators,
-  getCreatedFilter,
-} from '../../../../core/utils';
+import { fetchWithCredentials, getCreatedFilter } from '../../../../core/utils';
 import { useDataTranslation } from '../../registration';
 
 const PAGE_LIMITS = [10, 25];
@@ -71,6 +68,7 @@ export const Events: () => JSX.Element = () => {
     'filters',
     withDefault(ArrayParam, [])
   );
+  const { reportFetchError } = useContext(SnackbarContext);
 
   useEffect(() => {
     // set filters if they are present in the URL
@@ -160,9 +158,10 @@ export const Events: () => JSX.Element = () => {
           const eventsJson: IEvent[] = await eventsResponse.json();
           setEventItems(eventsJson);
         } else {
-          console.log('error fetching data');
+          reportFetchError(eventsResponse);
         }
       })
+      .catch((err) => reportFetchError(err))
       .finally(() => {
         setLoading(false);
       });
@@ -173,6 +172,7 @@ export const Events: () => JSX.Element = () => {
     createdFilter,
     lastEvent,
     filterString,
+    reportFetchError,
   ]);
 
   // Chart
@@ -182,15 +182,18 @@ export const Events: () => JSX.Element = () => {
 
     fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/charts/histogram/events?startTime=${createdFilterObject.filterTime}&endTime=${currentTime}&buckets=100`
-    ).then(async (eventsMetricsResponse) => {
-      if (eventsMetricsResponse.ok) {
-        const eventsMetricsJson: IMetric[] = await eventsMetricsResponse.json();
-        setEventMetrics(eventsMetricsJson);
-      } else {
-        console.log('error fetching data');
-      }
-    });
-  }, [selectedNamespace, createdFilter]);
+    )
+      .then(async (eventsMetricsResponse) => {
+        if (eventsMetricsResponse.ok) {
+          const eventsMetricsJson: IMetric[] =
+            await eventsMetricsResponse.json();
+          setEventMetrics(eventsMetricsJson);
+        } else {
+          reportFetchError(eventsMetricsResponse);
+        }
+      })
+      .catch((err) => reportFetchError(err));
+  }, [selectedNamespace, createdFilter, reportFetchError]);
 
   const records: IDataTableRecord[] = eventItems.map((data: IEvent) => ({
     key: data.id,
@@ -307,7 +310,6 @@ export const Events: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={filterFields}
-          operators={filterOperators}
           addFilter={handleAddFilter}
         />
       )}

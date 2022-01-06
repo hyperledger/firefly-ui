@@ -16,5 +16,17 @@
   "field": "Field",
   "value": "Value",
   "selectedFilters": "Selected Filters",
-  "clear": "Clear"
+  "clear": "Clear",
+  "equal": "Equals",
+  "greaterThan": "Greater than",
+  "greaterThanOrEqual": "Greater than or equal",
+  "lessThan": "Less than",
+  "lessThanOrEqual": "Less than or equal",
+  "contains": "Contains",
+  "startsWith": "Starts with",
+  "endsWith": "Ends with",
+  "caseSensitive": "Case sensitive",
+  "rule": "Rule",
+  "matches": "Matches",
+  "notMatches": "Does not match"
 }

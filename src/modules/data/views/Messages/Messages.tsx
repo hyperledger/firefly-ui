@@ -25,7 +25,6 @@ import { FilterDisplay } from '../../../../core/components/FilterDisplay';
 import { FilterModal } from '../../../../core/components/FilterModal';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { IHistory, IMessage } from '../../../../core/interfaces';
-import { filterOperators } from '../../../../core/utils';
 import { useDataTranslation } from '../../registration';
 import { MessageList } from './MessageList';
 import { MessageTimeline } from './MessageTimeline';
@@ -157,7 +156,6 @@ export const Messages: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={filterFields}
-          operators={filterOperators}
           addFilter={handleAddFilter}
         />
       )}

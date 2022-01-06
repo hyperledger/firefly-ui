@@ -25,7 +25,6 @@ import { useDataTranslation } from '../../registration';
 import { FilterDisplay } from '../../../../core/components/FilterDisplay';
 import { ArrayParam, withDefault, useQueryParam } from 'use-query-params';
 import { FilterModal } from '../../../../core/components/FilterModal';
-import { filterOperators } from '../../../../core/utils';
 import { DatePicker } from '../../../../core/components/DatePicker';
 
 export const Transactions: () => JSX.Element = () => {
@@ -135,7 +134,6 @@ export const Transactions: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={filterFields}
-          operators={filterOperators}
           addFilter={handleAddFilter}
         />
       )}

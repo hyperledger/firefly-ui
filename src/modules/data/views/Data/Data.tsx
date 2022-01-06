@@ -34,16 +34,13 @@ import { FilterModal } from '../../../../core/components/FilterModal';
 import { HashPopover } from '../../../../core/components/HashPopover';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
+import { SnackbarContext } from '../../../../core/contexts/SnackbarContext';
 import {
   ICreatedFilter,
   IData,
   IDataTableRecord,
 } from '../../../../core/interfaces';
-import {
-  fetchWithCredentials,
-  filterOperators,
-  getCreatedFilter,
-} from '../../../../core/utils';
+import { fetchWithCredentials, getCreatedFilter } from '../../../../core/utils';
 import { useDataTranslation } from '../../registration';
 import { DataDetails } from './DataDetails';
 
@@ -68,6 +65,7 @@ export const Data: () => JSX.Element = () => {
     'filters',
     withDefault(ArrayParam, [])
   );
+  const { reportFetchError } = useContext(SnackbarContext);
 
   useEffect(() => {
     // set filters if they are present in the URL
@@ -154,9 +152,10 @@ export const Data: () => JSX.Element = () => {
         if (response.ok) {
           setDataItems(await response.json());
         } else {
-          console.log('error fetching data');
+          reportFetchError(response);
         }
       })
+      .catch((err) => reportFetchError(err))
       .finally(() => {
         setLoading(false);
       });
@@ -167,6 +166,7 @@ export const Data: () => JSX.Element = () => {
     createdFilter,
     lastEvent,
     filterString,
+    reportFetchError,
   ]);
 
   const records: IDataTableRecord[] = dataItems.map((data: IData) => ({
@@ -261,7 +261,6 @@ export const Data: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={filterFields}
-          operators={filterOperators}
           addFilter={handleAddFilter}
         />
       )}
