@@ -16,6 +16,8 @@
   "keyConcepts": "Key Concepts",
   "messages": "Messages",
   "modules": "Modules",
+  "monitoring": "Monitoring",
+  "monitoringDescription" : "Monitor operations within your network",
   "networkMap": "Network Map",
   "networkMapDescription": "View organizations and nodes within your network",
   "networkMembers": "Network Members",

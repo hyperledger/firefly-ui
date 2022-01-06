@@ -49,12 +49,12 @@ import {
   OperationStatus,
 } from '../../../../core/interfaces';
 import { fetchWithCredentials, getCreatedFilter } from '../../../../core/utils';
-import { useDataTranslation } from '../../registration';
+import { useMonitoringTranslation } from '../../registration';
 
 const PAGE_LIMITS = [10, 25];
 
 export const Operations: () => JSX.Element = () => {
-  const { t } = useDataTranslation();
+  const { t } = useMonitoringTranslation();
   const classes = useStyles();
   const [loading, setLoading] = useState(false);
   const [operationItems, setOperationItems] = useState<IOperation[]>([]);

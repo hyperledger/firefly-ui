@@ -42,7 +42,6 @@ import {
   IMetric,
   IPieChartElement,
   MSGStatus,
-  OPStatus,
   TXStatus,
 } from '../../../core/interfaces';
 import { fetchWithCredentials, getCreatedFilter } from '../../../core/utils';
@@ -67,11 +66,6 @@ const MSG_STATUS_COLORS: { [key in MSGStatus]: string } = {
   staged: FFColors.Yellow,
   rejected: FFColors.Red,
 };
-const OP_STATUS_COLORS: { [key in OPStatus]: string } = {
-  Succeeded: FFColors.Blue,
-  Pending: FFColors.Yellow,
-  Failed: FFColors.Red,
-};
 const TX_STATUS_COLORS: { [key in TXStatus]: string } = {
   Succeeded: FFColors.Blue,
   Pending: FFColors.Yellow,
@@ -84,7 +78,6 @@ export const Dashboard: () => JSX.Element = () => {
   // Totals
   const [messagesTotal, setMessagesTotal] = useState(undefined);
   const [txTotal, setTxTotal] = useState(undefined);
-  const [operationsTotal, setOperationsTotal] = useState(undefined);
   const [eventsTotal, setEventsTotal] = useState(undefined);
   // Latest data for pie charts
   const [latestMsgs, setLatestMsgs] = useState<
@@ -93,13 +86,9 @@ export const Dashboard: () => JSX.Element = () => {
   const [latestTx, setLatestTx] = useState<IGenericPagedResponse[] | undefined>(
     undefined
   );
-  const [latestOps, setLatestOps] = useState<
-    IGenericPagedResponse[] | undefined
-  >(undefined);
   // Metrics
   const [msgMetrics, setMsgMetrics] = useState<IMetric[]>([]);
   const [txMetrics, setTxMetrics] = useState<IMetric[]>([]);
-  const [opsMetrics, setOpsMetrics] = useState<IMetric[]>([]);
   const [eventsMetrics, setEventsMetrics] = useState<IMetric[]>([]);
   const { lastEvent, createdFilter } = useContext(ApplicationContext);
   const { namespace } = useParams<{ namespace: string }>();
@@ -115,35 +104,18 @@ export const Dashboard: () => JSX.Element = () => {
         `/api/v1/namespaces/${namespace}/transactions?count${createdFilterObject.filterString}&limit=1`
       ),
       fetchWithCredentials(
-        `/api/v1/namespaces/${namespace}/operations?count${createdFilterObject.filterString}&limit=1`
-      ),
-      fetchWithCredentials(
         `/api/v1/namespaces/${namespace}/events?count${createdFilterObject.filterString}&limit=1`
       ),
-    ]).then(
-      async ([
-        messageResponse,
-        txResponse,
-        operationsResponse,
-        eventsResponse,
-      ]) => {
-        if (
-          messageResponse.ok &&
-          txResponse.ok &&
-          operationsResponse.ok &&
-          eventsResponse.ok
-        ) {
-          const messageJson = await messageResponse.json();
-          const txJson = await txResponse.json();
-          const operationsJson = await operationsResponse.json();
-          const eventsJson = await eventsResponse.json();
-          setMessagesTotal(messageJson.total);
-          setTxTotal(txJson.total);
-          setOperationsTotal(operationsJson.total);
-          setEventsTotal(eventsJson.total);
-        }
+    ]).then(async ([messageResponse, txResponse, eventsResponse]) => {
+      if (messageResponse.ok && txResponse.ok && eventsResponse.ok) {
+        const messageJson = await messageResponse.json();
+        const txJson = await txResponse.json();
+        const eventsJson = await eventsResponse.json();
+        setMessagesTotal(messageJson.total);
+        setTxTotal(txJson.total);
+        setEventsTotal(eventsJson.total);
       }
-    );
+    });
     // Messages Pie Chart
     const msgStatusObject: { [key: string]: string } = MSGStatus;
     const msgEnums: string[] = Object.keys(MSGStatus).map(
@@ -184,26 +156,6 @@ export const Dashboard: () => JSX.Element = () => {
         setLatestTx(txStatusResponseJsons);
       }
     });
-    // Ops Pie Chart
-    const opsStatusObject: { [key: string]: string } = OPStatus;
-    const opsEnums = Object.keys(OPStatus).map(
-      (key: string) => opsStatusObject[key]
-    );
-    Promise.all(
-      opsEnums.map((e) =>
-        fetchWithCredentials(
-          `/api/v1/namespaces/${namespace}/operations?count${createdFilterObject.filterString}&limit=1&status=${e}`
-        )
-      )
-    ).then(async (opStatusResponses) => {
-      if (opStatusResponses.every((e) => e.ok)) {
-        const opStatusResponseJsons: IGenericPagedResponse[] = [];
-        for (let i = 0; i < opStatusResponses.length; i++) {
-          await opStatusResponseJsons.push(await opStatusResponses[i].json());
-        }
-        setLatestOps(opStatusResponseJsons);
-      }
-    });
   }, [namespace, lastEvent, createdFilter]);
 
   useEffect(() => {
@@ -218,31 +170,24 @@ export const Dashboard: () => JSX.Element = () => {
         `/api/v1/namespaces/${namespace}/charts/histogram/transactions?startTime=${createdFilterObject.filterTime}&endTime=${currentTime}&buckets=40`
       ),
       fetchWithCredentials(
-        `/api/v1/namespaces/${namespace}/charts/histogram/operations?startTime=${createdFilterObject.filterTime}&endTime=${currentTime}&buckets=40`
-      ),
-      fetchWithCredentials(
         `/api/v1/namespaces/${namespace}/charts/histogram/events?startTime=${createdFilterObject.filterTime}&endTime=${currentTime}&buckets=40`
       ),
     ]).then(
       async ([
         msgMetricsResponse,
         txMetricsResponse,
-        opsMetricsResponse,
         eventsMetricsResponse,
       ]) => {
         if (
           msgMetricsResponse.ok &&
           txMetricsResponse.ok &&
-          opsMetricsResponse.ok &&
           eventsMetricsResponse.ok
         ) {
           const msgMetricsJson = await msgMetricsResponse.json();
           const txMetricsJson = await txMetricsResponse.json();
-          const opsMetricsJson = await opsMetricsResponse.json();
           const eventsMetricsJson = await eventsMetricsResponse.json();
           setMsgMetrics(msgMetricsJson);
           setTxMetrics(txMetricsJson);
-          setOpsMetrics(opsMetricsJson);
           setEventsMetrics(eventsMetricsJson);
         }
       }
@@ -259,11 +204,6 @@ export const Dashboard: () => JSX.Element = () => {
       metrics: txMetrics,
       title: t('transactions'),
       total: txTotal,
-    },
-    {
-      metrics: opsMetrics,
-      title: t('operations'),
-      total: operationsTotal,
     },
     {
       metrics: eventsMetrics,
@@ -301,19 +241,6 @@ export const Dashboard: () => JSX.Element = () => {
         ),
       data: latestTx && mapPieChartData(latestTx, TX_STATUS_COLORS, TXStatus),
       title: t('latestTransactions'),
-    },
-    {
-      chart:
-        latestOps !== undefined ? (
-          <PieChart
-            data={mapPieChartData(latestOps, OP_STATUS_COLORS, OPStatus)}
-            dataType={t('operations')}
-          ></PieChart>
-        ) : (
-          <CircularProgress />
-        ),
-      data: latestOps && mapPieChartData(latestOps, OP_STATUS_COLORS, OPStatus),
-      title: t('latestOperations'),
     },
   ];
 
@@ -427,7 +354,7 @@ export const Dashboard: () => JSX.Element = () => {
         >
           {summaryPanels.map((panel: ISummaryPanel, idx: number) => {
             return (
-              <Grid sm={12} md={6} lg={3} item key={idx}>
+              <Grid sm={12} md={6} lg={4} item key={idx}>
                 {summaryPanel(panel)}
               </Grid>
             );
@@ -440,7 +367,7 @@ export const Dashboard: () => JSX.Element = () => {
                 container
                 item
                 md={12}
-                lg={4}
+                lg={6}
                 key={idx}
                 className={classes.chartPanel}
               >
