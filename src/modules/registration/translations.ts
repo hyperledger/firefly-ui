@@ -16,6 +16,7 @@
 
 import { registerDataTranslations } from '../data/registration';
 import { registerHomeTranslations } from '../home/registration';
+import { registerMonitoringTranslations } from '../monitoring/registration';
 import { registerNetworkMapTranslations } from '../network-map/registration';
 import { registerTokensTranslations } from '../tokens/registration';
 
@@ -24,4 +25,5 @@ export const registerModuleTranslations = (): void => {
   registerHomeTranslations();
   registerNetworkMapTranslations();
   registerTokensTranslations();
+  registerMonitoringTranslations();
 };

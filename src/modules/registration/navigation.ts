@@ -18,6 +18,10 @@ import { ModuleNav, NavItem } from '../../core/interfaces';
 import { DataAppNavItem, DataModuleNav } from '../data/registration';
 import { HomeAppNavItem } from '../home/registration';
 import {
+  MonitoringAppNavItem,
+  MonitoringModuleNav,
+} from '../monitoring/registration';
+import {
   NetworkMapAppNavItem,
   NetworkMapModuleNav,
 } from '../network-map/registration';
@@ -29,9 +33,15 @@ export const registerAppNavigationItems = (): NavItem[] => {
     NetworkMapAppNavItem,
     DataAppNavItem,
     TokensAppNavItem,
+    MonitoringAppNavItem,
   ];
 };
 
 export const registerModuleNavigationItems = (): ModuleNav[] => {
-  return [DataModuleNav, NetworkMapModuleNav, TokensModuleNav];
+  return [
+    DataModuleNav,
+    NetworkMapModuleNav,
+    TokensModuleNav,
+    MonitoringModuleNav,
+  ];
 };
