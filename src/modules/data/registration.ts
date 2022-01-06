@@ -17,7 +17,6 @@
 import i18n from 'i18next';
 import CalendarIcon from 'mdi-react/CalendarIcon';
 import CubeOutlineIcon from 'mdi-react/CubeOutlineIcon';
-import FanIcon from 'mdi-react/FanIcon';
 import FileTableOutlineIcon from 'mdi-react/FileTableOutlineIcon';
 import MessageTextIcon from 'mdi-react/MessageTextIcon';
 import TextBoxCheckOutlineIcon from 'mdi-react/TextBoxCheckOutlineIcon';
@@ -30,7 +29,6 @@ import { Data } from './views/Data/Data';
 import { Events } from './views/Events/Events';
 import { MessageDetails } from './views/Messages/MessageDetails';
 import { Messages } from './views/Messages/Messages';
-import { Operations } from './views/Operations/Operations';
 import { TransactionDetails } from './views/Transactions/TransactionDetails';
 import { Transactions } from './views/Transactions/Transactions';
 import { Types } from './views/Types/Types';
@@ -106,15 +104,6 @@ export const DataModuleNav: ModuleNav = {
     },
     {
       translationNs: DATA_TRANSLATIONS_NS,
-      translationKey: 'operations',
-      icon: FanIcon,
-      routesRequireNamespace: DataAppNavItem.routesRequireNamespace,
-      makePathname: (ns?: string) => makeDataPathname(ns, '/operations'),
-      isActiveCheck: (ns?: string, pathname?: string) =>
-        pathname?.startsWith(makeDataPathname(ns, '/operations')) || false,
-    },
-    {
-      translationNs: DATA_TRANSLATIONS_NS,
       translationKey: 'events',
       icon: CalendarIcon,
       routesRequireNamespace: DataAppNavItem.routesRequireNamespace,
@@ -167,11 +156,6 @@ export const DataRoutes: IRoute[] = [
     exact: true,
     route: `${DATA_ROUTE_PREFIX}/transactions/:id`,
     component: TransactionDetails,
-  },
-  {
-    exact: true,
-    route: `${DATA_ROUTE_PREFIX}/operations`,
-    component: Operations,
   },
   {
     exact: true,
