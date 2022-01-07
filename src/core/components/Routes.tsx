@@ -31,7 +31,7 @@ import {
 import { NamespaceContext } from '../contexts/NamespaceContext';
 import { ApplicationContext } from '../contexts/ApplicationContext';
 import { NavWrapper } from './NavWrapper';
-import { fetchWithCredentials } from '../utils';
+import { fetchWithCredentials, summarizeFetchError } from '../utils';
 import { CircularProgress } from '@mui/material';
 import { SnackbarContext } from '../contexts/SnackbarContext';
 import { MessageSnackbar, SnackbarMessageType } from './MessageSnackbar';
@@ -121,6 +121,13 @@ export const Routes: () => JSX.Element = () => {
 
   const routes: IRoute[] = registerModuleRoutes();
 
+  const reportFetchError = (err: any) => {
+    summarizeFetchError(err).then((message: string) => {
+      setMessageType('error');
+      setMessage(message);
+    });
+  };
+
   return (
     <NamespaceContext.Provider
       value={{
@@ -142,7 +149,9 @@ export const Routes: () => JSX.Element = () => {
           setCreatedFilter,
         }}
       >
-        <SnackbarContext.Provider value={{ setMessage, setMessageType }}>
+        <SnackbarContext.Provider
+          value={{ setMessage, setMessageType, reportFetchError }}
+        >
           <MessageSnackbar
             {...{ message }}
             {...{ setMessage }}

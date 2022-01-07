@@ -14,28 +14,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useState, useEffect } from 'react';
 import {
-  Grid,
-  Paper,
-  Typography,
-  Popover,
   Button,
+  Checkbox,
+  FormControlLabel,
+  Grid,
   InputLabel,
-  Select,
   MenuItem,
-  TextField,
+  Paper,
+  Popover,
+  Select,
   SelectChangeEvent,
+  TextField,
+  Typography,
 } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import CloseIcon from 'mdi-react/CloseIcon';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 
 interface Props {
   anchor: HTMLButtonElement | null;
   onClose: () => void;
   fields: string[];
-  operators: string[];
   addFilter: (filter: string) => void;
 }
 
@@ -43,7 +44,6 @@ export const FilterModal: React.FC<Props> = ({
   anchor,
   onClose,
   fields,
-  operators,
   addFilter,
 }) => {
   const classes = useStyles();
@@ -51,7 +51,9 @@ export const FilterModal: React.FC<Props> = ({
   const [open, setOpen] = useState(false);
   const [filterValue, setFilterValue] = useState('');
   const [filterField, setFilterField] = useState('');
-  const [filterOperator, setFilterOperator] = useState('');
+  const [filterOperator, setFilterOperator] = useState('=');
+  const [filterCaseInsensitive, setFilterCaseInsensitive] = useState(false);
+  const [filterNegate, setFilterNegate] = useState(false);
 
   useEffect(() => {
     if (anchor) {
@@ -60,7 +62,9 @@ export const FilterModal: React.FC<Props> = ({
   }, [anchor]);
 
   const handleSubmit = () => {
-    const filter = `${filterField}${filterOperator}${filterValue}`;
+    const filter = `${filterField}=${filterNegate ? '!' : ''}${
+      filterCaseInsensitive ? ':' : ''
+    }${filterOperator}${filterValue}`;
     addFilter(filter);
     onClose();
   };
@@ -76,6 +80,38 @@ export const FilterModal: React.FC<Props> = ({
   const handleValueChange = (event: React.ChangeEvent<HTMLInputElement>) => {
     setFilterValue(event.target.value as string);
   };
+
+  const handleCaseInsensitiveChange = (
+    event: React.ChangeEvent<HTMLInputElement>,
+    checked: boolean
+  ) => {
+    setFilterCaseInsensitive(!checked);
+  };
+
+  const handleNegateChange = (event: SelectChangeEvent) => {
+    setFilterNegate(event.target.value === 'true');
+  };
+
+  const operators: { [op: string]: { label: string; modifiers: boolean } } = {
+    '=': { label: t('equal'), modifiers: true },
+    '>>': { label: t('greaterThan'), modifiers: false },
+    '>=': { label: t('greaterThanOrEqual'), modifiers: false },
+    '<<': { label: t('lessThan'), modifiers: false },
+    '<=': { label: t('lessThanOrEqual'), modifiers: false },
+    '@': { label: t('contains'), modifiers: true },
+    '^': { label: t('startsWith'), modifiers: true },
+    $: { label: t('endsWith'), modifiers: true },
+  };
+
+  const operatorSettings = operators[filterOperator];
+  const allowModifiers = operatorSettings?.modifiers || false;
+
+  useEffect(() => {
+    if (!allowModifiers) {
+      setFilterNegate(false);
+      setFilterCaseInsensitive(false);
+    }
+  }, [allowModifiers]);
 
   return (
     <>
@@ -107,8 +143,8 @@ export const FilterModal: React.FC<Props> = ({
             </Grid>
           </Grid>
           <form>
-            <Grid container>
-              <Grid item xs={6} className={classes.form}>
+            <Grid container alignItems="flex-end">
+              <Grid item xs={12} sm className={classes.form}>
                 <InputLabel id="field-filter-label">{t('field')}</InputLabel>
                 <Select
                   variant="outlined"
@@ -125,31 +161,57 @@ export const FilterModal: React.FC<Props> = ({
                   ))}
                 </Select>
               </Grid>
-              <Grid item xs={6} className={classes.form}>
+              <Grid item xs={12} sm={4} className={classes.form}>
                 <InputLabel id="operator-filter-label">
                   {t('operator')}
                 </InputLabel>
                 <Select
-                  fullWidth
                   size="small"
+                  fullWidth
                   labelId="operator-filter-label"
                   value={filterOperator}
                   onChange={handleOperatorChange}
                 >
-                  {operators.map((operator) => (
+                  {Object.entries(operators).map(([operator, { label }]) => (
                     <MenuItem key={operator} value={operator}>
-                      {operator}
+                      {`${label} (${operator})`}
                     </MenuItem>
                   ))}
                 </Select>
               </Grid>
-              <Grid item xs={12} className={classes.form}>
+              <Grid item className={classes.form}>
+                <InputLabel id="field-rule-label">{t('rule')}</InputLabel>
+                <Select
+                  variant="outlined"
+                  size="small"
+                  labelId="operator-filtruleer-label"
+                  value={String(filterNegate)}
+                  onChange={handleNegateChange}
+                  disabled={!allowModifiers}
+                >
+                  <MenuItem value={'false'}>{t('matches')}</MenuItem>
+                  <MenuItem value={'true'}>{t('notMatches')}</MenuItem>
+                </Select>
+              </Grid>
+              <Grid item xs={12} sm={9} className={classes.form}>
                 <InputLabel id="value-filter-label">{t('value')}</InputLabel>
                 <TextField
                   fullWidth
                   value={filterValue}
                   onChange={handleValueChange}
                   size="small"
+                />
+              </Grid>
+              <Grid item xs={3} className={classes.form}>
+                <FormControlLabel
+                  control={
+                    <Checkbox
+                      checked={!filterCaseInsensitive}
+                      onChange={handleCaseInsensitiveChange}
+                      disabled={!allowModifiers}
+                    />
+                  }
+                  label={t('caseSensitive')}
                 />
               </Grid>
             </Grid>
@@ -183,7 +245,6 @@ const useStyles = makeStyles((theme) => ({
   },
   paper: {
     outline: 'none',
-    minWidth: 450,
     padding: theme.spacing(2),
   },
   close: {

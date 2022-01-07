@@ -20,6 +20,7 @@ import { SnackbarMessageType } from '../components/MessageSnackbar';
 export interface ISnackbarContext {
   setMessage: Dispatch<SetStateAction<string>>;
   setMessageType: Dispatch<SetStateAction<SnackbarMessageType>>;
+  reportFetchError: (err: any) => void;
 }
 
 export const SnackbarContext = createContext({} as ISnackbarContext);

@@ -37,14 +37,11 @@ import {
   IDataTableRecord,
   IDataType,
 } from '../../../../core/interfaces';
-import {
-  fetchWithCredentials,
-  filterOperators,
-  getCreatedFilter,
-} from '../../../../core/utils';
+import { fetchWithCredentials, getCreatedFilter } from '../../../../core/utils';
 import { useDataTranslation } from '../../registration';
 import { DatePicker } from '../../../../core/components/DatePicker';
 import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
+import { SnackbarContext } from '../../../../core/contexts/SnackbarContext';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -66,6 +63,7 @@ export const Types: () => JSX.Element = () => {
     'filters',
     withDefault(ArrayParam, [])
   );
+  const { reportFetchError } = useContext(SnackbarContext);
 
   useEffect(() => {
     // set filters if they are present in the URL
@@ -155,9 +153,10 @@ export const Types: () => JSX.Element = () => {
           const dataTypes: IDataType[] = await response.json();
           setDataTypeItems(dataTypes);
         } else {
-          console.log('error fetching data');
+          reportFetchError(response);
         }
       })
+      .catch((err) => reportFetchError(err))
       .finally(() => {
         setLoading(false);
       });
@@ -168,6 +167,7 @@ export const Types: () => JSX.Element = () => {
     createdFilter,
     lastEvent,
     filterString,
+    reportFetchError,
   ]);
 
   const records: IDataTableRecord[] = dataTypeItems.map((data: IDataType) => ({
@@ -268,7 +268,6 @@ export const Types: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={filterFields}
-          operators={filterOperators}
           addFilter={handleAddFilter}
         />
       )}

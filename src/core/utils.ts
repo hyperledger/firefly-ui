@@ -74,16 +74,34 @@ export const jsNumberForAddress = (address: string): number => {
   return seed;
 };
 
-// https://github.com/hyperledger/firefly/blob/04cd7184e0562a3a5a5344b0430bf68cc76415b1/internal/apiserver/restfilter.go#L126
-export const filterOperators = [
-  '=',
-  '>',
-  '>=',
-  '<',
-  '<=',
-  '@',
-  '^',
-  '!',
-  '!@',
-  '!^',
-];
+export const summarizeFetchError = async (
+  // eslint-disable-next-line @typescript-eslint/explicit-module-boundary-types
+  errOrResponse: any
+): Promise<string> => {
+  console.log('Fetch error', errOrResponse);
+  let message = 'Fetch failed';
+  if (errOrResponse.status) {
+    message += ` [${errOrResponse.status}]`;
+  }
+  if (errOrResponse.message) {
+    message += `: ${errOrResponse.message}`;
+  }
+  if (typeof errOrResponse.json === 'function') {
+    let jsonData: any;
+    try {
+      jsonData = await errOrResponse.json();
+    } catch (err1) {
+      console.log('Failed to parse response as JSON: ' + err1);
+    }
+    if (jsonData?.error) {
+      message += `: ${jsonData.error}`;
+    } else {
+      try {
+        message += `: ${await errOrResponse.text()}`;
+      } catch (err2) {
+        console.log('Failed to get response as text: ' + err2);
+      }
+    }
+  }
+  return message;
+};
