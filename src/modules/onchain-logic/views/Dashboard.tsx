@@ -28,6 +28,7 @@ import { useOnChainLogicTranslation } from '../registration';
 import { DataTable } from '../../../core/components/DataTable/DataTable';
 import { NamespaceContext } from '../../../core/contexts/NamespaceContext';
 import FileCodeOutlineIcon from 'mdi-react/FileCodeOutlineIcon';
+import { DataTableEmptyState } from '../../../core/components/DataTable/DataTableEmptyState';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -119,7 +120,7 @@ export const Dashboard: () => JSX.Element = () => {
 
   const content = contractInterfacesLoading ? (
     <CircularProgress />
-  ) : (
+  ) : records.length > 0 ? (
     <DataTable
       minHeight="300px"
       maxHeight="calc(100vh - 340px)"
@@ -127,6 +128,14 @@ export const Dashboard: () => JSX.Element = () => {
       {...{ records }}
       {...{ pagination }}
     />
+  ) : (
+    <>
+      <Grid container item>
+        <DataTableEmptyState
+          message={t('noContractInterfacesToDisplay')}
+        ></DataTableEmptyState>
+      </Grid>
+    </>
   );
 
   return (
