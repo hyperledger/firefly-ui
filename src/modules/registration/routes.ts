@@ -19,6 +19,7 @@ import { DataRoutes } from '../data/registration';
 import { HomeRoutes } from '../home/registration';
 import { MonitoringRoutes } from '../monitoring/registration';
 import { NetworkMapRoutes } from '../network-map/registration';
+import { OnChainLogicRoutes } from '../onchain-logic/registration';
 import { TokensRoutes } from '../tokens/registration';
 
 export const registerModuleRoutes = (): IRoute[] => {
@@ -28,5 +29,6 @@ export const registerModuleRoutes = (): IRoute[] => {
     ...NetworkMapRoutes,
     ...TokensRoutes,
     ...MonitoringRoutes,
+    ...OnChainLogicRoutes,
   ];
 };

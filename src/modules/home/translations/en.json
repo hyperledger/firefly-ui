@@ -21,6 +21,8 @@
   "networkMap": "Network Map",
   "networkMapDescription": "View organizations and nodes within your network",
   "networkMembers": "Network Members",
+  "onChainLogic": "On-Chain Logic",
+  "onChainLogicDescription" : "View contract interfaces on-chain.",
   "reference": "Reference",
   "tokens":"Tokens",
   "tokenTransfers": "Token Transfers",

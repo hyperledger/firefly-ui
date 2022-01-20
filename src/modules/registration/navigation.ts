@@ -25,6 +25,10 @@ import {
   NetworkMapAppNavItem,
   NetworkMapModuleNav,
 } from '../network-map/registration';
+import {
+  OnChainLogicAppNavItem,
+  OnChainLogicModuleNav,
+} from '../onchain-logic/registration';
 import { TokensAppNavItem, TokensModuleNav } from '../tokens/registration';
 
 export const registerAppNavigationItems = (): NavItem[] => {
@@ -34,6 +38,7 @@ export const registerAppNavigationItems = (): NavItem[] => {
     DataAppNavItem,
     TokensAppNavItem,
     MonitoringAppNavItem,
+    OnChainLogicAppNavItem,
   ];
 };
 
@@ -43,5 +48,6 @@ export const registerModuleNavigationItems = (): ModuleNav[] => {
     NetworkMapModuleNav,
     TokensModuleNav,
     MonitoringModuleNav,
+    OnChainLogicModuleNav,
   ];
 };

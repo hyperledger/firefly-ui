@@ -436,3 +436,12 @@ export interface IGenericPagedResponse {
   items: any[];
   total: number;
 }
+
+export interface IContractInterface {
+  id: string;
+  description: string;
+  message: string;
+  version: string;
+  name: string;
+  namespace: string;
+}

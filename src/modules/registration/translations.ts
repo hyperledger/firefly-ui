@@ -18,6 +18,7 @@ import { registerDataTranslations } from '../data/registration';
 import { registerHomeTranslations } from '../home/registration';
 import { registerMonitoringTranslations } from '../monitoring/registration';
 import { registerNetworkMapTranslations } from '../network-map/registration';
+import { registerOnChainLogicTranslations } from '../onchain-logic/registration';
 import { registerTokensTranslations } from '../tokens/registration';
 
 export const registerModuleTranslations = (): void => {
@@ -26,4 +27,5 @@ export const registerModuleTranslations = (): void => {
   registerNetworkMapTranslations();
   registerTokensTranslations();
   registerMonitoringTranslations();
+  registerOnChainLogicTranslations();
 };
