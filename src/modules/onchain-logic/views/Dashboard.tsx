@@ -17,6 +17,7 @@
 import {
   CircularProgress,
   Grid,
+  IconButtonProps,
   TablePagination,
   Typography,
 } from '@mui/material';
@@ -68,6 +69,11 @@ export const Dashboard: () => JSX.Element = () => {
     setRowsPerPage(+event.target.value);
   };
 
+  const nextIconButtonProps: IconButtonProps = {
+    disabled:
+      (contractInterfaces ? contractInterfaces.length : 0) < rowsPerPage,
+  };
+
   const pagination = (
     <TablePagination
       component="div"
@@ -78,6 +84,7 @@ export const Dashboard: () => JSX.Element = () => {
       onRowsPerPageChange={handleChangeRowsPerPage}
       rowsPerPageOptions={PAGE_LIMITS}
       labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
+      nextIconButtonProps={nextIconButtonProps}
       sx={{ color: (theme) => theme.palette.text.secondary }}
     />
   );
