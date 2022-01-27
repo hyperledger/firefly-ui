@@ -41,18 +41,7 @@ export const Transactions: () => JSX.Element = () => {
     withDefault(ArrayParam, [])
   );
 
-  const filterFields = [
-    'created',
-    'id',
-    'info',
-    'namespace',
-    'protocolid',
-    'reference',
-    'sequence',
-    'signer',
-    'status',
-    'type',
-  ];
+  const filterFields = ['created', 'id', 'namespace', 'status', 'type'];
 
   const handleOpenFilter = (event: React.MouseEvent<HTMLButtonElement>) => {
     setFilterAnchor(event.currentTarget);

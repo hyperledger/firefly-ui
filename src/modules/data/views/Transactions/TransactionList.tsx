@@ -18,7 +18,6 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Card, Grid, TablePagination } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import dayjs from 'dayjs';
-import { useHistory } from 'react-router-dom';
 import {
   FFColors,
   ICreatedFilter,
@@ -42,7 +41,6 @@ interface Props {
 }
 
 export const TransactionList: React.FC<Props> = ({ filterString }) => {
-  const history = useHistory();
   const { t } = useDataTranslation();
   const classes = useStyles();
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
@@ -52,13 +50,7 @@ export const TransactionList: React.FC<Props> = ({ filterString }) => {
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
   const { createdFilter, lastEvent } = useContext(ApplicationContext);
 
-  const columnHeaders = [
-    t('hash'),
-    t('blockNumber'),
-    t('signer'),
-    t('status'),
-    t('dateMined'),
-  ];
+  const columnHeaders = [t('id'), t('type'), t('status'), t('dateMined')];
 
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
@@ -132,15 +124,8 @@ export const TransactionList: React.FC<Props> = ({ filterString }) => {
     return transactions.map((tx: ITransaction) => ({
       key: tx.id,
       columns: [
-        {
-          value: <HashPopover textColor="secondary" address={tx.hash} />,
-        },
-        { value: tx.info?.blockNumber },
-        {
-          value: (
-            <HashPopover textColor="secondary" address={tx.subject.signer} />
-          ),
-        },
+        { value: <HashPopover address={tx.id} shortHash /> },
+        { value: tx.type },
         { value: tx.status },
         {
           value: tx.created
@@ -148,11 +133,6 @@ export const TransactionList: React.FC<Props> = ({ filterString }) => {
             : undefined,
         },
       ],
-      onClick: () => {
-        history.push(
-          `/namespace/${selectedNamespace}/data/transactions/${tx.id}`
-        );
-      },
     }));
   };
 

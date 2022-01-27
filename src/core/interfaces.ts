@@ -44,6 +44,13 @@ export enum FFColors {
   Red = '#FF0000',
 }
 
+export enum TransactionType {
+  None = 'none',
+  BatchPin = 'batch_pin',
+  TokenPool = 'token_pool',
+  TokenTransfer = 'token_transfer',
+}
+
 export type CreatedFilterOptions = '1hour' | '24hours' | '7days' | '30days';
 
 export type FilterOptions = CreatedFilterOptions;
@@ -150,18 +157,10 @@ export interface INamespace {
 
 export interface ITransaction {
   created: number;
-  hash: string;
   id: string;
-  protocolId?: string;
-  sequence: number;
   status: TXStatus;
-  info?: IEthTransactionInfo;
-  subject: {
-    signer: string;
-    namespace: string;
-    type: string;
-    reference: string;
-  };
+  namespace: string;
+  type: TransactionType;
 }
 
 export interface IEthTransactionInfo {

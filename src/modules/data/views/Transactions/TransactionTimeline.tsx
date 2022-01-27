@@ -17,10 +17,8 @@
 import React, { useEffect, useContext, useRef } from 'react';
 import {
   ICreatedFilter,
-  IHistory,
   IPagedTransactionResponse,
 } from '../../../../core/interfaces';
-import { useHistory } from 'react-router';
 import dayjs from 'dayjs';
 import BroadcastIcon from 'mdi-react/BroadcastIcon';
 import { DataTimeline } from '../../../../core/components/DataTimeline/DataTimeline';
@@ -29,11 +27,7 @@ import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { InfiniteData, useInfiniteQuery, useQueryClient } from 'react-query';
 import useIntersectionObserver from '../../../../core/hooks/useIntersectionObserver';
 import { SnackbarContext } from '../../../../core/contexts/SnackbarContext';
-import {
-  fetchWithCredentials,
-  getCreatedFilter,
-  getShortHash,
-} from '../../../../core/utils';
+import { fetchWithCredentials, getCreatedFilter } from '../../../../core/utils';
 import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
 import { useDataTranslation } from '../../registration';
 
@@ -45,7 +39,6 @@ interface Props {
 
 export const TransactionTimeline: React.FC<Props> = ({ filterString }) => {
   const { t } = useDataTranslation();
-  const history = useHistory<IHistory>();
   const loadingRef = useRef<HTMLDivElement | null>(null);
   const observer = useIntersectionObserver(loadingRef, {});
   const isVisible = !!observer?.isIntersecting;
@@ -109,16 +102,10 @@ export const TransactionTimeline: React.FC<Props> = ({ filterString }) => {
       const pages = data.pages.map((page) => page.items);
       return pages.flat().map((tx) => ({
         key: tx.id,
-        title: getShortHash(tx.hash),
+        title: tx.type,
         description: tx.status,
         time: dayjs(tx.created).format('MM/DD/YYYY h:mm A'),
         icon: <BroadcastIcon />,
-        author: tx.subject.signer,
-        onClick: () => {
-          history.push(
-            `/namespace/${selectedNamespace}/data/transactions/${tx.id}`
-          );
-        },
       }));
     } else {
       return [];

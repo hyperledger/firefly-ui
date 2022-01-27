@@ -19,7 +19,7 @@
   "filter": "Filter",
   "hash": "Hash",
   "id": "ID",
-   "last1Hour": "Last 1 Hour",
+  "last1Hour": "Last 1 Hour",
   "last24Hours": "Last 24 Hours",
   "last30Days": "Last 30 Days",
   "last7Days": "Last 7 Days",
