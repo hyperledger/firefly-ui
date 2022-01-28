@@ -39,6 +39,7 @@ import { FilterModal } from '../../../../core/components/FilterModal';
 import { HashPopover } from '../../../../core/components/HashPopover';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
+import { SnackbarContext } from '../../../../core/contexts/SnackbarContext';
 import {
   FFColors,
   ICreatedFilter,
@@ -47,11 +48,7 @@ import {
   IOperation,
   OperationStatus,
 } from '../../../../core/interfaces';
-import {
-  fetchWithCredentials,
-  filterOperators,
-  getCreatedFilter,
-} from '../../../../core/utils';
+import { fetchWithCredentials, getCreatedFilter } from '../../../../core/utils';
 import { useMonitoringTranslation } from '../../registration';
 
 const PAGE_LIMITS = [10, 25];
@@ -75,6 +72,7 @@ export const Operations: () => JSX.Element = () => {
     'filters',
     withDefault(ArrayParam, [])
   );
+  const { reportFetchError } = useContext(SnackbarContext);
 
   useEffect(() => {
     // set filters if they are present in the URL
@@ -165,9 +163,10 @@ export const Operations: () => JSX.Element = () => {
           const opsJson: IOperation[] = await opsResponse.json();
           setOperationItems(opsJson);
         } else {
-          console.log('error fetching data');
+          reportFetchError(opsResponse);
         }
       })
+      .catch((err) => reportFetchError(err))
       .finally(() => {
         setLoading(false);
       });
@@ -178,6 +177,7 @@ export const Operations: () => JSX.Element = () => {
     createdFilter,
     lastEvent,
     filterString,
+    reportFetchError,
   ]);
 
   // Chart
@@ -318,7 +318,6 @@ export const Operations: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={filterFields}
-          operators={filterOperators}
           addFilter={handleAddFilter}
         />
       )}
