@@ -28,5 +28,7 @@
   "caseSensitive": "Case sensitive",
   "rule": "Rule",
   "matches": "Matches",
-  "notMatches": "Does not match"
+  "notMatches": "Does not match",
+  "status": "Status",
+  "details": "Details"
 }

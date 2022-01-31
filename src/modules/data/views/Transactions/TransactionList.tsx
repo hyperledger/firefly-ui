@@ -38,9 +38,13 @@ const PAGE_LIMITS = [10, 25];
 
 interface Props {
   filterString?: string;
+  setDetailsTx: React.Dispatch<React.SetStateAction<ITransaction | undefined>>;
 }
 
-export const TransactionList: React.FC<Props> = ({ filterString }) => {
+export const TransactionList: React.FC<Props> = ({
+  filterString,
+  setDetailsTx,
+}) => {
   const { t } = useDataTranslation();
   const classes = useStyles();
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
@@ -50,7 +54,7 @@ export const TransactionList: React.FC<Props> = ({ filterString }) => {
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
   const { createdFilter, lastEvent } = useContext(ApplicationContext);
 
-  const columnHeaders = [t('id'), t('type'), t('status'), t('dateMined')];
+  const columnHeaders = [t('id'), t('type'), t('created')];
 
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
@@ -126,13 +130,15 @@ export const TransactionList: React.FC<Props> = ({ filterString }) => {
       columns: [
         { value: <HashPopover address={tx.id} shortHash /> },
         { value: tx.type },
-        { value: tx.status },
         {
           value: tx.created
             ? dayjs(tx.created).format('MM/DD/YYYY h:mm A')
             : undefined,
         },
       ],
+      onClick: () => {
+        setDetailsTx(tx);
+      },
     }));
   };
 

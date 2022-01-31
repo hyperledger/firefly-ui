@@ -18,6 +18,7 @@ import React, { useEffect, useContext, useRef } from 'react';
 import {
   ICreatedFilter,
   IPagedTransactionResponse,
+  ITransaction,
 } from '../../../../core/interfaces';
 import dayjs from 'dayjs';
 import BroadcastIcon from 'mdi-react/BroadcastIcon';
@@ -35,9 +36,13 @@ const ROWS_PER_PAGE = 25;
 
 interface Props {
   filterString?: string;
+  setDetailsTx: React.Dispatch<React.SetStateAction<ITransaction | undefined>>;
 }
 
-export const TransactionTimeline: React.FC<Props> = ({ filterString }) => {
+export const TransactionTimeline: React.FC<Props> = ({
+  filterString,
+  setDetailsTx,
+}) => {
   const { t } = useDataTranslation();
   const loadingRef = useRef<HTMLDivElement | null>(null);
   const observer = useIntersectionObserver(loadingRef, {});
@@ -103,9 +108,11 @@ export const TransactionTimeline: React.FC<Props> = ({ filterString }) => {
       return pages.flat().map((tx) => ({
         key: tx.id,
         title: tx.type,
-        description: tx.status,
         time: dayjs(tx.created).format('MM/DD/YYYY h:mm A'),
         icon: <BroadcastIcon />,
+        onClick: () => {
+          setDetailsTx(tx);
+        },
       }));
     } else {
       return [];

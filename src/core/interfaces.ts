@@ -49,6 +49,7 @@ export enum TransactionType {
   BatchPin = 'batch_pin',
   TokenPool = 'token_pool',
   TokenTransfer = 'token_transfer',
+  ContractInvoke = 'contract_invoke',
 }
 
 export type CreatedFilterOptions = '1hour' | '24hours' | '7days' | '30days';
@@ -158,9 +159,21 @@ export interface INamespace {
 export interface ITransaction {
   created: number;
   id: string;
-  status: TXStatus;
   namespace: string;
   type: TransactionType;
+}
+
+export interface ITransactionStatus {
+  status: OPStatus;
+  details: {
+    error?: string;
+    id?: string;
+    status: string;
+    subtype?: string;
+    timestamp?: string;
+    type: string;
+    info: any;
+  }[];
 }
 
 export interface IEthTransactionInfo {

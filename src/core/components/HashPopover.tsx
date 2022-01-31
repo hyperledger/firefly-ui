@@ -33,12 +33,14 @@ interface Props {
   address: string;
   shortHash?: boolean;
   textColor?: 'primary' | 'secondary';
+  paper?: boolean;
 }
 
 export const HashPopover: React.FC<Props> = ({
   address,
   shortHash,
   textColor = 'primary',
+  paper,
 }) => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
@@ -49,7 +51,7 @@ export const HashPopover: React.FC<Props> = ({
         label={shortHash ? getShortHash(address) : address}
         sx={{ width: shortHash ? 110 : 200 }}
         className={clsx(
-          classes.chip,
+          paper ? classes.paperChip : classes.chip,
           textColor === 'secondary' && classes.addressSecondaryText
         )}
         onClick={(event) => {
@@ -118,5 +120,12 @@ const useStyles = makeStyles<Theme>((theme) => ({
   },
   addressSecondaryText: {
     color: theme.palette.text.secondary,
+  },
+  paperChip: {
+    borderRadius: 2,
+    backgroundColor: theme.palette.background.paper,
+    '&:hover, &:focus': {
+      backgroundColor: theme.palette.background.paper,
+    },
   },
 }));
