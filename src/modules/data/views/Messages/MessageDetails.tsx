@@ -13,12 +13,10 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-import LaunchIcon from '@mui/icons-material/Launch';
 import {
   Breadcrumbs,
   CircularProgress,
   Grid,
-  IconButton,
   Link,
   List,
   Modal,
@@ -126,20 +124,7 @@ export const MessageDetails: () => JSX.Element = () => {
     {
       label: t('transactionID'),
       value: batch?.payload.tx.id && (
-        <>
-          <HashPopover address={batch.payload.tx.id}></HashPopover>
-          <IconButton
-            className={classes.button}
-            size="large"
-            onClick={() => {
-              history.push(
-                `/namespace/${selectedNamespace}/data/transactions/${batch.payload.tx.id}`
-              );
-            }}
-          >
-            <LaunchIcon />
-          </IconButton>
-        </>
+        <HashPopover address={batch.payload.tx.id}></HashPopover>
       ),
     },
 

@@ -14,211 +14,142 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useState, useEffect, useContext } from 'react';
-import { useHistory, useParams } from 'react-router-dom';
-import { ITransaction } from '../../../../core/interfaces';
-import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
-import ChevronLeftIcon from 'mdi-react/ChevronLeftIcon';
-import { HashPopover } from '../../../../core/components/HashPopover';
-import { StatusChip } from '../../../../core/components/StatusChip';
-import {
-  Grid,
-  Box,
-  Typography,
-  Button,
-  CircularProgress,
-  Card,
-  CardContent,
-} from '@mui/material';
+import React, { useContext, useEffect, useState } from 'react';
+import { DisplaySlide } from '../../../../core/components/Display/DisplaySlide';
+import { Typography, Grid, CircularProgress } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
-import { fetchWithCredentials } from '../../../../core/utils';
-import { SnackbarContext } from '../../../../core/contexts/SnackbarContext';
+import { ITransaction, ITransactionStatus } from '../../../../core/interfaces';
 import { useDataTranslation } from '../../registration';
+import { HashPopover } from '../../../../core/components/HashPopover';
+import dayjs from 'dayjs';
+import { TransactionStatus } from '../../../../core/components/TransactionStatus';
+import { fetchWithCredentials } from '../../../../core/utils';
+import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 
-export const TransactionDetails: () => JSX.Element = () => {
-  const history = useHistory();
-  const { id } = useParams<{ id: string }>();
+interface Props {
+  data: ITransaction;
+  open: boolean;
+  onClose: () => void;
+}
+
+export const TransactionDetails: React.FC<Props> = ({
+  data,
+  open,
+  onClose,
+}) => {
   const { t } = useDataTranslation();
+  const [status, setStatus] = useState<ITransactionStatus | undefined>();
   const { selectedNamespace } = useContext(NamespaceContext);
-  const [transaction, setTransaction] = useState<ITransaction>();
-  const [loading, setLoading] = useState(false);
   const classes = useStyles();
-  const { setMessage, setMessageType } = useContext(SnackbarContext);
-
-  const detailItem = (label: string, value: string | JSX.Element) => (
-    <>
-      <Grid className={classes.gridPadding} item xs={12}>
-        <Typography className={classes.detailLabel}>{label}</Typography>
-      </Grid>
-      <Grid item xs={12}>
-        {value}
-      </Grid>
-    </>
-  );
+  const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     setLoading(true);
     fetchWithCredentials(
-      `/api/v1/namespaces/${selectedNamespace}/transactions/${id}`
+      `/api/v1/namespaces/${selectedNamespace}/transactions/${data.id}/status`
     )
       .then(async (response) => {
         if (response.ok) {
-          setTransaction(await response.json());
-        } else {
-          setMessageType('error');
-          setMessage(`Error loading transaction ${id}`);
+          setStatus(await response.json());
         }
       })
       .finally(() => {
         setLoading(false);
       });
-  }, [selectedNamespace, id, setMessageType, setMessage]);
+  }, [selectedNamespace, data.id]);
 
-  if (loading) {
-    return (
-      <Box className={classes.centeredContent}>
-        <CircularProgress />
-      </Box>
-    );
-  }
+  const detailItem = (label: string, value: string | JSX.Element | number) => (
+    <>
+      <Grid item xs={4}>
+        <Typography className={classes.detailLabel}>{label}</Typography>
+      </Grid>
+      <Grid item xs={8}>
+        {value}
+      </Grid>
+    </>
+  );
 
-  if (!transaction) {
-    return <></>;
-  }
+  const renderStatus = () => {
+    if (status) {
+      return (
+        <Grid container className={classes.detailsContainer}>
+          <Grid item xs={12}>
+            <TransactionStatus {...{ status }} />
+          </Grid>
+        </Grid>
+      );
+    }
+  };
 
   return (
-    <Grid container justifyContent="center">
-      <Grid container item wrap="nowrap" direction="column">
-        <Grid item>
-          <Button
-            className={classes.backButton}
-            startIcon={<ChevronLeftIcon />}
-            onClick={() => history.goBack()}
-          >
-            {t('back')}
-          </Button>
-        </Grid>
-        <Grid item className={classes.paddingBottom}>
-          <Typography className={classes.bold} variant="h4">
-            {t('transactionDetails')}
-          </Typography>
-        </Grid>
-        <Grid container spacing={4} item direction="row">
-          <Grid item xs={6}>
-            <Card>
-              <CardContent className={classes.content}>
-                <Grid className={classes.detailGrid} item>
-                  {detailItem(
-                    'hash',
-                    <HashPopover
-                      textColor="secondary"
-                      address={transaction.hash}
-                    />
-                  )}
-                </Grid>
-                {transaction.info?.blockNumber && (
-                  <Grid className={classes.detailGrid} item>
-                    {detailItem(
-                      'Block',
-                      <Typography className={classes.detailValue}>
-                        {transaction.info.blockNumber}
-                      </Typography>
-                    )}
-                  </Grid>
-                )}
-                <Grid className={classes.detailGrid} item>
-                  {detailItem(
-                    'From',
-                    <HashPopover
-                      textColor="secondary"
-                      address={transaction.subject.signer}
-                    />
-                  )}
-                </Grid>
-                <Grid className={classes.detailGrid} item>
-                  {detailItem(
-                    'Status',
-                    <StatusChip status={transaction.status} />
-                  )}
-                </Grid>
-                <Grid className={classes.detailGrid} item>
-                  {detailItem(
-                    'Timestamp',
-                    <Typography className={classes.detailValue}>
-                      {transaction.created}
-                    </Typography>
-                  )}
-                </Grid>
-                <Grid className={classes.detailGrid} item>
-                  {detailItem(
-                    'sequence',
-                    <Typography className={classes.detailValue}>
-                      {transaction.sequence}
-                    </Typography>
-                  )}
-                </Grid>
-                {transaction.info?.signature && (
-                  <Grid className={classes.detailGrid} item>
-                    {detailItem(
-                      'methods',
-                      <Typography className={classes.detailValue}>
-                        {transaction.info.signature}
-                      </Typography>
-                    )}
-                  </Grid>
-                )}
-              </CardContent>
-            </Card>
+    <>
+      <DisplaySlide open={open} onClose={onClose}>
+        <Grid container direction="column">
+          <Grid className={classes.headerContainer} item>
+            <Typography className={classes.header}>
+              {t('transactionDetails')}
+            </Typography>
           </Grid>
-          <Grid item xs={6}>
-            <Card>
-              <CardContent className={classes.content}>
-                {transaction.info?.address && (
-                  <Grid className={classes.detailGrid} item>
-                    {detailItem(
-                      'address',
-                      <Typography className={classes.detailValue}>
-                        {transaction.info.address}
-                      </Typography>
-                    )}
-                  </Grid>
-                )}
-                <Grid className={classes.detailGrid} item>
-                  {detailItem(
-                    'type',
-                    <Typography className={classes.detailValue}>
-                      {transaction.subject.type}
-                    </Typography>
-                  )}
-                </Grid>
-                <Grid className={classes.detailGrid} item>
-                  {detailItem(
-                    'namespace',
-                    <Typography className={classes.detailValue}>
-                      {transaction.subject.namespace}
-                    </Typography>
-                  )}
-                </Grid>
-                <Grid className={classes.detailGrid} item>
-                  {detailItem(
-                    'reference',
-                    <Typography className={classes.detailValue}>
-                      {transaction.subject.reference}
-                    </Typography>
-                  )}
-                </Grid>
-              </CardContent>
-            </Card>
+          <Grid container className={classes.detailsContainer} spacing={3} item>
+            <Grid xs={12} container item alignItems="center">
+              {detailItem(t('id'), <HashPopover address={data.id} />)}
+            </Grid>
+            <Grid xs={12} container item alignItems="center">
+              {detailItem(t('type'), data.type)}
+            </Grid>
+            {status && (
+              <Grid xs={12} container item alignItems="center">
+                {detailItem(t('status'), status.status)}
+              </Grid>
+            )}
+            <Grid xs={12} container item alignItems="center">
+              {detailItem(
+                t('created'),
+                dayjs(data.created).format('MM/DD/YYYY h:mm A')
+              )}
+            </Grid>
           </Grid>
         </Grid>
-      </Grid>
-    </Grid>
+        {loading ? <CircularProgress /> : renderStatus()}
+      </DisplaySlide>
+    </>
   );
 };
 
 const useStyles = makeStyles((theme) => ({
-  bold: {
+  detailsContainer: {
+    padding: theme.spacing(3),
+  },
+  detailItem: {
+    paddingBottom: theme.spacing(1),
+  },
+  header: {
     fontWeight: 'bold',
+  },
+  headerContainer: {
+    paddingLeft: theme.spacing(3),
+    paddingRight: theme.spacing(3),
+    paddingTop: theme.spacing(3),
+  },
+  detailLabel: {
+    fontSize: 10,
+    color: theme.palette.text.secondary,
+    textTransform: 'uppercase',
+  },
+  detailValue: {
+    fontSize: 14,
+  },
+  divider: {
+    backgroundColor: theme.palette.background.default,
+    height: 2,
+  },
+  copyButton: {
+    backgroundColor: theme.palette.primary.dark,
+    borderRadius: 20,
+    fontSize: 10,
+  },
+  paddingRight: {
+    paddingRight: theme.spacing(1),
   },
   centeredContent: {
     display: 'flex',
@@ -228,29 +159,8 @@ const useStyles = makeStyles((theme) => ({
     height: 'calc(100vh - 300px)',
     overflow: 'auto',
   },
-  backButton: {
-    color: theme.palette.text.secondary,
-    textTransform: 'capitalize',
-    paddingLeft: 0,
-  },
-  paddingBottom: {
-    paddingBottom: theme.spacing(2),
-  },
-  content: {
-    padding: theme.spacing(3),
-  },
-  detailLabel: {
-    fontSize: 10,
-    color: theme.palette.text.secondary,
-    textTransform: 'uppercase',
-  },
-  detailValue: {
-    color: theme.palette.text.secondary,
-  },
-  detailGrid: {
-    padding: theme.spacing(1),
-  },
-  gridPadding: {
-    paddingBottom: theme.spacing(1),
+  paper: {
+    backgroundColor: theme.palette.background.default,
+    minWidth: '40vw',
   },
 }));

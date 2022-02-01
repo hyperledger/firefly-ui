@@ -18,7 +18,6 @@ import React, { useState, useEffect, useContext } from 'react';
 import { Card, Grid, TablePagination } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import dayjs from 'dayjs';
-import { useHistory } from 'react-router-dom';
 import {
   FFColors,
   ICreatedFilter,
@@ -39,10 +38,13 @@ const PAGE_LIMITS = [10, 25];
 
 interface Props {
   filterString?: string;
+  setDetailsTx: React.Dispatch<React.SetStateAction<ITransaction | undefined>>;
 }
 
-export const TransactionList: React.FC<Props> = ({ filterString }) => {
-  const history = useHistory();
+export const TransactionList: React.FC<Props> = ({
+  filterString,
+  setDetailsTx,
+}) => {
   const { t } = useDataTranslation();
   const classes = useStyles();
   const [transactions, setTransactions] = useState<ITransaction[]>([]);
@@ -52,13 +54,7 @@ export const TransactionList: React.FC<Props> = ({ filterString }) => {
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
   const { createdFilter, lastEvent } = useContext(ApplicationContext);
 
-  const columnHeaders = [
-    t('hash'),
-    t('blockNumber'),
-    t('signer'),
-    t('status'),
-    t('dateMined'),
-  ];
+  const columnHeaders = [t('id'), t('type'), t('created')];
 
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
@@ -132,16 +128,8 @@ export const TransactionList: React.FC<Props> = ({ filterString }) => {
     return transactions.map((tx: ITransaction) => ({
       key: tx.id,
       columns: [
-        {
-          value: <HashPopover textColor="secondary" address={tx.hash} />,
-        },
-        { value: tx.info?.blockNumber },
-        {
-          value: (
-            <HashPopover textColor="secondary" address={tx.subject.signer} />
-          ),
-        },
-        { value: tx.status },
+        { value: <HashPopover address={tx.id} shortHash /> },
+        { value: tx.type },
         {
           value: tx.created
             ? dayjs(tx.created).format('MM/DD/YYYY h:mm A')
@@ -149,9 +137,7 @@ export const TransactionList: React.FC<Props> = ({ filterString }) => {
         },
       ],
       onClick: () => {
-        history.push(
-          `/namespace/${selectedNamespace}/data/transactions/${tx.id}`
-        );
+        setDetailsTx(tx);
       },
     }));
   };

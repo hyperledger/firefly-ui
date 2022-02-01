@@ -26,6 +26,8 @@ import { FilterDisplay } from '../../../../core/components/FilterDisplay';
 import { ArrayParam, withDefault, useQueryParam } from 'use-query-params';
 import { FilterModal } from '../../../../core/components/FilterModal';
 import { DatePicker } from '../../../../core/components/DatePicker';
+import { ITransaction } from '../../../../core/interfaces';
+import { TransactionDetails } from './TransactionDetails';
 
 export const Transactions: () => JSX.Element = () => {
   const { t } = useDataTranslation();
@@ -40,19 +42,8 @@ export const Transactions: () => JSX.Element = () => {
     'filters',
     withDefault(ArrayParam, [])
   );
-
-  const filterFields = [
-    'created',
-    'id',
-    'info',
-    'namespace',
-    'protocolid',
-    'reference',
-    'sequence',
-    'signer',
-    'status',
-    'type',
-  ];
+  const [detailsTx, setDetailsTx] = useState<ITransaction | undefined>();
+  const filterFields = ['created', 'id', 'namespace', 'status', 'type'];
 
   const handleOpenFilter = (event: React.MouseEvent<HTMLButtonElement>) => {
     setFilterAnchor(event.currentTarget);
@@ -117,12 +108,18 @@ export const Transactions: () => JSX.Element = () => {
           )}
           {dataView === 'timeline' && (
             <Grid className={classes.timelineContainer} xs={12} container item>
-              <TransactionTimeline filterString={filterString} />
+              <TransactionTimeline
+                {...{ setDetailsTx }}
+                filterString={filterString}
+              />
             </Grid>
           )}
           {dataView === 'list' && (
             <Grid container item>
-              <TransactionList filterString={filterString} />
+              <TransactionList
+                {...{ setDetailsTx }}
+                filterString={filterString}
+              />
             </Grid>
           )}
         </Grid>
@@ -135,6 +132,15 @@ export const Transactions: () => JSX.Element = () => {
           }}
           fields={filterFields}
           addFilter={handleAddFilter}
+        />
+      )}
+      {detailsTx && (
+        <TransactionDetails
+          open={!!detailsTx}
+          onClose={() => {
+            setDetailsTx(undefined);
+          }}
+          data={detailsTx}
         />
       )}
     </>

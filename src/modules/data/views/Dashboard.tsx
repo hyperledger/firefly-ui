@@ -42,7 +42,6 @@ import {
   IMetric,
   IPieChartElement,
   MSGStatus,
-  TXStatus,
 } from '../../../core/interfaces';
 import { fetchWithCredentials, getCreatedFilter } from '../../../core/utils';
 import { useDataTranslation } from '../registration';
@@ -66,11 +65,6 @@ const MSG_STATUS_COLORS: { [key in MSGStatus]: string } = {
   staged: FFColors.Yellow,
   rejected: FFColors.Red,
 };
-const TX_STATUS_COLORS: { [key in TXStatus]: string } = {
-  Succeeded: FFColors.Blue,
-  Pending: FFColors.Yellow,
-  Error: FFColors.Red,
-};
 
 export const Dashboard: () => JSX.Element = () => {
   const classes = useStyles();
@@ -83,9 +77,6 @@ export const Dashboard: () => JSX.Element = () => {
   const [latestMsgs, setLatestMsgs] = useState<
     IGenericPagedResponse[] | undefined
   >(undefined);
-  const [latestTx, setLatestTx] = useState<IGenericPagedResponse[] | undefined>(
-    undefined
-  );
   // Metrics
   const [msgMetrics, setMsgMetrics] = useState<IMetric[]>([]);
   const [txMetrics, setTxMetrics] = useState<IMetric[]>([]);
@@ -134,26 +125,6 @@ export const Dashboard: () => JSX.Element = () => {
           await msgStatusResponseJsons.push(await msgStatusResponses[i].json());
         }
         setLatestMsgs(msgStatusResponseJsons);
-      }
-    });
-    // Tx Pie Chart
-    const txStatusObject: { [key: string]: string } = TXStatus;
-    const txEnums = Object.keys(TXStatus).map(
-      (key: string) => txStatusObject[key]
-    );
-    Promise.all(
-      txEnums.map((e) =>
-        fetchWithCredentials(
-          `/api/v1/namespaces/${namespace}/transactions?count${createdFilterObject.filterString}&limit=1&status=${e}`
-        )
-      )
-    ).then(async (txStatusResponses) => {
-      if (txStatusResponses.every((e) => e.ok)) {
-        const txStatusResponseJsons: IGenericPagedResponse[] = [];
-        for (let i = 0; i < txStatusResponses.length; i++) {
-          await txStatusResponseJsons.push(await txStatusResponses[i].json());
-        }
-        setLatestTx(txStatusResponseJsons);
       }
     });
   }, [namespace, lastEvent, createdFilter]);
@@ -226,21 +197,6 @@ export const Dashboard: () => JSX.Element = () => {
       data:
         latestMsgs && mapPieChartData(latestMsgs, MSG_STATUS_COLORS, MSGStatus),
       title: t('latestMessages'),
-    },
-    {
-      chart:
-        latestTx !== undefined ? (
-          <>
-            <PieChart
-              data={mapPieChartData(latestTx, TX_STATUS_COLORS, TXStatus)}
-              dataType={t('transactions')}
-            ></PieChart>
-          </>
-        ) : (
-          <CircularProgress />
-        ),
-      data: latestTx && mapPieChartData(latestTx, TX_STATUS_COLORS, TXStatus),
-      title: t('latestTransactions'),
     },
   ];
 
@@ -367,7 +323,6 @@ export const Dashboard: () => JSX.Element = () => {
                 container
                 item
                 md={12}
-                lg={6}
                 key={idx}
                 className={classes.chartPanel}
               >

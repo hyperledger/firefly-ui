@@ -10,7 +10,6 @@
   "dataDetails": "Data Details",
   "dataExplorer": "Data Explorer",
   "dataHash": "Data Hash",
-  "dateMined": "Date Mined",
   "dataTypes": "Data Types",
   "details": "Details",
   "emptyPlaceholder": "--",
@@ -19,7 +18,7 @@
   "filter": "Filter",
   "hash": "Hash",
   "id": "ID",
-   "last1Hour": "Last 1 Hour",
+  "last1Hour": "Last 1 Hour",
   "last24Hours": "Last 24 Hours",
   "last30Days": "Last 30 Days",
   "last7Days": "Last 7 Days",
@@ -58,5 +57,6 @@
   "type": "Type",
   "version": "Version",
   "viewTx": "View TX",
-  "yes": "Yes"
+  "yes": "Yes",
+  "created": "Created"
 }

@@ -29,7 +29,6 @@ import { Data } from './views/Data/Data';
 import { Events } from './views/Events/Events';
 import { MessageDetails } from './views/Messages/MessageDetails';
 import { Messages } from './views/Messages/Messages';
-import { TransactionDetails } from './views/Transactions/TransactionDetails';
 import { Transactions } from './views/Transactions/Transactions';
 import { Types } from './views/Types/Types';
 
@@ -151,11 +150,6 @@ export const DataRoutes: IRoute[] = [
     exact: true,
     route: `${DATA_ROUTE_PREFIX}/transactions`,
     component: Transactions,
-  },
-  {
-    exact: true,
-    route: `${DATA_ROUTE_PREFIX}/transactions/:id`,
-    component: TransactionDetails,
   },
   {
     exact: true,

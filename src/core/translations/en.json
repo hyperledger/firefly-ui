@@ -6,7 +6,7 @@
   "last7Days": "Last 7 Days",
   "last30Days": "Last 30 Days",
   "recentTransactions": "Recent Transactions",
-  "messages":"Messages",
+  "messages": "Messages",
   "namespace": "Namespace",
   "transactions": "Transactions",
   "addFilter": "Add Filter",
@@ -28,5 +28,7 @@
   "caseSensitive": "Case sensitive",
   "rule": "Rule",
   "matches": "Matches",
-  "notMatches": "Does not match"
+  "notMatches": "Does not match",
+  "status": "Status",
+  "details": "Details"
 }

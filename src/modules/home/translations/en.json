@@ -17,14 +17,13 @@
   "messages": "Messages",
   "modules": "Modules",
   "monitoring": "Monitoring",
-  "monitoringDescription" : "Monitor operations within your network",
+  "monitoringDescription": "Monitor operations within your network",
   "networkMap": "Network Map",
   "networkMapDescription": "View organizations and nodes within your network",
   "networkMembers": "Network Members",
   "reference": "Reference",
-  "tokens":"Tokens",
+  "tokens": "Tokens",
   "tokenTransfers": "Token Transfers",
   "tokensDescription": "View tokens, accounts, and transfers within your network",
-  "welcome": "Welcome!",
-  "tokens": "Tokens"
+  "welcome": "Welcome!"
 }
