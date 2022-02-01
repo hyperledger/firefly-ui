@@ -14,6 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 import {
+  Button,
   CircularProgress,
   Grid,
   ListItem,
@@ -28,8 +29,11 @@ import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import Jazzicon from 'react-jazzicon';
 import { useHistory } from 'react-router';
+import { ArrayParam, useQueryParam, withDefault } from 'use-query-params';
 import { DataTable } from '../../../../core/components/DataTable/DataTable';
 import { DataTableEmptyState } from '../../../../core/components/DataTable/DataTableEmptyState';
+import { FilterDisplay } from '../../../../core/components/FilterDisplay';
+import { FilterModal } from '../../../../core/components/FilterModal';
 import { ApplicationContext } from '../../../../core/contexts/ApplicationContext';
 import { NamespaceContext } from '../../../../core/contexts/NamespaceContext';
 import { IDataTableRecord, ITokenPool } from '../../../../core/interfaces';
@@ -53,6 +57,15 @@ export const TokenPools: () => JSX.Element = () => {
   const [tokenPoolsTotal, setTokenPoolsTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
+  const [filterAnchor, setFilterAnchor] = useState<HTMLButtonElement | null>(
+    null
+  );
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [filterString, setFilterString] = useState('');
+  const [filterQuery, setFilterQuery] = useQueryParam(
+    'filters',
+    withDefault(ArrayParam, [])
+  );
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     if (
@@ -99,7 +112,7 @@ export const TokenPools: () => JSX.Element = () => {
     fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/tokens/pools?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
-      }&count`
+      }${filterString !== undefined ? filterString : ''}&count`
     )
       .then(async (tokenPoolsResponse) => {
         if (tokenPoolsResponse.ok) {
@@ -113,7 +126,33 @@ export const TokenPools: () => JSX.Element = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace, poolsUpdated]);
+  }, [rowsPerPage, currentPage, selectedNamespace, poolsUpdated, filterString]);
+
+  useEffect(() => {
+    // set filters if they are present in the URL
+    if (filterQuery.length !== 0) {
+      setActiveFilters(filterQuery as string[]);
+    }
+  }, [setActiveFilters, filterQuery]);
+
+  useEffect(() => {
+    //set query param state
+    setFilterQuery(activeFilters, 'replaceIn');
+    if (activeFilters.length === 0) {
+      setFilterString('');
+      return;
+    }
+
+    setFilterString(`&${activeFilters.join('&')}`);
+  }, [activeFilters, setFilterQuery]);
+
+  const handleOpenFilter = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setFilterAnchor(event.currentTarget);
+  };
+
+  const handleAddFilter = (filter: string) => {
+    setActiveFilters((activeFilters) => [...activeFilters, filter]);
+  };
 
   const tokenPoolsColumnHeaders = [
     t('name'),
@@ -121,6 +160,21 @@ export const TokenPools: () => JSX.Element = () => {
     t('standard'),
     t('protocolID'),
     t('created'),
+  ];
+
+  const filterFields = [
+    'connector',
+    'created',
+    'id',
+    'message',
+    'name',
+    'protocolid',
+    'standard',
+    'state',
+    'symbol',
+    'tx.id',
+    'tx.type',
+    'type',
   ];
 
   const tokenPoolsRecords: IDataTableRecord[] = tokenPools.map(
@@ -168,34 +222,63 @@ export const TokenPools: () => JSX.Element = () => {
   }
 
   return (
-    <Grid container justifyContent="center">
-      <Grid container item wrap="nowrap" direction="column">
-        <Grid container item direction="row">
-          <Grid className={classes.headerContainer} item>
-            <Typography variant="h4" className={classes.header}>
-              {t('tokenPools')}
-            </Typography>
+    <>
+      <Grid container justifyContent="center">
+        <Grid container item wrap="nowrap" direction="column">
+          <Grid container item direction="row">
+            <Grid className={classes.headerContainer} item>
+              <Typography variant="h4" className={classes.header}>
+                {t('tokenPools')}
+              </Typography>
+            </Grid>
+            <Box className={classes.separator} />
+            <Grid item>
+              <Button
+                className={classes.filterButton}
+                variant="outlined"
+                onClick={handleOpenFilter}
+              >
+                <Typography>{t('filter')}</Typography>
+              </Button>
+            </Grid>
           </Grid>
-          <Box className={classes.separator} />
-        </Grid>
-        <Grid container item>
-          {tokenPools.length ? (
-            <DataTable
-              stickyHeader={true}
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              columnHeaders={tokenPoolsColumnHeaders}
-              records={tokenPoolsRecords}
-              {...{ pagination }}
-            />
-          ) : (
-            <DataTableEmptyState
-              message={t('noTokenPoolsToDisplay')}
-            ></DataTableEmptyState>
+          {activeFilters.length > 0 && (
+            <Grid container className={classes.filterContainer}>
+              <FilterDisplay
+                filters={activeFilters}
+                setFilters={setActiveFilters}
+              />
+            </Grid>
           )}
+          <Grid container item>
+            {tokenPools.length ? (
+              <DataTable
+                stickyHeader={true}
+                minHeight="300px"
+                maxHeight="calc(100vh - 340px)"
+                columnHeaders={tokenPoolsColumnHeaders}
+                records={tokenPoolsRecords}
+                {...{ pagination }}
+              />
+            ) : (
+              <DataTableEmptyState
+                message={t('noTokenPoolsToDisplay')}
+              ></DataTableEmptyState>
+            )}
+          </Grid>
         </Grid>
       </Grid>
-    </Grid>
+      {filterAnchor && (
+        <FilterModal
+          anchor={filterAnchor}
+          onClose={() => {
+            setFilterAnchor(null);
+          }}
+          fields={filterFields}
+          addFilter={handleAddFilter}
+        />
+      )}
+    </>
   );
 };
 
@@ -219,5 +302,12 @@ const useStyles = makeStyles((theme) => ({
   },
   separator: {
     flexGrow: 1,
+  },
+  filterContainer: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+  filterButton: {
+    height: 40,
   },
 }));

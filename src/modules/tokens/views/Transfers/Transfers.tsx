@@ -16,6 +16,7 @@
 
 import {
   Box,
+  Button,
   CircularProgress,
   Grid,
   TablePagination,
@@ -42,6 +43,9 @@ import {
 } from '../../../../core/interfaces';
 import { fetchWithCredentials } from '../../../../core/utils';
 import { useTokensTranslation } from '../../registration';
+import { ArrayParam, useQueryParam, withDefault } from 'use-query-params';
+import { FilterDisplay } from '../../../../core/components/FilterDisplay';
+import { FilterModal } from '../../../../core/components/FilterModal';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -59,6 +63,15 @@ export const Transfers: () => JSX.Element = () => {
   const { lastEvent } = useContext(ApplicationContext);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
+  const [filterAnchor, setFilterAnchor] = useState<HTMLButtonElement | null>(
+    null
+  );
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [filterString, setFilterString] = useState('');
+  const [filterQuery, setFilterQuery] = useQueryParam(
+    'filters',
+    withDefault(ArrayParam, [])
+  );
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     if (
@@ -105,7 +118,7 @@ export const Transfers: () => JSX.Element = () => {
     fetchWithCredentials(
       `/api/v1/namespaces/${selectedNamespace}/tokens/transfers?limit=${rowsPerPage}&skip=${
         rowsPerPage * currentPage
-      }&count`
+      }&count${filterString !== undefined ? filterString : ''}`
     )
       .then(async (tokenTransfersResponse) => {
         if (tokenTransfersResponse.ok) {
@@ -134,7 +147,39 @@ export const Transfers: () => JSX.Element = () => {
       .finally(() => {
         setLoading(false);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace, transfersUpdated]);
+  }, [
+    rowsPerPage,
+    currentPage,
+    selectedNamespace,
+    transfersUpdated,
+    filterString,
+  ]);
+
+  useEffect(() => {
+    // set filters if they are present in the URL
+    if (filterQuery.length !== 0) {
+      setActiveFilters(filterQuery as string[]);
+    }
+  }, [setActiveFilters, filterQuery]);
+
+  useEffect(() => {
+    //set query param state
+    setFilterQuery(activeFilters, 'replaceIn');
+    if (activeFilters.length === 0) {
+      setFilterString('');
+      return;
+    }
+
+    setFilterString(`&${activeFilters.join('&')}`);
+  }, [activeFilters, setFilterQuery]);
+
+  const handleOpenFilter = (event: React.MouseEvent<HTMLButtonElement>) => {
+    setFilterAnchor(event.currentTarget);
+  };
+
+  const handleAddFilter = (filter: string) => {
+    setActiveFilters((activeFilters) => [...activeFilters, filter]);
+  };
 
   const transferIconMap = {
     burn: <FireIcon />,
@@ -224,6 +269,24 @@ export const Transfers: () => JSX.Element = () => {
     );
   }
 
+  const filterFields = [
+    'amount',
+    'blockchainevent',
+    'created',
+    'from',
+    'key',
+    'localid',
+    'message',
+    'messagehash',
+    'namespace',
+    'protocolid',
+    'to',
+    'tokenindex',
+    'tx.id',
+    'tx.type',
+    'uri',
+  ];
+
   return (
     <>
       <Grid container justifyContent="center">
@@ -235,7 +298,24 @@ export const Transfers: () => JSX.Element = () => {
               </Typography>
             </Grid>
             <Box className={classes.separator} />
+            <Grid item>
+              <Button
+                className={classes.filterButton}
+                variant="outlined"
+                onClick={handleOpenFilter}
+              >
+                <Typography>{t('filter')}</Typography>
+              </Button>
+            </Grid>
           </Grid>
+          {activeFilters.length > 0 && (
+            <Grid container className={classes.filterContainer}>
+              <FilterDisplay
+                filters={activeFilters}
+                setFilters={setActiveFilters}
+              />
+            </Grid>
+          )}
           <Grid container item>
             {tokenTransfers.length ? (
               <DataTable
@@ -254,6 +334,16 @@ export const Transfers: () => JSX.Element = () => {
           </Grid>
         </Grid>
       </Grid>
+      {filterAnchor && (
+        <FilterModal
+          anchor={filterAnchor}
+          onClose={() => {
+            setFilterAnchor(null);
+          }}
+          fields={filterFields}
+          addFilter={handleAddFilter}
+        />
+      )}
     </>
   );
 };
@@ -297,5 +387,12 @@ const useStyles = makeStyles((theme) => ({
   },
   separator: {
     flexGrow: 1,
+  },
+  filterContainer: {
+    marginTop: theme.spacing(2),
+    marginBottom: theme.spacing(2),
+  },
+  filterButton: {
+    height: 40,
   },
 }));
