@@ -19,6 +19,7 @@ import {
   Button,
   CircularProgress,
   Grid,
+  IconButton,
   TablePagination,
   Typography,
 } from '@mui/material';
@@ -43,6 +44,7 @@ import {
 import { fetchWithCredentials, getCreatedFilter } from '../../../../core/utils';
 import { useDataTranslation } from '../../registration';
 import { DataDetails } from './DataDetails';
+import DownloadIcon from 'mdi-react/DownloadIcon';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -110,8 +112,28 @@ export const Data: () => JSX.Element = () => {
     t('id'),
     t('validator'),
     t('dataHash'),
+    t('blobName'),
+    t('blobSize'),
     t('createdOn'),
+    '',
   ];
+
+  const downloadFile = async (id: string, filename?: string) => {
+    const file = await fetchWithCredentials(
+      `/api/v1/namespaces/default/data/${id}/blob`
+    );
+    const blob = await file.blob();
+    const href = await URL.createObjectURL(blob);
+    const link = document.createElement('a');
+    link.href = href;
+    if (filename) {
+      link.download = filename;
+    }
+
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+  };
 
   const handleChangePage = (_event: unknown, newPage: number) => {
     setCurrentPage(newPage);
@@ -179,11 +201,34 @@ export const Data: () => JSX.Element = () => {
       {
         value: <HashPopover textColor="secondary" address={data.hash} />,
       },
+      {
+        value: data?.blob?.name ? (
+          <HashPopover textColor="secondary" address={data.blob.name} />
+        ) : undefined,
+      },
+      {
+        value: data?.blob?.size,
+      },
       { value: dayjs(data.created).format('MM/DD/YYYY h:mm A') },
+      {
+        value: data?.blob ? (
+          <IconButton
+            onClick={(event) => {
+              event.stopPropagation();
+              downloadFile(data.id, data.blob?.name);
+            }}
+            className={classes.downloadButton}
+          >
+            <DownloadIcon />
+          </IconButton>
+        ) : undefined,
+      },
     ],
-    onClick: () => {
-      setViewData(data);
-    },
+    onClick: data.value
+      ? () => {
+          setViewData(data);
+        }
+      : undefined,
   }));
 
   if (loading) {
@@ -298,5 +343,8 @@ const useStyles = makeStyles((theme) => ({
   },
   filterButton: {
     height: 40,
+  },
+  downloadButton: {
+    color: theme.palette.text.secondary,
   },
 }));

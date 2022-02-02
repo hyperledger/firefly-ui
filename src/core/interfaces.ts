@@ -206,6 +206,11 @@ export interface IData {
   namespace: string;
   validator?: string;
   value?: any;
+  blob?: {
+    hash: string;
+    name: string;
+    size: number;
+  };
 }
 
 export interface IBatch {

@@ -58,5 +58,7 @@
   "version": "Version",
   "viewTx": "View TX",
   "yes": "Yes",
-  "created": "Created"
+  "created": "Created",
+  "blobName": "Blob Name",
+  "blobSize": "Blob Size"
 }
