@@ -14,18 +14,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
 import {
-  TimelineItem,
-  TimelineSeparator,
-  TimelineContent,
-  TimelineOppositeContent,
-  TimelineDot,
   TimelineConnector,
+  TimelineContent,
+  TimelineDot,
+  TimelineItem,
+  TimelineOppositeContent,
+  TimelineSeparator,
 } from '@mui/lab';
 import makeStyles from '@mui/styles/makeStyles';
-import { TimelineContentPanel } from './TimelineContentPanel';
+import React from 'react';
 import { ITimelineItem } from '../../../interfaces';
+import { TimelineContentPanel } from './TimelineContentPanel';
 
 interface Props {
   item: ITimelineItem;
@@ -56,7 +56,7 @@ export const OppositeTimelineItem: React.FC<Props> = ({ item }) => {
   );
 };
 
-const useStyles = makeStyles((theme) => ({
+const useStyles = makeStyles(() => ({
   dot: {
     backgroundColor: '#2D353C',
   },

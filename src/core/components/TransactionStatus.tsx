@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { ITransactionStatus } from '../interfaces';
 import dayjs from 'dayjs';
 import { HashPopover } from './HashPopover';
+import { DEFAULT_SPACING } from '../../theme';
 
 interface Props {
   status: ITransactionStatus;
@@ -33,7 +34,7 @@ export const TransactionStatus: React.FC<Props> = ({ status }) => {
   return (
     <>
       <Typography fontWeight="bold">{t('details')}</Typography>
-      <Grid container spacing={3} paddingTop={2}>
+      <Grid container spacing={DEFAULT_SPACING} paddingTop={2}>
         {status.details.map((item) => (
           <React.Fragment key={item.id}>
             <Grid item xs={12}>

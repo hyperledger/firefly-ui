@@ -113,7 +113,7 @@ export const PieChart: React.FC<Props> = ({ data, dataType }) => {
   );
 };
 
-const useStyles = makeStyles<Theme>((theme) => ({
+const useStyles = makeStyles<Theme>(() => ({
   responsiveParent: {
     width: '100%',
     height: '100%',

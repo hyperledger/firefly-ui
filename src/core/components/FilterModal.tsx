@@ -211,7 +211,7 @@ export const FilterModal: React.FC<Props> = ({
                       disabled={!allowModifiers}
                     />
                   }
-                  label={t('caseSensitive')}
+                  label={t('caseSensitive').toString()}
                 />
               </Grid>
             </Grid>

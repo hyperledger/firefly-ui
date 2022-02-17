@@ -14,54 +14,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { IconButton } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import CloseIcon from 'mdi-react/CloseIcon';
-import MenuIcon from 'mdi-react/MenuIcon';
+import { Box } from '@mui/material';
+import { styled } from '@mui/material';
 import React from 'react';
-import { useHistory } from 'react-router';
-import { ReactComponent as LogoIconSVG } from '../svg/HyperledgerFireFly-Logo-White.svg';
+import { ReactComponent as LogoSVG } from '../svg/HyperledgerFireFly-Logo-White.svg';
 
-type Props = {
-  navigationOpen?: boolean;
-  setNavigationOpen?: React.Dispatch<React.SetStateAction<boolean>>;
-};
-
-export const MenuLogo: React.FC<Props> = ({
-  navigationOpen,
-  setNavigationOpen,
-}) => {
-  const classes = useStyles();
-  const history = useHistory();
-
+export const MenuLogo: React.FC = () => {
+  const StyledLogo = styled(LogoSVG)({
+    width: 160,
+  });
   return (
-    <div className={classes.item}>
-      <IconButton
-        color="inherit"
-        className={classes.icon}
-        size="small"
-        onClick={() =>
-          setNavigationOpen ? setNavigationOpen(!navigationOpen) : {}
-        }
-      >
-        {navigationOpen ? <CloseIcon /> : <MenuIcon />}
-      </IconButton>
-      <LogoIconSVG className={classes.logo} onClick={() => history.push('/')} />
-    </div>
+    <Box
+      sx={{
+        textAlign: 'center',
+      }}
+    >
+      <StyledLogo />
+    </Box>
   );
 };
-
-const useStyles = makeStyles((theme) => ({
-  item: {
-    display: 'flex',
-    alignItems: 'center',
-  },
-  icon: {
-    marginRight: theme.spacing(2),
-  },
-  logo: {
-    cursor: 'pointer',
-    width: 125,
-    height: 75,
-  },
-}));

@@ -62,10 +62,6 @@ export interface IRoute {
   component: (props: any) => JSX.Element;
 }
 
-export interface IRouterParams {
-  namespace: string;
-}
-
 export interface IStatus {
   node: {
     name: string;
