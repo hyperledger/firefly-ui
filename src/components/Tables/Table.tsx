@@ -25,8 +25,8 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
-import { DataTableRow } from '../../core/components/DataTable/DataTableRow';
-import { IDataTableRecord } from '../../core/interfaces';
+import { DataTableRow } from '../../_core/components/DataTable/DataTableRow';
+import { IDataTableRecord } from '../../_core/interfaces';
 
 interface Props {
   records?: IDataTableRecord[];

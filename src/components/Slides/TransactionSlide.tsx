@@ -20,7 +20,7 @@ import { Chip, Grid, IconButton, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { DisplaySlide } from '../../core/components/Display/DisplaySlide';
+import { DisplaySlide } from '../../_core/components/Display/DisplaySlide';
 import { DEFAULT_PADDING } from '../../theme';
 import { DrawerListItem, IDataListItem } from './ListItem';
 import { DrawerPanel, IOperationListItem } from './Panel';

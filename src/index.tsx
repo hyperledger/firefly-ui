@@ -18,9 +18,9 @@ import i18n from 'i18next';
 import React from 'react';
 import ReactDOM from 'react-dom';
 import { initReactI18next } from 'react-i18next';
-import App from './core/App';
-import './core/index.css';
-import en from './core/translations/en.json';
+import App from './_core/App';
+import './_core/index.css';
+import en from './_core/translations/en.json';
 
 i18n.use(initReactI18next).init({
   resources: {

@@ -15,71 +15,46 @@ export const Histogram: React.FC<Props> = ({ data }) => {
   const keys = ['blockchain', 'tokens', 'messages'];
   const colors = [FFColors.Pink, FFColors.Orange, FFColors.Yellow];
   // TODO: Remove mock data
-  data = [
-    {
-      timestamp: '2022-02-16T20:51:37Z',
-      blockchain: 111,
-      blockchainColor: FFColors.Yellow,
-      tokens: 111,
-      tokensColor: FFColors.Orange,
-      messages: 70,
-      messagesColor: FFColors.Pink,
-    },
-    {
-      timestamp: '2022-02-16T21:51:37Z',
-      blockchain: 111,
-      blockchainColor: FFColors.Yellow,
-      tokens: 111,
-      tokensColor: FFColors.Orange,
-      messages: 70,
-      messagesColor: FFColors.Pink,
-    },
-    {
-      timestamp: '2022-02-16T22:51:37Z',
-      blockchain: 111,
-      blockchainColor: FFColors.Yellow,
-      tokens: 111,
-      tokensColor: FFColors.Orange,
-      messages: 70,
-      messagesColor: FFColors.Pink,
-    },
-    {
-      timestamp: '2022-02-16T23:51:37Z',
-      blockchain: 111,
-      blockchainColor: FFColors.Yellow,
-      tokens: 111,
-      tokensColor: FFColors.Orange,
-      messages: 70,
-      messagesColor: FFColors.Pink,
-    },
-    {
-      timestamp: '2022-02-17T00:51:37Z',
-      blockchain: 111,
-      blockchainColor: FFColors.Yellow,
-      tokens: 111,
-      tokensColor: FFColors.Orange,
-      messages: 70,
-      messagesColor: FFColors.Pink,
-    },
-    {
-      timestamp: '2022-02-17T01:51:37Z',
-      blockchain: 111,
-      blockchainColor: FFColors.Yellow,
-      tokens: 111,
-      tokensColor: FFColors.Orange,
-      messages: 70,
-      messagesColor: FFColors.Pink,
-    },
-    {
-      timestamp: '2022-02-17T02:51:37Z',
-      blockchain: 111,
-      blockchainColor: FFColors.Yellow,
-      tokens: 111,
-      tokensColor: FFColors.Orange,
-      messages: 70,
-      messagesColor: FFColors.Pink,
-    },
+
+  const mockTimes = [
+    '2022-02-16T00:51:37Z',
+    '2022-02-16T01:51:37Z',
+    '2022-02-16T02:51:37Z',
+    '2022-02-16T03:51:37Z',
+    '2022-02-16T04:51:37Z',
+    '2022-02-16T05:51:37Z',
+    '2022-02-16T06:51:37Z',
+    '2022-02-16T07:51:37Z',
+    '2022-02-16T08:51:37Z',
+    '2022-02-16T09:51:37Z',
+    '2022-02-16T10:51:37Z',
+    '2022-02-16T11:51:37Z',
+    '2022-02-16T12:51:37Z',
+    '2022-02-16T13:51:37Z',
+    '2022-02-16T14:51:37Z',
+    '2022-02-16T15:51:37Z',
+    '2022-02-16T16:51:37Z',
+    '2022-02-16T17:51:37Z',
+    '2022-02-16T18:51:37Z',
+    '2022-02-16T19:51:37Z',
+    '2022-02-16T20:51:37Z',
+    '2022-02-16T21:51:37Z',
+    '2022-02-16T22:51:37Z',
+    '2022-02-16T23:51:37Z',
   ];
+  data = [];
+  mockTimes.map((t) => {
+    data.push({
+      timestamp: t,
+      blockchain: Math.floor(Math.random() * 100),
+      blockchainColor: FFColors.Yellow,
+      tokens: Math.floor(Math.random() * 100),
+      tokensColor: FFColors.Orange,
+      messages: Math.floor(Math.random() * 100),
+      messagesColor: FFColors.Pink,
+    });
+  });
+
   return (
     <Box
       mt={2}
@@ -105,7 +80,7 @@ export const Histogram: React.FC<Props> = ({ data }) => {
           tickSize: 5,
           tickPadding: 5,
           tickRotation: 0,
-          format: (date) => dayjs(date).format('MM/DD/YYYY h:mm A'),
+          format: (date) => dayjs(date).format('h:mm'),
         }}
         axisLeft={{
           tickSize: 5,
@@ -113,9 +88,7 @@ export const Histogram: React.FC<Props> = ({ data }) => {
           tickRotation: 0,
           tickValues: 5,
         }}
-        labelSkipWidth={12}
-        labelSkipHeight={12}
-        labelTextColor={'background.default'}
+        enableLabel={false}
         role="application"
         theme={{
           background: 'transparent',

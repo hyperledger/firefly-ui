@@ -27,16 +27,16 @@ import { fetchWithCredentials, summarizeFetchError } from '../components/utils';
 import {
   MessageSnackbar,
   SnackbarMessageType,
-} from '../core/components/MessageSnackbar';
-import { ApplicationContext } from '../core/contexts/ApplicationContext';
-import { NamespaceContext } from '../core/contexts/NamespaceContext';
-import { SnackbarContext } from '../core/contexts/SnackbarContext';
+} from '../_core/components/MessageSnackbar';
+import { ApplicationContext } from '../_core/contexts/ApplicationContext';
+import { NamespaceContext } from '../_core/contexts/NamespaceContext';
+import { SnackbarContext } from '../_core/contexts/SnackbarContext';
 import {
   CreatedFilterOptions,
   DataView,
   INamespace,
   IStatus,
-} from '../core/interfaces';
+} from '../_core/interfaces';
 import { ActivityRoutes } from '../pages/Activity/routes';
 import { HomeRoutes } from '../pages/Home/routes';
 import { Layout } from './Layout';

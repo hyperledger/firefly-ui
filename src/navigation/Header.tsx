@@ -23,8 +23,8 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
-import { DatePicker } from '../core/components/DatePicker';
-import { NamespacePicker } from '../core/components/NamespacePicker';
+import { DatePicker } from '../_core/components/DatePicker';
+import { NamespacePicker } from '../_core/components/NamespacePicker';
 import { DEFAULT_PADDING, themeOptions } from '../theme';
 interface Props {
   title: string;

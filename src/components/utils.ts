@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import dayjs from 'dayjs';
-import { CreatedFilterOptions, ICreatedFilter } from '../core/interfaces';
+import { CreatedFilterOptions, ICreatedFilter } from '../_core/interfaces';
 
 export const fetchWithCredentials = (
   resource: string,
