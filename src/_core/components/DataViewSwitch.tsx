@@ -20,7 +20,7 @@ import makeStyles from '@mui/styles/makeStyles';
 import { DataView } from '../interfaces';
 import { useTranslation } from 'react-i18next';
 import { useQueryParam, StringParam } from 'use-query-params';
-import { ApplicationContext } from '../contexts/ApplicationContext';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
 
 export const DataViewSwitch: React.FC = () => {
   const classes = useStyles();

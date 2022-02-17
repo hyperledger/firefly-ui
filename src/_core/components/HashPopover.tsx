@@ -27,7 +27,7 @@ import clsx from 'clsx';
 import ContentCopyIcon from 'mdi-react/ContentCopyIcon';
 import React, { useRef, useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { getShortHash } from '../../components/utils';
+import { getShortHash } from '../../utils';
 
 interface Props {
   address: string;

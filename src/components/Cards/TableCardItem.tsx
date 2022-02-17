@@ -1,6 +1,6 @@
 import { ListItem, ListItemText, Typography } from '@mui/material';
 import { FFColors } from '../../theme';
-import { getShortHash } from '../utils';
+import { getShortHash } from '../../utils';
 import { ITableCardItem } from './CardInterfaces';
 
 type Props = {
