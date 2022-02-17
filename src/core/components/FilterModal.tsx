@@ -1,4 +1,4 @@
-// Copyright © 2021 Kaleido, Inc.
+// Copyright © 2022 Kaleido, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -211,7 +211,7 @@ export const FilterModal: React.FC<Props> = ({
                       disabled={!allowModifiers}
                     />
                   }
-                  label={t('caseSensitive')}
+                  label={t('caseSensitive').toString()}
                 />
               </Grid>
             </Grid>

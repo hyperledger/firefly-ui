@@ -1,4 +1,4 @@
-// Copyright © 2021 Kaleido, Inc.
+// Copyright © 2022 Kaleido, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -69,6 +69,7 @@ export const DatePicker: React.FC = () => {
         onChange={(event) =>
           setTime(event.target.value as CreatedFilterOptions)
         }
+        sx={{ pr: 2 }}
       >
         {createdQueryOptions.map((item) => (
           <MenuItem key={item.value} value={item.value}>

@@ -1,4 +1,4 @@
-// Copyright © 2021 Kaleido, Inc.
+// Copyright © 2022 Kaleido, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -27,7 +27,7 @@ import clsx from 'clsx';
 import ContentCopyIcon from 'mdi-react/ContentCopyIcon';
 import React, { useRef, useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { getShortHash } from '../utils';
+import { getShortHash } from '../../components/utils';
 
 interface Props {
   address: string;

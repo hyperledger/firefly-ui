@@ -1,4 +1,4 @@
-// Copyright © 2021 Kaleido, Inc.
+// Copyright © 2022 Kaleido, Inc.
 //
 // SPDX-License-Identifier: Apache-2.0
 //
@@ -113,7 +113,7 @@ export const PieChart: React.FC<Props> = ({ data, dataType }) => {
   );
 };
 
-const useStyles = makeStyles<Theme>((theme) => ({
+const useStyles = makeStyles<Theme>(() => ({
   responsiveParent: {
     width: '100%',
     height: '100%',
