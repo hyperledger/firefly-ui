@@ -14,14 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import i18n from 'i18next';
 import React from 'react';
 import ReactDOM from 'react-dom';
-import i18n from 'i18next';
 import { initReactI18next } from 'react-i18next';
-import en from './core/translations/en.json';
-import './core/index.css';
 import App from './core/App';
-import { registerModuleTranslations } from './modules/registration/translations';
+import './core/index.css';
+import en from './core/translations/en.json';
 
 i18n.use(initReactI18next).init({
   resources: {
@@ -32,8 +31,6 @@ i18n.use(initReactI18next).init({
     escapeValue: false,
   },
 });
-
-registerModuleTranslations();
 
 ReactDOM.render(
   <React.StrictMode>
