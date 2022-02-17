@@ -14,9 +14,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid, Paper, Typography } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
+import { Box, Grid, Typography } from '@mui/material';
 import React from 'react';
+import { DEFAULT_PADDING } from '../../theme';
 
 interface Props {
   header?: string;
@@ -24,35 +24,39 @@ interface Props {
 }
 
 export const DataTableEmptyState: React.FC<Props> = ({ header, message }) => {
-  const classes = useStyles();
-
   return (
     <>
-      <Paper className={classes.paper}>
-        {header && (
-          <Grid container justifyContent="space-between" direction="row">
-            <Grid item>
-              <Typography className={classes.header}>{header}</Typography>
-            </Grid>
+      <Box
+        mt={3}
+        p={2}
+        borderRadius={1}
+        sx={{
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'background.paper',
+        }}
+      >
+        <Grid
+          p={DEFAULT_PADDING}
+          container
+          alignItems="center"
+          justifyContent="center"
+          direction="column"
+        >
+          <Grid item>
+            <Typography
+              sx={{
+                fontWeight: 'bold',
+              }}
+            >
+              {header}
+            </Typography>
           </Grid>
-        )}
-        {message && (
-          <Grid container justifyContent="center">
+          <Grid item>
             <Typography>{message}</Typography>
           </Grid>
-        )}
-      </Paper>
+        </Grid>
+      </Box>
     </>
   );
 };
-
-const useStyles = makeStyles((theme) => ({
-  header: {
-    fontWeight: 'bold',
-  },
-  paper: {
-    width: '100%',
-    height: '100%',
-    padding: theme.spacing(3),
-  },
-}));

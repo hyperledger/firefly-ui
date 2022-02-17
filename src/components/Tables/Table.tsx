@@ -25,8 +25,9 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
-import { DataTableRow } from '../../_core/components/DataTable/DataTableRow';
-import { IDataTableRecord } from '../../_core/interfaces';
+import { DataTableRow } from './TableRow';
+import { themeOptions } from '../../theme';
+import { IDataTableRecord } from './TableInterfaces';
 
 interface Props {
   records?: IDataTableRecord[];
@@ -57,7 +58,7 @@ export const DataTable: React.FC<Props> = ({
       <Grid item xs={12}>
         <TableContainer
           style={{ maxHeight, minHeight }}
-          sx={{ whiteSpace: 'nowrap' }}
+          sx={{ paddingTop: 2, whiteSpace: 'nowrap' }}
         >
           <Table stickyHeader={stickyHeader}>
             <TableHead>
@@ -71,6 +72,7 @@ export const DataTable: React.FC<Props> = ({
                   >
                     <Typography
                       sx={{
+                        color: themeOptions.palette?.text?.secondary,
                         fontSize: 12,
                         textTransform: 'uppercase',
                       }}

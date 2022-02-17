@@ -38,12 +38,6 @@ export enum TXStatus {
   Error = 'Error',
 }
 
-export enum FFColors {
-  Blue = '#462DE0',
-  Yellow = '#FFCA00',
-  Red = '#FF0000',
-}
-
 export enum TransactionType {
   None = 'none',
   BatchPin = 'batch_pin',
@@ -79,10 +73,6 @@ export interface IStatus {
   };
 }
 
-export interface IDataTableColumn {
-  value: string | number | JSX.Element | undefined;
-}
-
 export interface IFilterItem {
   value: string;
   label: string;
@@ -102,12 +92,6 @@ export interface ITimelineItem {
   icon?: JSX.Element;
   time?: string;
   author?: string;
-  onClick?: () => void;
-}
-
-export interface IDataTableRecord {
-  columns: IDataTableColumn[];
-  key: string;
   onClick?: () => void;
 }
 

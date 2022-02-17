@@ -14,30 +14,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { TableCell, TableRow } from '@mui/material';
+import { withStyles } from '@mui/styles';
 import React from 'react';
-import { IDataTableRecord } from '../../interfaces';
-import { TableRow, TableCell } from '@mui/material';
-import withStyles from '@mui/styles/withStyles';
-import makeStyles from '@mui/styles/makeStyles';
-import clsx from 'clsx';
+import { IDataTableRecord } from './TableInterfaces';
 
 interface Props {
   record: IDataTableRecord;
 }
 
 export const DataTableRow: React.FC<Props> = ({ record }) => {
-  const classes = useStyles();
-
   return (
     <>
-      <StyledTableRow
-        className={clsx(record.onClick && classes.clickable)}
-        onClick={record.onClick}
-      >
+      <StyledTableRow onClick={record.onClick}>
         {record.columns.map((column, index) => (
-          <TableCell className={classes.cell} key={index}>
-            {column.value}
-          </TableCell>
+          <TableCell key={index}>{column.value}</TableCell>
         ))}
       </StyledTableRow>
     </>
@@ -46,21 +37,16 @@ export const DataTableRow: React.FC<Props> = ({ record }) => {
 
 const StyledTableRow = withStyles((theme) => ({
   root: {
+    tr: {
+      border: 10,
+    },
     '&:nth-of-type(even)': {
       backgroundColor: '#21272D',
+      border: 10,
+      borderColor: 'red',
     },
     '&:nth-of-type(odd)': {
       backgroundColor: theme.palette.background.paper,
     },
   },
 }))(TableRow);
-
-const useStyles = makeStyles((theme) => ({
-  cell: {
-    borderBottom: 0,
-    color: theme.palette.text.secondary,
-  },
-  clickable: {
-    cursor: 'pointer',
-  },
-}));
