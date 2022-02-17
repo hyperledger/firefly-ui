@@ -1,5 +1,5 @@
 import { Grid, Paper, Typography } from '@mui/material';
-import { getShortHash } from '../utils';
+import { getShortHash } from '../../utils';
 
 export interface IOperationListItem {
   label: string;

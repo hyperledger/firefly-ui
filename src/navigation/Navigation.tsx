@@ -13,8 +13,8 @@ import {
 import makeStyles from '@mui/styles/makeStyles';
 import { default as React, useContext, useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { MenuLogo } from '../_core/components/MenuLogo';
-import { ApplicationContext } from '../_core/contexts/ApplicationContext';
+import { MenuLogo } from '../components/MenuLogo';
+import { ApplicationContext } from '../contexts/ApplicationContext';
 import { FFRouteObject } from './NavigationInterfaces';
 import { getAllRoutes } from './RouterWrapper';
 

@@ -19,7 +19,7 @@ import { TextField, MenuItem } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useQueryParam, StringParam } from 'use-query-params';
 import { CreatedFilterOptions } from '../interfaces';
-import { ApplicationContext } from '../contexts/ApplicationContext';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
 
 export const DatePicker: React.FC = () => {
   const { t } = useTranslation();

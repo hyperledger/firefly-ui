@@ -23,14 +23,14 @@ import {
   default as ReconnectingWebsocket,
 } from 'reconnecting-websocket';
 import { QueryParamProvider } from 'use-query-params';
-import { fetchWithCredentials, summarizeFetchError } from '../components/utils';
+import { fetchWithCredentials, summarizeFetchError } from '../utils';
 import {
   MessageSnackbar,
   SnackbarMessageType,
 } from '../_core/components/MessageSnackbar';
-import { ApplicationContext } from '../_core/contexts/ApplicationContext';
-import { NamespaceContext } from '../_core/contexts/NamespaceContext';
-import { SnackbarContext } from '../_core/contexts/SnackbarContext';
+import { ApplicationContext } from '../contexts/ApplicationContext';
+import { NamespaceContext } from '../contexts/NamespaceContext';
+import { SnackbarContext } from '../contexts/SnackbarContext';
 import {
   CreatedFilterOptions,
   DataView,

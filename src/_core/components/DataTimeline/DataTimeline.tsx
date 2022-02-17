@@ -20,7 +20,7 @@ import makeStyles from '@mui/styles/makeStyles';
 import { Timeline } from '@mui/lab';
 import { ITimelineItem } from '../../interfaces';
 import { TimelineItemWrapper } from './TimelineItemWrapper';
-import { ApplicationContext } from '../../contexts/ApplicationContext';
+import { ApplicationContext } from '../../../contexts/ApplicationContext';
 
 interface Props {
   items: ITimelineItem[];

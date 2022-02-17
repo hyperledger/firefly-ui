@@ -21,9 +21,10 @@ import {
   Theme,
   ThemeProvider,
 } from '@mui/material';
-import { RouterWrapper } from '../navigation/RouterWrapper';
-import { themeOptions } from '../theme';
+import { RouterWrapper } from './navigation/RouterWrapper';
+import { themeOptions } from './theme';
 
+//TODO: remove along with useStyles() usage
 declare module '@mui/styles/defaultTheme' {
   // eslint-disable-next-line @typescript-eslint/no-empty-interface
   interface DefaultTheme extends Theme {}
