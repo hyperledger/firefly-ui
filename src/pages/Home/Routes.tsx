@@ -1,5 +1,4 @@
-import { NAMESPACES_PATH } from '../../interfaces';
-import { FFRouteObject } from '../../interfaces';
+import { FFRouteObject, NAMESPACES_PATH } from '../../interfaces';
 import { HomeDashboard } from './views/Dashboard';
 
 export const HomeRoutes: FFRouteObject = {

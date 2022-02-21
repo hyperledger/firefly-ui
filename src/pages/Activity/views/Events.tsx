@@ -54,7 +54,7 @@ export const ActivityEvents: () => JSX.Element = () => {
               </Button>
             }
           />
-          <Histogram data="undefined"></Histogram>
+          {/* <Histogram data="undefined"></Histogram> */}
           <TimelinePanel
             leftHeader="Submitted by Me"
             rightHeader="Received from Everyone"

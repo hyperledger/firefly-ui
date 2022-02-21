@@ -46,10 +46,6 @@ export enum TransactionType {
   ContractInvoke = 'contract_invoke',
 }
 
-export type CreatedFilterOptions = '1hour' | '24hours' | '7days' | '30days';
-
-export type FilterOptions = CreatedFilterOptions;
-
 export interface IRoute {
   exact?: boolean;
   route: string;
@@ -393,15 +389,6 @@ export interface IDataType {
   value: any;
 }
 
-export interface IEvent {
-  id: string;
-  sequence: number;
-  type: string;
-  namespace: string;
-  reference: string;
-  created: string;
-}
-
 export interface IOperation {
   id: string;
   namespace: string;
@@ -416,11 +403,6 @@ export interface IOperation {
   };
   created: string;
   updated: string;
-}
-
-export interface ICreatedFilter {
-  filterString: string;
-  filterTime: number;
 }
 
 export interface IMetric {

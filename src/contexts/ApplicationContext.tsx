@@ -15,11 +15,8 @@
 // limitations under the License.
 
 import { Dispatch, SetStateAction, createContext } from 'react';
-import {
-  DataView,
-  CreatedFilterOptions,
-  INamespace,
-} from '../_core/interfaces';
+import { CreatedFilterOptions } from '../components/Filters/FilterInterfaces';
+import { DataView, INamespace } from '../_core/interfaces';
 
 export interface IApplicationContext {
   identity: string;

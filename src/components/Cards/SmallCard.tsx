@@ -1,4 +1,4 @@
-import { Chip, Grid, Typography } from '@mui/material';
+import { Chip, Grid, Skeleton, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { ISmallCard } from './CardInterfaces';
 
@@ -59,12 +59,17 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
               >
                 {data.header}
               </Typography>
-              <Typography
-                sx={{ fontSize: 24, fontWeight: 'bold' }}
-                variant="subtitle1"
-              >
-                {data.data}
-              </Typography>
+
+              {data.data !== undefined ? (
+                <Typography
+                  sx={{ fontSize: 24, fontWeight: 'bold' }}
+                  variant="subtitle1"
+                >
+                  {data.data}
+                </Typography>
+              ) : (
+                <Skeleton sx={{ width: 40, height: 40 }} />
+              )}
             </Grid>
           );
         })}

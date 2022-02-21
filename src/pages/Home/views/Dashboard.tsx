@@ -1,7 +1,9 @@
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { Button, Grid, List, Typography } from '@mui/material';
+import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
-import { useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import {
   IMediumCard,
   ISmallCard,
@@ -12,9 +14,15 @@ import { MediumCard } from '../../../components/Cards/MediumCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { TableCard } from '../../../components/Cards/TableCard';
 import { TableCardItem } from '../../../components/Cards/TableCardItem';
+import { Histogram } from '../../../components/Charts/Histogram';
+import { ICreatedFilter } from '../../../components/Filters/FilterInterfaces';
+import { getCreatedFilter } from '../../../components/Filters/utils';
+import { NetworkMap } from '../../../components/NetworkMap/NetworkMap';
 import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { Header } from '../../../components/Header';
 import { DEFAULT_PADDING, DEFAULT_SPACING } from '../../../theme';
+import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { SnackbarContext } from '../../../contexts/SnackbarContext';
 
 const smallCards: ISmallCard[] = [
   {
@@ -120,7 +128,246 @@ const recentSubmittedTxs: ITableCardItem[] = [
 ];
 
 export const HomeDashboard: () => JSX.Element = () => {
+  const { namespace } = useParams();
+  const { createdFilter, lastEvent, selectedNamespace } =
+    useContext(ApplicationContext);
+  const { reportFetchError } = useContext(SnackbarContext);
+  const [filterString, setFilterString] = useState('');
   const [viewData, setViewData] = useState<boolean | undefined>();
+
+  // Blockchain
+  const [blockchainTxCount, setBlockchainTxCount] = useState<number>();
+  const [blockchainEventCount, setBlockchainEventCount] = useState<number>();
+  const [blockchainErrorCount, setBlockchainErrorCount] = useState<number>();
+  // Off-Chain
+  const [offchainInCount, setOffchainInCount] = useState<number>();
+  const [offchainOutCount, setOffchainOutCount] = useState<number>();
+  const [offchainErrorCount, setOffchainErrorCount] = useState<number>();
+  // Messages
+  const [messagesTxCount, setMessagesTxCount] = useState<number>();
+  const [messagesEventCount, setMessagesEventCount] = useState<number>();
+  const [messagesErrorCount, setMessagesErrorCount] = useState<number>();
+  // Tokens
+  const [tokenTransfersCount, setTokenTransfersCount] = useState<number>();
+  const [tokenMintCount, setTokenMintcount] = useState<number>();
+  const [tokenBurnCount, setTokenBurnCount] = useState<number>();
+  const [tokenErrorCount, setTokenErrorCount] = useState<number>();
+  console.log(namespace);
+  // Event types histogram
+  const [eventTypesData, setEventTypesData] = useState<BarDatum[]>([]);
+
+  const smallCards: ISmallCard[] = [
+    {
+      header: 'Blockchain',
+      numErrors: blockchainErrorCount,
+      data: [
+        { header: 'Tx', data: blockchainTxCount },
+        { header: 'Events', data: blockchainEventCount },
+      ],
+    },
+    {
+      header: 'Off-Chain',
+      numErrors: offchainErrorCount,
+      data: [
+        { header: 'In', data: offchainInCount },
+        { header: 'Out', data: offchainOutCount },
+      ],
+    },
+    {
+      header: 'Messages',
+      numErrors: messagesErrorCount,
+      data: [
+        { header: 'Tx', data: messagesTxCount },
+        { header: 'Events', data: messagesEventCount },
+      ],
+    },
+    {
+      header: 'Tokens',
+      numErrors: tokenErrorCount,
+      data: [
+        { header: 'Transfers', data: tokenTransfersCount },
+        { header: 'Mint', data: tokenMintCount },
+        { header: 'Burn', data: tokenBurnCount },
+      ],
+    },
+  ];
+
+  // Small Card UseEffect
+  // useEffect(() => {
+  //   const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+  //   const qParams = `?count=true&limit=1${createdFilterObject.filterString}`;
+
+  //   Promise.all([
+  //     fetchCatcher(
+  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.blockchainEvents}${qParams}`
+  //     ),
+  //     fetchCatcher(
+  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.blockchainEvents}${qParams}`
+  //     ),
+  //     fetchCatcher(
+  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.events}${qParams}`
+  //     ),
+  //     fetchCatcher(
+  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.events}${qParams}`
+  //     ),
+  //     fetchCatcher(
+  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.messages}${qParams}`
+  //     ),
+  //     fetchCatcher(
+  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.messages}${qParams}`
+  //     ),
+  //     fetchCatcher(
+  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.tokenTransfers}${qParams}`
+  //     ),
+  //     fetchCatcher(
+  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.tokenTransfers}${qParams}`
+  //     ),
+  //     fetchCatcher(
+  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.tokenTransfers}${qParams}`
+  //     ),
+  //   ])
+  //     .then(
+  //       ([
+  //         blockchainTx,
+  //         blockchainEvents,
+  //         offChainIn,
+  //         offChainOut,
+  //         msgsTx,
+  //         msgsEvents,
+  //         tokensTransfer,
+  //         tokensMint,
+  //         tokensBurn,
+  //       ]: IGenericPagedResponse[]) => {
+  //         setBlockchainTxCount(blockchainTx.total);
+  //         setBlockchainEventCount(blockchainEvents.total);
+
+  //         setOffchainInCount(offChainIn.total);
+  //         setOffchainOutCount(offChainOut.total);
+
+  //         setMessagesEventCount(msgsTx.total);
+  //         setMessagesTxCount(msgsEvents.total);
+
+  //         setTokenTransfersCount(tokensTransfer.total);
+  //         setTokenMintcount(tokensMint.total);
+  //         setTokenBurnCount(tokensBurn.total);
+  //       }
+  //     )
+  //     .catch((err) => {
+  //       reportFetchError(err);
+  //     });
+  // }, [selectedNamespace, createdFilter, lastEvent, filterString]);
+
+  const mediumCards: IMediumCard[] = [
+    {
+      headerComponent: <ArrowForwardIcon />,
+      headerText: 'My Node - [Node Name]',
+      component: <Typography>Placeholder</Typography>,
+    },
+    {
+      headerComponent: undefined,
+      headerText: 'Network Map',
+      component: <NetworkMap></NetworkMap>,
+    },
+    // {
+    //   headerComponent: undefined,
+    //   headerText: 'Event Types',
+    //   component: eventTypesData.length ? (
+    //     <Histogram
+    //       colors={[FFColors.Pink, FFColors.Orange, FFColors.Yellow]}
+    //       data={eventTypesData}
+    //       indexBy="timestamp"
+    //       keys={['blockchain', 'transfers', 'messages']}
+    //     ></Histogram>
+    //   ) : (
+    //     <Typography>Test</Typography>
+    //   ),
+    // },
+  ];
+
+  // Medium Card UseEffect
+  // useEffect(() => {
+  //   const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+  //   const qParams = `?count=true&limit=1${createdFilterObject.filterString}`;
+
+  //   Promise.all([
+  //     fetchCatcher(
+  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.events}${qParams}&type=blockchain_event`
+  //     ),
+  //     fetchCatcher(
+  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.events}${qParams}&type=message_confirmed`
+  //     ),
+  //     fetchCatcher(
+  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.events}${qParams}&type=transaction_submitted`
+  //     ),
+  //   ])
+  //     .then(
+  //       ([
+  //         blockchainEvents,
+  //         messageConfirmedEvents,
+  //         transferEvents,
+  //       ]: IGenericPagedResponse[]) => {
+  //         setEventTypesData([
+  //           {
+  //             timestamp: '2022-02-16T00:51:37Z',
+  //             blockchain: blockchainEvents.total,
+  //             blockchainColor: FFColors.Yellow,
+  //             transfers: transferEvents.total,
+  //             transfersColor: FFColors.Orange,
+  //             messages: messageConfirmedEvents.total,
+  //             messagesColor: FFColors.Pink,
+  //           },
+  //           {
+  //             timestamp: '2022-02-16T01:51:37Z',
+  //             blockchain: blockchainEvents.total,
+  //             blockchainColor: FFColors.Yellow,
+  //             transfers: transferEvents.total,
+  //             transfersColor: FFColors.Orange,
+  //             messages: messageConfirmedEvents.total,
+  //             messagesColor: FFColors.Pink,
+  //           },
+  //           {
+  //             timestamp: '2022-02-16T02:51:37Z',
+  //             blockchain: blockchainEvents.total,
+  //             blockchainColor: FFColors.Yellow,
+  //             transfers: transferEvents.total,
+  //             transfersColor: FFColors.Orange,
+  //             messages: messageConfirmedEvents.total,
+  //             messagesColor: FFColors.Pink,
+  //           },
+  //           {
+  //             timestamp: '2022-02-16T03:51:37Z',
+  //             blockchain: blockchainEvents.total,
+  //             blockchainColor: FFColors.Yellow,
+  //             transfers: transferEvents.total,
+  //             transfersColor: FFColors.Orange,
+  //             messages: messageConfirmedEvents.total,
+  //             messagesColor: FFColors.Pink,
+  //           },
+  //           {
+  //             timestamp: '2022-02-16T04:51:37Z',
+  //             blockchain: blockchainEvents.total,
+  //             blockchainColor: FFColors.Yellow,
+  //             transfers: transferEvents.total,
+  //             transfersColor: FFColors.Orange,
+  //             messages: messageConfirmedEvents.total,
+  //             messagesColor: FFColors.Pink,
+  //           },
+  //           {
+  //             timestamp: '2022-02-16T05:51:37Z',
+  //             blockchain: blockchainEvents.total,
+  //             blockchainColor: FFColors.Yellow,
+  //             transfers: transferEvents.total,
+  //             transfersColor: FFColors.Orange,
+  //             messages: messageConfirmedEvents.total,
+  //             messagesColor: FFColors.Pink,
+  //           },
+  //         ]);
+  //       }
+  //     )
+  //     .catch((err) => {
+  //       reportFetchError(err);
+  //     });
+  // }, [selectedNamespace, createdFilter, lastEvent, filterString]);
 
   const tableCards: ITableCard[] = [
     {
@@ -161,7 +408,8 @@ export const HomeDashboard: () => JSX.Element = () => {
     <>
       <Header title={'Dashboard'} subtitle={'Home'}></Header>
       <Grid container px={DEFAULT_PADDING}>
-        <Grid container item wrap="nowrap" direction="column">
+        <NetworkMap></NetworkMap>
+        {/* <Grid container item wrap="nowrap" direction="column">
           <Grid
             spacing={DEFAULT_SPACING}
             container
@@ -233,7 +481,7 @@ export const HomeDashboard: () => JSX.Element = () => {
               );
             })}
           </Grid>
-        </Grid>
+        </Grid> */}
       </Grid>
       {viewData && (
         <TransactionSlide
