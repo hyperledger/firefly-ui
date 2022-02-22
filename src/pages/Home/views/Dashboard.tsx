@@ -13,7 +13,7 @@ import { SmallCard } from '../../../components/Cards/SmallCard';
 import { TableCard } from '../../../components/Cards/TableCard';
 import { TableCardItem } from '../../../components/Cards/TableCardItem';
 import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
-import { Header } from '../../../navigation/Header';
+import { Header } from '../../../components/Header';
 import { DEFAULT_PADDING, DEFAULT_SPACING } from '../../../theme';
 
 const smallCards: ISmallCard[] = [

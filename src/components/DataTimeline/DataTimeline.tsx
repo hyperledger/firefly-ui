@@ -18,9 +18,9 @@ import React, { useContext } from 'react';
 import { Paper, Avatar, Tooltip, CircularProgress, Grid } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import { Timeline } from '@mui/lab';
-import { ITimelineItem } from '../../interfaces';
+import { ITimelineItem } from '../../_core/interfaces';
 import { TimelineItemWrapper } from './TimelineItemWrapper';
-import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
 
 interface Props {
   items: ITimelineItem[];

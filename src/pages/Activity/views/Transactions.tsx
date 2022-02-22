@@ -14,15 +14,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import React from 'react';
 import { Button, Chip, Grid, Typography } from '@mui/material';
 import dayjs from 'dayjs';
-import React from 'react';
 import { ChartHeader } from '../../../components/Charts/Header';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { DataTable } from '../../../components/Tables/Table';
 import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
-import { Header } from '../../../navigation/Header';
+import { Header } from '../../../components/Header';
 import { DEFAULT_PADDING, FFColors } from '../../../theme';
 
 export const ActivityTransactions: () => JSX.Element = () => {
@@ -80,7 +80,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
 
   return (
     <>
-      <Header title={'Transactions'} subtitle={'Activity'}></Header>
+      <Header title={'transactions'} subtitle={'Activity'}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartHeader

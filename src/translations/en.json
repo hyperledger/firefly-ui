@@ -30,5 +30,9 @@
   "matches": "Matches",
   "notMatches": "Does not match",
   "status": "Status",
-  "details": "Details"
+  "details": "Details",
+  "dashboard": "Dashboard",
+  "activity": "Activity",
+  "operations": "Operations",
+  "events": "Events"
 }

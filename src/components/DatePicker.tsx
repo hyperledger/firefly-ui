@@ -18,8 +18,8 @@ import React, { useContext, useMemo, useEffect } from 'react';
 import { TextField, MenuItem } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useQueryParam, StringParam } from 'use-query-params';
-import { CreatedFilterOptions } from '../interfaces';
-import { ApplicationContext } from '../../contexts/ApplicationContext';
+import { CreatedFilterOptions } from '../_core/interfaces';
+import { ApplicationContext } from '../contexts/ApplicationContext';
 
 export const DatePicker: React.FC = () => {
   const { t } = useTranslation();
@@ -66,9 +66,10 @@ export const DatePicker: React.FC = () => {
         size="small"
         variant="outlined"
         value={createdFilter}
-        onChange={(event) =>
-          setTime(event.target.value as CreatedFilterOptions)
-        }
+        onChange={(event) => {
+          setTime(event.target.value as CreatedFilterOptions);
+          setCreatedFilter(event.target.value as CreatedFilterOptions);
+        }}
         sx={{ pr: 2 }}
       >
         {createdQueryOptions.map((item) => (

@@ -1,34 +1,29 @@
 import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
-import { FFRouteObject } from '../../navigation/NavigationInterfaces';
+import { FFRouteObject, NAMESPACES_PATH } from '../../interfaces';
 import { ActivityDashboard } from './views/Dashboard';
 import { ActivityEvents } from './views/Events';
 import { ActivityOperations } from './views/Operations';
 import { ActivityTransactions } from './views/Transactions';
 
 export const ActivityRoutes: FFRouteObject = {
-  path: '/activity',
+  path: `${NAMESPACES_PATH}/:namespace/activity`,
   icon: <AssessmentOutlinedIcon />,
-  name: 'Activity',
   children: [
     {
-      path: '/activity',
-      name: 'Dashboard',
+      path: '',
       index: true,
       element: <ActivityDashboard />,
     },
     {
-      path: '/activity/events',
-      name: 'Events',
+      path: 'events',
       element: <ActivityEvents />,
     },
     {
-      path: '/activity/transactions',
-      name: 'Transactions',
+      path: 'transactions',
       element: <ActivityTransactions />,
     },
     {
-      path: '/activity/operations',
-      name: 'Operations',
+      path: 'operations',
       element: <ActivityOperations />,
     },
   ],

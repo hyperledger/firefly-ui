@@ -1,11 +1,10 @@
 import DashboardOutlinedIcon from '@mui/icons-material/DashboardOutlined';
-import { FFRouteObject } from '../../navigation/NavigationInterfaces';
+import { NAMESPACES_PATH } from '../../interfaces';
+import { FFRouteObject } from '../../interfaces';
 import { HomeDashboard } from './views/Dashboard';
 
 export const HomeRoutes: FFRouteObject = {
-  path: '/home',
+  path: `${NAMESPACES_PATH}/:namespace/home`,
   element: <HomeDashboard />,
-  icon: <DashboardOutlinedIcon />,
   index: true,
-  name: 'Dashboard',
 };

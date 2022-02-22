@@ -19,7 +19,7 @@ import React from 'react';
 import { ChartHeader } from '../../../components/Charts/Header';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { TimelinePanel } from '../../../components/Timeline/Panel';
-import { Header } from '../../../navigation/Header';
+import { Header } from '../../../components/Header';
 import { DEFAULT_PADDING, FFColors } from '../../../theme';
 
 export const ActivityEvents: () => JSX.Element = () => {

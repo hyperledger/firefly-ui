@@ -18,40 +18,41 @@ import {
   TimelineConnector,
   TimelineContent,
   TimelineDot,
-  TimelineItem,
+  TimelineItem as TItem,
   TimelineOppositeContent,
   TimelineSeparator,
 } from '@mui/lab';
 import makeStyles from '@mui/styles/makeStyles';
 import React from 'react';
-import { ITimelineItem } from '../../../interfaces';
+import { ITimelineItem } from '../../../_core/interfaces';
 import { TimelineContentPanel } from './TimelineContentPanel';
 
 interface Props {
   item: ITimelineItem;
 }
 
-export const OppositeTimelineItem: React.FC<Props> = ({ item }) => {
+export const TimelineItem: React.FC<Props> = ({ item }) => {
   const classes = useStyles();
 
   return (
     <>
-      <TimelineItem>
-        <TimelineOppositeContent>
-          <TimelineContentPanel
-            title={item.title}
-            description={item.description}
-            onClick={item.onClick}
-          />
-        </TimelineOppositeContent>
+      <TItem>
+        <TimelineOppositeContent>{item.time}</TimelineOppositeContent>
         <TimelineSeparator>
           <TimelineDot className={classes.dot}>
             {item.icon ? item.icon : undefined}
           </TimelineDot>
           <TimelineConnector />
         </TimelineSeparator>
-        <TimelineContent>{item.time}</TimelineContent>
-      </TimelineItem>
+        <TimelineContent>
+          <TimelineContentPanel
+            title={item.title}
+            description={item.description}
+            onClick={item.onClick}
+            color="secondary"
+          />
+        </TimelineContent>
+      </TItem>
     </>
   );
 };

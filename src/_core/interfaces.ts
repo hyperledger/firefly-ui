@@ -433,3 +433,8 @@ export interface IGenericPagedResponse {
   items: any[];
   total: number;
 }
+
+export interface IDataWithHeader {
+  header: string;
+  data: string | number;
+}

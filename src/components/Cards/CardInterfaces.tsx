@@ -1,4 +1,4 @@
-import { IDataWithHeader } from '../interfaces';
+import { IDataWithHeader } from '../../_core/interfaces';
 
 export interface ISmallCard {
   header: string;

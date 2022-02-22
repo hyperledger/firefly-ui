@@ -19,6 +19,7 @@ export const ChartHeader: React.FC<Props> = ({ filter, legend, title }) => {
         <Typography fontWeight="bold">{title}</Typography>
       </Grid>
       <Grid
+        item
         xs={8}
         container
         direction="row"

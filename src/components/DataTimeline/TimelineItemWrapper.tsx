@@ -14,23 +14,24 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { Dispatch, SetStateAction } from 'react';
-import { INamespace } from '../_core/interfaces';
+import React from 'react';
+import { ITimelineItem } from '../../_core/interfaces';
+import { OppositeTimelineItem } from './TimelineItems/OppositeTimelineItem';
+import { TimelineItem } from './TimelineItems/TimelineItem';
 
-export interface INamespaceContext {
-  selectedNamespace: string;
-  setSelectedNamespace: Dispatch<SetStateAction<string>>;
-  namespaces: INamespace[];
-  setNamespaces: Dispatch<SetStateAction<INamespace[]>>;
+interface Props {
+  item: ITimelineItem;
+  opposite?: boolean;
 }
 
-export const NamespaceContext = React.createContext<INamespaceContext>({
-  selectedNamespace: '',
-  setNamespaces: () => {
-    /* default value */
-  },
-  namespaces: [],
-  setSelectedNamespace: () => {
-    /* default value */
-  },
-});
+export const TimelineItemWrapper: React.FC<Props> = ({ item, opposite }) => {
+  return (
+    <>
+      {opposite ? (
+        <OppositeTimelineItem item={item} />
+      ) : (
+        <TimelineItem item={item} />
+      )}
+    </>
+  );
+};

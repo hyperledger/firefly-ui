@@ -14,15 +14,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import React, { useContext, useEffect, useState } from 'react';
 import { Button, Grid, Typography } from '@mui/material';
-import React from 'react';
 import { ChartHeader } from '../../../components/Charts/Header';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { TimelinePanel } from '../../../components/Timeline/Panel';
-import { Header } from '../../../navigation/Header';
+import { Header } from '../../../components/Header';
 import { DEFAULT_PADDING, FFColors } from '../../../theme';
+import { fetchWithCredentials } from '../../../utils';
+import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { IEvent } from '../../../_core/interfaces';
+import { useTranslation } from 'react-i18next';
 
 export const ActivityDashboard: () => JSX.Element = () => {
+  const { selectedNamespace } = useContext(ApplicationContext);
+  const [events, setEvents] = useState<IEvent[]>([]);
+  const { t } = useTranslation();
+
   const legend = [
     {
       color: FFColors.Yellow,
@@ -38,9 +46,20 @@ export const ActivityDashboard: () => JSX.Element = () => {
     },
   ];
 
+  useEffect(() => {
+    fetchWithCredentials(`/api/v1/namespaces/${selectedNamespace}/events`).then(
+      async (response) => {
+        if (response.ok) {
+          setEvents(await response.json());
+        } else {
+        }
+      }
+    );
+  }, []);
+
   return (
     <>
-      <Header title={'Timeline'} subtitle={'Activity'}></Header>
+      <Header title={t('timeline')} subtitle={t('activity')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartHeader

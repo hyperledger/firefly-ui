@@ -22,7 +22,7 @@ import { Histogram } from '../../../components/Charts/Histogram';
 import { DataTable } from '../../../components/Tables/Table';
 import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
-import { Header } from '../../../navigation/Header';
+import { Header } from '../../../components/Header';
 import { DEFAULT_PADDING, FFColors } from '../../../theme';
 
 export const ActivityOperations: () => JSX.Element = () => {

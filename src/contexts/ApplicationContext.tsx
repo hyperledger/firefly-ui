@@ -15,7 +15,11 @@
 // limitations under the License.
 
 import { Dispatch, SetStateAction, createContext } from 'react';
-import { DataView, CreatedFilterOptions } from '../_core/interfaces';
+import {
+  DataView,
+  CreatedFilterOptions,
+  INamespace,
+} from '../_core/interfaces';
 
 export interface IApplicationContext {
   identity: string;
@@ -26,6 +30,9 @@ export interface IApplicationContext {
   setDataView: Dispatch<SetStateAction<DataView>>;
   createdFilter: CreatedFilterOptions;
   setCreatedFilter: Dispatch<SetStateAction<CreatedFilterOptions>>;
+  selectedNamespace: string;
+  setSelectedNamespace: Dispatch<SetStateAction<string>>;
+  namespaces: INamespace[];
 }
 
 export const ApplicationContext = createContext({} as IApplicationContext);
