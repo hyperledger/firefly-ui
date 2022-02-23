@@ -1,67 +1,24 @@
 import { Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import { ResponsiveBar } from '@nivo/bar';
+import { BarDatum, ResponsiveBar } from '@nivo/bar';
 import dayjs from 'dayjs';
-import { FFColors, themeOptions } from '../../theme';
+import { themeOptions } from '../../theme';
 
 interface Props {
-  // colors: string[];
-  data: any; // BarDatum[] | IMetric[];
-  // indexBy: string;
-  // keys: string[];
+  colors: string[];
+  data: BarDatum[];
+  indexBy: string;
+  keys: string[];
 }
 
-export const Histogram: React.FC<Props> = ({ data }) => {
-  const keys = ['blockchain', 'tokens', 'messages'];
-  const colors = [FFColors.Pink, FFColors.Orange, FFColors.Yellow];
-  // TODO: Remove mock data
-
-  const mockTimes = [
-    '2022-02-16T00:51:37Z',
-    '2022-02-16T01:51:37Z',
-    '2022-02-16T02:51:37Z',
-    '2022-02-16T03:51:37Z',
-    '2022-02-16T04:51:37Z',
-    '2022-02-16T05:51:37Z',
-    '2022-02-16T06:51:37Z',
-    '2022-02-16T07:51:37Z',
-    '2022-02-16T08:51:37Z',
-    '2022-02-16T09:51:37Z',
-    '2022-02-16T10:51:37Z',
-    '2022-02-16T11:51:37Z',
-    '2022-02-16T12:51:37Z',
-    '2022-02-16T13:51:37Z',
-    '2022-02-16T14:51:37Z',
-    '2022-02-16T15:51:37Z',
-    '2022-02-16T16:51:37Z',
-    '2022-02-16T17:51:37Z',
-    '2022-02-16T18:51:37Z',
-    '2022-02-16T19:51:37Z',
-    '2022-02-16T20:51:37Z',
-    '2022-02-16T21:51:37Z',
-    '2022-02-16T22:51:37Z',
-    '2022-02-16T23:51:37Z',
-  ];
-  data = [];
-  mockTimes.map((t) => {
-    data.push({
-      timestamp: t,
-      blockchain: Math.floor(Math.random() * 100),
-      blockchainColor: FFColors.Yellow,
-      tokens: Math.floor(Math.random() * 100),
-      tokensColor: FFColors.Orange,
-      messages: Math.floor(Math.random() * 100),
-      messagesColor: FFColors.Pink,
-    });
-  });
-
+export const Histogram: React.FC<Props> = ({ colors, data, indexBy, keys }) => {
   return (
     <Box
       mt={2}
       borderRadius={1}
       sx={{
         width: '100%',
-        height: 200,
+        height: '100%',
         backgroundColor: 'background.paper',
       }}
     >
@@ -69,7 +26,7 @@ export const Histogram: React.FC<Props> = ({ data }) => {
         data={data}
         colors={colors}
         keys={keys}
-        indexBy="timestamp"
+        indexBy={indexBy}
         margin={{ top: 10, right: 30, bottom: 30, left: 40 }}
         padding={0.3}
         valueScale={{ type: 'linear' }}
@@ -122,7 +79,7 @@ export const Histogram: React.FC<Props> = ({ data }) => {
               return (
                 <>
                   <Typography sx={{ color: data[`${key}Color`] }}>
-                    {`${key.toUpperCase()}: ${data[key]}`}
+                    {`${key.toUpperCase()}: ${data[key] ?? 0}`}
                   </Typography>
                 </>
               );

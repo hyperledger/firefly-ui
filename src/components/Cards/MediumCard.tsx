@@ -1,6 +1,6 @@
 import { Grid, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import { IMediumCard } from './CardInterfaces';
+import { IMediumCard } from '../../interfaces';
 
 type Props = {
   card: IMediumCard;
@@ -35,7 +35,15 @@ export const MediumCard: React.FC<Props> = ({ card }) => {
         justifyContent="center"
         direction="column"
       >
-        <Grid item>{card.component}</Grid>
+        <Grid
+          container
+          alignItems="center"
+          justifyContent="center"
+          sx={{ height: 350, width: '100%' }}
+          item
+        >
+          {card.component}
+        </Grid>
       </Grid>
     </Box>
   );

@@ -1,8 +1,11 @@
-import { IDataWithHeader } from '../../_core/interfaces';
+export interface IDataWithHeader {
+  header: string;
+  data: string | number | undefined;
+}
 
 export interface ISmallCard {
   header: string;
-  numErrors?: number;
+  numErrors: number;
   data: IDataWithHeader[];
 }
 

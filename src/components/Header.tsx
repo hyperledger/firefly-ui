@@ -23,9 +23,9 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
-import { DatePicker } from './DatePicker';
-import { NamespacePicker } from '../_core/components/NamespacePicker';
+import { DatePicker } from './Pickers/DatePicker';
 import { DEFAULT_PADDING, themeOptions } from '../theme';
+import { NamespacePicker } from './Pickers/NamespacePicker';
 interface Props {
   title: string;
   subtitle: string;

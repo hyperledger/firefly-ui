@@ -20,7 +20,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { ITransactionStatus } from '../interfaces';
 import dayjs from 'dayjs';
-import { HashPopover } from './HashPopover';
+import { HashPopover } from '../../components/Popovers/HashPopover';
 import { DEFAULT_SPACING } from '../../theme';
 
 interface Props {

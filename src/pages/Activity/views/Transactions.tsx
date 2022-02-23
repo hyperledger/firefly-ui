@@ -94,7 +94,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
               </Button>
             }
           />
-          <Histogram data="undefined"></Histogram>
+          {/* <Histogram data="undefined"></Histogram> */}
           {records.length ? (
             <DataTable
               stickyHeader={true}

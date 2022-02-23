@@ -18,7 +18,7 @@ import { IconButton, Modal, Paper, Slide } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
 import CloseIcon from 'mdi-react/CloseIcon';
 import React from 'react';
-import { DEFAULT_PADDING } from '../../../theme';
+import { DEFAULT_PADDING } from '../../theme';
 
 export interface Props {
   open: boolean;

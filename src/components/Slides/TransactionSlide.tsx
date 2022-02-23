@@ -18,26 +18,91 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import ContentCopyIcon from '@mui/icons-material/ContentCopy';
 import { Chip, Grid, IconButton, Typography } from '@mui/material';
 import dayjs from 'dayjs';
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { DisplaySlide } from '../../_core/components/Display/DisplaySlide';
+import { useTranslation } from 'react-i18next';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
+import { SnackbarContext } from '../../contexts/SnackbarContext';
+import {
+  IEvent,
+  ITxBlockchainEvent,
+  ITxOperation,
+  ITxStatus,
+  OpStatusColorMap,
+  TxStatusColorMap,
+} from '../../interfaces';
+import { FF_Paths } from '../../interfaces/constants';
 import { DEFAULT_PADDING } from '../../theme';
+import { fetchCatcher } from '../../utils';
+import { HashPopover } from '../Popovers/HashPopover';
+import { DisplaySlide } from './DisplaySlide';
 import { DrawerListItem, IDataListItem } from './ListItem';
 import { DrawerPanel, IOperationListItem } from './Panel';
 
 interface Props {
+  event: IEvent;
   open: boolean;
   onClose: () => void;
 }
 
-export const TransactionSlide: React.FC<Props> = ({ open, onClose }) => {
-  // TODO: Remove mock data
+export const TransactionSlide: React.FC<Props> = ({ event, open, onClose }) => {
+  const { t } = useTranslation();
+  const { selectedNamespace } = useContext(ApplicationContext);
+  const { reportFetchError } = useContext(SnackbarContext);
+
+  const [txBlockchainEvents, setTxBlockchainEvents] = useState<
+    ITxBlockchainEvent[]
+  >([]);
+  const [txOperations, setTxOperations] = useState<ITxOperation[]>([]);
+  const [txStatus, setTxStatus] = useState<ITxStatus>();
+
+  useEffect(() => {
+    // Transaction Status
+    fetchCatcher(
+      `${
+        FF_Paths.nsPrefix
+      }/${selectedNamespace}${FF_Paths.transactionByIdStatus(event.tx)}`
+    )
+      .then((txStatus: ITxStatus) => {
+        setTxStatus(txStatus);
+      })
+      .catch((err) => {
+        reportFetchError(err);
+      });
+    // Transaction Operations
+    fetchCatcher(
+      `${
+        FF_Paths.nsPrefix
+      }/${selectedNamespace}${FF_Paths.transactionByIdOperations(event.tx)}`
+    )
+      .then((txOperations: ITxOperation[]) => {
+        setTxOperations(txOperations);
+      })
+      .catch((err) => {
+        reportFetchError(err);
+      });
+    // Transaction Blockchain Events
+    fetchCatcher(
+      `${
+        FF_Paths.nsPrefix
+      }/${selectedNamespace}${FF_Paths.transactionByIdBlockchainEvents(
+        event.tx
+      )}`
+    )
+      .then((txBlockchainEvents: ITxBlockchainEvent[]) => {
+        setTxBlockchainEvents(txBlockchainEvents);
+      })
+      .catch((err) => {
+        reportFetchError(err);
+      });
+  }, [event]);
+
   const dataList: IDataListItem[] = [
     {
-      label: 'ID',
-      value: '123456789876543212345678987654321',
+      label: t('id'),
+      value: event.tx,
       button: (
-        <CopyToClipboard text={'todo'}>
+        <CopyToClipboard text={event.tx}>
           <IconButton>
             <ContentCopyIcon />
           </IconButton>
@@ -45,45 +110,60 @@ export const TransactionSlide: React.FC<Props> = ({ open, onClose }) => {
       ),
     },
     {
-      label: 'Type',
-      value: 'Batch Pin',
+      label: t('type'),
+      value: event.type,
     },
     {
-      label: 'Status',
-      value: <Chip label="Success" color="success"></Chip>,
+      label: t('status'),
+      value: txStatus && (
+        <Chip
+          label={txStatus.status}
+          sx={{ backgroundColor: TxStatusColorMap[txStatus.status] }}
+        ></Chip>
+      ),
     },
     {
-      label: 'Operations',
-      value: '2',
+      label: t('operations'),
+      value: txOperations.length,
     },
     {
-      label: 'Timestamp',
-      value: dayjs(Date.now()).format('MM/DD/YYYY h:mm A'),
+      label: t('timestamp'),
+      value: dayjs(event.created).format('MM/DD/YYYY h:mm A'),
     },
   ];
-  // TODO: Remove mock data
-  const operationsList: IOperationListItem[] = [
-    {
-      label: 'Public_Storage_Batch_Broadcast',
-      value: '123456789876543212345678987654321',
-      badge: <Chip label="Success" color="success" size="small"></Chip>,
+
+  const operationsList: IOperationListItem[] = txOperations.map((op) => {
+    return {
+      label: op.type,
+      value: <HashPopover address={op.id} shortHash={true}></HashPopover>,
+      badge: (
+        <Chip
+          label={op.status}
+          sx={{ backgroundColor: OpStatusColorMap[op.status] }}
+          size="small"
+        ></Chip>
+      ),
       button: (
         <IconButton>
           <ArrowForwardIcon />
         </IconButton>
       ),
-    },
-    {
-      label: 'Public_Storage_Batch_Broadcast',
-      value: '123456789876543212345678987654321',
-      badge: <Chip label="Success" color="success" size="small"></Chip>,
-      button: (
-        <IconButton>
-          <ArrowForwardIcon />
-        </IconButton>
-      ),
-    },
-  ];
+    };
+  });
+
+  const blockchainEventsList: IOperationListItem[] = txBlockchainEvents.map(
+    (be) => {
+      return {
+        label: be.name,
+        value: <HashPopover address={be.id} shortHash={true}></HashPopover>,
+        button: (
+          <IconButton>
+            <ArrowForwardIcon />
+          </IconButton>
+        ),
+      };
+    }
+  );
 
   return (
     <>
@@ -91,15 +171,16 @@ export const TransactionSlide: React.FC<Props> = ({ open, onClose }) => {
         <Grid container direction="column" p={DEFAULT_PADDING}>
           {/* Data */}
           <Grid item pb={5}>
-            <Typography variant="subtitle1">Transaction</Typography>
+            <Typography variant="subtitle1">{t('transaction')}</Typography>
             <Typography
               variant="h5"
               sx={{
                 fontWeight: 'bold',
                 fontSize: '14',
+                textTransform: 'uppercase',
               }}
             >
-              [Transaction Type]
+              {event.type}
             </Typography>
           </Grid>
           <Grid container item>
@@ -116,7 +197,7 @@ export const TransactionSlide: React.FC<Props> = ({ open, onClose }) => {
                 fontSize: '12',
               }}
             >
-              Operations
+              {`${t('operations')} (${operationsList.length})`}
             </Typography>
           </Grid>
           <Grid container item>
@@ -133,12 +214,12 @@ export const TransactionSlide: React.FC<Props> = ({ open, onClose }) => {
                 fontSize: '12',
               }}
             >
-              Blockchain Events
+              {`${t('blockchainEvents')} (${blockchainEventsList.length})`}
             </Typography>
           </Grid>
           <Grid container item>
-            {operationsList.map((op, idx) => (
-              <DrawerPanel key={idx} item={op} />
+            {blockchainEventsList.map((be, idx) => (
+              <DrawerPanel key={idx} item={be} />
             ))}
           </Grid>
         </Grid>

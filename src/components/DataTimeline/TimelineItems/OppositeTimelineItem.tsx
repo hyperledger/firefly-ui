@@ -24,7 +24,7 @@ import {
 } from '@mui/lab';
 import makeStyles from '@mui/styles/makeStyles';
 import React from 'react';
-import { ITimelineItem } from '../../../_core/interfaces';
+import { ITimelineItem } from '../../../interfaces';
 import { TimelineContentPanel } from './TimelineContentPanel';
 
 interface Props {

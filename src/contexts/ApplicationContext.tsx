@@ -14,20 +14,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Dispatch, SetStateAction, createContext } from 'react';
-import {
-  DataView,
-  CreatedFilterOptions,
-  INamespace,
-} from '../_core/interfaces';
+import { createContext, Dispatch, SetStateAction } from 'react';
+import { CreatedFilterOptions, INamespace } from '../interfaces';
 
 export interface IApplicationContext {
   identity: string;
   orgName: string;
   lastEvent: any;
   setLastEvent: Dispatch<SetStateAction<any>>;
-  dataView: DataView;
-  setDataView: Dispatch<SetStateAction<DataView>>;
   createdFilter: CreatedFilterOptions;
   setCreatedFilter: Dispatch<SetStateAction<CreatedFilterOptions>>;
   selectedNamespace: string;
