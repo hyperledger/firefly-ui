@@ -223,7 +223,9 @@ export const NetworkMap: () => JSX.Element = () => {
 
   const content =
     orgsLoading || nodesLoading ? (
-      <CircularProgress />
+      <Grid container justifyContent="center" alignItems="center">
+        <CircularProgress color="warning" />
+      </Grid>
     ) : (
       <ResponsiveCirclePacking
         zoomedId={zoomedId}

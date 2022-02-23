@@ -70,7 +70,7 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
                   {data.data}
                 </Typography>
               ) : (
-                <Skeleton sx={{ width: 40, height: 40 }} />
+                <Skeleton sx={{ width: 40, height: 42 }} />
               )}
             </Grid>
           );

@@ -1,9 +1,10 @@
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { CircularProgress, Grid, List, Typography } from '@mui/material';
+import { Grid, List, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import { t } from 'i18next';
 import { useContext, useEffect, useState } from 'react';
+import { CardEmptyState } from '../../../components/Cards/CardEmptyState';
 import { MediumCard } from '../../../components/Cards/MediumCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { TableCard } from '../../../components/Cards/TableCard';
@@ -11,6 +12,7 @@ import { TableCardItem } from '../../../components/Cards/TableCardItem';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
+import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { NetworkMap } from '../../../components/NetworkMap/NetworkMap';
 import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
@@ -53,7 +55,7 @@ export const HomeDashboard: () => JSX.Element = () => {
   const [tokenErrorCount, setTokenErrorCount] = useState<number>(0);
   // Medium cards
   // Event types histogram
-  const [eventTypesData, setEventTypesData] = useState<BarDatum[]>([]);
+  const [eventTypesData, setEventTypesData] = useState<BarDatum[]>();
   // Table cards
   const [recentTxs, setRecentTxs] = useState<IEvent[]>();
   const [recentEvents, setRecentEvents] = useState<IEvent[]>();
@@ -186,12 +188,14 @@ export const HomeDashboard: () => JSX.Element = () => {
     {
       headerComponent: <ArrowForwardIcon />,
       headerText: 'Network Map',
-      component: <NetworkMap></NetworkMap> ?? <CircularProgress />,
+      component: <NetworkMap></NetworkMap>,
     },
     {
       headerComponent: <ArrowForwardIcon />,
       headerText: 'Event Types',
-      component: eventTypesData?.length ? (
+      component: !eventTypesData ? (
+        <FFCircleLoader color="warning"></FFCircleLoader>
+      ) : eventTypesData.every((d) => d.count === 0) ? (
         <Histogram
           colors={[FFColors.Yellow]}
           data={eventTypesData}
@@ -199,7 +203,7 @@ export const HomeDashboard: () => JSX.Element = () => {
           keys={['events']}
         ></Histogram>
       ) : (
-        <CircularProgress />
+        <CardEmptyState text={t('noEvents')}></CardEmptyState>
       ),
     },
   ];
@@ -265,7 +269,9 @@ export const HomeDashboard: () => JSX.Element = () => {
             bgcolor: 'background.paper',
           }}
         >
-          {recentTxs?.length ? (
+          {!recentTxs ? (
+            <FFCircleLoader color="warning"></FFCircleLoader>
+          ) : recentTxs.length ? (
             recentTxs.map((tx, idx) => (
               <div key={idx} onClick={() => setViewEvent(tx)}>
                 <TableCardItem
@@ -277,7 +283,7 @@ export const HomeDashboard: () => JSX.Element = () => {
               </div>
             ))
           ) : (
-            <CircularProgress />
+            <CardEmptyState text={t('noEvents')}></CardEmptyState>
           )}
         </List>
       ),
@@ -292,7 +298,9 @@ export const HomeDashboard: () => JSX.Element = () => {
             bgcolor: 'background.paper',
           }}
         >
-          {recentEvents?.length ? (
+          {!recentEvents ? (
+            <FFCircleLoader color="warning"></FFCircleLoader>
+          ) : recentEvents?.length ? (
             recentEvents.map((tx, idx) => (
               <div key={idx} onClick={() => setViewEvent(tx)}>
                 <TableCardItem
@@ -304,7 +312,7 @@ export const HomeDashboard: () => JSX.Element = () => {
               </div>
             ))
           ) : (
-            <CircularProgress />
+            <CardEmptyState text={t('noEvents')}></CardEmptyState>
           )}
         </List>
       ),
