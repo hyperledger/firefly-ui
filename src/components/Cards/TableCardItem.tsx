@@ -1,5 +1,5 @@
 import { ListItem, ListItemText, Typography } from '@mui/material';
-import { FFColors } from '../../theme';
+import { DEFAULT_PADDING, FFColors } from '../../theme';
 import { HashPopover } from '../Popovers/HashPopover';
 
 type Props = {
@@ -23,12 +23,13 @@ export const TableCardItem: React.FC<Props> = ({
         borderLeft: 4,
         borderColor: FFColors.Yellow, // TODO: make dynamic based on category
         px: 2,
-        height: 50,
+        height: 60,
         borderTop: 1,
         borderTopColor: 'background.default',
         borderBottom: 1,
         borderBottomColor: 'background.default',
         color: 'text.primary',
+        py: DEFAULT_PADDING,
         '&:hover': {
           backgroundColor: '#FFF',
           cursor: 'pointer',

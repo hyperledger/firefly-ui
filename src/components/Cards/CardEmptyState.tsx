@@ -13,9 +13,12 @@ export const CardEmptyState: React.FC<Props> = ({ text, subText }) => {
       justifyContent="center"
       alignItems="center"
       py={DEFAULT_PADDING}
+      sx={{
+        minHeight: 150,
+      }}
     >
       <Typography variant="subtitle1">{text}</Typography>
-      <Typography variant="subtitle2">{subText}</Typography>
+      {subText && <Typography variant="subtitle2">{subText}</Typography>}
     </Grid>
   );
 };

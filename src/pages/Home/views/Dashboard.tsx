@@ -195,7 +195,7 @@ export const HomeDashboard: () => JSX.Element = () => {
       headerText: 'Event Types',
       component: !eventTypesData ? (
         <FFCircleLoader color="warning"></FFCircleLoader>
-      ) : eventTypesData.every((d) => d.count === 0) ? (
+      ) : eventTypesData.every((d) => d.count !== 0) ? (
         <Histogram
           colors={[FFColors.Yellow]}
           data={eventTypesData}
@@ -264,6 +264,7 @@ export const HomeDashboard: () => JSX.Element = () => {
       headerText: t('myRecentTransactions'),
       component: (
         <List
+          disablePadding
           sx={{
             width: '100%',
             bgcolor: 'background.paper',
@@ -293,6 +294,7 @@ export const HomeDashboard: () => JSX.Element = () => {
       headerText: 'Recent Network Events',
       component: (
         <List
+          disablePadding
           sx={{
             width: '100%',
             bgcolor: 'background.paper',

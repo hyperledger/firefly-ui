@@ -20,6 +20,9 @@ export const FFCircleLoader: React.FC<Props> = ({ color }) => {
       justifyContent="center"
       alignItems="center"
       py={DEFAULT_PADDING}
+      sx={{
+        minHeight: 150,
+      }}
     >
       <CircularProgress color={color} />
     </Grid>
