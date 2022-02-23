@@ -1,160 +1,62 @@
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Button, Grid, List, Typography } from '@mui/material';
+import { CircularProgress, Grid, List, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
+import { t } from 'i18next';
 import { useContext, useEffect, useState } from 'react';
-import { useParams } from 'react-router-dom';
-import {
-  IMediumCard,
-  ISmallCard,
-  ITableCard,
-  ITableCardItem,
-} from '../../../components/Cards/CardInterfaces';
 import { MediumCard } from '../../../components/Cards/MediumCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { TableCard } from '../../../components/Cards/TableCard';
 import { TableCardItem } from '../../../components/Cards/TableCardItem';
 import { Histogram } from '../../../components/Charts/Histogram';
-import { ICreatedFilter } from '../../../components/Filters/FilterInterfaces';
 import { getCreatedFilter } from '../../../components/Filters/utils';
+import { Header } from '../../../components/Header';
 import { NetworkMap } from '../../../components/NetworkMap/NetworkMap';
 import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
-import { Header } from '../../../components/Header';
-import { DEFAULT_PADDING, DEFAULT_SPACING } from '../../../theme';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
-
-const smallCards: ISmallCard[] = [
-  {
-    header: 'Blockchain',
-    numErrors: 3,
-    data: [
-      { header: 'Tx', data: 231 },
-      { header: 'Events', data: 652 },
-    ],
-  },
-  {
-    header: 'Off-Chain',
-    data: [
-      { header: 'In', data: 1126 },
-      { header: 'Out', data: 754 },
-    ],
-  },
-  {
-    header: 'Messages',
-    data: [
-      { header: 'Tx', data: 860 },
-      { header: 'Events', data: 652 },
-    ],
-  },
-  {
-    header: 'Tokens',
-    numErrors: 2,
-    data: [
-      { header: 'Transfers', data: 59 },
-      { header: 'Mint', data: 18 },
-      { header: 'Burn', data: 12 },
-    ],
-  },
-];
-
-const mediumCards: IMediumCard[] = [
-  {
-    headerComponent: <ArrowForwardIcon />,
-    headerText: 'My Node - [Node Name]',
-    component: <Typography>Placeholder</Typography>,
-  },
-  {
-    headerComponent: undefined,
-    headerText: 'Network Map',
-    component: <Typography>Placeholder</Typography>,
-  },
-  {
-    headerComponent: undefined,
-    headerText: 'Event Types',
-    component: <Typography>Placeholder</Typography>,
-  },
-];
-
-enum TXStatus {
-  Succeeded = 'Succeeded',
-  Pending = 'Pending',
-  Error = 'Error',
-}
-
-const recentSubmittedTxs: ITableCardItem[] = [
-  {
-    header: 'To=Org2,Org3 BatchSize=1',
-    status: TXStatus.Pending,
-    subText: 'Private Message Batch',
-    date: dayjs(Date.now()).format('MM/DD/YYYY h:mm A'),
-  },
-  {
-    header: 'From=0xabc To=0xbcd',
-    status: '0x39b9af6647d97f0ce3c9dd2e60fc6c2dbea610cc',
-    subText: 'Token Transfer',
-    date: dayjs(Date.now()).format('MM/DD/YYYY h:mm A'),
-  },
-  {
-    header: 'Connector=ERC20, Address=0x',
-    status: TXStatus.Pending,
-    subText: 'Private Message Batch',
-    date: dayjs(Date.now()).format('MM/DD/YYYY h:mm A'),
-  },
-  {
-    header: 'To=Org2,Org3 BatchSize=1',
-    status: TXStatus.Pending,
-    subText: 'Private Message Batch',
-    date: dayjs(Date.now()).format('MM/DD/YYYY h:mm A'),
-  },
-  {
-    header: 'From=0xabc To=0xbcd',
-    status: '0xe16766af6caeaedbb3584ae6d39436d00fa835fd',
-    subText: 'Token Transfer',
-    date: dayjs(Date.now()).format('MM/DD/YYYY h:mm A'),
-  },
-  {
-    header: 'Connector=ERC20, Address=0x',
-    status: TXStatus.Pending,
-    subText: 'Private Message Batch',
-    date: dayjs(Date.now()).format('MM/DD/YYYY h:mm A'),
-  },
-  {
-    header: 'To=Org2,Org3 BatchSize=1',
-    status: TXStatus.Pending,
-    subText: 'Private Message Batch',
-    date: dayjs(Date.now()).format('MM/DD/YYYY h:mm A'),
-  },
-];
+import {
+  ICreatedFilter,
+  IEvent,
+  IGenericPagedResponse,
+  IMediumCard,
+  IMetric,
+  ISmallCard,
+  ITableCard,
+} from '../../../interfaces';
+import { FF_Paths } from '../../../interfaces/constants';
+import { DEFAULT_PADDING, DEFAULT_SPACING, FFColors } from '../../../theme';
+import { fetchCatcher } from '../../../utils';
 
 export const HomeDashboard: () => JSX.Element = () => {
-  const { namespace } = useParams();
-  const { createdFilter, lastEvent, selectedNamespace } =
+  const { createdFilter, lastEvent, orgName, selectedNamespace } =
     useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
-  const [filterString, setFilterString] = useState('');
-  const [viewData, setViewData] = useState<boolean | undefined>();
-
+  const [viewEvent, setViewEvent] = useState<IEvent | undefined>();
+  // Small cards
   // Blockchain
   const [blockchainTxCount, setBlockchainTxCount] = useState<number>();
   const [blockchainEventCount, setBlockchainEventCount] = useState<number>();
-  const [blockchainErrorCount, setBlockchainErrorCount] = useState<number>();
+  const [blockchainErrorCount, setBlockchainErrorCount] = useState<number>(0);
   // Off-Chain
   const [offchainInCount, setOffchainInCount] = useState<number>();
   const [offchainOutCount, setOffchainOutCount] = useState<number>();
-  const [offchainErrorCount, setOffchainErrorCount] = useState<number>();
+  const [offchainErrorCount, setOffchainErrorCount] = useState<number>(0);
   // Messages
   const [messagesTxCount, setMessagesTxCount] = useState<number>();
   const [messagesEventCount, setMessagesEventCount] = useState<number>();
-  const [messagesErrorCount, setMessagesErrorCount] = useState<number>();
+  const [messagesErrorCount, setMessagesErrorCount] = useState<number>(0);
   // Tokens
   const [tokenTransfersCount, setTokenTransfersCount] = useState<number>();
   const [tokenMintCount, setTokenMintcount] = useState<number>();
   const [tokenBurnCount, setTokenBurnCount] = useState<number>();
-  const [tokenErrorCount, setTokenErrorCount] = useState<number>();
-  console.log(namespace);
+  const [tokenErrorCount, setTokenErrorCount] = useState<number>(0);
+  // Medium cards
   // Event types histogram
   const [eventTypesData, setEventTypesData] = useState<BarDatum[]>([]);
+  // Table cards
+  const [recentTxs, setRecentTxs] = useState<IEvent[]>();
+  const [recentEvents, setRecentEvents] = useState<IEvent[]>();
 
   const smallCards: ISmallCard[] = [
     {
@@ -167,6 +69,7 @@ export const HomeDashboard: () => JSX.Element = () => {
     },
     {
       header: 'Off-Chain',
+      // TODO: Figure out error API call
       numErrors: offchainErrorCount,
       data: [
         { header: 'In', data: offchainInCount },
@@ -175,6 +78,7 @@ export const HomeDashboard: () => JSX.Element = () => {
     },
     {
       header: 'Messages',
+      // TODO: Figure out error API call
       numErrors: messagesErrorCount,
       data: [
         { header: 'Tx', data: messagesTxCount },
@@ -193,186 +97,167 @@ export const HomeDashboard: () => JSX.Element = () => {
   ];
 
   // Small Card UseEffect
-  // useEffect(() => {
-  //   const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-  //   const qParams = `?count=true&limit=1${createdFilterObject.filterString}`;
+  useEffect(() => {
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+    const qParams = `?count=true&limit=1${createdFilterObject.filterString}`;
 
-  //   Promise.all([
-  //     fetchCatcher(
-  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.blockchainEvents}${qParams}`
-  //     ),
-  //     fetchCatcher(
-  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.blockchainEvents}${qParams}`
-  //     ),
-  //     fetchCatcher(
-  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.events}${qParams}`
-  //     ),
-  //     fetchCatcher(
-  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.events}${qParams}`
-  //     ),
-  //     fetchCatcher(
-  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.messages}${qParams}`
-  //     ),
-  //     fetchCatcher(
-  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.messages}${qParams}`
-  //     ),
-  //     fetchCatcher(
-  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.tokenTransfers}${qParams}`
-  //     ),
-  //     fetchCatcher(
-  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.tokenTransfers}${qParams}`
-  //     ),
-  //     fetchCatcher(
-  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.tokenTransfers}${qParams}`
-  //     ),
-  //   ])
-  //     .then(
-  //       ([
-  //         blockchainTx,
-  //         blockchainEvents,
-  //         offChainIn,
-  //         offChainOut,
-  //         msgsTx,
-  //         msgsEvents,
-  //         tokensTransfer,
-  //         tokensMint,
-  //         tokensBurn,
-  //       ]: IGenericPagedResponse[]) => {
-  //         setBlockchainTxCount(blockchainTx.total);
-  //         setBlockchainEventCount(blockchainEvents.total);
+    Promise.all([
+      // Blockchain
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactions}${qParams}&blockchainids=!`
+      ),
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.blockchainEvents}${qParams}`
+      ),
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&type=blockchain_batch_pin&type=blockchain_invoke&status=Failed`
+      ),
+      // TODO: Figure out API calls
+      // Off-Chain
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}`
+      ),
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}`
+      ),
+      // Messages
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messages}${qParams}&type=broadcast`
+      ),
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messages}${qParams}&type=private`
+      ),
+      // Tokens
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}${qParams}&type=transfer`
+      ),
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}${qParams}&type=mint`
+      ),
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}${qParams}&type=burn`
+      ),
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&type=token_create_pool&type=token_activate_pool&type=token_transfer&status=Failed`
+      ),
+    ])
+      .then(
+        ([
+          blockchainTx,
+          blockchainEvents,
+          blockchainErrors,
+          offChainIn,
+          offChainOut,
+          msgsTx,
+          msgsEvents,
+          tokensTransfer,
+          tokensMint,
+          tokensBurn,
+          tokenErrors,
+        ]: IGenericPagedResponse[]) => {
+          setBlockchainTxCount(blockchainTx.total);
+          setBlockchainEventCount(blockchainEvents.total);
+          setBlockchainErrorCount(blockchainErrors.total);
 
-  //         setOffchainInCount(offChainIn.total);
-  //         setOffchainOutCount(offChainOut.total);
+          // TODO: Set values once API calls done
+          setOffchainInCount(0);
+          setOffchainOutCount(0);
 
-  //         setMessagesEventCount(msgsTx.total);
-  //         setMessagesTxCount(msgsEvents.total);
+          setMessagesEventCount(msgsTx.total);
+          setMessagesTxCount(msgsEvents.total);
 
-  //         setTokenTransfersCount(tokensTransfer.total);
-  //         setTokenMintcount(tokensMint.total);
-  //         setTokenBurnCount(tokensBurn.total);
-  //       }
-  //     )
-  //     .catch((err) => {
-  //       reportFetchError(err);
-  //     });
-  // }, [selectedNamespace, createdFilter, lastEvent, filterString]);
+          setTokenTransfersCount(tokensTransfer.total);
+          setTokenMintcount(tokensMint.total);
+          setTokenBurnCount(tokensBurn.total);
+          setTokenErrorCount(tokenErrors.total);
+        }
+      )
+      .catch((err) => {
+        reportFetchError(err);
+      });
+  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
   const mediumCards: IMediumCard[] = [
     {
       headerComponent: <ArrowForwardIcon />,
-      headerText: 'My Node - [Node Name]',
+      headerText: `My Node - ${orgName}`,
       component: <Typography>Placeholder</Typography>,
     },
     {
-      headerComponent: undefined,
+      headerComponent: <ArrowForwardIcon />,
       headerText: 'Network Map',
-      component: <NetworkMap></NetworkMap>,
+      component: <NetworkMap></NetworkMap> ?? <CircularProgress />,
     },
-    // {
-    //   headerComponent: undefined,
-    //   headerText: 'Event Types',
-    //   component: eventTypesData.length ? (
-    //     <Histogram
-    //       colors={[FFColors.Pink, FFColors.Orange, FFColors.Yellow]}
-    //       data={eventTypesData}
-    //       indexBy="timestamp"
-    //       keys={['blockchain', 'transfers', 'messages']}
-    //     ></Histogram>
-    //   ) : (
-    //     <Typography>Test</Typography>
-    //   ),
-    // },
+    {
+      headerComponent: <ArrowForwardIcon />,
+      headerText: 'Event Types',
+      component: eventTypesData?.length ? (
+        <Histogram
+          colors={[FFColors.Yellow]}
+          data={eventTypesData}
+          indexBy="timestamp"
+          keys={['events']}
+        ></Histogram>
+      ) : (
+        <CircularProgress />
+      ),
+    },
   ];
 
   // Medium Card UseEffect
-  // useEffect(() => {
-  //   const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-  //   const qParams = `?count=true&limit=1${createdFilterObject.filterString}`;
+  useEffect(() => {
+    const currentTime = dayjs().unix();
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-  //   Promise.all([
-  //     fetchCatcher(
-  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.events}${qParams}&type=blockchain_event`
-  //     ),
-  //     fetchCatcher(
-  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.events}${qParams}&type=message_confirmed`
-  //     ),
-  //     fetchCatcher(
-  //       `${FF_Paths.namespacePrefix}/default${FF_Paths.events}${qParams}&type=transaction_submitted`
-  //     ),
-  //   ])
-  //     .then(
-  //       ([
-  //         blockchainEvents,
-  //         messageConfirmedEvents,
-  //         transferEvents,
-  //       ]: IGenericPagedResponse[]) => {
-  //         setEventTypesData([
-  //           {
-  //             timestamp: '2022-02-16T00:51:37Z',
-  //             blockchain: blockchainEvents.total,
-  //             blockchainColor: FFColors.Yellow,
-  //             transfers: transferEvents.total,
-  //             transfersColor: FFColors.Orange,
-  //             messages: messageConfirmedEvents.total,
-  //             messagesColor: FFColors.Pink,
-  //           },
-  //           {
-  //             timestamp: '2022-02-16T01:51:37Z',
-  //             blockchain: blockchainEvents.total,
-  //             blockchainColor: FFColors.Yellow,
-  //             transfers: transferEvents.total,
-  //             transfersColor: FFColors.Orange,
-  //             messages: messageConfirmedEvents.total,
-  //             messagesColor: FFColors.Pink,
-  //           },
-  //           {
-  //             timestamp: '2022-02-16T02:51:37Z',
-  //             blockchain: blockchainEvents.total,
-  //             blockchainColor: FFColors.Yellow,
-  //             transfers: transferEvents.total,
-  //             transfersColor: FFColors.Orange,
-  //             messages: messageConfirmedEvents.total,
-  //             messagesColor: FFColors.Pink,
-  //           },
-  //           {
-  //             timestamp: '2022-02-16T03:51:37Z',
-  //             blockchain: blockchainEvents.total,
-  //             blockchainColor: FFColors.Yellow,
-  //             transfers: transferEvents.total,
-  //             transfersColor: FFColors.Orange,
-  //             messages: messageConfirmedEvents.total,
-  //             messagesColor: FFColors.Pink,
-  //           },
-  //           {
-  //             timestamp: '2022-02-16T04:51:37Z',
-  //             blockchain: blockchainEvents.total,
-  //             blockchainColor: FFColors.Yellow,
-  //             transfers: transferEvents.total,
-  //             transfersColor: FFColors.Orange,
-  //             messages: messageConfirmedEvents.total,
-  //             messagesColor: FFColors.Pink,
-  //           },
-  //           {
-  //             timestamp: '2022-02-16T05:51:37Z',
-  //             blockchain: blockchainEvents.total,
-  //             blockchainColor: FFColors.Yellow,
-  //             transfers: transferEvents.total,
-  //             transfersColor: FFColors.Orange,
-  //             messages: messageConfirmedEvents.total,
-  //             messagesColor: FFColors.Pink,
-  //           },
-  //         ]);
-  //       }
-  //     )
-  //     .catch((err) => {
-  //       reportFetchError(err);
-  //     });
-  // }, [selectedNamespace, createdFilter, lastEvent, filterString]);
+    fetchCatcher(
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+        'events'
+      )}?startTime=${
+        createdFilterObject.filterTime
+      }&endTime=${currentTime}&buckets=12`
+    )
+      .then((eventBuckets: IMetric[]) => {
+        setEventTypesData(
+          eventBuckets.map((bucket) => {
+            return {
+              events: bucket.count,
+              eventsColor: FFColors.Yellow,
+              timestamp: bucket.timestamp,
+            } as BarDatum;
+          })
+        );
+      })
+      .catch((err) => {
+        reportFetchError(err);
+      });
+  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+
+  // Table Card UseEffect
+  useEffect(() => {
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+    const qParams = `?limit=7${createdFilterObject.filterString}`;
+
+    Promise.all([
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}&type=transaction_submitted`
+      ),
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}&type=!transaction_submitted`
+      ),
+    ])
+      .then(([recentTxs, recentEvents]) => {
+        setRecentTxs(recentTxs);
+        setRecentEvents(recentEvents);
+      })
+      .catch((err) => {
+        reportFetchError(err);
+      });
+  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
   const tableCards: ITableCard[] = [
     {
       headerComponent: <ArrowForwardIcon />,
-      headerText: 'My Recently Submitted Transactions',
+      headerText: t('myRecentTransactions'),
       component: (
         <List
           sx={{
@@ -380,9 +265,20 @@ export const HomeDashboard: () => JSX.Element = () => {
             bgcolor: 'background.paper',
           }}
         >
-          {recentSubmittedTxs.map((tx, idx) => (
-            <TableCardItem key={idx} item={tx} />
-          ))}
+          {recentTxs?.length ? (
+            recentTxs.map((tx, idx) => (
+              <div key={idx} onClick={() => setViewEvent(tx)}>
+                <TableCardItem
+                  date={dayjs(tx.created).format('MM/DD/YYYY h:mm A')}
+                  header={tx.type}
+                  status={tx.reference}
+                  subText={tx.type}
+                />
+              </div>
+            ))
+          ) : (
+            <CircularProgress />
+          )}
         </List>
       ),
     },
@@ -396,9 +292,20 @@ export const HomeDashboard: () => JSX.Element = () => {
             bgcolor: 'background.paper',
           }}
         >
-          {recentSubmittedTxs.map((tx, idx) => (
-            <TableCardItem key={idx} item={tx} />
-          ))}
+          {recentEvents?.length ? (
+            recentEvents.map((tx, idx) => (
+              <div key={idx} onClick={() => setViewEvent(tx)}>
+                <TableCardItem
+                  date={dayjs(tx.created).format('MM/DD/YYYY h:mm A')}
+                  header={tx.type}
+                  status={tx.reference}
+                  subText={tx.type}
+                />
+              </div>
+            ))
+          ) : (
+            <CircularProgress />
+          )}
         </List>
       ),
     },
@@ -408,8 +315,8 @@ export const HomeDashboard: () => JSX.Element = () => {
     <>
       <Header title={'Dashboard'} subtitle={'Home'}></Header>
       <Grid container px={DEFAULT_PADDING}>
-        <NetworkMap></NetworkMap>
-        {/* <Grid container item wrap="nowrap" direction="column">
+        <Grid container item wrap="nowrap" direction="column">
+          {/* Small Cards */}
           <Grid
             spacing={DEFAULT_SPACING}
             container
@@ -433,11 +340,12 @@ export const HomeDashboard: () => JSX.Element = () => {
               );
             })}
           </Grid>
-          <Button onClick={() => setViewData(!viewData)}>test</Button>
+          {/* Medium Cards */}
           <Grid
             spacing={DEFAULT_SPACING}
             container
-            item
+            justifyContent="center"
+            alignItems="center"
             direction="row"
             pb={DEFAULT_PADDING}
           >
@@ -457,7 +365,7 @@ export const HomeDashboard: () => JSX.Element = () => {
               );
             })}
           </Grid>
-
+          {/* Tables */}
           <Grid
             spacing={DEFAULT_SPACING}
             container
@@ -481,13 +389,14 @@ export const HomeDashboard: () => JSX.Element = () => {
               );
             })}
           </Grid>
-        </Grid> */}
+        </Grid>
       </Grid>
-      {viewData && (
+      {viewEvent && (
         <TransactionSlide
-          open={!!viewData}
+          event={viewEvent}
+          open={!!viewEvent}
           onClose={() => {
-            setViewData(undefined);
+            setViewEvent(undefined);
           }}
         />
       )}

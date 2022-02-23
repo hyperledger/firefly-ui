@@ -1,12 +1,14 @@
 import { Chip, Grid, Skeleton, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import { ISmallCard } from './CardInterfaces';
+import { useTranslation } from 'react-i18next';
+import { ISmallCard } from '../../interfaces';
 
 type Props = {
   card: ISmallCard;
 };
 
 export const SmallCard: React.FC<Props> = ({ card }) => {
+  const { t } = useTranslation();
   return (
     <Box
       p={2}
@@ -33,16 +35,16 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
             {card.header}
           </Typography>
         </Grid>
-        <Grid item>
-          {card.numErrors && (
+        {card.numErrors > 0 && (
+          <Grid item>
             <Chip
-              label={`${card.numErrors} Failed`}
+              label={`${card.numErrors} ${t('failed')}`}
               color="error"
               size="small"
               sx={{ fontSize: 10, fontWeight: 'bold' }}
             />
-          )}
-        </Grid>
+          </Grid>
+        )}
       </Grid>
       <Grid
         container

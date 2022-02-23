@@ -1,28 +1,38 @@
 import { ListItem, ListItemText, Typography } from '@mui/material';
 import { FFColors } from '../../theme';
-import { getShortHash } from '../../utils';
-import { ITableCardItem } from './CardInterfaces';
+import { HashPopover } from '../Popovers/HashPopover';
 
 type Props = {
-  item: ITableCardItem;
+  date: string;
+  header: string;
+  status: string;
+  subText: string;
 };
 
-export const TableCardItem: React.FC<Props> = ({ item }) => {
+export const TableCardItem: React.FC<Props> = ({
+  date,
+  header,
+  status,
+  subText,
+}) => {
   return (
     <ListItem
-      key={item.header}
+      key={header}
       disableGutters
       sx={{
         borderLeft: 4,
-        borderColor: FFColors.Yellow, // TODO: make dynamic,
+        borderColor: FFColors.Yellow, // TODO: make dynamic based on category
         px: 2,
         height: 50,
         borderTop: 1,
         borderTopColor: 'background.default',
         borderBottom: 1,
         borderBottomColor: 'background.default',
+        color: 'text.primary',
         '&:hover': {
+          backgroundColor: '#FFF',
           cursor: 'pointer',
+          color: 'text.disabled',
         },
       }}
     >
@@ -31,10 +41,9 @@ export const TableCardItem: React.FC<Props> = ({ item }) => {
           variant="subtitle1"
           sx={{
             fontSize: '14',
-            color: 'text.primary',
           }}
         >
-          {item.header}
+          {header}
         </Typography>
         <Typography
           variant="subtitle2"
@@ -44,15 +53,11 @@ export const TableCardItem: React.FC<Props> = ({ item }) => {
             textTransform: 'uppercase',
           }}
         >
-          {item.subText}
+          {subText}
         </Typography>
       </ListItemText>
       <ListItemText sx={{ justifyContent: 'flex-end', textAlign: 'right' }}>
-        <Typography variant="subtitle1" sx={{ fontSize: 14 }}>
-          {getShortHash(item.status).length
-            ? getShortHash(item.status)
-            : item.status}
-        </Typography>
+        <HashPopover address={status ?? ''} shortHash={true}></HashPopover>
         <Typography
           variant="subtitle2"
           sx={{
@@ -61,7 +66,7 @@ export const TableCardItem: React.FC<Props> = ({ item }) => {
             textTransform: 'uppercase',
           }}
         >
-          {item.date}
+          {date}
         </Typography>
       </ListItemText>
     </ListItem>

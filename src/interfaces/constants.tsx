@@ -1,6 +1,6 @@
 export const FF_Paths = {
   apiPrefix: '/api/v1',
-  namespacePrefix: '/api/v1/namespaces',
+  nsPrefix: '/api/v1/namespaces',
   // APIs
   apis: '/apis',
   apisByName: (apiName: string) => `/apis/${apiName}`,

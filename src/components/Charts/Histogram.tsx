@@ -1,12 +1,12 @@
 import { Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import { ResponsiveBar } from '@nivo/bar';
+import { BarDatum, ResponsiveBar } from '@nivo/bar';
 import dayjs from 'dayjs';
 import { themeOptions } from '../../theme';
 
 interface Props {
   colors: string[];
-  data: any; //BarDatum[];
+  data: BarDatum[];
   indexBy: string;
   keys: string[];
 }
@@ -18,7 +18,7 @@ export const Histogram: React.FC<Props> = ({ colors, data, indexBy, keys }) => {
       borderRadius={1}
       sx={{
         width: '100%',
-        height: 350,
+        height: '100%',
         backgroundColor: 'background.paper',
       }}
     >
@@ -79,7 +79,7 @@ export const Histogram: React.FC<Props> = ({ colors, data, indexBy, keys }) => {
               return (
                 <>
                   <Typography sx={{ color: data[`${key}Color`] }}>
-                    {`${key.toUpperCase()}: ${data[key]}`}
+                    {`${key.toUpperCase()}: ${data[key] ?? 0}`}
                   </Typography>
                 </>
               );

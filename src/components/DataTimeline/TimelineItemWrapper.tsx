@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import React from 'react';
-import { ITimelineItem } from '../../_core/interfaces';
+import { ITimelineItem } from '../../interfaces';
 import { OppositeTimelineItem } from './TimelineItems/OppositeTimelineItem';
 import { TimelineItem } from './TimelineItems/TimelineItem';
 

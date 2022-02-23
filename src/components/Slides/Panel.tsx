@@ -1,9 +1,8 @@
 import { Grid, Paper, Typography } from '@mui/material';
-import { getShortHash } from '../../utils';
 
 export interface IOperationListItem {
   label: string;
-  value: string;
+  value: JSX.Element;
   badge?: JSX.Element;
   button?: JSX.Element;
   onClick?: () => void;
@@ -32,9 +31,7 @@ export const DrawerPanel: React.FC<Props> = ({ item }) => {
           >
             {item.label}
           </Typography>
-          <Typography color="secondary" sx={{ fontSize: 12 }}>
-            {getShortHash(item.value)}
-          </Typography>
+          {item.value}
         </Grid>
         <Grid
           alignItems="center"

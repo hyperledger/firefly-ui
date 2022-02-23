@@ -1,5 +1,5 @@
 import dayjs from 'dayjs';
-import { CreatedFilterOptions, ICreatedFilter } from './FilterInterfaces';
+import { CreatedFilterOptions, ICreatedFilter } from '../../interfaces';
 
 export const getCreatedFilter = (
   createdFilter: CreatedFilterOptions

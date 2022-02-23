@@ -17,14 +17,13 @@
 import React, { useContext, useEffect, useState } from 'react';
 import { Button, Grid, Typography } from '@mui/material';
 import { ChartHeader } from '../../../components/Charts/Header';
-import { Histogram } from '../../../components/Charts/Histogram';
 import { TimelinePanel } from '../../../components/Timeline/Panel';
 import { Header } from '../../../components/Header';
 import { DEFAULT_PADDING, FFColors } from '../../../theme';
 import { fetchWithCredentials } from '../../../utils';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
-import { IEvent } from '../../../_core/interfaces';
 import { useTranslation } from 'react-i18next';
+import { IEvent } from '../../../interfaces';
 
 export const ActivityDashboard: () => JSX.Element = () => {
   const { selectedNamespace } = useContext(ApplicationContext);

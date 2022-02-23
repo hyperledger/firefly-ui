@@ -1,7 +1,7 @@
 import { Grid, Typography } from '@mui/material';
 import { Box } from '@mui/system';
+import { ITableCard } from '../../interfaces';
 import { DEFAULT_PADDING } from '../../theme';
-import { ITableCard } from './CardInterfaces';
 
 type Props = {
   card: ITableCard;

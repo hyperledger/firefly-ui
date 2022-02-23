@@ -22,23 +22,23 @@ import {
   ThemeProvider,
 } from '@mui/material';
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { ApplicationContext } from './contexts/ApplicationContext';
-import { SnackbarContext } from './contexts/SnackbarContext';
+import ReconnectingWebSocket from 'reconnecting-websocket';
 import { Router } from './components/Router';
-import { themeOptions } from './theme';
-import { fetchWithCredentials, summarizeFetchError } from './utils';
 import {
   MessageSnackbar,
   SnackbarMessageType,
-} from './_core/components/MessageSnackbar';
+} from './components/Snackbar/MessageSnackbar';
+import { ApplicationContext } from './contexts/ApplicationContext';
+import { SnackbarContext } from './contexts/SnackbarContext';
 import {
   CreatedFilterOptions,
   INamespace,
-  DataView,
   IStatus,
-} from './_core/interfaces';
-import ReconnectingWebSocket from 'reconnecting-websocket';
-import { NAMESPACES_PATH } from './interfaces';
+  NAMESPACES_PATH,
+} from './interfaces';
+import { FF_Paths } from './interfaces/constants';
+import { themeOptions } from './theme';
+import { fetchWithCredentials, summarizeFetchError } from './utils';
 
 //TODO: remove along with useStyles() usage
 declare module '@mui/styles/defaultTheme' {
@@ -52,7 +52,6 @@ const App: React.FC = () => {
   const [initError, setInitError] = useState<string | undefined>();
   const [namespaces, setNamespaces] = useState<INamespace[]>([]);
   const [selectedNamespace, setSelectedNamespace] = useState('');
-  const [dataView, setDataView] = useState<DataView>('timeline');
   const ws = useRef<ReconnectingWebSocket | null>(null);
   const [identity, setIdentity] = useState('');
   const [lastEvent, setLastEvent] = useState<any>();
@@ -75,8 +74,8 @@ const App: React.FC = () => {
 
   useEffect(() => {
     Promise.all([
-      fetchWithCredentials('/api/v1/namespaces'),
-      fetchWithCredentials('/api/v1/status'),
+      fetchWithCredentials(FF_Paths.nsPrefix),
+      fetchWithCredentials(`${FF_Paths.apiPrefix}${FF_Paths.status}`),
     ])
       .then(async ([namespaceResponse, statusResponse]) => {
         if (namespaceResponse.ok && statusResponse.ok) {
@@ -145,8 +144,6 @@ const App: React.FC = () => {
             setSelectedNamespace,
             orgName,
             identity,
-            dataView,
-            setDataView,
             lastEvent,
             setLastEvent,
             createdFilter,

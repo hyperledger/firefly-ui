@@ -2,7 +2,7 @@ import { Grid, Typography } from '@mui/material';
 
 export interface IDataListItem {
   label: string;
-  value: string | JSX.Element;
+  value: string | JSX.Element | number | undefined;
   button?: JSX.Element;
 }
 

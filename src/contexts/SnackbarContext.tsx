@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import { Dispatch, SetStateAction, createContext } from 'react';
-import { SnackbarMessageType } from '../_core/components/MessageSnackbar';
+import { SnackbarMessageType } from '../components/Snackbar/MessageSnackbar';
 
 export interface ISnackbarContext {
   setMessage: Dispatch<SetStateAction<string>>;

@@ -8,11 +8,11 @@ import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from 'react-query';
-import { FF_Paths } from '../../pages/constants';
+import { FF_Paths } from '../../interfaces/constants';
 import { fetchCatcher } from '../../utils';
-import { HashPopover } from '../../_core/components/HashPopover';
-import { StyledTooltip } from '../../_core/components/StyledTooltip';
 import { INode, IOrganization } from '../../_core/interfaces';
+import { HashPopover } from '../Popovers/HashPopover';
+import { StyledTooltip } from '../Tooltips/StyledTooltip';
 import { DATUM, HARDCODED_DATA, IDENTITY_VALUE, NODE_VALUE } from './constants';
 
 export const NetworkMap: () => JSX.Element = () => {
@@ -241,5 +241,9 @@ export const NetworkMap: () => JSX.Element = () => {
       />
     );
 
-  return <Grid container>{content}</Grid>;
+  return (
+    <Grid container sx={{ width: '100%', height: '100%' }}>
+      {content}
+    </Grid>
+  );
 };

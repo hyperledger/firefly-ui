@@ -7,6 +7,7 @@ export enum FFColors {
   Orange = '#ff8a00',
   Pink = '#cc01ab',
   Purple = '#6b00f2',
+  Red = '#e1111e',
   Yellow = '#ffca00',
 }
 
@@ -33,7 +34,7 @@ export const themeOptions: ThemeOptions = {
       main: FFColors.Yellow,
     },
     error: {
-      main: '#e1111e',
+      main: FFColors.Red,
     },
     text: {
       primary: '#FFFFFF',
