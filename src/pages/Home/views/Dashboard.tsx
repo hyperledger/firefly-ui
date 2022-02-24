@@ -18,16 +18,18 @@ import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
+  EventKeyEnum,
   ICreatedFilter,
   IEvent,
   IGenericPagedResponse,
   IMediumCard,
-  IMetric,
+  IMetricType,
   ISmallCard,
   ITableCard,
 } from '../../../interfaces';
 import { FF_Paths } from '../../../interfaces/constants';
 import { DEFAULT_PADDING, DEFAULT_SPACING, FFColors } from '../../../theme';
+import { makeHistogramEventBuckets } from '../../../utils';
 import { fetchCatcher } from '../../../utils';
 
 export const HomeDashboard: () => JSX.Element = () => {
@@ -55,7 +57,7 @@ export const HomeDashboard: () => JSX.Element = () => {
   const [tokenErrorCount, setTokenErrorCount] = useState<number>(0);
   // Medium cards
   // Event types histogram
-  const [eventTypesData, setEventTypesData] = useState<BarDatum[]>();
+  const [eventHistData, setEventHistData] = useState<BarDatum[]>();
   // Table cards
   const [recentTxs, setRecentTxs] = useState<IEvent[]>();
   const [recentEvents, setRecentEvents] = useState<IEvent[]>();
@@ -193,17 +195,27 @@ export const HomeDashboard: () => JSX.Element = () => {
     {
       headerComponent: <ArrowForwardIcon />,
       headerText: 'Event Types',
-      component: !eventTypesData ? (
+      component: !eventHistData ? (
         <FFCircleLoader color="warning"></FFCircleLoader>
-      ) : eventTypesData.every((d) => d.count !== 0) ? (
-        <Histogram
-          colors={[FFColors.Yellow]}
-          data={eventTypesData}
-          indexBy="timestamp"
-          keys={['events']}
-        ></Histogram>
-      ) : (
+      ) : eventHistData?.every((d) => {
+          return (
+            d[EventKeyEnum.BLOCKCHAIN] === 0 &&
+            d[EventKeyEnum.MESSAGES] === 0 &&
+            d[EventKeyEnum.TOKENS] === 0
+          );
+        }) ? (
         <CardEmptyState text={t('noEvents')}></CardEmptyState>
+      ) : (
+        <Histogram
+          colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+          data={eventHistData}
+          indexBy="timestamp"
+          keys={[
+            EventKeyEnum.BLOCKCHAIN,
+            EventKeyEnum.MESSAGES,
+            EventKeyEnum.TOKENS,
+          ]}
+        ></Histogram>
       ),
     },
   ];
@@ -220,16 +232,8 @@ export const HomeDashboard: () => JSX.Element = () => {
         createdFilterObject.filterTime
       }&endTime=${currentTime}&buckets=12`
     )
-      .then((eventBuckets: IMetric[]) => {
-        setEventTypesData(
-          eventBuckets.map((bucket) => {
-            return {
-              events: bucket.count,
-              eventsColor: FFColors.Yellow,
-              timestamp: bucket.timestamp,
-            } as BarDatum;
-          })
-        );
+      .then((histTypes: IMetricType[]) => {
+        setEventHistData(makeHistogramEventBuckets(histTypes));
       })
       .catch((err) => {
         reportFetchError(err);

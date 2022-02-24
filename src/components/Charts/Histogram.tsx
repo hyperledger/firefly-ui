@@ -27,8 +27,8 @@ export const Histogram: React.FC<Props> = ({ colors, data, indexBy, keys }) => {
         colors={colors}
         keys={keys}
         indexBy={indexBy}
-        margin={{ top: 10, right: 30, bottom: 30, left: 40 }}
-        padding={0.3}
+        margin={{ top: 10, right: 5, bottom: 60, left: 25 }}
+        padding={0.1}
         valueScale={{ type: 'linear' }}
         indexScale={{ type: 'band', round: true }}
         axisTop={null}
@@ -45,6 +45,24 @@ export const Histogram: React.FC<Props> = ({ colors, data, indexBy, keys }) => {
           tickRotation: 0,
           tickValues: 5,
         }}
+        legends={[
+          {
+            dataFrom: 'keys',
+            anchor: 'bottom',
+            direction: 'row',
+            justify: false,
+            translateX: 20,
+            translateY: 50,
+            itemsSpacing: 2,
+            itemWidth: 100,
+            itemHeight: 10,
+            itemDirection: 'left-to-right',
+            itemOpacity: 1,
+            itemTextColor: 'white',
+            symbolSize: 15,
+            symbolShape: 'circle',
+          },
+        ]}
         enableLabel={false}
         role="application"
         theme={{
@@ -75,10 +93,10 @@ export const Histogram: React.FC<Props> = ({ colors, data, indexBy, keys }) => {
           >
             {dayjs(data.timestamp).format('MM/DD/YYYY h:mm A')}
             <br />
-            {keys.map((key) => {
+            {keys.map((key, idx) => {
               return (
                 <>
-                  <Typography sx={{ color: data[`${key}Color`] }}>
+                  <Typography sx={{ color: colors[idx] }}>
                     {`${key.toUpperCase()}: ${data[key] ?? 0}`}
                   </Typography>
                 </>
