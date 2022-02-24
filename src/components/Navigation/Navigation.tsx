@@ -14,6 +14,7 @@ import { NAMESPACES_PATH } from '../../interfaces';
 import { MenuLogo } from '../MenuLogo';
 import { ActivityNav } from './ActivityNav';
 import { NavItem } from './NavItem';
+import { TokensNav } from './TokensNav';
 
 export const NAV_WIDTH = 225;
 
@@ -33,6 +34,7 @@ export const Navigation: React.FC = () => {
         itemIsActive={pathname === homePath}
       />
       <ActivityNav />
+      <TokensNav />
     </>
   );
 

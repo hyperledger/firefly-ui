@@ -16,12 +16,12 @@
 
 import React from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { BrowserRouter, useRoutes } from 'react-router-dom';
+import { BrowserRouter, RouteObject, useRoutes } from 'react-router-dom';
 import { QueryParamProvider } from 'use-query-params';
-import { AppWrapper } from './AppWrapper';
-import { FFRouteObject } from '../interfaces';
-import { HomeRoutes } from '../pages/Home/Routes';
 import { ActivityRoutes } from '../pages/Activity/Routes';
+import { HomeRoutes } from '../pages/Home/Routes';
+import { TokensRoutes } from '../pages/Tokens/Routes';
+import { AppWrapper } from './AppWrapper';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,6 +54,6 @@ export default function Routes() {
   return routes;
 }
 
-export function getAllRoutes(): FFRouteObject[] {
-  return [HomeRoutes, ActivityRoutes];
+export function getAllRoutes(): RouteObject[] {
+  return [HomeRoutes, ActivityRoutes, TokensRoutes];
 }

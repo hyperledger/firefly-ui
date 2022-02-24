@@ -96,3 +96,21 @@ export const FF_Paths = {
   status: '/status',
   statusBatchManager: '/status/batchmanager',
 };
+
+export const FF_EVENTS = {
+  // Message/Definitions
+  MSG_CONFIRMED: 'message_confirmed',
+  MSG_REJECTED: 'message_rejected',
+  TX_SUBMITTED: 'transaction_submitted',
+  // Blockchain Event
+  BLOCKCHAIN_EVENT: 'blockchain_event',
+  CONTRACT_API_CONFIRMED: 'contract_api_confirmed',
+  CONTRACT_INTERFACE_CONFIRMED: 'contract_interface_confirmed',
+  DATATYPE_CONFIRMED: 'datatype_confirmed',
+  GROUP_CONFIRMED: 'group_confirmed',
+  NS_CONFIRMED: 'namespace_confirmed',
+  TOKEN_POOL_CONFIRMED: 'token_pool_confirmed',
+  // Transfers
+  TOKEN_TRANSFER_CONFIRMED: 'token_transfer_confirmed',
+  TOKEN_TRANSFER_FAILED: 'token_transfer_op_failed',
+};

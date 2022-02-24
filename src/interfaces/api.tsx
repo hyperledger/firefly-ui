@@ -19,6 +19,11 @@ export interface IMetric {
   timestamp: string;
 }
 
+export interface IMetricType {
+  buckets: IMetric[];
+  type: string;
+}
+
 export interface INamespace {
   id: string;
   name: string;

@@ -1,4 +1,5 @@
 {
+  "accounts": "Accounts",
   "activity": "Activity",
   "addFilter": "Add Filter",
   "blockchainEvents": "Blockchain Events",
@@ -27,10 +28,11 @@
   "messages": "Messages",
   "myRecentTransactions": "My Recently Submitted Transactions",
   "namespace": "Namespace",
-  "notMatches": "Does not match",
   "noEvents": "No Events",
+  "notMatches": "Does not match",
   "operations": "Operations",
   "operator": "Operator",
+  "pools": "Pools",
   "recentTransactions": "Recent Transactions",
   "rule": "Rule",
   "save": "Save",
@@ -39,8 +41,10 @@
   "status": "Status",
   "timeline": "Timeline",
   "timestamp": "Timestamp",
+  "tokens": "Tokens",
   "transaction": "Transaction",
   "transactions": "Transactions",
+  "transfers": "Transfers",
   "type": "Type",
   "value": "Value"
 }

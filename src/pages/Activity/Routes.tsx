@@ -1,13 +1,12 @@
-import AssessmentOutlinedIcon from '@mui/icons-material/AssessmentOutlined';
-import { FFRouteObject, NAMESPACES_PATH } from '../../interfaces';
+import { RouteObject } from 'react-router-dom';
+import { NAMESPACES_PATH } from '../../interfaces';
 import { ActivityDashboard } from './views/Dashboard';
 import { ActivityEvents } from './views/Events';
 import { ActivityOperations } from './views/Operations';
 import { ActivityTransactions } from './views/Transactions';
 
-export const ActivityRoutes: FFRouteObject = {
+export const ActivityRoutes: RouteObject = {
   path: `${NAMESPACES_PATH}/:namespace/activity`,
-  icon: <AssessmentOutlinedIcon />,
   children: [
     {
       path: '',
