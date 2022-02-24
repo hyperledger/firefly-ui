@@ -84,3 +84,15 @@ export const makeHistogramEventBuckets = (
 
   return finalHistogram;
 };
+
+export const isHistogramEmpty = (
+  hist: BarDatum[] | undefined
+): boolean | undefined => {
+  return hist?.every((d) => {
+    return (
+      d[EventKeyEnum.BLOCKCHAIN] === 0 &&
+      d[EventKeyEnum.MESSAGES] === 0 &&
+      d[EventKeyEnum.TOKENS] === 0
+    );
+  });
+};

@@ -9,9 +9,16 @@ interface Props {
   data: BarDatum[];
   indexBy: string;
   keys: string[];
+  includeLegend: boolean;
 }
 
-export const Histogram: React.FC<Props> = ({ colors, data, indexBy, keys }) => {
+export const Histogram: React.FC<Props> = ({
+  colors,
+  data,
+  indexBy,
+  keys,
+  includeLegend,
+}) => {
   return (
     <Box
       mt={2}
@@ -27,7 +34,7 @@ export const Histogram: React.FC<Props> = ({ colors, data, indexBy, keys }) => {
         colors={colors}
         keys={keys}
         indexBy={indexBy}
-        margin={{ top: 10, right: 5, bottom: 60, left: 25 }}
+        margin={{ top: 10, right: 5, bottom: 60, left: 30 }}
         padding={0.1}
         valueScale={{ type: 'linear' }}
         indexScale={{ type: 'band', round: true }}
@@ -45,24 +52,28 @@ export const Histogram: React.FC<Props> = ({ colors, data, indexBy, keys }) => {
           tickRotation: 0,
           tickValues: 5,
         }}
-        legends={[
-          {
-            dataFrom: 'keys',
-            anchor: 'bottom',
-            direction: 'row',
-            justify: false,
-            translateX: 20,
-            translateY: 50,
-            itemsSpacing: 2,
-            itemWidth: 100,
-            itemHeight: 10,
-            itemDirection: 'left-to-right',
-            itemOpacity: 1,
-            itemTextColor: 'white',
-            symbolSize: 15,
-            symbolShape: 'circle',
-          },
-        ]}
+        legends={
+          includeLegend
+            ? [
+                {
+                  dataFrom: 'keys',
+                  anchor: 'bottom',
+                  direction: 'row',
+                  justify: false,
+                  translateX: 20,
+                  translateY: 50,
+                  itemsSpacing: 2,
+                  itemWidth: 100,
+                  itemHeight: 10,
+                  itemDirection: 'left-to-right',
+                  itemOpacity: 1,
+                  itemTextColor: 'white',
+                  symbolSize: 15,
+                  symbolShape: 'circle',
+                },
+              ]
+            : undefined
+        }
         enableLabel={false}
         role="application"
         theme={{

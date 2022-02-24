@@ -14,32 +14,61 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
-import { Button, Chip, Grid, Typography } from '@mui/material';
+import { Box, Button, Chip, Grid, Typography } from '@mui/material';
+import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
+import React, { useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { CardEmptyState } from '../../../components/Cards/CardEmptyState';
 import { ChartHeader } from '../../../components/Charts/Header';
 import { Histogram } from '../../../components/Charts/Histogram';
-import { DataTable } from '../../../components/Tables/Table';
-import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
-import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
+import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
+import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
+import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
+import { TimelinePanel } from '../../../components/Timeline/Panel';
+import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { SnackbarContext } from '../../../contexts/SnackbarContext';
+import {
+  EventKeyEnum,
+  FF_Paths,
+  ICreatedFilter,
+  IMetricType,
+} from '../../../interfaces';
 import { DEFAULT_PADDING, FFColors } from '../../../theme';
+import {
+  fetchCatcher,
+  isHistogramEmpty,
+  makeHistogramEventBuckets,
+} from '../../../utils';
 
 export const ActivityTransactions: () => JSX.Element = () => {
-  const legend = [
-    {
-      color: FFColors.Yellow,
-      title: 'Blockchain',
-    },
-    {
-      color: FFColors.Orange,
-      title: 'Tokens',
-    },
-    {
-      color: FFColors.Pink,
-      title: 'Messages',
-    },
-  ];
+  const { createdFilter, lastEvent, orgName, selectedNamespace } =
+    useContext(ApplicationContext);
+  const { reportFetchError } = useContext(SnackbarContext);
+  const { t } = useTranslation();
+  // Event types histogram
+  const [eventHistData, setEventHistData] = useState<BarDatum[]>();
+
+  // Histogram
+  useEffect(() => {
+    const currentTime = dayjs().unix();
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+
+    fetchCatcher(
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+        'events'
+      )}?startTime=${
+        createdFilterObject.filterTime
+      }&endTime=${currentTime}&buckets=24`
+    )
+      .then((histTypes: IMetricType[]) => {
+        setEventHistData(makeHistogramEventBuckets(histTypes));
+      })
+      .catch((err) => {
+        reportFetchError(err);
+      });
+  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
   const columnHeaders = [
     'Timestamp',
@@ -85,31 +114,49 @@ export const ActivityTransactions: () => JSX.Element = () => {
         <Grid container item wrap="nowrap" direction="column">
           <ChartHeader
             title="All Events"
-            legend={legend}
             filter={
               <Button variant="outlined">
-                <Typography p={0.75} sx={{ fontSize: 10 }}>
+                <Typography p={0.75} sx={{ fontSize: 12 }}>
                   Filter
                 </Typography>
               </Button>
             }
           />
-          {/* <Histogram data="undefined"></Histogram> */}
-          {records.length ? (
-            <DataTable
-              stickyHeader={true}
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              columnHeaders={columnHeaders}
-              records={records}
-              // {...{ pagination }}
-            ></DataTable>
-          ) : (
-            <DataTableEmptyState
-              header="No Transactions"
-              message="No Messages to Display"
-            />
-          )}
+          <Box
+            mt={1}
+            pb={2}
+            borderRadius={1}
+            sx={{
+              width: '100%',
+              height: 200,
+              backgroundColor: 'background.paper',
+            }}
+          >
+            {!eventHistData ? (
+              <FFCircleLoader height={200} color="warning"></FFCircleLoader>
+            ) : isHistogramEmpty(eventHistData) ? (
+              <CardEmptyState
+                height={200}
+                text={t('noEvents')}
+              ></CardEmptyState>
+            ) : (
+              <Histogram
+                colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+                data={eventHistData}
+                indexBy="timestamp"
+                keys={[
+                  EventKeyEnum.BLOCKCHAIN,
+                  EventKeyEnum.MESSAGES,
+                  EventKeyEnum.TOKENS,
+                ]}
+                includeLegend={true}
+              ></Histogram>
+            )}
+          </Box>
+          <TimelinePanel
+            leftHeader="Submitted by Me"
+            rightHeader="Received from Everyone"
+          ></TimelinePanel>
         </Grid>
       </Grid>
     </>

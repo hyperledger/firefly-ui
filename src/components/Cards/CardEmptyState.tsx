@@ -2,11 +2,12 @@ import { Grid, Typography } from '@mui/material';
 import { DEFAULT_PADDING } from '../../theme';
 
 type Props = {
+  height?: number;
   text: string;
   subText?: string;
 };
 
-export const CardEmptyState: React.FC<Props> = ({ text, subText }) => {
+export const CardEmptyState: React.FC<Props> = ({ text, subText, height }) => {
   return (
     <Grid
       container
@@ -14,6 +15,7 @@ export const CardEmptyState: React.FC<Props> = ({ text, subText }) => {
       alignItems="center"
       py={DEFAULT_PADDING}
       sx={{
+        height,
         minHeight: 150,
       }}
     >

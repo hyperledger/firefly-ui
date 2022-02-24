@@ -29,8 +29,11 @@ import {
 } from '../../../interfaces';
 import { FF_Paths } from '../../../interfaces/constants';
 import { DEFAULT_PADDING, DEFAULT_SPACING, FFColors } from '../../../theme';
-import { makeHistogramEventBuckets } from '../../../utils';
-import { fetchCatcher } from '../../../utils';
+import {
+  fetchCatcher,
+  isHistogramEmpty,
+  makeHistogramEventBuckets,
+} from '../../../utils';
 
 export const HomeDashboard: () => JSX.Element = () => {
   const { createdFilter, lastEvent, orgName, selectedNamespace } =
@@ -197,13 +200,7 @@ export const HomeDashboard: () => JSX.Element = () => {
       headerText: 'Event Types',
       component: !eventHistData ? (
         <FFCircleLoader color="warning"></FFCircleLoader>
-      ) : eventHistData?.every((d) => {
-          return (
-            d[EventKeyEnum.BLOCKCHAIN] === 0 &&
-            d[EventKeyEnum.MESSAGES] === 0 &&
-            d[EventKeyEnum.TOKENS] === 0
-          );
-        }) ? (
+      ) : isHistogramEmpty(eventHistData) ? (
         <CardEmptyState text={t('noEvents')}></CardEmptyState>
       ) : (
         <Histogram
@@ -215,6 +212,7 @@ export const HomeDashboard: () => JSX.Element = () => {
             EventKeyEnum.MESSAGES,
             EventKeyEnum.TOKENS,
           ]}
+          includeLegend={true}
         ></Histogram>
       ),
     },
