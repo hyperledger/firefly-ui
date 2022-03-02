@@ -14,21 +14,25 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { TableCell, TableRow } from '@mui/material';
+import { TableCell, TableRow, Typography } from '@mui/material';
 import { withStyles } from '@mui/styles';
 import React from 'react';
+import { FFColors } from '../../theme';
 import { IDataTableRecord } from './TableInterfaces';
 
 interface Props {
+  leftBorderColor?: string;
   record: IDataTableRecord;
 }
 
-export const DataTableRow: React.FC<Props> = ({ record }) => {
+export const DataTableRow: React.FC<Props> = ({ record, leftBorderColor }) => {
   return (
     <>
       <StyledTableRow onClick={record.onClick}>
         {record.columns.map((column, index) => (
-          <TableCell key={index}>{column.value}</TableCell>
+          <TableCell key={index}>
+            <Typography>{column.value}</Typography>
+          </TableCell>
         ))}
       </StyledTableRow>
     </>
@@ -37,16 +41,9 @@ export const DataTableRow: React.FC<Props> = ({ record }) => {
 
 const StyledTableRow = withStyles((theme) => ({
   root: {
-    tr: {
-      border: 10,
-    },
-    '&:nth-of-type(even)': {
-      backgroundColor: '#21272D',
-      border: 10,
-      borderColor: 'red',
-    },
-    '&:nth-of-type(odd)': {
-      backgroundColor: theme.palette.background.paper,
-    },
+    borderLeft: 10,
+    borderLeftColor: FFColors.Pink, // TODO: Make dynamic
+    borderLeftStyle: 'solid',
+    backgroundColor: theme.palette.background.paper,
   },
 }))(TableRow);

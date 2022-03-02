@@ -23,8 +23,8 @@ export const DrawerPanel: React.FC<Props> = ({ item }) => {
       }}
       elevation={0}
     >
-      <Grid xs={12} p={1} container>
-        <Grid item xs={6} direction="column">
+      <Grid xs={12} p={1} item container>
+        <Grid item xs={6} container direction="column">
           <Typography
             color="primary"
             sx={{ fontSize: 14, pb: 1, fontWeight: 'bold' }}

@@ -14,7 +14,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Button, Chip, Grid, Typography } from '@mui/material';
+import {
+  Box,
+  Button,
+  Chip,
+  Grid,
+  TablePagination,
+  Typography,
+} from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -25,30 +32,96 @@ import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
 import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
+import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
+import { DataTable } from '../../../components/Tables/Table';
+import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
-import { TimelinePanel } from '../../../components/Timeline/Panel';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
+  BucketCollectionEnum,
+  BucketCountEnum,
   EventKeyEnum,
   FF_Paths,
   ICreatedFilter,
   IMetricType,
+  IOperation,
+  IPagedOperationResponse,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, FFColors } from '../../../theme';
 import {
   fetchCatcher,
-  isHistogramEmpty,
-  makeHistogramEventBuckets,
+  isEventHistogramEmpty,
+  makeOperationHistogram,
 } from '../../../utils';
 
+const PAGE_LIMITS = [10, 25];
+
 export const ActivityOperations: () => JSX.Element = () => {
-  const { createdFilter, lastEvent, orgName, selectedNamespace } =
+  const { createdFilter, lastEvent, selectedNamespace } =
     useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  // Operations
+  const [ops, setOps] = useState<IOperation[]>([]);
+  // Operation totals
+  const [opTotal, setOpTotal] = useState(0);
+  // View transaction slide out
+  const [viewOp, setViewOp] = useState<IOperation | undefined>();
   // Event types histogram
-  const [eventHistData, setEventHistData] = useState<BarDatum[]>();
+  const [opHistData, setOpHistData] = useState<BarDatum[]>();
+
+  const [currentPage, setCurrentPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
+
+  const handleChangePage = (_event: unknown, newPage: number) => {
+    if (newPage > currentPage && rowsPerPage * (currentPage + 1) >= opTotal) {
+      return;
+    }
+    setCurrentPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setCurrentPage(0);
+    setRowsPerPage(+event.target.value);
+  };
+
+  const pagination = (
+    <TablePagination
+      component="div"
+      count={-1}
+      rowsPerPage={rowsPerPage}
+      page={currentPage}
+      onPageChange={handleChangePage}
+      onRowsPerPageChange={handleChangeRowsPerPage}
+      rowsPerPageOptions={PAGE_LIMITS}
+      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
+      sx={{ color: 'text.secondary' }}
+    />
+  );
+
+  // Operations
+  useEffect(() => {
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+
+    fetchCatcher(
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${
+        FF_Paths.operations
+      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+        createdFilterObject.filterString
+      }`
+    )
+      .then((opRes: IPagedOperationResponse) => {
+        setOps(opRes.items);
+        setOpTotal(opRes.total);
+      })
+      .catch((err) => {
+        reportFetchError(err);
+      });
+  }, [rowsPerPage, currentPage, selectedNamespace]);
 
   // Histogram
   useEffect(() => {
@@ -57,67 +130,58 @@ export const ActivityOperations: () => JSX.Element = () => {
 
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        'events'
+        BucketCollectionEnum.Operations
       )}?startTime=${
         createdFilterObject.filterTime
-      }&endTime=${currentTime}&buckets=24`
+      }&endTime=${currentTime}&buckets=${BucketCountEnum.Large}`
     )
       .then((histTypes: IMetricType[]) => {
-        setEventHistData(makeHistogramEventBuckets(histTypes));
+        setOpHistData(makeOperationHistogram(histTypes));
       })
       .catch((err) => {
         reportFetchError(err);
       });
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
-  const columnHeaders = [
-    'Timestamp',
-    'Activity',
-    'Blockchain',
-    'Author',
-    'Details',
-    '',
+  const opsColumnHeaders = [
+    t('type'),
+    t('operationID'),
+    t('transactionID'),
+    t('updated'),
+    t('status'),
   ];
 
-  const records: IDataTableRecord[] = [].map(() => ({
-    key: 'key',
+  const opsRecords: IDataTableRecord[] = ops.map((op) => ({
+    key: op.id,
     columns: [
       {
-        value: (
-          <Typography>
-            {dayjs(new Date()).format('MM/DD/YYYY h:mm A')}
-          </Typography>
-        ),
+        value: <Typography>{op.type.toLocaleUpperCase()}</Typography>,
       },
       {
-        value: <Typography>Token transfer complete</Typography>,
+        value: <HashPopover shortHash={true} address={op.id}></HashPopover>,
       },
       {
-        value: <Typography>d521b...4d1a15</Typography>,
+        value: <HashPopover shortHash={true} address={op.tx}></HashPopover>,
       },
-      {
-        value: <Typography>Member Name</Typography>,
-      },
-      {
-        value: <Typography>From=0xabc To=0xbcd</Typography>,
-      },
+      { value: dayjs(op.updated).format('MM/DD/YYYY h:mm A') },
       {
         value: <Chip color="success" label="Success"></Chip>,
       },
     ],
+    onClick: () => setViewOp(op),
   }));
 
   return (
     <>
-      <Header title={'Operations'} subtitle={'Activity'}></Header>
+      <Header title={t('operations')} subtitle={t('activity')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartHeader
-            title="All Events"
+            title={t('allOperations')}
             filter={
               <Button variant="outlined">
                 <Typography p={0.75} sx={{ fontSize: 12 }}>
-                  Filter
+                  {t('filter')}
                 </Typography>
               </Button>
             }
@@ -132,17 +196,17 @@ export const ActivityOperations: () => JSX.Element = () => {
               backgroundColor: 'background.paper',
             }}
           >
-            {!eventHistData ? (
+            {!opHistData ? (
               <FFCircleLoader height={200} color="warning"></FFCircleLoader>
-            ) : isHistogramEmpty(eventHistData) ? (
+            ) : isEventHistogramEmpty(opHistData) ? (
               <CardEmptyState
                 height={200}
-                text={t('noEvents')}
+                text={t('noOperations')}
               ></CardEmptyState>
             ) : (
               <Histogram
                 colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
-                data={eventHistData}
+                data={opHistData}
                 indexBy="timestamp"
                 keys={[
                   EventKeyEnum.BLOCKCHAIN,
@@ -153,12 +217,33 @@ export const ActivityOperations: () => JSX.Element = () => {
               ></Histogram>
             )}
           </Box>
-          <TimelinePanel
-            leftHeader="Submitted by Me"
-            rightHeader="Received from Everyone"
-          ></TimelinePanel>
+          {!ops ? (
+            <FFCircleLoader color="warning"></FFCircleLoader>
+          ) : ops.length ? (
+            <DataTable
+              stickyHeader={true}
+              minHeight="300px"
+              maxHeight="calc(100vh - 340px)"
+              records={opsRecords}
+              columnHeaders={opsColumnHeaders}
+              {...{ pagination }}
+            />
+          ) : (
+            <DataTableEmptyState
+              message={t('noOperationsToDisplay')}
+            ></DataTableEmptyState>
+          )}
         </Grid>
       </Grid>
+      {viewOp && (
+        <TransactionSlide
+          txID={viewOp.tx}
+          open={!!viewOp}
+          onClose={() => {
+            setViewOp(undefined);
+          }}
+        />
+      )}
     </>
   );
 };

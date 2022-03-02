@@ -19,7 +19,11 @@ import { QueryClient, QueryClientProvider } from 'react-query';
 import { BrowserRouter, RouteObject, useRoutes } from 'react-router-dom';
 import { QueryParamProvider } from 'use-query-params';
 import { ActivityRoutes } from '../pages/Activity/Routes';
+import { BlockchainRoutes } from '../pages/Blockchain/Routes';
 import { HomeRoutes } from '../pages/Home/Routes';
+import { MessagesRoutes } from '../pages/Messages/Routes';
+import { MyNodeRoutes } from '../pages/MyNode/Routes';
+import { NetworkRoutes } from '../pages/Network/Routes';
 import { TokensRoutes } from '../pages/Tokens/Routes';
 import { AppWrapper } from './AppWrapper';
 
@@ -55,5 +59,13 @@ export default function Routes() {
 }
 
 export function getAllRoutes(): RouteObject[] {
-  return [HomeRoutes, ActivityRoutes, TokensRoutes];
+  return [
+    HomeRoutes,
+    ActivityRoutes,
+    BlockchainRoutes,
+    MessagesRoutes,
+    TokensRoutes,
+    NetworkRoutes,
+    MyNodeRoutes,
+  ];
 }

@@ -14,40 +14,110 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Button, Grid, Typography } from '@mui/material';
-import React, { useContext, useEffect, useState } from 'react';
-import { ChartHeader } from '../../../components/Charts/Header';
-import { Histogram } from '../../../components/Charts/Histogram';
-import { TimelinePanel } from '../../../components/Timeline/Panel';
-import { Header } from '../../../components/Header';
-import { DEFAULT_PADDING, FFColors } from '../../../theme';
-import { ApplicationContext } from '../../../contexts/ApplicationContext';
-import { SnackbarContext } from '../../../contexts/SnackbarContext';
+import { Box, Button, Grid, TablePagination, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
+import React, { useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { CardEmptyState } from '../../../components/Cards/CardEmptyState';
+import { ChartHeader } from '../../../components/Charts/Header';
+import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
+import { Header } from '../../../components/Header';
+import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
+import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { EventSlide } from '../../../components/Slides/EventSlide';
+import { DataTable } from '../../../components/Tables/Table';
+import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
+import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
+import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
-  ICreatedFilter,
-  FF_Paths,
-  IMetricType,
+  BucketCollectionEnum,
+  BucketCountEnum,
   EventKeyEnum,
+  FF_Paths,
+  ICreatedFilter,
+  IEvent,
+  IMetricType,
+  IPagedEventResponse,
 } from '../../../interfaces';
+import { DEFAULT_PADDING, FFColors } from '../../../theme';
 import {
   fetchCatcher,
-  isHistogramEmpty,
-  makeHistogramEventBuckets,
+  isEventHistogramEmpty,
+  makeEventHistogram,
 } from '../../../utils';
-import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
-import { CardEmptyState } from '../../../components/Cards/CardEmptyState';
-import { useTranslation } from 'react-i18next';
+
+const PAGE_LIMITS = [10, 25];
 
 export const ActivityEvents: () => JSX.Element = () => {
-  const { createdFilter, lastEvent, orgName, selectedNamespace } =
+  const { createdFilter, lastEvent, selectedNamespace } =
     useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  // Events
+  const [events, setEvents] = useState<IEvent[]>([]);
+  // Event totals
+  const [eventTotal, setEventTotal] = useState(0);
   // Event types histogram
   const [eventHistData, setEventHistData] = useState<BarDatum[]>();
+  // View transaction slide out
+  const [viewEvent, setViewEvent] = useState<IEvent | undefined>();
+
+  const [currentPage, setCurrentPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
+
+  const handleChangePage = (_event: unknown, newPage: number) => {
+    if (
+      newPage > currentPage &&
+      rowsPerPage * (currentPage + 1) >= eventTotal
+    ) {
+      return;
+    }
+    setCurrentPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setCurrentPage(0);
+    setRowsPerPage(+event.target.value);
+  };
+
+  const pagination = (
+    <TablePagination
+      component="div"
+      count={-1}
+      rowsPerPage={rowsPerPage}
+      page={currentPage}
+      onPageChange={handleChangePage}
+      onRowsPerPageChange={handleChangeRowsPerPage}
+      rowsPerPageOptions={PAGE_LIMITS}
+      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
+      sx={{ color: 'text.secondary' }}
+    />
+  );
+
+  // Events
+  useEffect(() => {
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+
+    fetchCatcher(
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${
+        FF_Paths.events
+      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+        createdFilterObject.filterString
+      }`
+    )
+      .then((eventRes: IPagedEventResponse) => {
+        setEvents(eventRes.items);
+        setEventTotal(eventRes.total);
+      })
+      .catch((err) => {
+        reportFetchError(err);
+      });
+  }, [rowsPerPage, currentPage, selectedNamespace]);
 
   // Histogram
   useEffect(() => {
@@ -56,30 +126,64 @@ export const ActivityEvents: () => JSX.Element = () => {
 
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        'events'
+        BucketCollectionEnum.Events
       )}?startTime=${
         createdFilterObject.filterTime
-      }&endTime=${currentTime}&buckets=24`
+      }&endTime=${currentTime}&buckets=${BucketCountEnum.Large}`
     )
       .then((histTypes: IMetricType[]) => {
-        setEventHistData(makeHistogramEventBuckets(histTypes));
+        setEventHistData(makeEventHistogram(histTypes));
       })
       .catch((err) => {
         reportFetchError(err);
       });
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
+  const eventsColumnHeaders = [
+    t('sequence'),
+    t('type'),
+    t('eventID'),
+    t('transactionID'),
+    t('referenceID'),
+    t('created'),
+  ];
+
+  const eventsRecords: IDataTableRecord[] = events.map((event) => ({
+    key: event.id,
+    columns: [
+      {
+        value: <Typography>{event.sequence}</Typography>,
+      },
+      {
+        value: <Typography>{event.type.toLocaleUpperCase()}</Typography>,
+      },
+      {
+        value: <HashPopover shortHash={true} address={event.id}></HashPopover>,
+      },
+      {
+        value: <HashPopover shortHash={true} address={event.tx}></HashPopover>,
+      },
+      {
+        value: (
+          <HashPopover shortHash={true} address={event.reference}></HashPopover>
+        ),
+      },
+      { value: dayjs(event.created).format('MM/DD/YYYY h:mm A') },
+    ],
+    onClick: () => setViewEvent(event),
+  }));
+
   return (
     <>
-      <Header title={'Events'} subtitle={'Activity'}></Header>
+      <Header title={t('events')} subtitle={t('activity')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartHeader
-            title="All Events"
+            title={t('allEvents')}
             filter={
               <Button variant="outlined">
                 <Typography p={0.75} sx={{ fontSize: 12 }}>
-                  Filter
+                  {t('filter')}
                 </Typography>
               </Button>
             }
@@ -96,7 +200,7 @@ export const ActivityEvents: () => JSX.Element = () => {
           >
             {!eventHistData ? (
               <FFCircleLoader height={200} color="warning"></FFCircleLoader>
-            ) : isHistogramEmpty(eventHistData) ? (
+            ) : isEventHistogramEmpty(eventHistData) ? (
               <CardEmptyState
                 height={200}
                 text={t('noEvents')}
@@ -115,12 +219,33 @@ export const ActivityEvents: () => JSX.Element = () => {
               ></Histogram>
             )}
           </Box>
-          <TimelinePanel
-            leftHeader="Submitted by Me"
-            rightHeader="Received from Everyone"
-          ></TimelinePanel>
+          {!events ? (
+            <FFCircleLoader color="warning"></FFCircleLoader>
+          ) : events.length ? (
+            <DataTable
+              stickyHeader={true}
+              minHeight="300px"
+              maxHeight="calc(100vh - 340px)"
+              records={eventsRecords}
+              columnHeaders={eventsColumnHeaders}
+              {...{ pagination }}
+            />
+          ) : (
+            <DataTableEmptyState
+              message={t('noEventsToDisplay')}
+            ></DataTableEmptyState>
+          )}
         </Grid>
       </Grid>
+      {viewEvent && (
+        <EventSlide
+          event={viewEvent}
+          open={!!viewEvent}
+          onClose={() => {
+            setViewEvent(undefined);
+          }}
+        />
+      )}
     </>
   );
 };

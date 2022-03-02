@@ -30,6 +30,8 @@ import { TimelinePanel } from '../../../components/Timeline/Panel';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
+  BucketCollectionEnum,
+  BucketCountEnum,
   EventKeyEnum,
   FF_Paths,
   ICreatedFilter,
@@ -38,17 +40,17 @@ import {
 import { DEFAULT_PADDING, FFColors } from '../../../theme';
 import {
   fetchCatcher,
-  isHistogramEmpty,
-  makeHistogramEventBuckets,
+  isEventHistogramEmpty,
+  makeEventHistogram,
 } from '../../../utils';
 
 export const ActivityDashboard: () => JSX.Element = () => {
-  const { createdFilter, lastEvent, orgName, selectedNamespace } =
+  const { createdFilter, lastEvent, selectedNamespace } =
     useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
+  const { t } = useTranslation();
   // Event types histogram
   const [eventHistData, setEventHistData] = useState<BarDatum[]>();
-  const { t } = useTranslation();
 
   useEffect(() => {
     const currentTime = dayjs().unix();
@@ -56,13 +58,13 @@ export const ActivityDashboard: () => JSX.Element = () => {
 
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        'events'
+        BucketCollectionEnum.Events
       )}?startTime=${
         createdFilterObject.filterTime
-      }&endTime=${currentTime}&buckets=24`
+      }&endTime=${currentTime}&buckets=${BucketCountEnum.Large}`
     )
       .then((histTypes: IMetricType[]) => {
-        setEventHistData(makeHistogramEventBuckets(histTypes));
+        setEventHistData(makeEventHistogram(histTypes));
       })
       .catch((err) => {
         reportFetchError(err);
@@ -75,11 +77,11 @@ export const ActivityDashboard: () => JSX.Element = () => {
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartHeader
-            title="All Activity"
+            title={t('allActivity')}
             filter={
               <Button variant="outlined">
                 <Typography p={0.75} sx={{ fontSize: 12 }}>
-                  Filter
+                  {t('filter')}
                 </Typography>
               </Button>
             }
@@ -96,7 +98,7 @@ export const ActivityDashboard: () => JSX.Element = () => {
           >
             {!eventHistData ? (
               <FFCircleLoader height={200} color="warning"></FFCircleLoader>
-            ) : isHistogramEmpty(eventHistData) ? (
+            ) : isEventHistogramEmpty(eventHistData) ? (
               <CardEmptyState
                 height={200}
                 text={t('noEvents')}
@@ -116,8 +118,8 @@ export const ActivityDashboard: () => JSX.Element = () => {
             )}
           </Box>
           <TimelinePanel
-            leftHeader="Submitted by Me"
-            rightHeader="Received from Everyone"
+            leftHeader={t('submittedByMe')}
+            rightHeader={t('receivedFromEveryone')}
           ></TimelinePanel>
         </Grid>
       </Grid>

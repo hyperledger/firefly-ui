@@ -5,9 +5,10 @@ import {
   IHistEventTimeMap,
   IMetric,
   IMetricType,
-} from '../interfaces';
+} from '../../interfaces';
 
-const processHistBuckets = (
+// Events
+const processEventHistBuckets = (
   buckets: IMetric[],
   eventKey: EventKeyEnum,
   timeMap: IHistEventTimeMap
@@ -32,9 +33,7 @@ const processHistBuckets = (
   return timeMap;
 };
 
-export const makeHistogramEventBuckets = (
-  histList: IMetricType[]
-): BarDatum[] => {
+export const makeEventHistogram = (histList: IMetricType[]): BarDatum[] => {
   let histTimeMap: IHistEventTimeMap = {};
   histList.map((hist) => {
     switch (hist.type) {
@@ -42,7 +41,7 @@ export const makeHistogramEventBuckets = (
       case FF_EVENTS.TX_SUBMITTED ||
         FF_EVENTS.MSG_CONFIRMED ||
         FF_EVENTS.MSG_REJECTED:
-        histTimeMap = processHistBuckets(
+        histTimeMap = processEventHistBuckets(
           hist.buckets,
           EventKeyEnum.MESSAGES,
           histTimeMap
@@ -56,7 +55,7 @@ export const makeHistogramEventBuckets = (
         FF_EVENTS.GROUP_CONFIRMED ||
         FF_EVENTS.NS_CONFIRMED ||
         FF_EVENTS.TOKEN_POOL_CONFIRMED:
-        histTimeMap = processHistBuckets(
+        histTimeMap = processEventHistBuckets(
           hist.buckets,
           EventKeyEnum.BLOCKCHAIN,
           histTimeMap
@@ -65,7 +64,7 @@ export const makeHistogramEventBuckets = (
       // Tokens
       case FF_EVENTS.TOKEN_TRANSFER_CONFIRMED ||
         FF_EVENTS.TOKEN_TRANSFER_FAILED:
-        histTimeMap = processHistBuckets(
+        histTimeMap = processEventHistBuckets(
           hist.buckets,
           EventKeyEnum.TOKENS,
           histTimeMap
@@ -85,7 +84,7 @@ export const makeHistogramEventBuckets = (
   return finalHistogram;
 };
 
-export const isHistogramEmpty = (
+export const isEventHistogramEmpty = (
   hist: BarDatum[] | undefined
 ): boolean | undefined => {
   return hist?.every((d) => {

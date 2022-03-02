@@ -1,5 +1,5 @@
 export interface IDataWithHeader {
-  header: string;
+  header?: string;
   data: string | number | undefined;
 }
 

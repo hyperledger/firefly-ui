@@ -1,9 +1,10 @@
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Grid, List, Typography } from '@mui/material';
+import { Grid, IconButton, List, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
-import { t } from 'i18next';
 import { useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { CardEmptyState } from '../../../components/Cards/CardEmptyState';
 import { MediumCard } from '../../../components/Cards/MediumCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
@@ -14,31 +15,55 @@ import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
 import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { NetworkMap } from '../../../components/NetworkMap/NetworkMap';
-import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
+import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { EventSlide } from '../../../components/Slides/EventSlide';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
+  ACTIVITY_PATH,
+  BucketCollectionEnum,
+  BucketCountEnum,
   EventKeyEnum,
   ICreatedFilter,
+  IDataWithHeader,
   IEvent,
   IGenericPagedResponse,
   IMediumCard,
   IMetricType,
+  INode,
   ISmallCard,
   ITableCard,
+  MY_NODES_PATH,
+  NAMESPACES_PATH,
+  NETWORK_PATH,
+  TRANSACTIONS_PATH,
 } from '../../../interfaces';
 import { FF_Paths } from '../../../interfaces/constants';
 import { DEFAULT_PADDING, DEFAULT_SPACING, FFColors } from '../../../theme';
 import {
   fetchCatcher,
-  isHistogramEmpty,
-  makeHistogramEventBuckets,
+  isEventHistogramEmpty,
+  makeEventHistogram,
 } from '../../../utils';
 
 export const HomeDashboard: () => JSX.Element = () => {
-  const { createdFilter, lastEvent, orgName, selectedNamespace } =
-    useContext(ApplicationContext);
+  const { t } = useTranslation();
+  const {
+    createdFilter,
+    identity,
+    lastEvent,
+    nodeID,
+    nodeName,
+    orgID,
+    orgName,
+    selectedNamespace,
+  } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
+  const navigate = useNavigate();
+  const eventsPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${ACTIVITY_PATH}`;
+  const myNodePath = `/${NAMESPACES_PATH}/${selectedNamespace}/${MY_NODES_PATH}`;
+  const networkPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${NETWORK_PATH}`;
+  const transactionsPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}`;
   const [viewEvent, setViewEvent] = useState<IEvent | undefined>();
   // Small cards
   // Blockchain
@@ -61,44 +86,46 @@ export const HomeDashboard: () => JSX.Element = () => {
   // Medium cards
   // Event types histogram
   const [eventHistData, setEventHistData] = useState<BarDatum[]>();
+  // My Node
+  const [myNode, setMyNode] = useState<INode>();
   // Table cards
   const [recentTxs, setRecentTxs] = useState<IEvent[]>();
   const [recentEvents, setRecentEvents] = useState<IEvent[]>();
 
   const smallCards: ISmallCard[] = [
     {
-      header: 'Blockchain',
+      header: t('blockchain'),
       numErrors: blockchainErrorCount,
       data: [
-        { header: 'Tx', data: blockchainTxCount },
-        { header: 'Events', data: blockchainEventCount },
+        { header: t('tx'), data: blockchainTxCount },
+        { header: t('events'), data: blockchainEventCount },
       ],
     },
     {
-      header: 'Off-Chain',
+      header: t('offChain'),
       // TODO: Figure out error API call
       numErrors: offchainErrorCount,
       data: [
-        { header: 'In', data: offchainInCount },
-        { header: 'Out', data: offchainOutCount },
+        { header: t('in'), data: offchainInCount },
+        { header: t('out'), data: offchainOutCount },
       ],
     },
     {
-      header: 'Messages',
+      header: t('messages'),
       // TODO: Figure out error API call
       numErrors: messagesErrorCount,
       data: [
-        { header: 'Tx', data: messagesTxCount },
-        { header: 'Events', data: messagesEventCount },
+        { header: t('tx'), data: messagesTxCount },
+        { header: t('events'), data: messagesEventCount },
       ],
     },
     {
-      header: 'Tokens',
+      header: t('tokens'),
       numErrors: tokenErrorCount,
       data: [
-        { header: 'Transfers', data: tokenTransfersCount },
-        { header: 'Mint', data: tokenMintCount },
-        { header: 'Burn', data: tokenBurnCount },
+        { header: t('transfers'), data: tokenTransfersCount },
+        { header: t('mint'), data: tokenMintCount },
+        { header: t('burn'), data: tokenBurnCount },
       ],
     },
   ];
@@ -184,23 +211,48 @@ export const HomeDashboard: () => JSX.Element = () => {
       });
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
+  const myNodeDetailsList: IDataWithHeader[] = [
+    {
+      header: t('identity'),
+      data: identity,
+    },
+    {
+      header: t('nodeName'),
+      data: nodeName,
+    },
+    {
+      header: t('nodeID'),
+      data: nodeID,
+    },
+    {
+      header: t('orgName'),
+      data: orgName,
+    },
+    {
+      header: t('orgID'),
+      data: orgID,
+    },
+    {
+      header: t('dxPeer'),
+      data: myNode?.dx.peer,
+    },
+    {
+      header: t('dxEndpoint'),
+      data: myNode?.dx.endpoint.endpoint,
+    },
+  ];
+
   const mediumCards: IMediumCard[] = [
     {
-      headerComponent: <ArrowForwardIcon />,
-      headerText: `My Node - ${orgName}`,
-      component: <Typography>Placeholder</Typography>,
-    },
-    {
-      headerComponent: <ArrowForwardIcon />,
-      headerText: 'Network Map',
-      component: <NetworkMap></NetworkMap>,
-    },
-    {
-      headerComponent: <ArrowForwardIcon />,
-      headerText: 'Event Types',
+      headerComponent: (
+        <IconButton onClick={() => navigate(eventsPath)}>
+          <ArrowForwardIcon />
+        </IconButton>
+      ),
+      headerText: t('activity'),
       component: !eventHistData ? (
         <FFCircleLoader color="warning"></FFCircleLoader>
-      ) : isHistogramEmpty(eventHistData) ? (
+      ) : isEventHistogramEmpty(eventHistData) ? (
         <CardEmptyState text={t('noEvents')}></CardEmptyState>
       ) : (
         <Histogram
@@ -216,6 +268,41 @@ export const HomeDashboard: () => JSX.Element = () => {
         ></Histogram>
       ),
     },
+    {
+      headerComponent: (
+        <IconButton onClick={() => navigate(networkPath)}>
+          <ArrowForwardIcon />
+        </IconButton>
+      ),
+      headerText: t('networkMap'),
+      component: <NetworkMap></NetworkMap>,
+    },
+    {
+      headerComponent: (
+        <IconButton onClick={() => navigate(myNodePath)}>
+          <ArrowForwardIcon />
+        </IconButton>
+      ),
+      headerText: t('myNode'),
+      component: (
+        <Grid container item>
+          {myNodeDetailsList.map((data, idx) => (
+            <>
+              <Grid xs={idx === 0 ? 12 : 6} pb={2}>
+                <Typography pb={1} variant="body2">
+                  {data.header}
+                </Typography>
+                <HashPopover
+                  key={idx}
+                  fullLength={idx === 0}
+                  address={data.data?.toString() ?? ''}
+                />
+              </Grid>
+            </>
+          ))}
+        </Grid>
+      ),
+    },
   ];
 
   // Medium Card UseEffect
@@ -225,18 +312,97 @@ export const HomeDashboard: () => JSX.Element = () => {
 
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        'events'
+        BucketCollectionEnum.Events
       )}?startTime=${
         createdFilterObject.filterTime
-      }&endTime=${currentTime}&buckets=12`
+      }&endTime=${currentTime}&buckets=${BucketCountEnum.Small}`
     )
       .then((histTypes: IMetricType[]) => {
-        setEventHistData(makeHistogramEventBuckets(histTypes));
+        setEventHistData(makeEventHistogram(histTypes));
       })
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+
+    fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.networkNodeById(nodeID)}`)
+      .then((nodeRes: INode) => {
+        setMyNode(nodeRes);
+      })
+      .catch((err) => {
+        reportFetchError(err);
+      });
+  }, [selectedNamespace, createdFilter, lastEvent, createdFilter, nodeID]);
+
+  const tableCards: ITableCard[] = [
+    {
+      headerComponent: (
+        <IconButton onClick={() => navigate(transactionsPath)}>
+          <ArrowForwardIcon />
+        </IconButton>
+      ),
+      headerText: t('myRecentTransactions'),
+      component: (
+        <List
+          disablePadding
+          sx={{
+            width: '100%',
+            bgcolor: 'background.paper',
+          }}
+        >
+          {!recentTxs ? (
+            <FFCircleLoader color="warning"></FFCircleLoader>
+          ) : recentTxs.length ? (
+            recentTxs.map((tx, idx) => (
+              <div key={idx} onClick={() => setViewEvent(tx)}>
+                <TableCardItem
+                  date={dayjs(tx.created).format('MM/DD/YYYY h:mm A')}
+                  header={tx.type.toLocaleUpperCase()}
+                  status={tx.reference}
+                  subText={tx.type}
+                />
+              </div>
+            ))
+          ) : (
+            <CardEmptyState text={t('noEvents')}></CardEmptyState>
+          )}
+        </List>
+      ),
+    },
+    {
+      headerComponent: (
+        <IconButton onClick={() => navigate(transactionsPath)}>
+          <ArrowForwardIcon />
+        </IconButton>
+      ),
+      headerText: 'Recent Network Events',
+      component: (
+        <List
+          disablePadding
+          sx={{
+            width: '100%',
+            bgcolor: 'background.paper',
+          }}
+        >
+          {!recentEvents ? (
+            <FFCircleLoader color="warning"></FFCircleLoader>
+          ) : recentEvents?.length ? (
+            recentEvents.map((tx, idx) => (
+              <div key={idx} onClick={() => setViewEvent(tx)}>
+                <TableCardItem
+                  date={dayjs(tx.created).format('MM/DD/YYYY h:mm A')}
+                  header={tx.type.toLocaleUpperCase()}
+                  status={tx.reference}
+                  subText={tx.type}
+                />
+              </div>
+            ))
+          ) : (
+            <CardEmptyState text={t('noEvents')}></CardEmptyState>
+          )}
+        </List>
+      ),
+    },
+  ];
 
   // Table Card UseEffect
   useEffect(() => {
@@ -259,69 +425,6 @@ export const HomeDashboard: () => JSX.Element = () => {
         reportFetchError(err);
       });
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
-
-  const tableCards: ITableCard[] = [
-    {
-      headerComponent: <ArrowForwardIcon />,
-      headerText: t('myRecentTransactions'),
-      component: (
-        <List
-          disablePadding
-          sx={{
-            width: '100%',
-            bgcolor: 'background.paper',
-          }}
-        >
-          {!recentTxs ? (
-            <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : recentTxs.length ? (
-            recentTxs.map((tx, idx) => (
-              <div key={idx} onClick={() => setViewEvent(tx)}>
-                <TableCardItem
-                  date={dayjs(tx.created).format('MM/DD/YYYY h:mm A')}
-                  header={tx.type}
-                  status={tx.reference}
-                  subText={tx.type}
-                />
-              </div>
-            ))
-          ) : (
-            <CardEmptyState text={t('noEvents')}></CardEmptyState>
-          )}
-        </List>
-      ),
-    },
-    {
-      headerComponent: <ArrowForwardIcon />,
-      headerText: 'Recent Network Events',
-      component: (
-        <List
-          disablePadding
-          sx={{
-            width: '100%',
-            bgcolor: 'background.paper',
-          }}
-        >
-          {!recentEvents ? (
-            <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : recentEvents?.length ? (
-            recentEvents.map((tx, idx) => (
-              <div key={idx} onClick={() => setViewEvent(tx)}>
-                <TableCardItem
-                  date={dayjs(tx.created).format('MM/DD/YYYY h:mm A')}
-                  header={tx.type}
-                  status={tx.reference}
-                  subText={tx.type}
-                />
-              </div>
-            ))
-          ) : (
-            <CardEmptyState text={t('noEvents')}></CardEmptyState>
-          )}
-        </List>
-      ),
-    },
-  ];
 
   return (
     <>
@@ -372,7 +475,7 @@ export const HomeDashboard: () => JSX.Element = () => {
                   item
                   xs={4}
                 >
-                  <MediumCard card={card} />
+                  <MediumCard card={card} position="flex-start" />
                 </Grid>
               );
             })}
@@ -404,7 +507,7 @@ export const HomeDashboard: () => JSX.Element = () => {
         </Grid>
       </Grid>
       {viewEvent && (
-        <TransactionSlide
+        <EventSlide
           event={viewEvent}
           open={!!viewEvent}
           onClose={() => {

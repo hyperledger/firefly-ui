@@ -21,7 +21,7 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
     >
       <Grid
         container
-        alignItems="flex-start"
+        alignItems="flex-end"
         justifyContent="space-between"
         direction="row"
         sx={{ paddingBottom: 1 }}
@@ -49,7 +49,7 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
       <Grid
         container
         alignItems="flex-end"
-        justifyContent="space-evenly"
+        justifyContent={card.data.length > 1 ? 'space-evenly' : 'flex-start'}
         direction="row"
       >
         {card.data.map((data) => {

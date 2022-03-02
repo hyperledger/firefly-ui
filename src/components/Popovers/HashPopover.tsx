@@ -32,6 +32,7 @@ import { getShortHash } from '../../utils';
 interface Props {
   address: string;
   shortHash?: boolean;
+  fullLength?: boolean;
   textColor?: 'primary' | 'secondary';
   paper?: boolean;
 }
@@ -41,6 +42,7 @@ export const HashPopover: React.FC<Props> = ({
   shortHash,
   textColor = 'primary',
   paper,
+  fullLength,
 }) => {
   const classes = useStyles();
   const [open, setOpen] = useState(false);
@@ -49,7 +51,7 @@ export const HashPopover: React.FC<Props> = ({
     <>
       <Chip
         label={shortHash ? getShortHash(address) : address}
-        sx={{ width: shortHash ? 110 : 200 }}
+        sx={{ width: fullLength ? '100%' : shortHash ? 110 : 200 }}
         className={clsx(
           paper ? classes.paperChip : classes.chip,
           textColor === 'secondary' && classes.addressSecondaryText
@@ -105,7 +107,7 @@ export const HashPopover: React.FC<Props> = ({
 
 const useStyles = makeStyles<Theme>((theme) => ({
   chip: {
-    borderRadius: 2,
+    borderRadius: 16,
     backgroundColor: theme.palette.background.default,
     '&:hover, &:focus': {
       backgroundColor: theme.palette.background.default,

@@ -18,9 +18,9 @@ export const TableCard: React.FC<Props> = ({ card }) => {
       }}
     >
       <Grid
-        p={DEFAULT_PADDING}
+        p={DEFAULT_PADDING - 1}
         container
-        alignItems="flex-start"
+        alignItems="center"
         justifyContent="space-between"
         direction="row"
         sx={{ paddingBottom: 1 }}

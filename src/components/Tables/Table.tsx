@@ -25,9 +25,9 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
-import { DataTableRow } from './TableRow';
 import { themeOptions } from '../../theme';
 import { IDataTableRecord } from './TableInterfaces';
+import { DataTableRow } from './TableRow';
 
 interface Props {
   records?: IDataTableRecord[];
@@ -37,6 +37,7 @@ interface Props {
   header?: string;
   minHeight?: string;
   maxHeight?: string;
+  leftBorderColor?: string;
 }
 
 export const DataTable: React.FC<Props> = ({
@@ -47,15 +48,16 @@ export const DataTable: React.FC<Props> = ({
   header,
   minHeight,
   maxHeight,
+  leftBorderColor,
 }) => {
   return (
     <>
-      {header && (
-        <Grid>
-          <Typography sx={{ fontWeight: 'bold' }}>{header}</Typography>
-        </Grid>
-      )}
       <Grid item xs={12}>
+        {header && (
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+            {header}
+          </Typography>
+        )}
         <TableContainer
           style={{ maxHeight, minHeight }}
           sx={{ paddingTop: 2, whiteSpace: 'nowrap' }}
@@ -86,7 +88,11 @@ export const DataTable: React.FC<Props> = ({
             </TableHead>
             <TableBody>
               {records?.map((record) => (
-                <DataTableRow key={record.key} {...{ record }} />
+                <DataTableRow
+                  key={record.key}
+                  leftBorderColor={leftBorderColor}
+                  {...{ record }}
+                />
               ))}
             </TableBody>
           </Table>

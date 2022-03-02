@@ -97,20 +97,30 @@ export const FF_Paths = {
   statusBatchManager: '/status/batchmanager',
 };
 
-export const FF_EVENTS = {
+export const FF_DOCS = 'https://hyperledger.github.io/firefly/';
+
+export enum FF_MESSAGE_TYPES {
   // Message/Definitions
-  MSG_CONFIRMED: 'message_confirmed',
-  MSG_REJECTED: 'message_rejected',
-  TX_SUBMITTED: 'transaction_submitted',
+  BROADCAST = 'broadcast',
+  PRIVATE = 'private',
   // Blockchain Event
-  BLOCKCHAIN_EVENT: 'blockchain_event',
-  CONTRACT_API_CONFIRMED: 'contract_api_confirmed',
-  CONTRACT_INTERFACE_CONFIRMED: 'contract_interface_confirmed',
-  DATATYPE_CONFIRMED: 'datatype_confirmed',
-  GROUP_CONFIRMED: 'group_confirmed',
-  NS_CONFIRMED: 'namespace_confirmed',
-  TOKEN_POOL_CONFIRMED: 'token_pool_confirmed',
+  DEFINITION = 'definition',
+  GROUP_INIT = 'groupinit',
   // Transfers
-  TOKEN_TRANSFER_CONFIRMED: 'token_transfer_confirmed',
-  TOKEN_TRANSFER_FAILED: 'token_transfer_op_failed',
-};
+  TRANSFER_BROADCAST = 'transfer_broadcast',
+  TRANSFER_PRIVATE = 'transfer_private',
+}
+
+export enum FF_OPERATIONS {
+  // Message/Definitions
+  PS_BATCH_BROADCAST = 'publicstorage_batch_broadcast',
+  DX_BATCH_SEND = 'dataexchange_batch_send',
+  DX_BLOB_SEND = 'dataexchange_blob_send',
+  // Blockchain Event
+  BLOCKCHAIN_BATCH_PIN = 'blockchain_batch_pin',
+  BLOCKCHAIN_INVOKE = 'blockchain_invoke',
+  // Transfers
+  TOKEN_CREATE_POOL = 'token_create_pool',
+  TOKEN_ACTIVATE_POOL = 'token_activate_pool',
+  TOKEN_TRANSFER = 'token_transfer',
+}

@@ -1,7 +1,9 @@
+import { FF_EVENTS, MessageStatus, OperationStatus } from '.';
+
 export interface IEvent {
   id: string;
   sequence: number;
-  type: string;
+  type: FF_EVENTS;
   namespace: string;
   reference: string;
   created: string;
@@ -13,6 +15,44 @@ export interface IGenericPagedResponse {
   items: any[];
   total: number;
 }
+
+export interface IMessage {
+  header: {
+    id: string;
+    type: string;
+    txtype: string;
+    author: string;
+    key: string;
+    created: string;
+    namespace: string;
+    topics: string[];
+    tag: string;
+    datahash: string;
+  };
+  hash: string;
+  batch: string;
+  state: MessageStatus;
+  confirmed: string;
+  data: {
+    id: string;
+    hash: string;
+  }[];
+}
+
+export interface IMessageData {
+  id: string;
+  validator: string;
+  namespace: string;
+  hash: string;
+  created: string;
+  value: any;
+}
+
+export type IMessageEvent = IEvent;
+
+export type IMessageOperation = IOperation;
+
+export type IMessageTransaction = ITransaction;
 
 export interface IMetric {
   count: string;
@@ -49,12 +89,84 @@ export interface INode {
   created: string;
 }
 
+export interface IOperation {
+  id: string;
+  namespace: string;
+  tx: string;
+  type: string;
+  status: OperationStatus;
+  plugin: string;
+  input?: any;
+  output?: {
+    id: string;
+    success: boolean;
+  };
+  created: string;
+  updated: string;
+}
+
 export interface IOrganization {
   id: string;
   message: string;
   identity: string;
   name: string;
   created: string;
+}
+
+export interface IPagedEventResponse {
+  pageParam: number;
+  count: number;
+  items: IEvent[];
+  total: number;
+}
+
+export interface IPagedMessageResponse {
+  pageParam: number;
+  count: number;
+  items: IMessage[];
+  total: number;
+}
+
+export interface IPagedNodeResponse {
+  pageParam: number;
+  count: number;
+  items: INode[];
+  total: number;
+}
+
+export interface IPagedOperationResponse {
+  pageParam: number;
+  count: number;
+  items: IOperation[];
+  total: number;
+}
+
+export interface IPagedOrganizationResponse {
+  pageParam: number;
+  count: number;
+  items: IOrganization[];
+  total: number;
+}
+
+export interface IPagedTokenPoolResponse {
+  pageParam: number;
+  count: number;
+  items: ITokenPool[];
+  total: number;
+}
+
+export interface IPagedTokenTransferResponse {
+  pageParam: number;
+  count: number;
+  items: ITokenTransfer[];
+  total: number;
+}
+
+export interface IPagedTransactionResponse {
+  pageParam: number;
+  count: number;
+  items: ITransaction[];
+  total: number;
 }
 
 export interface IStatus {
@@ -72,6 +184,61 @@ export interface IStatus {
   defaults: {
     namespace: string;
   };
+}
+
+export interface ITokenAccount {
+  key: string;
+}
+
+export interface ITokenConnector {
+  [key: string]: string;
+}
+
+export interface ITokenPool {
+  id: string;
+  type: string;
+  namespace: string;
+  name: string;
+  standard: string;
+  protocolId: string;
+  connector: string;
+  message: string;
+  state: 'confirmed' | 'pending';
+  created: string;
+  tx: {
+    type: string;
+    id: string;
+  };
+}
+
+export interface ITokenTransfer {
+  type: 'mint' | 'transfer' | 'burn';
+  localId: string;
+  pool: string;
+  uri: string;
+  connector: string;
+  namespace: string;
+  key: string;
+  from?: string;
+  to?: string;
+  amount: string;
+  protocolId: string;
+  message: string;
+  messageHash: string;
+  created: string;
+  tx: {
+    type: string;
+    id: string;
+  };
+  blockchainEvent: string;
+}
+
+export interface ITransaction {
+  id: string;
+  namespace: string;
+  type: string;
+  created: string;
+  blockchainIds: string[];
 }
 
 export interface ITxBlockchainEvent {

@@ -57,7 +57,10 @@ const App: React.FC = () => {
   const [lastEvent, setLastEvent] = useState<any>();
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<SnackbarMessageType>('error');
+  const [orgID, setOrgID] = useState('');
   const [orgName, setOrgName] = useState('');
+  const [nodeID, setNodeID] = useState('');
+  const [nodeName, setNodeName] = useState('');
   const [createdFilter, setCreatedFilter] =
     useState<CreatedFilterOptions>('24hours');
   const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
@@ -81,7 +84,10 @@ const App: React.FC = () => {
         if (namespaceResponse.ok && statusResponse.ok) {
           const status: IStatus = await statusResponse.json();
           setIdentity(status.org.identity);
+          setOrgID(status.org.id);
           setOrgName(status.org.name);
+          setNodeID(status.node.id);
+          setNodeName(status.node.name);
           setSelectedNamespace(status.defaults.namespace);
           const ns: INamespace[] = await namespaceResponse.json();
           setNamespaces(ns);
@@ -142,7 +148,10 @@ const App: React.FC = () => {
             namespaces,
             selectedNamespace,
             setSelectedNamespace,
+            orgID,
             orgName,
+            nodeID,
+            nodeName,
             identity,
             lastEvent,
             setLastEvent,

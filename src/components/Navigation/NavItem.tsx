@@ -15,6 +15,7 @@
 // limitations under the License.
 
 import {
+  Grid,
   ListItemButton,
   ListItemIcon,
   ListItemText,
@@ -27,9 +28,16 @@ interface Props {
   action: () => void;
   icon?: JSX.Element;
   itemIsActive: boolean;
+  rightIcon?: JSX.Element;
 }
 
-export const NavItem = ({ name, action, icon, itemIsActive }: Props) => {
+export const NavItem = ({
+  name,
+  action,
+  icon,
+  itemIsActive,
+  rightIcon,
+}: Props) => {
   return (
     <ListItemButton
       onClick={action}
@@ -45,7 +53,24 @@ export const NavItem = ({ name, action, icon, itemIsActive }: Props) => {
     >
       <ListItemIcon>{icon}</ListItemIcon>
       <ListItemText>
-        <Typography>{name}</Typography>
+        {rightIcon ? (
+          <Grid container direction="row">
+            <Grid container item justifyContent="flex-start" xs={6}>
+              <Typography>{name}</Typography>
+            </Grid>
+            <Grid
+              container
+              item
+              justifyContent="flex-end"
+              xs={6}
+              sx={{ color: 'text.secondary' }}
+            >
+              {rightIcon}
+            </Grid>
+          </Grid>
+        ) : (
+          <Typography>{name}</Typography>
+        )}
       </ListItemText>
     </ListItemButton>
   );
