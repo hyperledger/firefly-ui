@@ -1,6 +1,5 @@
 import { BarDatum } from '@nivo/bar';
 import {
-  EventKeyEnum,
   IHistTransferTimeMap,
   IMetric,
   IMetricType,
@@ -36,7 +35,7 @@ const processTransferHistBuckets = (
 
 export const makeTransferHistogram = (histList: IMetricType[]): BarDatum[] => {
   let histTimeMap: IHistTransferTimeMap = {};
-  histList.map((hist) => {
+  histList?.map((hist) => {
     switch (hist.type) {
       // Mint
       case TransferKeyEnum.MINT.toLowerCase():
@@ -81,9 +80,9 @@ export const isTransferHistogramEmpty = (
 ): boolean | undefined => {
   return hist?.every((d) => {
     return (
-      d[EventKeyEnum.BLOCKCHAIN] === 0 &&
-      d[EventKeyEnum.MESSAGES] === 0 &&
-      d[EventKeyEnum.TOKENS] === 0
+      d[TransferKeyEnum.MINT] === 0 &&
+      d[TransferKeyEnum.TRANSFER] === 0 &&
+      d[TransferKeyEnum.BURN] === 0
     );
   });
 };

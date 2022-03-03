@@ -64,7 +64,7 @@ export const MessagesActivity: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   // Messages
-  const [messages, setMessages] = useState<IMessage[]>([]);
+  const [messages, setMessages] = useState<IMessage[]>();
   // Message totals
   const [messageTotal, setMessageTotal] = useState(0);
   // Event types histogram
@@ -157,7 +157,7 @@ export const MessagesActivity: () => JSX.Element = () => {
     t('state'),
   ];
 
-  const msgRecords: IDataTableRecord[] = messages.map((msg) => ({
+  const msgRecords: IDataTableRecord[] | undefined = messages?.map((msg) => ({
     key: msg.header.id,
     columns: [
       {

@@ -363,7 +363,7 @@ export const HomeDashboard: () => JSX.Element = () => {
               </div>
             ))
           ) : (
-            <CardEmptyState text={t('noEvents')}></CardEmptyState>
+            <CardEmptyState text={t('noTransactions')}></CardEmptyState>
           )}
         </List>
       ),

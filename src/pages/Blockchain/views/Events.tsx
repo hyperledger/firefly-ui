@@ -14,15 +14,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid, TablePagination, Typography } from '@mui/material';
+import { Button, Grid, TablePagination, Typography } from '@mui/material';
+import { Box } from '@mui/system';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import Jazzicon, { jsNumberForAddress } from 'react-jazzicon';
+import { ChartHeader } from '../../../components/Charts/Header';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
 import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
-import { PoolSlide } from '../../../components/Slides/PoolSlide';
+import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { DataTable } from '../../../components/Tables/Table';
 import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
@@ -30,9 +31,9 @@ import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   FF_Paths,
+  IBlockchainEvent,
   ICreatedFilter,
-  IPagedTokenPoolResponse,
-  ITokenPool,
+  IPagedBlockchainEventResponse,
 } from '../../../interfaces';
 import { DEFAULT_PADDING } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
@@ -44,12 +45,15 @@ export const BlockchainEvents: () => JSX.Element = () => {
     useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
-  // Token pools
-  const [tokenPools, setTokenPools] = useState<ITokenPool[]>([]);
-  // Token pools totals
-  const [tokenPoolsTotal, setTokenPoolsTotal] = useState(0);
-  // View transfer slide out
-  const [viewPool, setViewPool] = useState<ITokenPool | undefined>();
+  // Blockchain Events
+  const [blockchainEvents, setBlockchainEvents] =
+    useState<IBlockchainEvent[]>();
+  // Blockchain Events total
+  const [blockchainEventTotal, setBlockchainEventTotal] = useState(0);
+  // View blockchain event slide out
+  const [viewBlockchainEvent, setViewBlockchainEvent] = useState<
+    IBlockchainEvent | undefined
+  >();
 
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
@@ -57,7 +61,7 @@ export const BlockchainEvents: () => JSX.Element = () => {
   const handleChangePage = (_event: unknown, newPage: number) => {
     if (
       newPage > currentPage &&
-      rowsPerPage * (currentPage + 1) >= tokenPoolsTotal
+      rowsPerPage * (currentPage + 1) >= blockchainEventTotal
     ) {
       return;
     }
@@ -91,92 +95,118 @@ export const BlockchainEvents: () => JSX.Element = () => {
 
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.tokenPools
+        FF_Paths.blockchainEvents
       }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
         createdFilterObject.filterString
       }`
     )
-      .then((tokenPoolsRes: IPagedTokenPoolResponse) => {
-        setTokenPools(tokenPoolsRes.items);
-        setTokenPoolsTotal(tokenPoolsRes.total);
+      .then((blockchainEvents: IPagedBlockchainEventResponse) => {
+        setBlockchainEvents(blockchainEvents.items);
+        setBlockchainEventTotal(blockchainEvents.total);
       })
       .catch((err) => {
         reportFetchError(err);
       });
   }, [rowsPerPage, currentPage, selectedNamespace]);
 
-  const tokenPoolColHeaders = [
+  const beColHeaders = [
+    t('sequence'),
     t('name'),
-    t('type'),
-    t('standard'),
-    t('protocolID'),
-    t('created'),
+    t('id'),
+    t('address'),
+    t('timestamp'),
   ];
-  const tokenPoolRecords = (): IDataTableRecord[] => {
-    return tokenPools.map((pool) => {
-      return {
-        key: pool.id,
-        columns: [
-          {
-            value: (
-              <>
-                <Grid container justifyContent="flex-start" alignItems="center">
-                  <Jazzicon diameter={20} seed={jsNumberForAddress(pool.id)} />
-                  <Typography pl={DEFAULT_PADDING} variant="body1">
-                    {pool.name}
-                  </Typography>
-                </Grid>
-              </>
-            ),
-          },
-          {
-            value: <Typography>{pool.type}</Typography>,
-          },
-          {
-            value: <Typography>{pool.standard}</Typography>,
-          },
-          {
-            value: <Typography>{pool.protocolId}</Typography>,
-          },
-          { value: dayjs(pool.created).format('MM/DD/YYYY h:mm A') },
-        ],
-        onClick: () => setViewPool(pool),
-      };
-    });
-  };
+  const beRecords: IDataTableRecord[] | undefined = blockchainEvents?.map(
+    (be) => ({
+      key: be.id,
+      columns: [
+        {
+          value: <Typography>{be.sequence}</Typography>,
+        },
+        {
+          value: <Typography>{be.name}</Typography>,
+        },
+        {
+          value: <HashPopover shortHash={true} address={be.id}></HashPopover>,
+        },
+        {
+          value: (
+            <HashPopover
+              shortHash={true}
+              address={be.info?.address ?? ''}
+            ></HashPopover>
+          ),
+        },
+        { value: dayjs(be.timestamp).format('MM/DD/YYYY h:mm A') },
+      ],
+      onClick: () => setViewBlockchainEvent(be),
+    })
+  );
 
   return (
     <>
-      <Header title={t('pools')} subtitle={t('tokens')}></Header>
+      <Header title={t('blockchainEvents')} subtitle={t('blockchain')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
-          {!tokenPools ? (
+          <ChartHeader
+            title={t('allBlockchainEvents')}
+            filter={
+              <Button variant="outlined">
+                <Typography p={0.75} sx={{ fontSize: 12 }}>
+                  {t('filter')}
+                </Typography>
+              </Button>
+            }
+          />
+          <Box
+            mt={1}
+            pb={2}
+            borderRadius={1}
+            sx={{
+              width: '100%',
+              height: 200,
+              backgroundColor: 'background.paper',
+            }}
+          >
+            {/* {!messageHistData ? (
+              <FFCircleLoader height={200} color="warning"></FFCircleLoader>
+            ) : isEventHistogramEmpty(messageHistData) ? (
+              <CardEmptyState
+                height={200}
+                text={t('noMessages')}
+              ></CardEmptyState>
+            ) : (
+              <Histogram
+                colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+                data={messageHistData}
+                indexBy="timestamp"
+                keys={[
+                  EventKeyEnum.BLOCKCHAIN,
+                  EventKeyEnum.MESSAGES,
+                  EventKeyEnum.TOKENS,
+                ]}
+                includeLegend={true}
+              ></Histogram>
+            )} */}
+          </Box>
+          {!blockchainEvents ? (
             <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : tokenPools.length ? (
+          ) : blockchainEvents.length ? (
             <DataTable
               stickyHeader={true}
               minHeight="300px"
               maxHeight="calc(100vh - 340px)"
-              records={tokenPoolRecords()}
-              columnHeaders={tokenPoolColHeaders}
+              records={beRecords}
+              columnHeaders={beColHeaders}
               {...{ pagination }}
             />
           ) : (
             <DataTableEmptyState
-              message={t('noTokenPoolsToDisplay')}
+              message={t('noBlockchainEventsToDisplay')}
             ></DataTableEmptyState>
           )}
         </Grid>
       </Grid>
-      {viewPool && (
-        <PoolSlide
-          pool={viewPool}
-          open={!!viewPool}
-          onClose={() => {
-            setViewPool(undefined);
-          }}
-        />
-      )}
     </>
   );
 };

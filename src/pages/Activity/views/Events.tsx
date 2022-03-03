@@ -57,7 +57,7 @@ export const ActivityEvents: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   // Events
-  const [events, setEvents] = useState<IEvent[]>([]);
+  const [events, setEvents] = useState<IEvent[]>();
   // Event totals
   const [eventTotal, setEventTotal] = useState(0);
   // Event types histogram
@@ -148,30 +148,39 @@ export const ActivityEvents: () => JSX.Element = () => {
     t('created'),
   ];
 
-  const eventsRecords: IDataTableRecord[] = events.map((event) => ({
-    key: event.id,
-    columns: [
-      {
-        value: <Typography>{event.sequence}</Typography>,
-      },
-      {
-        value: <Typography>{event.type.toLocaleUpperCase()}</Typography>,
-      },
-      {
-        value: <HashPopover shortHash={true} address={event.id}></HashPopover>,
-      },
-      {
-        value: <HashPopover shortHash={true} address={event.tx}></HashPopover>,
-      },
-      {
-        value: (
-          <HashPopover shortHash={true} address={event.reference}></HashPopover>
-        ),
-      },
-      { value: dayjs(event.created).format('MM/DD/YYYY h:mm A') },
-    ],
-    onClick: () => setViewEvent(event),
-  }));
+  const eventsRecords: IDataTableRecord[] | undefined = events?.map(
+    (event) => ({
+      key: event.id,
+      columns: [
+        {
+          value: <Typography>{event.sequence}</Typography>,
+        },
+        {
+          value: <Typography>{event.type}</Typography>,
+        },
+        {
+          value: (
+            <HashPopover shortHash={true} address={event.id}></HashPopover>
+          ),
+        },
+        {
+          value: (
+            <HashPopover shortHash={true} address={event.tx}></HashPopover>
+          ),
+        },
+        {
+          value: (
+            <HashPopover
+              shortHash={true}
+              address={event.reference}
+            ></HashPopover>
+          ),
+        },
+        { value: dayjs(event.created).format('MM/DD/YYYY h:mm A') },
+      ],
+      onClick: () => setViewEvent(event),
+    })
+  );
 
   return (
     <>

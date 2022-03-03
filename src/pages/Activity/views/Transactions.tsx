@@ -64,7 +64,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   // Transactions
-  const [txs, setTxs] = useState<ITransaction[]>([]);
+  const [txs, setTxs] = useState<ITransaction[]>();
   // Transaction totals
   const [txTotal, setTxTotal] = useState(0);
   // View transaction slide out
@@ -151,7 +151,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
     t('status'),
   ];
 
-  const txRecords: IDataTableRecord[] = txs.map((tx) => ({
+  const txRecords: IDataTableRecord[] | undefined = txs?.map((tx) => ({
     key: tx.id,
     columns: [
       {

@@ -64,7 +64,7 @@ export const ActivityOperations: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   // Operations
-  const [ops, setOps] = useState<IOperation[]>([]);
+  const [ops, setOps] = useState<IOperation[]>();
   // Operation totals
   const [opTotal, setOpTotal] = useState(0);
   // View transaction slide out
@@ -151,7 +151,7 @@ export const ActivityOperations: () => JSX.Element = () => {
     t('status'),
   ];
 
-  const opsRecords: IDataTableRecord[] = ops.map((op) => ({
+  const opsRecords: IDataTableRecord[] | undefined = ops?.map((op) => ({
     key: op.id,
     columns: [
       {

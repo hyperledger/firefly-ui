@@ -101,7 +101,7 @@ export const ActivityDashboard: () => JSX.Element = () => {
             ) : isEventHistogramEmpty(eventHistData) ? (
               <CardEmptyState
                 height={200}
-                text={t('noEvents')}
+                text={t('noActivity')}
               ></CardEmptyState>
             ) : (
               <Histogram

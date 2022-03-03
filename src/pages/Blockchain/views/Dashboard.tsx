@@ -15,12 +15,20 @@
 // limitations under the License.
 
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Chip, Divider, Grid, IconButton, Typography } from '@mui/material';
+import {
+  Chip,
+  Divider,
+  Grid,
+  IconButton,
+  List,
+  ListItem,
+  ListItemText,
+  Typography,
+} from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import Jazzicon from 'react-jazzicon';
 import { useNavigate } from 'react-router-dom';
 import { CardEmptyState } from '../../../components/Cards/CardEmptyState';
 import { MediumCard } from '../../../components/Cards/MediumCard';
@@ -30,7 +38,6 @@ import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
 import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
-import { TransferSlide } from '../../../components/Slides/TransferSlide';
 import { DataTable } from '../../../components/Tables/Table';
 import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
@@ -39,7 +46,9 @@ import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
+  EventKeyEnum,
   FF_Paths,
+  IBlockchainEvent,
   ICreatedFilter,
   IGenericPagedResponse,
   IMediumCard,
@@ -47,17 +56,13 @@ import {
   ISmallCard,
   ITokenAccount,
   ITokenPool,
-  ITokenTransfer,
-  TransferKeyEnum,
 } from '../../../interfaces';
-import { TransferIconMap } from '../../../interfaces/tables';
 import { DEFAULT_PADDING, DEFAULT_SPACING, FFColors } from '../../../theme';
-import { fetchCatcher, jsNumberForAddress } from '../../../utils';
 import {
-  isTransferHistogramEmpty,
-  makeTransferHistogram,
-} from '../../../utils/histograms/transferHistogram';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+  fetchCatcher,
+  isEventHistogramEmpty,
+  makeEventHistogram,
+} from '../../../utils';
 
 export const BlockchainDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
@@ -66,57 +71,49 @@ export const BlockchainDashboard: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const navigate = useNavigate();
   // Small cards
-  // Tokens
-  const [tokenTransfersCount, setTokenTransfersCount] = useState<number>();
-  const [tokenMintCount, setTokenMintcount] = useState<number>();
-  const [tokenBurnCount, setTokenBurnCount] = useState<number>();
-  const [tokenErrorCount, setTokenErrorCount] = useState<number>(0);
-  // Accounts
-  const [tokenAccountsCount, setTokenAccountsCount] = useState<number>();
-  // Pools
-  const [tokenPoolCount, setTokenPoolCount] = useState<number>();
-  const [tokenPoolErrorCount, setTokenPoolErrorCount] = useState<number>(0);
-  // Connectors
-  const [tokenConnectorCount, setTokenConnectorCount] = useState<number>();
+  // Blockchain Operations
+  const [blockchainOpCount, setBlockchainOpCount] = useState<number>();
+  const [blockchainOpErrorCount, setBlockchainOpErrorCount] =
+    useState<number>(0);
+  // Blockchain Transactions
+  const [blockchainTxCount, setBlockchainTxCount] = useState<number>();
+  const [blockchainTxErrorCount, setBlockchainTxErrorCount] =
+    useState<number>(0);
+  // Blockchain Events
+  const [blockchainEventCount, setBlockchainEventCount] = useState<number>();
+  const [blockchainEventErrorCount, setBlockchainEventErrorCount] =
+    useState<number>(0);
 
   // Medium cards
-  // Transfer types histogram
-  const [transferHistData, setTransferHistData] = useState<BarDatum[]>();
-  // Token accounts
-  const [tokenAccounts, setTokenAccounts] = useState<ITokenAccount[]>([]);
-  // Token pools
-  const [tokenPools, setTokenPools] = useState<ITokenPool[]>([]);
-  // Token transfers
-  const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>([]);
-  // View transfer slide out
-  const [viewTransfer, setViewTransfer] = useState<
-    ITokenTransfer | undefined
-  >();
+  // Events histogram
+  const [eventHistData, setEventHistData] = useState<BarDatum[]>();
+  // Blockchain Events
+  const [blockchainEvents, setBlockchainEvents] =
+    useState<IBlockchainEvent[]>();
+  // View Blockchain Events
+  const [viewBlockchainEvent, setViewBlockchainEvent] =
+    useState<IBlockchainEvent>();
 
   const smallCards: ISmallCard[] = [
     {
-      header: t('tokens'),
-      numErrors: tokenErrorCount,
-      data: [
-        { header: t('transfers'), data: tokenTransfersCount },
-        { header: t('mint'), data: tokenMintCount },
-        { header: t('burn'), data: tokenBurnCount },
-      ],
+      header: t('blockchainOperations'),
+      numErrors: blockchainOpErrorCount,
+      data: [{ header: t('total'), data: blockchainOpCount }],
     },
     {
-      header: t('accounts'),
+      header: t('blockchainTransactions'),
+      numErrors: blockchainTxErrorCount,
+      data: [{ header: t('total'), data: blockchainTxCount }],
+    },
+    {
+      header: t('blockchainEvents'),
+      numErrors: blockchainEventErrorCount,
+      data: [{ header: t('total'), data: blockchainEventCount }],
+    },
+    {
+      header: t('TBD'),
       numErrors: 0,
-      data: [{ header: t('total'), data: tokenAccountsCount }],
-    },
-    {
-      header: t('tokenPools'),
-      numErrors: tokenPoolErrorCount,
-      data: [{ header: t('total'), data: tokenPoolCount }],
-    },
-    {
-      header: t('connectors'),
-      numErrors: 0,
-      data: [{ header: t('total'), data: tokenConnectorCount }],
+      data: [{ header: t('total'), data: 0 }],
     },
   ];
 
@@ -126,62 +123,34 @@ export const BlockchainDashboard: () => JSX.Element = () => {
     const qParams = `?count=true&limit=1${createdFilterObject.filterString}`;
 
     Promise.all([
-      // Tokens
+      // Blockchain Operations
       fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}${qParams}&type=transfer`
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}`
       ),
+      // Blockchain Transactions
       fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}${qParams}&type=mint`
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactions}${qParams}`
       ),
+      // Blockchain Events
       fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}${qParams}&type=burn`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&type=token_create_pool&type=token_activate_pool&type=token_transfer&status=Failed`
-      ),
-      // Accounts
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenAccounts}${qParams}`
-      ),
-      // Pools
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenPools}?count=true&limit=1`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&type=token_create_pool&type=token_activate_pool&status=Failed`
-      ),
-      // Connectors
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenConnectors}?count=true&limit=1`
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.blockchainEvents}${qParams}`
       ),
     ])
       .then(
         ([
-          // Transfers
-          tokensTransfer,
-          tokensMint,
-          tokensBurn,
-          tokenErrors,
-          // Accounts
-          tokenAccounts,
-          // Pools
-          tokenPools,
-          tokenPoolErrors,
-          // Connectors
-          tokenConnectors,
+          // Blockchain Operations
+          ops,
+          // Blockchain Transactions
+          txs,
+          // Blockchain Events
+          events,
         ]: IGenericPagedResponse[] | any[]) => {
-          // Transfers
-          setTokenTransfersCount(tokensTransfer.total);
-          setTokenMintcount(tokensMint.total);
-          setTokenBurnCount(tokensBurn.total);
-          setTokenErrorCount(tokenErrors.total);
-          // Accounts
-          setTokenAccountsCount(tokenAccounts.total);
-          // Pools
-          setTokenPoolCount(tokenPools.total);
-          setTokenPoolErrorCount(tokenPoolErrors.total);
-          // Connectors
-          setTokenConnectorCount(tokenConnectors.length);
+          // Operations
+          setBlockchainOpCount(ops.total);
+          // Transactions
+          setBlockchainTxCount(txs.total);
+          // Events
+          setBlockchainEventCount(events.total);
         }
       )
       .catch((err) => {
@@ -189,167 +158,96 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       });
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
-  const tokenAccountsColHeaders = [t('key'), t('')];
-  const tokenAccountRecords = (): IDataTableRecord[] => {
-    return tokenAccounts?.map((acct) => {
-      return {
-        key: acct.key,
-        columns: [
-          {
-            value: (
-              <>
-                <Typography noWrap>{acct.key}</Typography>
-              </>
-            ),
-          },
-          { value: <ArrowForwardIcon /> },
-        ],
-      };
-    });
-  };
-
-  const tokenPoolColHeaders = [t('name'), t('created')];
-  const tokenPoolRecords = (): IDataTableRecord[] => {
-    return tokenPools?.map((pool) => {
-      return {
-        key: pool.id,
-        columns: [
-          {
-            value: (
-              <>
-                <Grid
-                  direction="row"
-                  justifyContent="flex-start"
-                  alignItems="center"
-                >
-                  <Jazzicon
-                    diameter={20}
-                    seed={jsNumberForAddress(pool.name)}
-                  />
-                  <Typography flexWrap="wrap">{pool.name}</Typography>
-                </Grid>
-              </>
-            ),
-          },
-          { value: dayjs(pool.created).format('MM/DD/YYYY h:mm A') },
-        ],
-      };
-    });
-  };
-
   const mediumCards: IMediumCard[] = [
     {
-      headerText: t('tokenTransferTypes'),
+      headerText: t('recentBlockchainEvents'),
       headerComponent: (
-        <IconButton onClick={() => navigate('transfers')}>
+        <IconButton onClick={() => navigate('events')}>
           <ArrowForwardIcon />
         </IconButton>
       ),
-      component: !transferHistData ? (
+      component: !eventHistData ? (
         <FFCircleLoader color="warning"></FFCircleLoader>
-      ) : isTransferHistogramEmpty(transferHistData) ? (
+      ) : isEventHistogramEmpty(eventHistData) ? (
         <CardEmptyState text={t('noEvents')}></CardEmptyState>
       ) : (
         <Histogram
           colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
-          data={transferHistData}
+          data={eventHistData}
           indexBy="timestamp"
           keys={[
-            TransferKeyEnum.MINT,
-            TransferKeyEnum.TRANSFER,
-            TransferKeyEnum.BURN,
+            EventKeyEnum.BLOCKCHAIN,
+            EventKeyEnum.MESSAGES,
+            EventKeyEnum.TOKENS,
           ]}
           includeLegend={true}
         ></Histogram>
       ),
     },
     {
-      headerText: t('accounts'),
+      headerText: t('contractInterfaces'),
       headerComponent: (
-        <IconButton onClick={() => navigate('accounts')}>
+        <IconButton onClick={() => navigate('interfaces')}>
           <ArrowForwardIcon />
         </IconButton>
       ),
       component: (
-        <Grid container justifyContent="center" alignItems="center">
-          <Grid xs={12}>
-            <Typography color="secondary">{t('key')}</Typography>
-          </Grid>
-          {tokenAccounts.map((acct) => {
-            return (
-              <>
-                <Grid
-                  container
-                  justifyContent="center"
-                  alignItems="center"
-                  pt={DEFAULT_PADDING}
-                >
-                  <Grid item xs={11}>
-                    <Typography sx={{ fontWeight: 'bold' }} color="primary">
-                      {acct.key}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={1} justifyContent="center">
-                    <IconButton>
-                      <VisibilityIcon />
-                    </IconButton>
-                  </Grid>
-                </Grid>
-                <Divider />
-              </>
-            );
-          })}
-        </Grid>
+        <List sx={{ width: '100%' }}>
+          <ListItem sx={{ color: 'text.secondary', fontSize: 10 }}>
+            <ListItemText primary={t('id')} />
+            <ListItemText primary={t('api')} />
+            <ListItemText primary={t('status')} />
+          </ListItem>
+          <Divider />
+          <ListItem>
+            <ListItemText primary="Interface ID/Name" />
+            <ListItemText primary="3" />
+            <Chip label="test" />
+          </ListItem>
+          <Divider />
+          <ListItem>
+            <ListItemText primary="Interface ID/Name" />
+            <ListItemText primary="3" />
+            <Chip label="test" />
+          </ListItem>
+          <Divider />
+          <ListItem>
+            <ListItemText primary="Interface ID/Name" />
+            <ListItemText primary="3" />
+            <Chip label="test" />
+          </ListItem>
+        </List>
       ),
     },
     {
-      headerText: t('tokenPools'),
+      headerText: t('contractSubscriptions'),
       headerComponent: (
-        <IconButton onClick={() => navigate('pools')}>
+        <IconButton onClick={() => navigate('subscriptions')}>
           <ArrowForwardIcon />
         </IconButton>
       ),
       component: (
-        <Grid container justifyContent="center" alignItems="center">
-          {tokenPools.map((pool) => {
-            return (
-              <>
-                <Grid
-                  container
-                  justifyContent="center"
-                  alignItems="center"
-                  pt={DEFAULT_PADDING}
-                  direction="row"
-                >
-                  <Grid direction="row" container item xs={6}>
-                    <Jazzicon
-                      diameter={25}
-                      seed={jsNumberForAddress(pool.name)}
-                    />
-                    <Typography
-                      pl={DEFAULT_PADDING}
-                      sx={{ fontWeight: 'bold' }}
-                      color="primary"
-                    >
-                      {pool.name}
-                    </Typography>
-                  </Grid>
-                  <Grid direction="row" container item xs={4}>
-                    <Typography pl={DEFAULT_PADDING} color="primary">
-                      {pool.standard}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={2} container justifyContent="center">
-                    <IconButton>
-                      <VisibilityIcon />
-                    </IconButton>
-                  </Grid>
-                </Grid>
-                <Divider />
-              </>
-            );
-          })}
-        </Grid>
+        <List sx={{ width: '100%' }}>
+          <ListItem sx={{ color: 'text.secondary', fontSize: 10 }}>
+            <ListItemText primary={t('name')} />
+            <ListItemText primary={t('created')} />
+          </ListItem>
+          <Divider />
+          <ListItem>
+            <ListItemText primary="Subscription ID/Name" />
+            <ListItemText primary="01/24/2022" />
+          </ListItem>
+          <Divider />
+          <ListItem>
+            <ListItemText primary="Subscription ID/Name" />
+            <ListItemText primary="01/24/2022" />
+          </ListItem>
+          <Divider />
+          <ListItem>
+            <ListItemText primary="Subscription ID/Name" />
+            <ListItemText primary="01/24/2022" />
+          </ListItem>
+        </List>
       ),
     },
   ];
@@ -357,19 +255,19 @@ export const BlockchainDashboard: () => JSX.Element = () => {
   // Medium Card UseEffect
   useEffect(() => {
     fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenPools}`
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.contractInterfaces}`
     )
-      .then((pools: ITokenPool[]) => {
-        setTokenPools(pools);
+      .then((interfaces: ITokenPool[]) => {
+        // setTokenPools(interfaces);
       })
       .catch((err) => {
         reportFetchError(err);
       });
     fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenAccounts}`
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.contractSubscriptions}`
     )
-      .then((accounts: ITokenAccount[]) => {
-        setTokenAccounts(accounts);
+      .then((subs: ITokenAccount[]) => {
+        // setTokenAccounts(subs);
       })
       .catch((err) => {
         reportFetchError(err);
@@ -383,96 +281,62 @@ export const BlockchainDashboard: () => JSX.Element = () => {
 
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.TokenTransfers
+        BucketCollectionEnum.Events
       )}?startTime=${
         createdFilterObject.filterTime
       }&endTime=${currentTime}&buckets=${BucketCountEnum.Small}`
     )
       .then((histTypes: IMetricType[]) => {
-        setTransferHistData(makeTransferHistogram(histTypes));
+        setEventHistData(makeEventHistogram(histTypes));
       })
       .catch((err) => {
         reportFetchError(err);
       });
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
-  const tokenTransferColHeaders = [
-    t('activity'),
-    t('from'),
-    t('to'),
-    t('blockchainEvent'),
-    t('author'),
-    t('details'),
+  const beColHeaders = [
+    t('sequence'),
+    t('name'),
+    t('id'),
+    t('address'),
     t('timestamp'),
-    t('status'),
   ];
-  const tokenTransferRecords = (): IDataTableRecord[] => {
-    return tokenTransfers?.map((transfer) => {
-      return {
-        key: transfer.localId,
-        columns: [
-          {
-            value: (
-              <>
-                <Grid container justifyContent="flex-start" alignItems="center">
-                  {TransferIconMap[transfer.type]}{' '}
-                  <Typography pl={DEFAULT_PADDING} variant="body1">
-                    {transfer.type.toUpperCase()}
-                  </Typography>
-                </Grid>
-              </>
-            ),
-          },
-          {
-            value: (
-              <HashPopover
-                shortHash={true}
-                address={transfer.from ?? t('nullAddress')}
-              ></HashPopover>
-            ),
-          },
-          {
-            value: (
-              <HashPopover
-                shortHash={true}
-                address={transfer.to ?? t('nullAddress')}
-              ></HashPopover>
-            ),
-          },
-          {
-            value: (
-              <HashPopover
-                shortHash={true}
-                address={transfer.blockchainEvent}
-              ></HashPopover>
-            ),
-          },
-          {
-            value: (
-              <HashPopover
-                shortHash={true}
-                address={transfer.key}
-              ></HashPopover>
-            ),
-          },
-          { value: 'TODO' },
-          { value: dayjs(transfer.created).format('MM/DD/YYYY h:mm A') },
-          { value: <Chip color="success" label="TODO"></Chip> }, //TODO: Make Dynamic
-        ],
-        onClick: () => setViewTransfer(transfer),
-      };
-    });
-  };
+  const beRecords: IDataTableRecord[] | undefined = blockchainEvents?.map(
+    (be) => ({
+      key: be.id,
+      columns: [
+        {
+          value: <Typography>{be.sequence}</Typography>,
+        },
+        {
+          value: <Typography>{be.name}</Typography>,
+        },
+        {
+          value: <HashPopover shortHash={true} address={be.id}></HashPopover>,
+        },
+        {
+          value: (
+            <HashPopover
+              shortHash={true}
+              address={be.info?.address ?? ''}
+            ></HashPopover>
+          ),
+        },
+        { value: dayjs(be.timestamp).format('MM/DD/YYYY h:mm A') },
+      ],
+      onClick: () => setViewBlockchainEvent(be),
+    })
+  );
 
-  // Recent token transfers
+  // Recent blockchain events
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
     fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}?limit=5${createdFilterObject.filterString}`
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.blockchainEvents}?limit=5${createdFilterObject.filterString}`
     )
-      .then((tokenTransfers: ITokenTransfer[]) => {
-        setTokenTransfers(tokenTransfers);
+      .then((blockchainEvents: IBlockchainEvent[]) => {
+        setBlockchainEvents(blockchainEvents);
       })
       .catch((err) => {
         reportFetchError(err);
@@ -481,7 +345,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
 
   return (
     <>
-      <Header title={t('dashboard')} subtitle={t('tokens')}></Header>
+      <Header title={t('dashboard')} subtitle={t('blockchain')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           {/* Small Cards */}
@@ -532,34 +396,34 @@ export const BlockchainDashboard: () => JSX.Element = () => {
               );
             })}
           </Grid>
-          {/* Recent Transfers */}
-          {!tokenTransfers ? (
+          {/* Blockchain Events */}
+          {!blockchainEvents ? (
             <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : tokenTransfers.length ? (
+          ) : blockchainEvents.length ? (
             <DataTable
-              header={t('recentTokenTransfers')}
+              header={t('recentBlockchainEvents')}
               stickyHeader={true}
               minHeight="300px"
               maxHeight="calc(100vh - 340px)"
-              records={tokenTransferRecords()}
-              columnHeaders={tokenTransferColHeaders}
+              records={beRecords}
+              columnHeaders={beColHeaders}
             />
           ) : (
             <DataTableEmptyState
-              message={t('noTokenTransfersToDisplay')}
+              message={t('noBlockchainEventsToDisplay')}
             ></DataTableEmptyState>
           )}
         </Grid>
       </Grid>
-      {viewTransfer && (
+      {/* {viewBlockchainEvent && (
         <TransferSlide
-          transfer={viewTransfer}
-          open={!!viewTransfer}
+          transfer={viewBlockchainEvent}
+          open={!!viewBlockchainEvent}
           onClose={() => {
             setViewTransfer(undefined);
           }}
         />
-      )}
+      )} */}
     </>
   );
 };

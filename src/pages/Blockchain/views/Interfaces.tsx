@@ -105,78 +105,17 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
       });
   }, [rowsPerPage, currentPage, selectedNamespace]);
 
-  const tokenPoolColHeaders = [
-    t('name'),
-    t('type'),
-    t('standard'),
-    t('protocolID'),
-    t('created'),
-  ];
-  const tokenPoolRecords = (): IDataTableRecord[] => {
-    return tokenPools.map((pool) => {
-      return {
-        key: pool.id,
-        columns: [
-          {
-            value: (
-              <>
-                <Grid container justifyContent="flex-start" alignItems="center">
-                  <Jazzicon diameter={20} seed={jsNumberForAddress(pool.id)} />
-                  <Typography pl={DEFAULT_PADDING} variant="body1">
-                    {pool.name}
-                  </Typography>
-                </Grid>
-              </>
-            ),
-          },
-          {
-            value: <Typography>{pool.type}</Typography>,
-          },
-          {
-            value: <Typography>{pool.standard}</Typography>,
-          },
-          {
-            value: <Typography>{pool.protocolId}</Typography>,
-          },
-          { value: dayjs(pool.created).format('MM/DD/YYYY h:mm A') },
-        ],
-        onClick: () => setViewPool(pool),
-      };
-    });
-  };
-
   return (
     <>
-      <Header title={t('pools')} subtitle={t('tokens')}></Header>
+      <Header
+        title={t('contractInterfaces')}
+        subtitle={t('blockchain')}
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
-          {!tokenPools ? (
-            <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : tokenPools.length ? (
-            <DataTable
-              stickyHeader={true}
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              records={tokenPoolRecords()}
-              columnHeaders={tokenPoolColHeaders}
-              {...{ pagination }}
-            />
-          ) : (
-            <DataTableEmptyState
-              message={t('noTokenPoolsToDisplay')}
-            ></DataTableEmptyState>
-          )}
+          test
         </Grid>
       </Grid>
-      {viewPool && (
-        <PoolSlide
-          pool={viewPool}
-          open={!!viewPool}
-          onClose={() => {
-            setViewPool(undefined);
-          }}
-        />
-      )}
     </>
   );
 };

@@ -45,7 +45,7 @@ export const TokensPools: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   // Token pools
-  const [tokenPools, setTokenPools] = useState<ITokenPool[]>([]);
+  const [tokenPools, setTokenPools] = useState<ITokenPool[]>();
   // Token pools totals
   const [tokenPoolsTotal, setTokenPoolsTotal] = useState(0);
   // View transfer slide out
@@ -112,38 +112,36 @@ export const TokensPools: () => JSX.Element = () => {
     t('protocolID'),
     t('created'),
   ];
-  const tokenPoolRecords = (): IDataTableRecord[] => {
-    return tokenPools.map((pool) => {
-      return {
-        key: pool.id,
-        columns: [
-          {
-            value: (
-              <>
-                <Grid container justifyContent="flex-start" alignItems="center">
-                  <Jazzicon diameter={20} seed={jsNumberForAddress(pool.id)} />
-                  <Typography pl={DEFAULT_PADDING} variant="body1">
-                    {pool.name}
-                  </Typography>
-                </Grid>
-              </>
-            ),
-          },
-          {
-            value: <Typography>{pool.type}</Typography>,
-          },
-          {
-            value: <Typography>{pool.standard}</Typography>,
-          },
-          {
-            value: <Typography>{pool.protocolId}</Typography>,
-          },
-          { value: dayjs(pool.created).format('MM/DD/YYYY h:mm A') },
-        ],
-        onClick: () => setViewPool(pool),
-      };
-    });
-  };
+  const tokenPoolRecords: IDataTableRecord[] | undefined = tokenPools?.map(
+    (pool) => ({
+      key: pool.id,
+      columns: [
+        {
+          value: (
+            <>
+              <Grid container justifyContent="flex-start" alignItems="center">
+                <Jazzicon diameter={20} seed={jsNumberForAddress(pool.id)} />
+                <Typography pl={DEFAULT_PADDING} variant="body1">
+                  {pool.name}
+                </Typography>
+              </Grid>
+            </>
+          ),
+        },
+        {
+          value: <Typography>{pool.type}</Typography>,
+        },
+        {
+          value: <Typography>{pool.standard}</Typography>,
+        },
+        {
+          value: <Typography>{pool.protocolId}</Typography>,
+        },
+        { value: dayjs(pool.created).format('MM/DD/YYYY h:mm A') },
+      ],
+      onClick: () => setViewPool(pool),
+    })
+  );
 
   return (
     <>
@@ -157,7 +155,7 @@ export const TokensPools: () => JSX.Element = () => {
               stickyHeader={true}
               minHeight="300px"
               maxHeight="calc(100vh - 340px)"
-              records={tokenPoolRecords()}
+              records={tokenPoolRecords}
               columnHeaders={tokenPoolColHeaders}
               {...{ pagination }}
             />

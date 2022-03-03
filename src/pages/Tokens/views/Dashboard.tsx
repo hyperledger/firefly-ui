@@ -83,11 +83,11 @@ export const TokensDashboard: () => JSX.Element = () => {
   // Transfer types histogram
   const [transferHistData, setTransferHistData] = useState<BarDatum[]>();
   // Token accounts
-  const [tokenAccounts, setTokenAccounts] = useState<ITokenAccount[]>([]);
+  const [tokenAccounts, setTokenAccounts] = useState<ITokenAccount[]>();
   // Token pools
-  const [tokenPools, setTokenPools] = useState<ITokenPool[]>([]);
+  const [tokenPools, setTokenPools] = useState<ITokenPool[]>();
   // Token transfers
-  const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>([]);
+  const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>();
   // View transfer slide out
   const [viewTransfer, setViewTransfer] = useState<
     ITokenTransfer | undefined
@@ -190,52 +190,44 @@ export const TokensDashboard: () => JSX.Element = () => {
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
   const tokenAccountsColHeaders = [t('key'), t('')];
-  const tokenAccountRecords = (): IDataTableRecord[] => {
-    return tokenAccounts?.map((acct) => {
-      return {
-        key: acct.key,
-        columns: [
-          {
-            value: (
-              <>
-                <Typography noWrap>{acct.key}</Typography>
-              </>
-            ),
-          },
-          { value: <ArrowForwardIcon /> },
-        ],
-      };
-    });
-  };
+  const tokenAccountRecords: IDataTableRecord[] | undefined =
+    tokenAccounts?.map((acct) => ({
+      key: acct.key,
+      columns: [
+        {
+          value: (
+            <>
+              <Typography noWrap>{acct.key}</Typography>
+            </>
+          ),
+        },
+        { value: <ArrowForwardIcon /> },
+      ],
+    }));
 
   const tokenPoolColHeaders = [t('name'), t('created')];
-  const tokenPoolRecords = (): IDataTableRecord[] => {
-    return tokenPools?.map((pool) => {
-      return {
-        key: pool.id,
-        columns: [
-          {
-            value: (
-              <>
-                <Grid
-                  direction="row"
-                  justifyContent="flex-start"
-                  alignItems="center"
-                >
-                  <Jazzicon
-                    diameter={20}
-                    seed={jsNumberForAddress(pool.name)}
-                  />
-                  <Typography flexWrap="wrap">{pool.name}</Typography>
-                </Grid>
-              </>
-            ),
-          },
-          { value: dayjs(pool.created).format('MM/DD/YYYY h:mm A') },
-        ],
-      };
-    });
-  };
+  const tokenPoolRecords: IDataTableRecord[] | undefined = tokenPools?.map(
+    (pool) => ({
+      key: pool.id,
+      columns: [
+        {
+          value: (
+            <>
+              <Grid
+                direction="row"
+                justifyContent="flex-start"
+                alignItems="center"
+              >
+                <Jazzicon diameter={20} seed={jsNumberForAddress(pool.name)} />
+                <Typography flexWrap="wrap">{pool.name}</Typography>
+              </Grid>
+            </>
+          ),
+        },
+        { value: dayjs(pool.created).format('MM/DD/YYYY h:mm A') },
+      ],
+    })
+  );
 
   const mediumCards: IMediumCard[] = [
     {
@@ -248,7 +240,7 @@ export const TokensDashboard: () => JSX.Element = () => {
       component: !transferHistData ? (
         <FFCircleLoader color="warning"></FFCircleLoader>
       ) : isTransferHistogramEmpty(transferHistData) ? (
-        <CardEmptyState text={t('noEvents')}></CardEmptyState>
+        <CardEmptyState text={t('noTransfers')}></CardEmptyState>
       ) : (
         <Histogram
           colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
@@ -270,7 +262,11 @@ export const TokensDashboard: () => JSX.Element = () => {
           <ArrowForwardIcon />
         </IconButton>
       ),
-      component: (
+      component: !tokenAccounts ? (
+        <FFCircleLoader color="warning"></FFCircleLoader>
+      ) : !tokenAccounts.length ? (
+        <CardEmptyState text={t('noAccounts')}></CardEmptyState>
+      ) : (
         <Grid container justifyContent="center" alignItems="center">
           <Grid xs={12}>
             <Typography color="secondary">{t('key')}</Typography>
@@ -309,7 +305,11 @@ export const TokensDashboard: () => JSX.Element = () => {
           <ArrowForwardIcon />
         </IconButton>
       ),
-      component: (
+      component: !tokenPools ? (
+        <FFCircleLoader color="warning"></FFCircleLoader>
+      ) : !tokenPools.length ? (
+        <CardEmptyState text={t('noTokenPools')}></CardEmptyState>
+      ) : (
         <Grid container justifyContent="center" alignItems="center">
           {tokenPools.map((pool) => {
             return (
@@ -389,7 +389,9 @@ export const TokensDashboard: () => JSX.Element = () => {
       }&endTime=${currentTime}&buckets=${BucketCountEnum.Small}`
     )
       .then((histTypes: IMetricType[]) => {
+        console.log(histTypes);
         setTransferHistData(makeTransferHistogram(histTypes));
+        console.log(transferHistData);
       })
       .catch((err) => {
         reportFetchError(err);
@@ -406,63 +408,57 @@ export const TokensDashboard: () => JSX.Element = () => {
     t('timestamp'),
     t('status'),
   ];
-  const tokenTransferRecords = (): IDataTableRecord[] => {
-    return tokenTransfers?.map((transfer) => {
-      return {
-        key: transfer.localId,
-        columns: [
-          {
-            value: (
-              <>
-                <Grid container justifyContent="flex-start" alignItems="center">
-                  {TransferIconMap[transfer.type]}{' '}
-                  <Typography pl={DEFAULT_PADDING} variant="body1">
-                    {transfer.type.toUpperCase()}
-                  </Typography>
-                </Grid>
-              </>
-            ),
-          },
-          {
-            value: (
-              <HashPopover
-                shortHash={true}
-                address={transfer.from ?? t('nullAddress')}
-              ></HashPopover>
-            ),
-          },
-          {
-            value: (
-              <HashPopover
-                shortHash={true}
-                address={transfer.to ?? t('nullAddress')}
-              ></HashPopover>
-            ),
-          },
-          {
-            value: (
-              <HashPopover
-                shortHash={true}
-                address={transfer.blockchainEvent}
-              ></HashPopover>
-            ),
-          },
-          {
-            value: (
-              <HashPopover
-                shortHash={true}
-                address={transfer.key}
-              ></HashPopover>
-            ),
-          },
-          { value: 'TODO' },
-          { value: dayjs(transfer.created).format('MM/DD/YYYY h:mm A') },
-          { value: <Chip color="success" label="TODO"></Chip> }, //TODO: Make Dynamic
-        ],
-        onClick: () => setViewTransfer(transfer),
-      };
-    });
-  };
+  const tokenTransferRecords: IDataTableRecord[] | undefined =
+    tokenTransfers?.map((transfer) => ({
+      key: transfer.localId,
+      columns: [
+        {
+          value: (
+            <>
+              <Grid container justifyContent="flex-start" alignItems="center">
+                {TransferIconMap[transfer.type]}{' '}
+                <Typography pl={DEFAULT_PADDING} variant="body1">
+                  {transfer.type.toUpperCase()}
+                </Typography>
+              </Grid>
+            </>
+          ),
+        },
+        {
+          value: (
+            <HashPopover
+              shortHash={true}
+              address={transfer.from ?? t('nullAddress')}
+            ></HashPopover>
+          ),
+        },
+        {
+          value: (
+            <HashPopover
+              shortHash={true}
+              address={transfer.to ?? t('nullAddress')}
+            ></HashPopover>
+          ),
+        },
+        {
+          value: (
+            <HashPopover
+              shortHash={true}
+              address={transfer.blockchainEvent}
+            ></HashPopover>
+          ),
+        },
+        {
+          value: (
+            <HashPopover shortHash={true} address={transfer.key}></HashPopover>
+          ),
+        },
+        { value: 'TODO' },
+        { value: dayjs(transfer.created).format('MM/DD/YYYY h:mm A') },
+        { value: <Chip color="success" label="TODO"></Chip> }, //TODO: Make Dynamic
+      ],
+      onClick: () => setViewTransfer(transfer),
+    }));
 
   // Recent token transfers
   useEffect(() => {
@@ -541,7 +537,7 @@ export const TokensDashboard: () => JSX.Element = () => {
               stickyHeader={true}
               minHeight="300px"
               maxHeight="calc(100vh - 340px)"
-              records={tokenTransferRecords()}
+              records={tokenTransferRecords}
               columnHeaders={tokenTransferColHeaders}
             />
           ) : (

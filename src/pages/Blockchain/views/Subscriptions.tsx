@@ -147,28 +147,13 @@ export const BlockchainSubscriptions: () => JSX.Element = () => {
 
   return (
     <>
-      <Header title={t('pools')} subtitle={t('tokens')}></Header>
+      <Header title={t('subscriptions')} subtitle={t('blockchain')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
-          {!tokenPools ? (
-            <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : tokenPools.length ? (
-            <DataTable
-              stickyHeader={true}
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              records={tokenPoolRecords()}
-              columnHeaders={tokenPoolColHeaders}
-              {...{ pagination }}
-            />
-          ) : (
-            <DataTableEmptyState
-              message={t('noTokenPoolsToDisplay')}
-            ></DataTableEmptyState>
-          )}
+          test
         </Grid>
       </Grid>
-      {viewPool && (
+      {/* {viewPool && (
         <PoolSlide
           pool={viewPool}
           open={!!viewPool}
@@ -176,7 +161,7 @@ export const BlockchainSubscriptions: () => JSX.Element = () => {
             setViewPool(undefined);
           }}
         />
-      )}
+      )} */}
     </>
   );
 };

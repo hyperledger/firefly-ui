@@ -10,7 +10,8 @@ type Props = {
 export const MediumCard: React.FC<Props> = ({ card, position }) => {
   return (
     <Box
-      p={2}
+      px={2}
+      py={1}
       borderRadius={1}
       sx={{
         width: '100%',
@@ -32,7 +33,7 @@ export const MediumCard: React.FC<Props> = ({ card, position }) => {
       </Grid>
       <Grid
         container
-        alignItems="center"
+        alignItems={position ?? 'center'}
         justifyContent="center"
         direction="column"
       >

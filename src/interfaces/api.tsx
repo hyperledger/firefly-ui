@@ -1,5 +1,38 @@
 import { FF_EVENTS, MessageStatus, OperationStatus } from '.';
 
+export interface IBlockchainEvent {
+  id: string;
+  sequence: number;
+  source: string;
+  namespace: string;
+  name: string;
+  protocolId: string;
+  output: {
+    author: string;
+    batchHash: string;
+    contexts: string[];
+    namespace: string;
+    payloadRef: string;
+    timestamp: string;
+    uuids: string;
+  };
+  info: {
+    address: string;
+    blockNumber: string;
+    logIndex: string;
+    signature: string;
+    subId: string;
+    timestamp: string;
+    transactionHash: string;
+    transactionIndex: string;
+  };
+  timestamp: string;
+  tx: {
+    type: string;
+    id: string;
+  };
+}
+
 export interface IEvent {
   id: string;
   sequence: number;
@@ -111,6 +144,13 @@ export interface IOrganization {
   identity: string;
   name: string;
   created: string;
+}
+
+export interface IPagedBlockchainEventResponse {
+  pageParam: number;
+  count: number;
+  items: IBlockchainEvent[];
+  total: number;
 }
 
 export interface IPagedEventResponse {

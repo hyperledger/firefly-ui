@@ -59,7 +59,7 @@ export const TokensTransfers: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   // Token transfers
-  const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>([]);
+  const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>();
   // Token Transfer totals
   const [tokenTransferTotal, setTokenTransferTotal] = useState(0);
   // Transfer types histogram
@@ -152,65 +152,59 @@ export const TokensTransfers: () => JSX.Element = () => {
     t('details'),
     t('timestamp'),
   ];
-  const tokenTransferRecords = (): IDataTableRecord[] => {
-    return tokenTransfers.map((transfer) => {
-      return {
-        key: transfer.localId,
-        columns: [
-          {
-            value: (
-              <>
-                <Grid container justifyContent="flex-start" alignItems="center">
-                  {TransferIconMap[transfer.type]}{' '}
-                  <Typography pl={DEFAULT_PADDING} variant="body1">
-                    {transfer.type.toUpperCase()}
-                  </Typography>
-                </Grid>
-              </>
-            ),
-          },
-          {
-            value: (
-              <HashPopover
-                shortHash={true}
-                address={transfer.from ?? t('nullAddress')}
-              ></HashPopover>
-            ),
-          },
-          {
-            value: (
-              <HashPopover
-                shortHash={true}
-                address={transfer.to ?? t('nullAddress')}
-              ></HashPopover>
-            ),
-          },
-          {
-            value: <Typography>{transfer.amount}</Typography>,
-          },
-          {
-            value: (
-              <HashPopover
-                shortHash={true}
-                address={transfer.blockchainEvent}
-              ></HashPopover>
-            ),
-          },
-          {
-            value: (
-              <HashPopover
-                shortHash={true}
-                address={transfer.key}
-              ></HashPopover>
-            ),
-          },
-          { value: 'TODO' },
-          { value: dayjs(transfer.created).format('MM/DD/YYYY h:mm A') },
-        ],
-        onClick: () => setViewTransfer(transfer),
-      };
-    });
-  };
+  const tokenTransferRecords: IDataTableRecord[] | undefined =
+    tokenTransfers?.map((transfer) => ({
+      key: transfer.localId,
+      columns: [
+        {
+          value: (
+            <>
+              <Grid container justifyContent="flex-start" alignItems="center">
+                {TransferIconMap[transfer.type]}{' '}
+                <Typography pl={DEFAULT_PADDING} variant="body1">
+                  {transfer.type.toUpperCase()}
+                </Typography>
+              </Grid>
+            </>
+          ),
+        },
+        {
+          value: (
+            <HashPopover
+              shortHash={true}
+              address={transfer.from ?? t('nullAddress')}
+            ></HashPopover>
+          ),
+        },
+        {
+          value: (
+            <HashPopover
+              shortHash={true}
+              address={transfer.to ?? t('nullAddress')}
+            ></HashPopover>
+          ),
+        },
+        {
+          value: <Typography>{transfer.amount}</Typography>,
+        },
+        {
+          value: (
+            <HashPopover
+              shortHash={true}
+              address={transfer.blockchainEvent}
+            ></HashPopover>
+          ),
+        },
+        {
+          value: (
+            <HashPopover shortHash={true} address={transfer.key}></HashPopover>
+          ),
+        },
+        { value: 'TODO' },
+        { value: dayjs(transfer.created).format('MM/DD/YYYY h:mm A') },
+      ],
+      onClick: () => setViewTransfer(transfer),
+    }));
 
   return (
     <>
@@ -265,7 +259,7 @@ export const TokensTransfers: () => JSX.Element = () => {
               stickyHeader={true}
               minHeight="300px"
               maxHeight="calc(100vh - 340px)"
-              records={tokenTransferRecords()}
+              records={tokenTransferRecords}
               columnHeaders={tokenTransferColHeaders}
               {...{ pagination }}
             />
