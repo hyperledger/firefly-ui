@@ -1,72 +1,42 @@
 import { BarDatum } from '@nivo/bar';
+import { IMetric } from '../../interfaces';
 import {
-  FF_MESSAGE_TYPES,
-  IHistMessageTimeMap,
-  IMetric,
-  IMetricType,
-  MessageKeyEnum,
-} from '../../interfaces';
+  FF_MESSAGES_CATEGORY_MAP,
+  IHistMsgTimeMap,
+  MsgCategoryEnum,
+} from '../../interfaces/enums/messageTypes';
 
-// Message types
-const processMessageBuckets = (
-  buckets: IMetric[],
-  msgKey: MessageKeyEnum,
-  timeMap: IHistMessageTimeMap
-): IHistMessageTimeMap => {
-  buckets.map((b) => {
-    // Timestamp has already been recorded
-    if (timeMap[b.timestamp]) {
-      timeMap[b.timestamp][msgKey] = timeMap[b.timestamp][msgKey] + +b.count;
-    } else {
-      // Timestamp not yet recorded
-      timeMap[b.timestamp] = {
-        [MessageKeyEnum.BLOCKCHAIN]:
-          msgKey === MessageKeyEnum.BLOCKCHAIN ? +b.count : 0,
-        [MessageKeyEnum.MESSAGES]:
-          msgKey === MessageKeyEnum.MESSAGES ? +b.count : 0,
-        [MessageKeyEnum.TOKENS]:
-          msgKey === MessageKeyEnum.TOKENS ? +b.count : 0,
-      };
-    }
-  });
-
-  return timeMap;
-};
-
-export const makeMessagesHistogram = (histList: IMetricType[]): BarDatum[] => {
-  let histTimeMap: IHistMessageTimeMap = {};
+export const makeMsgHistogram = (histList: IMetric[]): BarDatum[] => {
+  const timeMap: IHistMsgTimeMap = {};
   histList.map((hist) => {
-    switch (hist.type) {
-      // Message
-      case FF_MESSAGE_TYPES.BROADCAST || FF_MESSAGE_TYPES.PRIVATE:
-        histTimeMap = processMessageBuckets(
-          hist.buckets,
-          MessageKeyEnum.MESSAGES,
-          histTimeMap
-        );
-        break;
-      // Blockchain
-      case FF_MESSAGE_TYPES.DEFINITION || FF_MESSAGE_TYPES.GROUP_INIT:
-        histTimeMap = processMessageBuckets(
-          hist.buckets,
-          MessageKeyEnum.BLOCKCHAIN,
-          histTimeMap
-        );
-        break;
-      // Tokens
-      case FF_MESSAGE_TYPES.TRANSFER_BROADCAST ||
-        FF_MESSAGE_TYPES.TRANSFER_PRIVATE:
-        histTimeMap = processMessageBuckets(
-          hist.buckets,
-          MessageKeyEnum.TOKENS,
-          histTimeMap
-        );
-        break;
-    }
+    timeMap[hist.timestamp] = {
+      [MsgCategoryEnum.BLOCKCHAIN]: 0,
+      [MsgCategoryEnum.BROADCAST]: 0,
+      [MsgCategoryEnum.PRIVATE]: 0,
+    };
+    hist.types.map((type) => {
+      switch (FF_MESSAGES_CATEGORY_MAP[type.type].category) {
+        // Blockchain
+        case MsgCategoryEnum.BROADCAST:
+          timeMap[hist.timestamp][MsgCategoryEnum.BROADCAST] =
+            timeMap[hist.timestamp][MsgCategoryEnum.BROADCAST] + +type.count;
+          break;
+        // Message
+        case MsgCategoryEnum.BLOCKCHAIN:
+          timeMap[hist.timestamp][MsgCategoryEnum.BLOCKCHAIN] =
+            timeMap[hist.timestamp][MsgCategoryEnum.BLOCKCHAIN] + +type.count;
+          break;
+        // Tokens
+        case MsgCategoryEnum.PRIVATE:
+          timeMap[hist.timestamp][MsgCategoryEnum.PRIVATE] =
+            timeMap[hist.timestamp][MsgCategoryEnum.PRIVATE] + +type.count;
+          break;
+      }
+    });
   });
 
   const finalHistogram: BarDatum[] = [];
-  Object.entries(histTimeMap).forEach((k) => {
+  Object.entries(timeMap).map((k) => {
     finalHistogram.push({
       timestamp: k[0],
       ...k[1],
@@ -74,16 +44,4 @@ export const makeMessagesHistogram = (histList: IMetricType[]): BarDatum[] => {
   });
 
   return finalHistogram;
-};
-
-export const isMessageHistogramEmpty = (
-  hist: BarDatum[] | undefined
-): boolean | undefined => {
-  return hist?.every((d) => {
-    return (
-      d[MessageKeyEnum.BLOCKCHAIN] === 0 &&
-      d[MessageKeyEnum.MESSAGES] === 0 &&
-      d[MessageKeyEnum.TOKENS] === 0
-    );
-  });
 };

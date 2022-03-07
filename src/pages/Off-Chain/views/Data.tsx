@@ -20,17 +20,15 @@ import { useTranslation } from 'react-i18next';
 import { Header } from '../../../components/Header';
 import { DEFAULT_PADDING } from '../../../theme';
 
-export const BlockchainInterfaces: () => JSX.Element = () => {
+export const OffChainData: () => JSX.Element = () => {
   const { t } = useTranslation();
+
   return (
     <>
-      <Header
-        title={t('contractInterfaces')}
-        subtitle={t('blockchain')}
-      ></Header>
+      <Header title={t('dashboard')} subtitle={t('data')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
-          Contract Interfaces
+          Data Dashboard
         </Grid>
       </Grid>
     </>

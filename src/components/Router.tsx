@@ -24,6 +24,7 @@ import { HomeRoutes } from '../pages/Home/Routes';
 import { MessagesRoutes } from '../pages/Messages/Routes';
 import { MyNodeRoutes } from '../pages/MyNode/Routes';
 import { NetworkRoutes } from '../pages/Network/Routes';
+import { OffChainRoutes } from '../pages/Off-Chain/Routes';
 import { TokensRoutes } from '../pages/Tokens/Routes';
 import { AppWrapper } from './AppWrapper';
 
@@ -63,6 +64,7 @@ export function getAllRoutes(): RouteObject[] {
     HomeRoutes,
     ActivityRoutes,
     BlockchainRoutes,
+    OffChainRoutes,
     MessagesRoutes,
     TokensRoutes,
     NetworkRoutes,

@@ -20,29 +20,24 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CardEmptyState } from '../../../components/Cards/CardEmptyState';
 import { ChartHeader } from '../../../components/Charts/Header';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
-import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { TimelinePanel } from '../../../components/Timeline/Panel';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
-  EventKeyEnum,
   FF_Paths,
   ICreatedFilter,
-  IMetricType,
+  IMetric,
 } from '../../../interfaces';
+import { MsgCategoryEnum } from '../../../interfaces/enums';
 import { DEFAULT_PADDING, FFColors } from '../../../theme';
-import {
-  fetchCatcher,
-  isMessageHistogramEmpty,
-  makeMessagesHistogram,
-} from '../../../utils';
+import { fetchCatcher, makeMsgHistogram } from '../../../utils';
+import { isHistogramEmpty } from '../../../utils/charts';
 
 export const MessagesDashboard: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -58,14 +53,14 @@ export const MessagesDashboard: () => JSX.Element = () => {
 
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.Messages
-      )}?startTime=${
-        createdFilterObject.filterTime
-      }&endTime=${currentTime}&buckets=${BucketCountEnum.Large}`
+        BucketCollectionEnum.Messages,
+        createdFilterObject.filterTime,
+        currentTime,
+        BucketCountEnum.Large
+      )}`
     )
-      .then((histTypes: IMetricType[]) => {
-        console.log(histTypes);
-        setMsgHistData(makeMessagesHistogram(histTypes));
+      .then((histTypes: IMetric[]) => {
+        setMsgHistData(makeMsgHistogram(histTypes));
       })
       .catch((err) => {
         reportFetchError(err);
@@ -97,26 +92,23 @@ export const MessagesDashboard: () => JSX.Element = () => {
               backgroundColor: 'background.paper',
             }}
           >
-            {!msgHistData ? (
-              <FFCircleLoader height={200} color="warning"></FFCircleLoader>
-            ) : isMessageHistogramEmpty(msgHistData) ? (
-              <CardEmptyState
-                height={200}
-                text={t('noMessages')}
-              ></CardEmptyState>
-            ) : (
-              <Histogram
-                colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
-                data={msgHistData}
-                indexBy="timestamp"
-                keys={[
-                  EventKeyEnum.BLOCKCHAIN,
-                  EventKeyEnum.MESSAGES,
-                  EventKeyEnum.TOKENS,
-                ]}
-                includeLegend={true}
-              ></Histogram>
-            )}
+            {' '}
+            <Histogram
+              colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+              data={msgHistData}
+              indexBy="timestamp"
+              keys={[
+                MsgCategoryEnum.BLOCKCHAIN,
+                MsgCategoryEnum.BROADCAST,
+                MsgCategoryEnum.PRIVATE,
+              ]}
+              includeLegend={true}
+              emptyText={t('noMessages')}
+              isEmpty={isHistogramEmpty(
+                msgHistData ?? [],
+                Object.keys(MsgCategoryEnum)
+              )}
+            ></Histogram>
           </Box>
           <TimelinePanel
             leftHeader={t('submittedByMe')}

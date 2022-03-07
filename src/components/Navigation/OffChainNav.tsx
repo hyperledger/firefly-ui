@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ViewInArIcon from '@mui/icons-material/ViewInAr';
+import InventoryIcon from '@mui/icons-material/Inventory';
 import {
   Collapse,
   ListItemButton,
@@ -29,45 +29,44 @@ import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import {
-  APIS_PATH,
-  BLOCKCHAIN_PATH,
-  EVENTS_PATH,
+  DATA_PATH,
+  DATA_TYPES_PATH,
+  FILE_EXPLORER_PATH,
   INavItem,
-  INTERFACES_PATH,
   NAMESPACES_PATH,
-  SUBSCRIPTIONS_PATH,
+  OFFCHAIN_PATH,
 } from '../../interfaces';
 import { themeOptions } from '../../theme';
 import { NavItem } from './NavItem';
 
-export const BlockchainNav = () => {
+export const OffChainNav = () => {
   const { t } = useTranslation();
-  const [blockchainOpen, setBlockchainOpen] = useState(false);
   const navigate = useNavigate();
-  const { selectedNamespace } = useContext(ApplicationContext);
   const { pathname } = useLocation();
-  const baseBlockchainPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${BLOCKCHAIN_PATH}`;
+  const { selectedNamespace } = useContext(ApplicationContext);
+  const [offChainOpen, setOffChainOpen] = useState(false);
+  const baseOffChainPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${OFFCHAIN_PATH}`;
 
   const navItems: INavItem[] = [
     {
       name: t('dashboard'),
-      action: () => navigate(baseBlockchainPath),
-      itemIsActive: pathname === baseBlockchainPath,
+      action: () => navigate(baseOffChainPath),
+      itemIsActive: pathname === baseOffChainPath,
     },
     {
-      name: t('events'),
-      action: () => navigate(`${baseBlockchainPath}/${EVENTS_PATH}`),
-      itemIsActive: pathname === `${baseBlockchainPath}/${EVENTS_PATH}`,
+      name: t('data'),
+      action: () => navigate(`${baseOffChainPath}/${DATA_PATH}`),
+      itemIsActive: pathname === `${baseOffChainPath}/${DATA_PATH}`,
     },
     {
-      name: t('interfaces'),
-      action: () => navigate(`${baseBlockchainPath}/${INTERFACES_PATH}`),
-      itemIsActive: pathname === `${baseBlockchainPath}/${INTERFACES_PATH}`,
+      name: t('fileExplorer'),
+      action: () => navigate(`${baseOffChainPath}/${FILE_EXPLORER_PATH}`),
+      itemIsActive: pathname === `${baseOffChainPath}/${FILE_EXPLORER_PATH}`,
     },
     {
-      name: t('subscriptions'),
-      action: () => navigate(`${baseBlockchainPath}/${SUBSCRIPTIONS_PATH}`),
-      itemIsActive: pathname === `${baseBlockchainPath}/${SUBSCRIPTIONS_PATH}`,
+      name: t('dataTypes'),
+      action: () => navigate(`${baseOffChainPath}/${DATA_TYPES_PATH}`),
+      itemIsActive: pathname === `${baseOffChainPath}/${DATA_TYPES_PATH}`,
     },
   ];
 
@@ -79,16 +78,18 @@ export const BlockchainNav = () => {
           borderLeftColor: themeOptions.palette?.background?.default,
           backgroundColor: themeOptions.palette?.background?.default,
         }}
-        onClick={() => setBlockchainOpen(!blockchainOpen)}
+        onClick={() => setOffChainOpen(!offChainOpen)}
       >
-        <ListItemIcon>{<ViewInArIcon />}</ListItemIcon>
+        <ListItemIcon>
+          <InventoryIcon />
+        </ListItemIcon>
         <ListItemText>
-          <Typography>{t('blockchain')}</Typography>
+          <Typography>{t('offChain')}</Typography>
         </ListItemText>
-        {blockchainOpen ? <ExpandLess /> : <ExpandMore />}
+        {offChainOpen ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
 
-      <Collapse in={blockchainOpen} unmountOnExit>
+      <Collapse in={offChainOpen} unmountOnExit>
         {navItems.map((item) => (
           <NavItem
             name={item.name}

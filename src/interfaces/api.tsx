@@ -1,4 +1,4 @@
-import { FF_EVENTS, MessageStatus, OperationStatus } from '.';
+import { FF_EVENTS, MessageStatus, OperationStatus } from './enums';
 
 export interface IBlockchainEvent {
   id: string;
@@ -7,25 +7,8 @@ export interface IBlockchainEvent {
   namespace: string;
   name: string;
   protocolId: string;
-  output: {
-    author: string;
-    batchHash: string;
-    contexts: string[];
-    namespace: string;
-    payloadRef: string;
-    timestamp: string;
-    uuids: string;
-  };
-  info: {
-    address: string;
-    blockNumber: string;
-    logIndex: string;
-    signature: string;
-    subId: string;
-    timestamp: string;
-    transactionHash: string;
-    transactionIndex: string;
-  };
+  output?: any;
+  info?: any;
   timestamp: string;
   tx: {
     type: string;
@@ -90,10 +73,11 @@ export type IMessageTransaction = ITransaction;
 export interface IMetric {
   count: string;
   timestamp: string;
+  types: IMetricType[];
 }
 
 export interface IMetricType {
-  buckets: IMetric[];
+  count: string;
   type: string;
 }
 
@@ -108,18 +92,23 @@ export interface INamespace {
 
 export interface INode {
   id: string;
-  message: string;
-  owner: string;
+  did: string;
+  type: string;
+  parent: string;
+  namespace: string;
   name: string;
-  dx: {
-    peer: string;
-    endpoint: {
-      cert: string;
-      endpoint: string;
-      id: string;
-    };
+  profile: {
+    cert: string;
+    endpoint: string;
+    id: string;
+  };
+  messages: {
+    claim: string;
+    verification: string | null;
+    update: string | null;
   };
   created: string;
+  updated: string;
 }
 
 export interface IOperation {
@@ -140,10 +129,17 @@ export interface IOperation {
 
 export interface IOrganization {
   id: string;
-  message: string;
-  identity: string;
+  did: string;
+  type: string;
+  namespace: string;
   name: string;
+  messages: {
+    claim: string;
+    verification: string | null;
+    update: string | null;
+  };
   created: string;
+  updated: string;
 }
 
 export interface IPagedBlockchainEventResponse {
@@ -279,54 +275,6 @@ export interface ITransaction {
   type: string;
   created: string;
   blockchainIds: string[];
-}
-
-export interface ITxBlockchainEvent {
-  id: string;
-  sequence: number;
-  source: string;
-  namespace: string;
-  name: string;
-  protocolId: string;
-  output: {
-    author: string;
-    batchHash: string;
-    contexts: string[];
-    namespace: string;
-    payloadRef: string;
-    timestamp: string;
-    uuids: string;
-  };
-  info: {
-    address: string;
-    blockNumber: string;
-    logIndex: string;
-    signature: string;
-    subId: string;
-    timestamp: string;
-    transactionHash: string;
-    transactionIndex: string;
-  };
-  timestamp: string;
-  tx: {
-    type: string;
-    id: string;
-  };
-}
-
-export interface ITxOperation {
-  id: string;
-  namespace: string;
-  tx: string;
-  type: string;
-  status: string;
-  plugin: string;
-  output: {
-    id: string;
-    success: boolean;
-  };
-  created: string;
-  updated: string;
 }
 
 export interface ITxStatus {

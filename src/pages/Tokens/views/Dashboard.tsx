@@ -15,6 +15,7 @@
 // limitations under the License.
 
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import { Chip, Divider, Grid, IconButton, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
@@ -37,27 +38,29 @@ import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
+  ACCOUNTS_PATH,
   BucketCollectionEnum,
   BucketCountEnum,
   FF_Paths,
   ICreatedFilter,
   IGenericPagedResponse,
   IMediumCard,
-  IMetricType,
+  IMetric,
   ISmallCard,
   ITokenAccount,
   ITokenPool,
   ITokenTransfer,
-  TransferKeyEnum,
+  POOLS_PATH,
+  TRANSFERS_PATH,
 } from '../../../interfaces';
-import { TransferIconMap } from '../../../interfaces/tables';
+import {
+  TransferCategoryEnum,
+  TransferIconMap,
+} from '../../../interfaces/enums';
 import { DEFAULT_PADDING, DEFAULT_SPACING, FFColors } from '../../../theme';
 import { fetchCatcher, jsNumberForAddress } from '../../../utils';
-import {
-  isTransferHistogramEmpty,
-  makeTransferHistogram,
-} from '../../../utils/histograms/transferHistogram';
-import VisibilityIcon from '@mui/icons-material/Visibility';
+import { isHistogramEmpty } from '../../../utils/charts';
+import { makeTransferHistogram } from '../../../utils/histograms/transferHistogram';
 
 export const TokensDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
@@ -233,32 +236,33 @@ export const TokensDashboard: () => JSX.Element = () => {
     {
       headerText: t('tokenTransferTypes'),
       headerComponent: (
-        <IconButton onClick={() => navigate('transfers')}>
+        <IconButton onClick={() => navigate(TRANSFERS_PATH)}>
           <ArrowForwardIcon />
         </IconButton>
       ),
-      component: !transferHistData ? (
-        <FFCircleLoader color="warning"></FFCircleLoader>
-      ) : isTransferHistogramEmpty(transferHistData) ? (
-        <CardEmptyState text={t('noTransfers')}></CardEmptyState>
-      ) : (
+      component: (
         <Histogram
           colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
           data={transferHistData}
           indexBy="timestamp"
           keys={[
-            TransferKeyEnum.MINT,
-            TransferKeyEnum.TRANSFER,
-            TransferKeyEnum.BURN,
+            TransferCategoryEnum.MINT,
+            TransferCategoryEnum.TRANSFER,
+            TransferCategoryEnum.BURN,
           ]}
           includeLegend={true}
+          emptyText={t('noTransfers')}
+          isEmpty={isHistogramEmpty(
+            transferHistData ?? [],
+            Object.keys(TransferCategoryEnum)
+          )}
         ></Histogram>
       ),
     },
     {
       headerText: t('accounts'),
       headerComponent: (
-        <IconButton onClick={() => navigate('accounts')}>
+        <IconButton onClick={() => navigate(ACCOUNTS_PATH)}>
           <ArrowForwardIcon />
         </IconButton>
       ),
@@ -301,7 +305,7 @@ export const TokensDashboard: () => JSX.Element = () => {
     {
       headerText: t('tokenPools'),
       headerComponent: (
-        <IconButton onClick={() => navigate('pools')}>
+        <IconButton onClick={() => navigate(POOLS_PATH)}>
           <ArrowForwardIcon />
         </IconButton>
       ),
@@ -383,17 +387,17 @@ export const TokensDashboard: () => JSX.Element = () => {
 
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.TokenTransfers
-      )}?startTime=${
-        createdFilterObject.filterTime
-      }&endTime=${currentTime}&buckets=${BucketCountEnum.Small}`
+        BucketCollectionEnum.TokenTransfers,
+        createdFilterObject.filterTime,
+        currentTime,
+        BucketCountEnum.Small
+      )}`
     )
-      .then((histTypes: IMetricType[]) => {
-        console.log(histTypes);
+      .then((histTypes: IMetric[]) => {
         setTransferHistData(makeTransferHistogram(histTypes));
-        console.log(transferHistData);
       })
       .catch((err) => {
+        setTransferHistData([]);
         reportFetchError(err);
       });
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);

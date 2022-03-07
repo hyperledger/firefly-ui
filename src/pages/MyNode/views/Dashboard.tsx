@@ -60,8 +60,8 @@ export const MyNodeDashboard: () => JSX.Element = () => {
       label: t('name'),
     },
     {
-      defaultValue: node?.owner ?? '',
-      label: t('orgOwner'),
+      defaultValue: node?.did ?? '',
+      label: t('did'),
     },
     {
       defaultValue: node?.id ?? '',
@@ -75,8 +75,8 @@ export const MyNodeDashboard: () => JSX.Element = () => {
       label: t('name'),
     },
     {
-      defaultValue: org?.identity ?? '',
-      label: t('identity'),
+      defaultValue: org?.did ?? '',
+      label: t('did'),
     },
     {
       defaultValue: org?.id ?? '',
@@ -84,21 +84,17 @@ export const MyNodeDashboard: () => JSX.Element = () => {
     },
   ];
 
-  const dxInputs = [
+  const profileInputs = [
     {
-      defaultValue: node?.dx.peer ?? '',
-      label: t('peer'),
-    },
-    {
-      defaultValue: node?.dx.endpoint.id ?? '',
+      defaultValue: node?.profile.id ?? '',
       label: t('endpointID'),
     },
     {
-      defaultValue: node?.dx.endpoint.endpoint ?? '',
+      defaultValue: node?.profile.endpoint ?? '',
       label: t('endpoint'),
     },
     {
-      defaultValue: node?.dx.endpoint.cert ?? '',
+      defaultValue: node?.profile.cert ?? '',
       label: t('certificate'),
     },
   ];
@@ -170,15 +166,15 @@ export const MyNodeDashboard: () => JSX.Element = () => {
                 spacing={DEFAULT_SPACING}
                 pt={DEFAULT_PADDING}
               >
-                {/* DX Title */}
+                {/* Profile Title */}
                 <Grid item xs={12}>
                   <Typography sx={{ fontWeight: 'bold' }} variant="h6">
-                    {t('dataExchange')}
+                    {t('profile')}
                   </Typography>
                 </Grid>
-                {/* DX Details */}
-                {dxInputs.map((input) => (
-                  <Grid item xs={3}>
+                {/* Profile Details */}
+                {profileInputs.map((input) => (
+                  <Grid item xs={4}>
                     <FFTextField
                       key={input.defaultValue}
                       defaultValue={input.defaultValue}

@@ -43,3 +43,5 @@ export const themeOptions: ThemeOptions = {
     },
   },
 };
+
+export const FFBackgroundHover = '#252C32';

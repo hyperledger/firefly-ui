@@ -130,10 +130,12 @@ export const NetworkNodes: () => JSX.Element = () => {
                 value: <HashPopover shortHash={true} address={node.id} />,
               },
               {
-                value: <HashPopover shortHash={true} address={node.owner} />,
+                value: <HashPopover shortHash={true} address={node.did} />,
               },
               {
-                value: <HashPopover shortHash={true} address={node.message} />,
+                value: (
+                  <HashPopover shortHash={true} address={node.messages.claim} />
+                ),
               },
               { value: dayjs(node.created).format('MM/DD/YYYY h:mm A') },
               {

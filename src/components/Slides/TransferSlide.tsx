@@ -22,15 +22,17 @@ import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import {
+  IBlockchainEvent,
+  IOperation,
   ITokenTransfer,
-  ITxBlockchainEvent,
-  ITxOperation,
   ITxStatus,
+} from '../../interfaces';
+import { FF_Paths } from '../../interfaces/constants';
+import {
   OpStatusColorMap,
   TransferColorMap,
   TxStatusColorMap,
-} from '../../interfaces';
-import { FF_Paths } from '../../interfaces/constants';
+} from '../../interfaces/enums';
 import { DEFAULT_PADDING } from '../../theme';
 import { fetchCatcher } from '../../utils';
 import { FFCopyButton } from '../Buttons/CopyButton';
@@ -51,9 +53,9 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
   const { reportFetchError } = useContext(SnackbarContext);
 
   const [txBlockchainEvents, setTxBlockchainEvents] = useState<
-    ITxBlockchainEvent[]
+    IBlockchainEvent[]
   >([]);
-  const [txOperations, setTxOperations] = useState<ITxOperation[]>([]);
+  const [txOperations, setTxOperations] = useState<IOperation[]>([]);
   const [txStatus, setTxStatus] = useState<ITxStatus>();
 
   useEffect(() => {
@@ -77,7 +79,7 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
         transfer.tx.id
       )}`
     )
-      .then((txOperations: ITxOperation[]) => {
+      .then((txOperations: IOperation[]) => {
         setTxOperations(txOperations);
       })
       .catch((err) => {
@@ -91,7 +93,7 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
         transfer.tx.id
       )}`
     )
-      .then((txBlockchainEvents: ITxBlockchainEvent[]) => {
+      .then((txBlockchainEvents: IBlockchainEvent[]) => {
         setTxBlockchainEvents(txBlockchainEvents);
       })
       .catch((err) => {

@@ -15,21 +15,21 @@
 // limitations under the License.
 
 import { Grid } from '@mui/material';
-import React, { useContext } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { Header } from '../../../components/Header';
-import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { DEFAULT_PADDING } from '../../../theme';
 
 export const TokensAccounts: () => JSX.Element = () => {
-  const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
 
   return (
     <>
       <Header title={t('accounts')} subtitle={t('tokens')}></Header>
       <Grid container px={DEFAULT_PADDING}>
-        <Grid container item wrap="nowrap" direction="column"></Grid>
+        <Grid container item wrap="nowrap" direction="column">
+          TBD
+        </Grid>
       </Grid>
     </>
   );

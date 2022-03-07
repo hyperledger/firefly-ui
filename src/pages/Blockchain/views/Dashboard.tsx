@@ -30,7 +30,6 @@ import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { CardEmptyState } from '../../../components/Cards/CardEmptyState';
 import { MediumCard } from '../../../components/Cards/MediumCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
@@ -46,27 +45,27 @@ import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
-  EventKeyEnum,
+  EventCategoryEnum,
+  EVENTS_PATH,
   FF_Paths,
   IBlockchainEvent,
   ICreatedFilter,
   IGenericPagedResponse,
   IMediumCard,
-  IMetricType,
+  IMetric,
+  INTERFACES_PATH,
   ISmallCard,
   ITokenAccount,
   ITokenPool,
+  SUBSCRIPTIONS_PATH,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_SPACING, FFColors } from '../../../theme';
-import {
-  fetchCatcher,
-  isEventHistogramEmpty,
-  makeEventHistogram,
-} from '../../../utils';
+import { fetchCatcher, makeEventHistogram } from '../../../utils';
+import { isHistogramEmpty } from '../../../utils/charts';
 
 export const BlockchainDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
-  const { createdFilter, lastEvent, orgName, selectedNamespace } =
+  const { createdFilter, lastEvent, selectedNamespace } =
     useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const navigate = useNavigate();
@@ -162,32 +161,33 @@ export const BlockchainDashboard: () => JSX.Element = () => {
     {
       headerText: t('recentBlockchainEvents'),
       headerComponent: (
-        <IconButton onClick={() => navigate('events')}>
+        <IconButton onClick={() => navigate(EVENTS_PATH)}>
           <ArrowForwardIcon />
         </IconButton>
       ),
-      component: !eventHistData ? (
-        <FFCircleLoader color="warning"></FFCircleLoader>
-      ) : isEventHistogramEmpty(eventHistData) ? (
-        <CardEmptyState text={t('noEvents')}></CardEmptyState>
-      ) : (
+      component: (
         <Histogram
           colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
           data={eventHistData}
           indexBy="timestamp"
           keys={[
-            EventKeyEnum.BLOCKCHAIN,
-            EventKeyEnum.MESSAGES,
-            EventKeyEnum.TOKENS,
+            EventCategoryEnum.BLOCKCHAIN,
+            EventCategoryEnum.MESSAGES,
+            EventCategoryEnum.TOKENS,
           ]}
           includeLegend={true}
+          emptyText={t('noBlockchainEvents')}
+          isEmpty={isHistogramEmpty(
+            eventHistData ?? [],
+            Object.keys(EventCategoryEnum)
+          )}
         ></Histogram>
       ),
     },
     {
       headerText: t('contractInterfaces'),
       headerComponent: (
-        <IconButton onClick={() => navigate('interfaces')}>
+        <IconButton onClick={() => navigate(INTERFACES_PATH)}>
           <ArrowForwardIcon />
         </IconButton>
       ),
@@ -222,7 +222,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
     {
       headerText: t('contractSubscriptions'),
       headerComponent: (
-        <IconButton onClick={() => navigate('subscriptions')}>
+        <IconButton onClick={() => navigate(SUBSCRIPTIONS_PATH)}>
           <ArrowForwardIcon />
         </IconButton>
       ),
@@ -258,6 +258,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.contractInterfaces}`
     )
       .then((interfaces: ITokenPool[]) => {
+        // TODO: Set correctly
         // setTokenPools(interfaces);
       })
       .catch((err) => {
@@ -267,6 +268,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.contractSubscriptions}`
     )
       .then((subs: ITokenAccount[]) => {
+        // TODO: Set correctly
         // setTokenAccounts(subs);
       })
       .catch((err) => {
@@ -281,12 +283,13 @@ export const BlockchainDashboard: () => JSX.Element = () => {
 
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.Events
-      )}?startTime=${
-        createdFilterObject.filterTime
-      }&endTime=${currentTime}&buckets=${BucketCountEnum.Small}`
+        BucketCollectionEnum.Events,
+        createdFilterObject.filterTime,
+        currentTime,
+        BucketCountEnum.Small
+      )}`
     )
-      .then((histTypes: IMetricType[]) => {
+      .then((histTypes: IMetric[]) => {
         setEventHistData(makeEventHistogram(histTypes));
       })
       .catch((err) => {
@@ -410,11 +413,12 @@ export const BlockchainDashboard: () => JSX.Element = () => {
             />
           ) : (
             <DataTableEmptyState
-              message={t('noBlockchainEventsToDisplay')}
+              message={t('noBlockchainEvents')}
             ></DataTableEmptyState>
           )}
         </Grid>
       </Grid>
+      {/* TODO: Add slideover */}
       {/* {viewBlockchainEvent && (
         <TransferSlide
           transfer={viewBlockchainEvent}

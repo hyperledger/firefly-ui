@@ -18,7 +18,13 @@ export const FF_Paths = {
   blockchainEvents: '/blockchainevents',
   blockchainEventsById: (id: string) => `/blockchainevents/${id}`,
   // Charts
-  chartsHistogram: (collection: string) => `/charts/histogram/${collection}`,
+  chartsHistogram: (
+    collection: string,
+    startTime: number,
+    endTime: number,
+    numBuckets: number
+  ) =>
+    `/charts/histogram/${collection}?startTime=${startTime}&endTime=${endTime}&buckets=${numBuckets}`,
   // Contracts
   contractInterfaces: '/contracts/interfaces',
   contractInterfacesById: (id: string) => `/contracts/interfaces/${id}`,

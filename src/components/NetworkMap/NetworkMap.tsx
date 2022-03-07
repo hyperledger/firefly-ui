@@ -188,11 +188,12 @@ export const NetworkMap: () => JSX.Element = () => {
     return isNode || isIdentity ? tooltipWrap(circle) : circle;
   };
 
+  // TODO: Fix for new identity stuff
   const orgMap: Map<IOrganization, INode[] | undefined> = new Map();
   orgs?.forEach((o) =>
     orgMap.set(
       o,
-      nodes?.filter((n) => n.owner === o.identity)
+      nodes?.filter((n) => n.did === o.did)
     )
   );
 
@@ -209,7 +210,7 @@ export const NetworkMap: () => JSX.Element = () => {
           value: NODE_VALUE,
         })) || []
       ).concat({
-        id: o.identity,
+        id: o.did,
         value: IDENTITY_VALUE,
       }),
     });

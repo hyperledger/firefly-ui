@@ -15,8 +15,8 @@
 // limitations under the License.
 
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
+import VisibilityIcon from '@mui/icons-material/Visibility';
 import {
-  Button,
   Chip,
   Grid,
   IconButton,
@@ -35,9 +35,9 @@ import {
   IMessageEvent,
   IMessageOperation,
   IMessageTransaction,
-  OpStatusColorMap,
 } from '../../interfaces';
 import { FF_Paths } from '../../interfaces/constants';
+import { OpStatusColorMap } from '../../interfaces/enums';
 import { DEFAULT_PADDING } from '../../theme';
 import { fetchCatcher } from '../../utils';
 import { FFCopyButton } from '../Buttons/CopyButton';
@@ -45,8 +45,6 @@ import { HashPopover } from '../Popovers/HashPopover';
 import { DisplaySlide } from './DisplaySlide';
 import { DrawerListItem, IDataListItem } from './ListItem';
 import { DrawerPanel, IOperationListItem } from './Panel';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import Highlight from 'react-highlight';
 
 interface Props {
   message: IMessage;
@@ -168,7 +166,7 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
     },
   ];
 
-  const msgDataList: IOperationListItem[] = msgData.map((data) => {
+  const msgDataList: IOperationListItem[] = msgData?.map((data) => {
     return {
       label: data.id,
       value: (
@@ -185,7 +183,7 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
     };
   });
 
-  const operationsList: IOperationListItem[] = msgOperations.map((op) => {
+  const operationsList: IOperationListItem[] = msgOperations?.map((op) => {
     return {
       label: op.type.toLocaleUpperCase(),
       value: <HashPopover address={op.id} shortHash={true}></HashPopover>,
@@ -204,7 +202,7 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
     };
   });
 
-  const blockchainEventsList: IOperationListItem[] = msgBlockchainEvents.map(
+  const blockchainEventsList: IOperationListItem[] = msgBlockchainEvents?.map(
     (be) => {
       return {
         label: be.type.toLocaleUpperCase(),
@@ -266,11 +264,11 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
                 fontSize: '12',
               }}
             >
-              {`${t('messageData')} (${msgDataList.length})`}
+              {`${t('messageData')} (${msgDataList?.length})`}
             </Typography>
           </Grid>
           <Grid container item>
-            {msgDataList.map((data, idx) => (
+            {msgDataList?.map((data, idx) => (
               <DrawerPanel key={idx} item={data} />
             ))}
           </Grid>
@@ -283,11 +281,11 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
                 fontSize: '12',
               }}
             >
-              {`${t('operations')} (${operationsList.length})`}
+              {`${t('operations')} (${operationsList?.length})`}
             </Typography>
           </Grid>
           <Grid container item>
-            {operationsList.map((op, idx) => (
+            {operationsList?.map((op, idx) => (
               <DrawerPanel key={idx} item={op} />
             ))}
           </Grid>
@@ -300,11 +298,11 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
                 fontSize: '12',
               }}
             >
-              {`${t('blockchainEvents')} (${blockchainEventsList.length})`}
+              {`${t('blockchainEvents')} (${blockchainEventsList?.length})`}
             </Typography>
           </Grid>
           <Grid container item>
-            {blockchainEventsList.map((be, idx) => (
+            {blockchainEventsList?.map((be, idx) => (
               <DrawerPanel key={idx} item={be} />
             ))}
           </Grid>

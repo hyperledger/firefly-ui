@@ -134,10 +134,12 @@ export const NetworkOrganizations: () => JSX.Element = () => {
                 value: <HashPopover shortHash={true} address={org.id} />,
               },
               {
-                value: <HashPopover shortHash={true} address={org.identity} />,
+                value: <HashPopover shortHash={true} address={org.did} />,
               },
               {
-                value: <HashPopover shortHash={true} address={org.message} />,
+                value: (
+                  <HashPopover shortHash={true} address={org.messages.claim} />
+                ),
               },
               { value: dayjs(org.created).format('MM/DD/YYYY h:mm A') },
               {

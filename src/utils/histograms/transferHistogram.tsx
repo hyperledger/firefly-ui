@@ -1,71 +1,43 @@
 import { BarDatum } from '@nivo/bar';
+import { IMetric } from '../../interfaces';
 import {
+  FF_TRANSFER_CATEGORY_MAP,
   IHistTransferTimeMap,
-  IMetric,
-  IMetricType,
-  TransferKeyEnum,
-} from '../../interfaces';
+  TransferCategoryEnum,
+} from '../../interfaces/enums/transferTypes';
 
-// Transfers
-const processTransferHistBuckets = (
-  buckets: IMetric[],
-  eventKey: TransferKeyEnum,
-  timeMap: IHistTransferTimeMap
-): IHistTransferTimeMap => {
-  buckets.map((b) => {
-    // Timestamp has already been recorded
-    if (timeMap[b.timestamp]) {
-      timeMap[b.timestamp][eventKey] =
-        timeMap[b.timestamp][eventKey] + +b.count;
-    } else {
-      // Timestamp not yet recorded
-      timeMap[b.timestamp] = {
-        [TransferKeyEnum.MINT]:
-          eventKey === TransferKeyEnum.MINT ? +b.count : 0,
-        [TransferKeyEnum.TRANSFER]:
-          eventKey === TransferKeyEnum.TRANSFER ? +b.count : 0,
-        [TransferKeyEnum.BURN]:
-          eventKey === TransferKeyEnum.BURN ? +b.count : 0,
-      };
-    }
-  });
-
-  return timeMap;
-};
-
-export const makeTransferHistogram = (histList: IMetricType[]): BarDatum[] => {
-  let histTimeMap: IHistTransferTimeMap = {};
+export const makeTransferHistogram = (histList: IMetric[]): BarDatum[] => {
+  const timeMap: IHistTransferTimeMap = {};
   histList?.map((hist) => {
-    switch (hist.type) {
-      // Mint
-      case TransferKeyEnum.MINT.toLowerCase():
-        histTimeMap = processTransferHistBuckets(
-          hist.buckets,
-          TransferKeyEnum.MINT,
-          histTimeMap
-        );
-        break;
-      // Transfer
-      case TransferKeyEnum.TRANSFER.toLowerCase():
-        histTimeMap = processTransferHistBuckets(
-          hist.buckets,
-          TransferKeyEnum.TRANSFER,
-          histTimeMap
-        );
-        break;
-      // Burn
-      case TransferKeyEnum.BURN.toLowerCase():
-        histTimeMap = processTransferHistBuckets(
-          hist.buckets,
-          TransferKeyEnum.BURN,
-          histTimeMap
-        );
-        break;
-    }
+    timeMap[hist.timestamp] = {
+      [TransferCategoryEnum.MINT]: 0,
+      [TransferCategoryEnum.BURN]: 0,
+      [TransferCategoryEnum.TRANSFER]: 0,
+    };
+    hist.types.map((type) => {
+      switch (FF_TRANSFER_CATEGORY_MAP[type.type].category) {
+        // Mint
+        case TransferCategoryEnum.MINT:
+          timeMap[hist.timestamp][TransferCategoryEnum.MINT] =
+            timeMap[hist.timestamp][TransferCategoryEnum.MINT] + +type.count;
+          break;
+        // Burn
+        case TransferCategoryEnum.BURN:
+          timeMap[hist.timestamp][TransferCategoryEnum.BURN] =
+            timeMap[hist.timestamp][TransferCategoryEnum.BURN] + +type.count;
+          break;
+        // Transfer
+        case TransferCategoryEnum.TRANSFER:
+          timeMap[hist.timestamp][TransferCategoryEnum.TRANSFER] =
+            timeMap[hist.timestamp][TransferCategoryEnum.TRANSFER] +
+            +type.count;
+          break;
+      }
+    });
   });
 
   const finalHistogram: BarDatum[] = [];
-  Object.entries(histTimeMap).forEach((k) => {
+  Object.entries(timeMap).map((k) => {
     finalHistogram.push({
       timestamp: k[0],
       ...k[1],
@@ -73,16 +45,4 @@ export const makeTransferHistogram = (histList: IMetricType[]): BarDatum[] => {
   });
 
   return finalHistogram;
-};
-
-export const isTransferHistogramEmpty = (
-  hist: BarDatum[] | undefined
-): boolean | undefined => {
-  return hist?.every((d) => {
-    return (
-      d[TransferKeyEnum.MINT] === 0 &&
-      d[TransferKeyEnum.TRANSFER] === 0 &&
-      d[TransferKeyEnum.BURN] === 0
-    );
-  });
 };

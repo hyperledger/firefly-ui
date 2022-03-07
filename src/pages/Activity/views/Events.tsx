@@ -19,14 +19,13 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CardEmptyState } from '../../../components/Cards/CardEmptyState';
 import { ChartHeader } from '../../../components/Charts/Header';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
 import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
-import { EventSlide } from '../../../components/Slides/EventSlide';
+import { EventTransactionSlide } from '../../../components/Slides/EventTransactionSlide';
 import { DataTable } from '../../../components/Tables/Table';
 import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
@@ -35,19 +34,17 @@ import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
-  EventKeyEnum,
+  EventCategoryEnum,
+  FF_EVENTS_CATEGORY_MAP,
   FF_Paths,
   ICreatedFilter,
   IEvent,
-  IMetricType,
+  IMetric,
   IPagedEventResponse,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, FFColors } from '../../../theme';
-import {
-  fetchCatcher,
-  isEventHistogramEmpty,
-  makeEventHistogram,
-} from '../../../utils';
+import { fetchCatcher, makeEventHistogram } from '../../../utils';
+import { isHistogramEmpty } from '../../../utils/charts';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -126,12 +123,13 @@ export const ActivityEvents: () => JSX.Element = () => {
 
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.Events
-      )}?startTime=${
-        createdFilterObject.filterTime
-      }&endTime=${currentTime}&buckets=${BucketCountEnum.Large}`
+        BucketCollectionEnum.Events,
+        createdFilterObject.filterTime,
+        currentTime,
+        BucketCountEnum.Large
+      )}`
     )
-      .then((histTypes: IMetricType[]) => {
+      .then((histTypes: IMetric[]) => {
         setEventHistData(makeEventHistogram(histTypes));
       })
       .catch((err) => {
@@ -140,11 +138,10 @@ export const ActivityEvents: () => JSX.Element = () => {
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
   const eventsColumnHeaders = [
-    t('sequence'),
+    t('id'),
     t('type'),
-    t('eventID'),
+    t('reference'),
     t('transactionID'),
-    t('referenceID'),
     t('created'),
   ];
 
@@ -153,19 +150,15 @@ export const ActivityEvents: () => JSX.Element = () => {
       key: event.id,
       columns: [
         {
-          value: <Typography>{event.sequence}</Typography>,
-        },
-        {
-          value: <Typography>{event.type}</Typography>,
-        },
-        {
           value: (
             <HashPopover shortHash={true} address={event.id}></HashPopover>
           ),
         },
         {
           value: (
-            <HashPopover shortHash={true} address={event.tx}></HashPopover>
+            <Typography>
+              {t(FF_EVENTS_CATEGORY_MAP[event.type].nicename)}
+            </Typography>
           ),
         },
         {
@@ -174,6 +167,11 @@ export const ActivityEvents: () => JSX.Element = () => {
               shortHash={true}
               address={event.reference}
             ></HashPopover>
+          ),
+        },
+        {
+          value: (
+            <HashPopover shortHash={true} address={event.tx}></HashPopover>
           ),
         },
         { value: dayjs(event.created).format('MM/DD/YYYY h:mm A') },
@@ -207,26 +205,22 @@ export const ActivityEvents: () => JSX.Element = () => {
               backgroundColor: 'background.paper',
             }}
           >
-            {!eventHistData ? (
-              <FFCircleLoader height={200} color="warning"></FFCircleLoader>
-            ) : isEventHistogramEmpty(eventHistData) ? (
-              <CardEmptyState
-                height={200}
-                text={t('noEvents')}
-              ></CardEmptyState>
-            ) : (
-              <Histogram
-                colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
-                data={eventHistData}
-                indexBy="timestamp"
-                keys={[
-                  EventKeyEnum.BLOCKCHAIN,
-                  EventKeyEnum.MESSAGES,
-                  EventKeyEnum.TOKENS,
-                ]}
-                includeLegend={true}
-              ></Histogram>
-            )}
+            <Histogram
+              colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+              data={eventHistData}
+              indexBy="timestamp"
+              keys={[
+                EventCategoryEnum.BLOCKCHAIN,
+                EventCategoryEnum.MESSAGES,
+                EventCategoryEnum.TOKENS,
+              ]}
+              includeLegend={true}
+              emptyText={t('noEvents')}
+              isEmpty={isHistogramEmpty(
+                eventHistData ?? [],
+                Object.keys(EventCategoryEnum)
+              )}
+            ></Histogram>
           </Box>
           {!events ? (
             <FFCircleLoader color="warning"></FFCircleLoader>
@@ -247,7 +241,7 @@ export const ActivityEvents: () => JSX.Element = () => {
         </Grid>
       </Grid>
       {viewEvent && (
-        <EventSlide
+        <EventTransactionSlide
           event={viewEvent}
           open={!!viewEvent}
           onClose={() => {

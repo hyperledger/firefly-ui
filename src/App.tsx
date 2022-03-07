@@ -105,8 +105,10 @@ const App: React.FC = () => {
             );
           }
         } else {
-          setInitError('true');
         }
+      })
+      .catch((e) => {
+        setInitError(e);
       })
       .finally(() => {
         setInitialized(true);
@@ -140,7 +142,15 @@ const App: React.FC = () => {
   if (initialized) {
     if (initError) {
       // figure out what to display
-      return <></>;
+      return (
+        <>
+          <StyledEngineProvider injectFirst>
+            <ThemeProvider {...{ theme }}>
+              <CssBaseline>Fallback</CssBaseline>
+            </ThemeProvider>
+          </StyledEngineProvider>
+        </>
+      );
     } else {
       return (
         <ApplicationContext.Provider

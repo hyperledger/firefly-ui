@@ -14,26 +14,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  Box,
-  Button,
-  Chip,
-  Grid,
-  TablePagination,
-  Typography,
-} from '@mui/material';
+import { Box, Button, Grid, TablePagination, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CardEmptyState } from '../../../components/Cards/CardEmptyState';
 import { ChartHeader } from '../../../components/Charts/Header';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
 import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
-import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
+import { EventTransactionSlide } from '../../../components/Slides/EventTransactionSlide';
 import { DataTable } from '../../../components/Tables/Table';
 import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
@@ -42,19 +34,20 @@ import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
-  EventKeyEnum,
   FF_Paths,
   ICreatedFilter,
-  IMetricType,
+  IMetric,
   IPagedTransactionResponse,
   ITransaction,
 } from '../../../interfaces';
-import { DEFAULT_PADDING, FFColors } from '../../../theme';
 import {
-  fetchCatcher,
-  isEventHistogramEmpty,
-  makeEventHistogram,
-} from '../../../utils';
+  FF_TX_CATEGORY_MAP,
+  TxCategoryEnum,
+} from '../../../interfaces/enums/transactionTypes';
+import { DEFAULT_PADDING, FFColors } from '../../../theme';
+import { fetchCatcher } from '../../../utils';
+import { isHistogramEmpty } from '../../../utils/charts';
+import { makeTxHistogram } from '../../../utils/histograms/transactionHistogram';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -69,8 +62,8 @@ export const ActivityTransactions: () => JSX.Element = () => {
   const [txTotal, setTxTotal] = useState(0);
   // View transaction slide out
   const [viewTx, setViewTx] = useState<ITransaction | undefined>();
-  // Event types histogram
-  const [eventHistData, setEventHistData] = useState<BarDatum[]>();
+  // Tx types histogram
+  const [txHistData, setTxHistData] = useState<BarDatum[]>();
 
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
@@ -130,13 +123,14 @@ export const ActivityTransactions: () => JSX.Element = () => {
 
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.Events
-      )}?startTime=${
-        createdFilterObject.filterTime
-      }&endTime=${currentTime}&buckets=${BucketCountEnum.Large}`
+        BucketCollectionEnum.Transactions,
+        createdFilterObject.filterTime,
+        currentTime,
+        BucketCountEnum.Large
+      )}`
     )
-      .then((histTypes: IMetricType[]) => {
-        setEventHistData(makeEventHistogram(histTypes));
+      .then((histTypes: IMetric[]) => {
+        setTxHistData(makeTxHistogram(histTypes));
       })
       .catch((err) => {
         reportFetchError(err);
@@ -144,29 +138,34 @@ export const ActivityTransactions: () => JSX.Element = () => {
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
   const txColumnHeaders = [
+    t('id'),
     t('type'),
-    t('transactionID'),
-    t('details'),
+    t('blockchainIds'),
     t('created'),
-    t('status'),
   ];
 
   const txRecords: IDataTableRecord[] | undefined = txs?.map((tx) => ({
     key: tx.id,
     columns: [
       {
-        value: <Typography>{tx.type.toLocaleUpperCase()}</Typography>,
-      },
-      {
         value: <HashPopover shortHash={true} address={tx.id}></HashPopover>,
       },
       {
-        value: <Typography>TODO</Typography>,
+        value: (
+          <Typography>{t(FF_TX_CATEGORY_MAP[tx.type].nicename)}</Typography>
+        ),
+      },
+      {
+        value: (
+          <>
+            {tx.blockchainIds?.map((bid) => (
+              // TODO: Suppor multiple items in array better
+              <HashPopover shortHash={true} address={bid}></HashPopover>
+            ))}
+          </>
+        ),
       },
       { value: dayjs(tx.created).format('MM/DD/YYYY h:mm A') },
-      {
-        value: <Chip color="success" label="TODO"></Chip>,
-      },
     ],
     onClick: () => setViewTx(tx),
   }));
@@ -196,26 +195,22 @@ export const ActivityTransactions: () => JSX.Element = () => {
               backgroundColor: 'background.paper',
             }}
           >
-            {!eventHistData ? (
-              <FFCircleLoader height={200} color="warning"></FFCircleLoader>
-            ) : isEventHistogramEmpty(eventHistData) ? (
-              <CardEmptyState
-                height={200}
-                text={t('noTransactions')}
-              ></CardEmptyState>
-            ) : (
-              <Histogram
-                colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
-                data={eventHistData}
-                indexBy="timestamp"
-                keys={[
-                  EventKeyEnum.BLOCKCHAIN,
-                  EventKeyEnum.MESSAGES,
-                  EventKeyEnum.TOKENS,
-                ]}
-                includeLegend={true}
-              ></Histogram>
-            )}
+            <Histogram
+              colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+              data={txHistData}
+              indexBy="timestamp"
+              keys={[
+                TxCategoryEnum.BLOCKCHAIN,
+                TxCategoryEnum.MESSAGES,
+                TxCategoryEnum.TOKENS,
+              ]}
+              includeLegend={true}
+              emptyText={t('noTransactions')}
+              isEmpty={isHistogramEmpty(
+                txHistData ?? [],
+                Object.keys(TxCategoryEnum)
+              )}
+            ></Histogram>
           </Box>
           {!txs ? (
             <FFCircleLoader color="warning"></FFCircleLoader>
@@ -236,8 +231,8 @@ export const ActivityTransactions: () => JSX.Element = () => {
         </Grid>
       </Grid>
       {viewTx && (
-        <TransactionSlide
-          txID={viewTx.id}
+        <EventTransactionSlide
+          transaction={viewTx}
           open={!!viewTx}
           onClose={() => {
             setViewTx(undefined);

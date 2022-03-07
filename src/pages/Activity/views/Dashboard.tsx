@@ -20,29 +20,24 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CardEmptyState } from '../../../components/Cards/CardEmptyState';
 import { ChartHeader } from '../../../components/Charts/Header';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
-import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { TimelinePanel } from '../../../components/Timeline/Panel';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
-  EventKeyEnum,
+  EventCategoryEnum,
   FF_Paths,
   ICreatedFilter,
-  IMetricType,
+  IMetric,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, FFColors } from '../../../theme';
-import {
-  fetchCatcher,
-  isEventHistogramEmpty,
-  makeEventHistogram,
-} from '../../../utils';
+import { fetchCatcher, makeEventHistogram } from '../../../utils';
+import { isHistogramEmpty } from '../../../utils/charts';
 
 export const ActivityDashboard: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -58,15 +53,17 @@ export const ActivityDashboard: () => JSX.Element = () => {
 
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.Events
-      )}?startTime=${
-        createdFilterObject.filterTime
-      }&endTime=${currentTime}&buckets=${BucketCountEnum.Large}`
+        BucketCollectionEnum.Events,
+        createdFilterObject.filterTime,
+        currentTime,
+        BucketCountEnum.Large
+      )}`
     )
-      .then((histTypes: IMetricType[]) => {
+      .then((histTypes: IMetric[]) => {
         setEventHistData(makeEventHistogram(histTypes));
       })
       .catch((err) => {
+        setEventHistData([]);
         reportFetchError(err);
       });
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
@@ -96,26 +93,22 @@ export const ActivityDashboard: () => JSX.Element = () => {
               backgroundColor: 'background.paper',
             }}
           >
-            {!eventHistData ? (
-              <FFCircleLoader height={200} color="warning"></FFCircleLoader>
-            ) : isEventHistogramEmpty(eventHistData) ? (
-              <CardEmptyState
-                height={200}
-                text={t('noActivity')}
-              ></CardEmptyState>
-            ) : (
-              <Histogram
-                colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
-                data={eventHistData}
-                indexBy="timestamp"
-                keys={[
-                  EventKeyEnum.BLOCKCHAIN,
-                  EventKeyEnum.MESSAGES,
-                  EventKeyEnum.TOKENS,
-                ]}
-                includeLegend={true}
-              ></Histogram>
-            )}
+            <Histogram
+              colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+              data={eventHistData}
+              indexBy="timestamp"
+              keys={[
+                EventCategoryEnum.BLOCKCHAIN,
+                EventCategoryEnum.MESSAGES,
+                EventCategoryEnum.TOKENS,
+              ]}
+              includeLegend={true}
+              isEmpty={isHistogramEmpty(
+                eventHistData ?? [],
+                Object.keys(EventCategoryEnum)
+              )}
+              emptyText={t('noActivity')}
+            ></Histogram>
           </Box>
           <TimelinePanel
             leftHeader={t('submittedByMe')}

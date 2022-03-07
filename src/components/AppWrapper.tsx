@@ -26,7 +26,7 @@ export const AppWrapper: React.FC = () => {
   if (pathname === '/') {
     return (
       <Navigate
-        to={`/${NAMESPACES_PATH}/${selectedNamespace}/home`}
+        to={`/${NAMESPACES_PATH}/${selectedNamespace}home`}
         replace={true}
       />
     );

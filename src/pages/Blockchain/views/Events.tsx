@@ -168,6 +168,7 @@ export const BlockchainEvents: () => JSX.Element = () => {
               backgroundColor: 'background.paper',
             }}
           >
+            {/* TODO: Histogram */}
             {/* {!messageHistData ? (
               <FFCircleLoader height={200} color="warning"></FFCircleLoader>
             ) : isEventHistogramEmpty(messageHistData) ? (
@@ -181,9 +182,9 @@ export const BlockchainEvents: () => JSX.Element = () => {
                 data={messageHistData}
                 indexBy="timestamp"
                 keys={[
-                  EventKeyEnum.BLOCKCHAIN,
-                  EventKeyEnum.MESSAGES,
-                  EventKeyEnum.TOKENS,
+                  EventCategoryEnum.BLOCKCHAIN,
+                  EventCategoryEnum.MESSAGES,
+                  EventCategoryEnum.TOKENS,
                 ]}
                 includeLegend={true}
               ></Histogram>
@@ -202,7 +203,7 @@ export const BlockchainEvents: () => JSX.Element = () => {
             />
           ) : (
             <DataTableEmptyState
-              message={t('noBlockchainEventsToDisplay')}
+              message={t('noBlockchainEvents')}
             ></DataTableEmptyState>
           )}
         </Grid>

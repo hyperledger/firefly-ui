@@ -20,7 +20,6 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CardEmptyState } from '../../../components/Cards/CardEmptyState';
 import { ChartHeader } from '../../../components/Charts/Header';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
@@ -38,18 +37,18 @@ import {
   BucketCountEnum,
   FF_Paths,
   ICreatedFilter,
-  IMetricType,
+  IMetric,
   IPagedTokenTransferResponse,
   ITokenTransfer,
-  TransferKeyEnum,
 } from '../../../interfaces';
-import { TransferIconMap } from '../../../interfaces/tables';
+import {
+  TransferCategoryEnum,
+  TransferIconMap,
+} from '../../../interfaces/enums';
 import { DEFAULT_PADDING, FFColors } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
-import {
-  isTransferHistogramEmpty,
-  makeTransferHistogram,
-} from '../../../utils/histograms/transferHistogram';
+import { isHistogramEmpty } from '../../../utils/charts';
+import { makeTransferHistogram } from '../../../utils/histograms/transferHistogram';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -129,15 +128,17 @@ export const TokensTransfers: () => JSX.Element = () => {
     // Histogram
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.TokenTransfers
-      )}?startTime=${
-        createdFilterObject.filterTime
-      }&endTime=${currentTime}&buckets=${BucketCountEnum.Large}`
+        BucketCollectionEnum.TokenTransfers,
+        createdFilterObject.filterTime,
+        currentTime,
+        BucketCountEnum.Large
+      )}`
     )
-      .then((histTypes: IMetricType[]) => {
+      .then((histTypes: IMetric[]) => {
         setTransferHistData(makeTransferHistogram(histTypes));
       })
       .catch((err) => {
+        setTransferHistData([]);
         reportFetchError(err);
       });
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
@@ -231,26 +232,22 @@ export const TokensTransfers: () => JSX.Element = () => {
               backgroundColor: 'background.paper',
             }}
           >
-            {!transferHistData ? (
-              <FFCircleLoader height={200} color="warning"></FFCircleLoader>
-            ) : isTransferHistogramEmpty(transferHistData) ? (
-              <CardEmptyState
-                height={200}
-                text={t('noTransfers')}
-              ></CardEmptyState>
-            ) : (
-              <Histogram
-                colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
-                data={transferHistData}
-                indexBy="timestamp"
-                keys={[
-                  TransferKeyEnum.MINT,
-                  TransferKeyEnum.TRANSFER,
-                  TransferKeyEnum.BURN,
-                ]}
-                includeLegend={true}
-              ></Histogram>
-            )}
+            <Histogram
+              colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+              data={transferHistData}
+              indexBy="timestamp"
+              keys={[
+                TransferCategoryEnum.MINT,
+                TransferCategoryEnum.TRANSFER,
+                TransferCategoryEnum.BURN,
+              ]}
+              includeLegend={true}
+              emptyText={t('noTransfers')}
+              isEmpty={isHistogramEmpty(
+                transferHistData ?? [],
+                Object.keys(TransferCategoryEnum)
+              )}
+            ></Histogram>
           </Box>
           {!tokenTransfers ? (
             <FFCircleLoader color="warning"></FFCircleLoader>

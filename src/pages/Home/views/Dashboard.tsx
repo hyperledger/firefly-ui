@@ -16,41 +16,43 @@ import { Header } from '../../../components/Header';
 import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { NetworkMap } from '../../../components/NetworkMap/NetworkMap';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
-import { EventSlide } from '../../../components/Slides/EventSlide';
+import { EventTransactionSlide } from '../../../components/Slides/EventTransactionSlide';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   ACTIVITY_PATH,
+  BLOCKCHAIN_PATH,
   BucketCollectionEnum,
   BucketCountEnum,
-  EventKeyEnum,
+  EventCategoryEnum,
+  EVENTS_PATH,
+  FF_EVENTS_CATEGORY_MAP,
   ICreatedFilter,
   IDataWithHeader,
   IEvent,
   IGenericPagedResponse,
   IMediumCard,
-  IMetricType,
+  IMetric,
   INode,
   ISmallCard,
   ITableCard,
+  MESSAGES_PATH,
   MY_NODES_PATH,
   NAMESPACES_PATH,
   NETWORK_PATH,
+  OFFCHAIN_PATH,
+  TOKENS_PATH,
   TRANSACTIONS_PATH,
 } from '../../../interfaces';
 import { FF_Paths } from '../../../interfaces/constants';
 import { DEFAULT_PADDING, DEFAULT_SPACING, FFColors } from '../../../theme';
-import {
-  fetchCatcher,
-  isEventHistogramEmpty,
-  makeEventHistogram,
-} from '../../../utils';
+import { fetchCatcher, makeEventHistogram } from '../../../utils';
+import { isHistogramEmpty } from '../../../utils/charts';
 
 export const HomeDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
   const {
     createdFilter,
-    identity,
     lastEvent,
     nodeID,
     nodeName,
@@ -60,11 +62,17 @@ export const HomeDashboard: () => JSX.Element = () => {
   } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const navigate = useNavigate();
-  const eventsPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${ACTIVITY_PATH}`;
+  const activityPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${ACTIVITY_PATH}`;
+  const blockchainPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${BLOCKCHAIN_PATH}`;
+  const offchainPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${OFFCHAIN_PATH}`;
+  const eventsPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${ACTIVITY_PATH}/${EVENTS_PATH}`;
+  const msgsPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${MESSAGES_PATH}`;
   const myNodePath = `/${NAMESPACES_PATH}/${selectedNamespace}/${MY_NODES_PATH}`;
   const networkPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${NETWORK_PATH}`;
+  const tokensPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${TOKENS_PATH}`;
   const transactionsPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}`;
   const [viewEvent, setViewEvent] = useState<IEvent | undefined>();
+
   // Small cards
   // Blockchain
   const [blockchainTxCount, setBlockchainTxCount] = useState<number>();
@@ -83,6 +91,7 @@ export const HomeDashboard: () => JSX.Element = () => {
   const [tokenMintCount, setTokenMintcount] = useState<number>();
   const [tokenBurnCount, setTokenBurnCount] = useState<number>();
   const [tokenErrorCount, setTokenErrorCount] = useState<number>(0);
+
   // Medium cards
   // Event types histogram
   const [eventHistData, setEventHistData] = useState<BarDatum[]>();
@@ -100,15 +109,18 @@ export const HomeDashboard: () => JSX.Element = () => {
         { header: t('tx'), data: blockchainTxCount },
         { header: t('events'), data: blockchainEventCount },
       ],
+      clickPath: blockchainPath,
     },
     {
       header: t('offChain'),
       // TODO: Figure out error API call
       numErrors: offchainErrorCount,
+      // TODO: Figure out in/out API call
       data: [
         { header: t('in'), data: offchainInCount },
         { header: t('out'), data: offchainOutCount },
       ],
+      clickPath: offchainPath,
     },
     {
       header: t('messages'),
@@ -118,6 +130,7 @@ export const HomeDashboard: () => JSX.Element = () => {
         { header: t('tx'), data: messagesTxCount },
         { header: t('events'), data: messagesEventCount },
       ],
+      clickPath: msgsPath,
     },
     {
       header: t('tokens'),
@@ -127,6 +140,7 @@ export const HomeDashboard: () => JSX.Element = () => {
         { header: t('mint'), data: tokenMintCount },
         { header: t('burn'), data: tokenBurnCount },
       ],
+      clickPath: tokensPath,
     },
   ];
 
@@ -213,10 +227,6 @@ export const HomeDashboard: () => JSX.Element = () => {
 
   const myNodeDetailsList: IDataWithHeader[] = [
     {
-      header: t('identity'),
-      data: identity,
-    },
-    {
       header: t('nodeName'),
       data: nodeName,
     },
@@ -233,36 +243,37 @@ export const HomeDashboard: () => JSX.Element = () => {
       data: orgID,
     },
     {
-      header: t('dxPeer'),
-      data: myNode?.dx.peer,
+      header: t('profile'),
+      data: myNode?.profile?.id,
     },
     {
-      header: t('dxEndpoint'),
-      data: myNode?.dx.endpoint.endpoint,
+      header: t('profileEndpoint'),
+      data: myNode?.profile?.endpoint,
     },
   ];
 
   const mediumCards: IMediumCard[] = [
     {
       headerComponent: (
-        <IconButton onClick={() => navigate(eventsPath)}>
+        <IconButton onClick={() => navigate(activityPath)}>
           <ArrowForwardIcon />
         </IconButton>
       ),
       headerText: t('activity'),
-      component: !eventHistData ? (
-        <FFCircleLoader color="warning"></FFCircleLoader>
-      ) : isEventHistogramEmpty(eventHistData) ? (
-        <CardEmptyState text={t('noEvents')}></CardEmptyState>
-      ) : (
+      component: (
         <Histogram
           colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
           data={eventHistData}
           indexBy="timestamp"
+          emptyText={t('noActivity')}
+          isEmpty={isHistogramEmpty(
+            eventHistData ?? [],
+            Object.keys(EventCategoryEnum)
+          )}
           keys={[
-            EventKeyEnum.BLOCKCHAIN,
-            EventKeyEnum.MESSAGES,
-            EventKeyEnum.TOKENS,
+            EventCategoryEnum.BLOCKCHAIN,
+            EventCategoryEnum.MESSAGES,
+            EventCategoryEnum.TOKENS,
           ]}
           includeLegend={true}
         ></Histogram>
@@ -288,15 +299,11 @@ export const HomeDashboard: () => JSX.Element = () => {
         <Grid container item>
           {myNodeDetailsList.map((data, idx) => (
             <>
-              <Grid xs={idx === 0 ? 12 : 6} pb={2}>
+              <Grid key={idx} item xs={6} pb={2}>
                 <Typography pb={1} variant="body2">
                   {data.header}
                 </Typography>
-                <HashPopover
-                  key={idx}
-                  fullLength={idx === 0}
-                  address={data.data?.toString() ?? ''}
-                />
+                <HashPopover address={data.data?.toString() ?? ''} />
               </Grid>
             </>
           ))}
@@ -312,15 +319,17 @@ export const HomeDashboard: () => JSX.Element = () => {
 
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.Events
-      )}?startTime=${
-        createdFilterObject.filterTime
-      }&endTime=${currentTime}&buckets=${BucketCountEnum.Small}`
+        BucketCollectionEnum.Events,
+        createdFilterObject.filterTime,
+        currentTime,
+        BucketCountEnum.Small
+      )}`
     )
-      .then((histTypes: IMetricType[]) => {
+      .then((histTypes: IMetric[]) => {
         setEventHistData(makeEventHistogram(histTypes));
       })
       .catch((err) => {
+        setEventHistData([]);
         reportFetchError(err);
       });
 
@@ -334,6 +343,7 @@ export const HomeDashboard: () => JSX.Element = () => {
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter, nodeID]);
 
   const tableCards: ITableCard[] = [
+    // Recently submitted Transactions
     {
       headerComponent: (
         <IconButton onClick={() => navigate(transactionsPath)}>
@@ -355,10 +365,12 @@ export const HomeDashboard: () => JSX.Element = () => {
             recentTxs.map((tx, idx) => (
               <div key={idx} onClick={() => setViewEvent(tx)}>
                 <TableCardItem
+                  borderColor={FF_EVENTS_CATEGORY_MAP[tx.type].color}
+                  key={idx}
                   date={dayjs(tx.created).format('MM/DD/YYYY h:mm A')}
-                  header={tx.type.toLocaleUpperCase()}
+                  header={t(FF_EVENTS_CATEGORY_MAP[tx.type].nicename)}
                   status={tx.reference}
-                  subText={tx.type}
+                  subText={t(FF_EVENTS_CATEGORY_MAP[tx.type].nicename)}
                 />
               </div>
             ))
@@ -368,9 +380,10 @@ export const HomeDashboard: () => JSX.Element = () => {
         </List>
       ),
     },
+    // Recent Network Events
     {
       headerComponent: (
-        <IconButton onClick={() => navigate(transactionsPath)}>
+        <IconButton onClick={() => navigate(eventsPath)}>
           <ArrowForwardIcon />
         </IconButton>
       ),
@@ -389,10 +402,12 @@ export const HomeDashboard: () => JSX.Element = () => {
             recentEvents.map((tx, idx) => (
               <div key={idx} onClick={() => setViewEvent(tx)}>
                 <TableCardItem
+                  borderColor={FF_EVENTS_CATEGORY_MAP[tx.type].color}
+                  key={idx}
                   date={dayjs(tx.created).format('MM/DD/YYYY h:mm A')}
-                  header={tx.type.toLocaleUpperCase()}
+                  header={t(FF_EVENTS_CATEGORY_MAP[tx.type].nicename)}
                   status={tx.reference}
-                  subText={tx.type}
+                  subText={t(FF_EVENTS_CATEGORY_MAP[tx.type].nicename)}
                 />
               </div>
             ))
@@ -507,7 +522,7 @@ export const HomeDashboard: () => JSX.Element = () => {
         </Grid>
       </Grid>
       {viewEvent && (
-        <EventSlide
+        <EventTransactionSlide
           event={viewEvent}
           open={!!viewEvent}
           onClose={() => {

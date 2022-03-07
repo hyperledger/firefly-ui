@@ -418,5 +418,5 @@ export interface IGenericPagedResponse {
 
 export interface IDataWithHeader {
   header: string;
-  data: string | number;
+  data: string | number | JSX.Element;
 }

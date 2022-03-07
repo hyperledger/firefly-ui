@@ -26,7 +26,6 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CardEmptyState } from '../../../components/Cards/CardEmptyState';
 import { ChartHeader } from '../../../components/Charts/Header';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
@@ -42,19 +41,20 @@ import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
-  EventKeyEnum,
   FF_Paths,
   ICreatedFilter,
   IMessage,
-  IMetricType,
+  IMetric,
   IPagedMessageResponse,
 } from '../../../interfaces';
-import { DEFAULT_PADDING, FFColors } from '../../../theme';
 import {
-  fetchCatcher,
-  isEventHistogramEmpty,
-  makeMessagesHistogram,
-} from '../../../utils';
+  FF_MESSAGES_CATEGORY_MAP,
+  MsgCategoryEnum,
+  MsgStateColorMap,
+} from '../../../interfaces/enums';
+import { DEFAULT_PADDING, FFColors } from '../../../theme';
+import { fetchCatcher, makeMsgHistogram } from '../../../utils';
+import { isHistogramEmpty } from '../../../utils/charts';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -133,13 +133,14 @@ export const MessagesActivity: () => JSX.Element = () => {
 
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.Messages
-      )}?startTime=${
-        createdFilterObject.filterTime
-      }&endTime=${currentTime}&buckets=${BucketCountEnum.Large}`
+        BucketCollectionEnum.Messages,
+        createdFilterObject.filterTime,
+        currentTime,
+        BucketCountEnum.Large
+      )}`
     )
-      .then((histTypes: IMetricType[]) => {
-        setMessageHistData(makeMessagesHistogram(histTypes));
+      .then((histTypes: IMetric[]) => {
+        setMessageHistData(makeMsgHistogram(histTypes));
       })
       .catch((err) => {
         reportFetchError(err);
@@ -147,12 +148,11 @@ export const MessagesActivity: () => JSX.Element = () => {
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
   const msgColumnHeaders = [
+    t('id'),
     t('type'),
-    t('messageID'),
     t('author'),
     t('transactionType'),
     t('hash'),
-    t('batch'),
     t('confirmed'),
     t('state'),
   ];
@@ -161,34 +161,40 @@ export const MessagesActivity: () => JSX.Element = () => {
     key: msg.header.id,
     columns: [
       {
-        value: <Typography>{msg.header.type.toLocaleUpperCase()}</Typography>,
+        value: (
+          <HashPopover shortHash={true} address={msg?.header.id}></HashPopover>
+        ),
       },
       {
         value: (
-          <HashPopover shortHash={true} address={msg.header.id}></HashPopover>
+          <Typography>
+            {t(FF_MESSAGES_CATEGORY_MAP[msg?.header.type].nicename)}
+          </Typography>
         ),
       },
       {
         value: (
           <HashPopover
             shortHash={true}
-            address={msg.header.author}
+            address={msg?.header.author}
           ></HashPopover>
         ),
       },
       {
-        value: <Typography>{msg.header.txtype.toLocaleUpperCase()}</Typography>,
+        value: (
+          <Typography>{msg?.header.txtype.toLocaleUpperCase()}</Typography>
+        ),
       },
       {
-        value: <HashPopover shortHash={true} address={msg.hash}></HashPopover>,
+        value: <HashPopover shortHash={true} address={msg?.hash}></HashPopover>,
       },
-      {
-        value: <HashPopover shortHash={true} address={msg.batch}></HashPopover>,
-      },
-      { value: dayjs(msg.confirmed).format('MM/DD/YYYY h:mm A') },
+      { value: dayjs(msg?.confirmed).format('MM/DD/YYYY h:mm A') },
       {
         value: (
-          <Chip label={msg.state.toLocaleUpperCase()} color="success"></Chip>
+          <Chip
+            label={msg?.state.toLocaleUpperCase()}
+            sx={{ backgroundColor: MsgStateColorMap[msg?.state] }}
+          ></Chip>
         ),
       },
     ],
@@ -220,26 +226,22 @@ export const MessagesActivity: () => JSX.Element = () => {
               backgroundColor: 'background.paper',
             }}
           >
-            {!messageHistData ? (
-              <FFCircleLoader height={200} color="warning"></FFCircleLoader>
-            ) : isEventHistogramEmpty(messageHistData) ? (
-              <CardEmptyState
-                height={200}
-                text={t('noMessages')}
-              ></CardEmptyState>
-            ) : (
-              <Histogram
-                colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
-                data={messageHistData}
-                indexBy="timestamp"
-                keys={[
-                  EventKeyEnum.BLOCKCHAIN,
-                  EventKeyEnum.MESSAGES,
-                  EventKeyEnum.TOKENS,
-                ]}
-                includeLegend={true}
-              ></Histogram>
-            )}
+            <Histogram
+              colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+              data={messageHistData}
+              indexBy="timestamp"
+              keys={[
+                MsgCategoryEnum.BLOCKCHAIN,
+                MsgCategoryEnum.BROADCAST,
+                MsgCategoryEnum.PRIVATE,
+              ]}
+              includeLegend={true}
+              emptyText={t('noMessages')}
+              isEmpty={isHistogramEmpty(
+                messageHistData ?? [],
+                Object.keys(MsgCategoryEnum)
+              )}
+            ></Histogram>
           </Box>
           {!messages ? (
             <FFCircleLoader color="warning"></FFCircleLoader>

@@ -7,6 +7,7 @@ export interface ISmallCard {
   header: string;
   numErrors: number;
   data: IDataWithHeader[];
+  clickPath?: string;
 }
 
 export interface IMediumCard {

@@ -26,14 +26,12 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { CardEmptyState } from '../../../components/Cards/CardEmptyState';
 import { ChartHeader } from '../../../components/Charts/Header';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
 import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
-import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { DataTable } from '../../../components/Tables/Table';
 import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
@@ -42,19 +40,17 @@ import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
-  EventKeyEnum,
+  EventCategoryEnum,
   FF_Paths,
   ICreatedFilter,
-  IMetricType,
+  IMetric,
   IOperation,
   IPagedOperationResponse,
 } from '../../../interfaces';
+import { OpCategoryEnum } from '../../../interfaces/enums';
 import { DEFAULT_PADDING, FFColors } from '../../../theme';
-import {
-  fetchCatcher,
-  isEventHistogramEmpty,
-  makeOperationHistogram,
-} from '../../../utils';
+import { fetchCatcher, makeOperationHistogram } from '../../../utils';
+import { isHistogramEmpty } from '../../../utils/charts';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -69,7 +65,7 @@ export const ActivityOperations: () => JSX.Element = () => {
   const [opTotal, setOpTotal] = useState(0);
   // View transaction slide out
   const [viewOp, setViewOp] = useState<IOperation | undefined>();
-  // Event types histogram
+  // Op types histogram
   const [opHistData, setOpHistData] = useState<BarDatum[]>();
 
   const [currentPage, setCurrentPage] = useState(0);
@@ -130,12 +126,13 @@ export const ActivityOperations: () => JSX.Element = () => {
 
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.Operations
-      )}?startTime=${
-        createdFilterObject.filterTime
-      }&endTime=${currentTime}&buckets=${BucketCountEnum.Large}`
+        BucketCollectionEnum.Operations,
+        createdFilterObject.filterTime,
+        currentTime,
+        BucketCountEnum.Large
+      )}`
     )
-      .then((histTypes: IMetricType[]) => {
+      .then((histTypes: IMetric[]) => {
         setOpHistData(makeOperationHistogram(histTypes));
       })
       .catch((err) => {
@@ -196,26 +193,22 @@ export const ActivityOperations: () => JSX.Element = () => {
               backgroundColor: 'background.paper',
             }}
           >
-            {!opHistData ? (
-              <FFCircleLoader height={200} color="warning"></FFCircleLoader>
-            ) : isEventHistogramEmpty(opHistData) ? (
-              <CardEmptyState
-                height={200}
-                text={t('noOperations')}
-              ></CardEmptyState>
-            ) : (
-              <Histogram
-                colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
-                data={opHistData}
-                indexBy="timestamp"
-                keys={[
-                  EventKeyEnum.BLOCKCHAIN,
-                  EventKeyEnum.MESSAGES,
-                  EventKeyEnum.TOKENS,
-                ]}
-                includeLegend={true}
-              ></Histogram>
-            )}
+            <Histogram
+              colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+              data={opHistData}
+              indexBy="timestamp"
+              keys={[
+                EventCategoryEnum.BLOCKCHAIN,
+                EventCategoryEnum.MESSAGES,
+                EventCategoryEnum.TOKENS,
+              ]}
+              includeLegend={true}
+              emptyText={t('noOperations')}
+              isEmpty={isHistogramEmpty(
+                opHistData ?? [],
+                Object.keys(OpCategoryEnum)
+              )}
+            ></Histogram>
           </Box>
           {!ops ? (
             <FFCircleLoader color="warning"></FFCircleLoader>
@@ -235,15 +228,15 @@ export const ActivityOperations: () => JSX.Element = () => {
           )}
         </Grid>
       </Grid>
-      {viewOp && (
-        <TransactionSlide
-          txID={viewOp.tx}
+      {/* {viewOp && (
+        <EventTransactionSlide
+          transaction={viewOp.tx}
           open={!!viewOp}
           onClose={() => {
             setViewOp(undefined);
           }}
         />
-      )}
+      )} */}
     </>
   );
 };

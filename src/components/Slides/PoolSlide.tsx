@@ -20,13 +20,9 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
-import {
-  ITokenPool,
-  ITokenTransfer,
-  PoolStateColorMap,
-} from '../../interfaces';
+import { ITokenPool, ITokenTransfer } from '../../interfaces';
 import { FF_Paths } from '../../interfaces/constants';
-import { TransferIconMap } from '../../interfaces/tables';
+import { PoolStateColorMap, TransferIconMap } from '../../interfaces/enums';
 import { DEFAULT_PADDING } from '../../theme';
 import { fetchCatcher } from '../../utils';
 import { FFCopyButton } from '../Buttons/CopyButton';

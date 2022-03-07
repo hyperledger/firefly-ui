@@ -25,6 +25,7 @@ import { BlockchainNav } from './BlockchainNav';
 import { MessagesNav } from './MessagesNav';
 import { NavItem } from './NavItem';
 import { NetworkNav } from './NetworkNav';
+import { OffChainNav } from './OffChainNav';
 import { TokensNav } from './TokensNav';
 
 export const NAV_WIDTH = 225;
@@ -48,6 +49,7 @@ export const Navigation: React.FC = () => {
       />
       <ActivityNav />
       <BlockchainNav />
+      <OffChainNav />
       <MessagesNav />
       <TokensNav />
       <NetworkNav />

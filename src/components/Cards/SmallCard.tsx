@@ -1,7 +1,9 @@
 import { Chip, Grid, Skeleton, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { ISmallCard } from '../../interfaces';
+import { FFBackgroundHover } from '../../theme';
 
 type Props = {
   card: ISmallCard;
@@ -9,6 +11,7 @@ type Props = {
 
 export const SmallCard: React.FC<Props> = ({ card }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   return (
     <Box
       p={2}
@@ -17,7 +20,12 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
         width: '100%',
         height: '100%',
         backgroundColor: 'background.paper',
+        '&:hover': card.clickPath && {
+          backgroundColor: FFBackgroundHover,
+          cursor: 'pointer',
+        },
       }}
+      onClick={() => (card.clickPath ? navigate(card.clickPath) : undefined)}
     >
       <Grid
         container
