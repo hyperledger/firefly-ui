@@ -14,49 +14,51 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Button, Grid, TablePagination, Typography } from '@mui/material';
+import LaunchIcon from '@mui/icons-material/Launch';
+import {
+  Button,
+  Grid,
+  IconButton,
+  Link,
+  TablePagination,
+  Typography,
+} from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
-import { InterfaceSlide } from '../../../components/Slides/InterfaceSlide';
 import { DataTable } from '../../../components/Tables/Table';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   FF_Paths,
-  IContractInterface,
   ICreatedFilter,
-  IPagedContractInterfaceResponse,
+  IFireflyApi,
+  IPagedFireFlyApiResponse,
 } from '../../../interfaces';
 import { DEFAULT_PADDING } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
 
 const PAGE_LIMITS = [10, 25];
 
-export const BlockchainInterfaces: () => JSX.Element = () => {
-  const { createdFilter, selectedNamespace } = useContext(ApplicationContext);
+export const BlockchainApis: () => JSX.Element = () => {
+  const { createdFilter, lastEvent, selectedNamespace } =
+    useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
-  // Interfaces
-  const [interfaces, setInterfaces] = useState<IContractInterface[]>();
-  // Interface totals
-  const [interfaceTotal, setInterfaceTotal] = useState(0);
-  // View interface slide out
-  const [viewInterface, setViewInterface] = useState<
-    IContractInterface | undefined
-  >();
+  // APIs
+  const [apis, setApis] = useState<IFireflyApi[]>();
+  // API Totals
+  const [apiTotal, setApiTotal] = useState(0);
+
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
 
   const handleChangePage = (_event: unknown, newPage: number) => {
-    if (
-      newPage > currentPage &&
-      rowsPerPage * (currentPage + 1) >= interfaceTotal
-    ) {
+    if (newPage > currentPage && rowsPerPage * (currentPage + 1) >= apiTotal) {
       return;
     }
     setCurrentPage(newPage);
@@ -83,70 +85,88 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
     />
   );
 
-  // Interfaces
+  // Listeners
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.contractInterfaces
+        FF_Paths.apis
       }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
         createdFilterObject.filterString
       }`
     )
-      .then((interfaceRes: IPagedContractInterfaceResponse) => {
-        setInterfaces(interfaceRes.items);
-        setInterfaceTotal(interfaceRes.total);
+      .then((apis: IPagedFireFlyApiResponse) => {
+        setApis(apis.items);
+        setApiTotal(apis.total);
       })
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace]);
+  }, [rowsPerPage, currentPage, lastEvent, selectedNamespace]);
 
-  const interfaceColHeaders = [
+  const apiColHeaders = [
     t('name'),
     t('id'),
-    t('description'),
-    t('messageID'),
-    t('version'),
+    t('interfaceID'),
+    t('location'),
+    t('openApi'),
+    t('swagger'),
   ];
 
-  const interfaceRecords: IDataTableRecord[] | undefined = interfaces?.map(
-    (int) => ({
-      key: int.id,
-      columns: [
-        {
-          value: <Typography>{int.name}</Typography>,
-        },
-        {
-          value: <HashPopover shortHash={true} address={int.id}></HashPopover>,
-        },
-        {
-          value: <Typography>{int.description}</Typography>,
-        },
-        {
-          value: (
-            <HashPopover shortHash={true} address={int.message}></HashPopover>
-          ),
-        },
-        {
-          value: <Typography>{int.version}</Typography>,
-        },
-      ],
-      onClick: () => setViewInterface(int),
-    })
-  );
+  const apiRecords: IDataTableRecord[] | undefined = apis?.map((api) => ({
+    key: api.id,
+    columns: [
+      {
+        value: <Typography>{api.name}</Typography>,
+      },
+      {
+        value: <HashPopover shortHash={true} address={api.id}></HashPopover>,
+      },
+      {
+        value: (
+          <HashPopover
+            shortHash={true}
+            address={api.interface.id}
+          ></HashPopover>
+        ),
+      },
+      {
+        value: (
+          <HashPopover
+            shortHash={true}
+            address={api.location.address}
+          ></HashPopover>
+        ),
+      },
+      {
+        value: (
+          <Link target="_blank" href={api.urls.openapi} underline="always">
+            <IconButton>
+              <LaunchIcon />
+            </IconButton>
+          </Link>
+        ),
+      },
+      {
+        value: (
+          <Link target="_blank" href={api.urls.ui} underline="always">
+            <IconButton>
+              <LaunchIcon />
+            </IconButton>
+          </Link>
+        ),
+      },
+    ],
+  }));
 
   return (
     <>
-      <Header
-        title={t('contractInterfaces')}
-        subtitle={t('blockchain')}
-      ></Header>
+      <Header title={t('apis')} subtitle={t('blockchain')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
-            title={t('allInterfaces')}
+            title={t('allApis')}
             filter={
               <Button variant="outlined">
                 <Typography p={0.75} sx={{ fontSize: 12 }}>
@@ -159,22 +179,13 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
             stickyHeader={true}
             minHeight="300px"
             maxHeight="calc(100vh - 340px)"
-            records={interfaceRecords}
-            columnHeaders={interfaceColHeaders}
+            records={apiRecords}
+            columnHeaders={apiColHeaders}
             {...{ pagination }}
-            emptyStateText={t('noInterfacesToDisplay')}
+            emptyStateText={t('noApisToDisplay')}
           />
         </Grid>
       </Grid>
-      {viewInterface && (
-        <InterfaceSlide
-          cInterface={viewInterface}
-          open={!!viewInterface}
-          onClose={() => {
-            setViewInterface(undefined);
-          }}
-        />
-      )}
     </>
   );
 };

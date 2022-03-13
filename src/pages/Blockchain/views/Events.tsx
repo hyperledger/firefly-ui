@@ -16,27 +16,40 @@
 
 import { Button, Grid, TablePagination, Typography } from '@mui/material';
 import { Box } from '@mui/system';
+import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChartHeader } from '../../../components/Charts/Header';
+import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
+import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
-import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { DataTable } from '../../../components/Tables/Table';
-import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
+  BucketCollectionEnum,
+  BucketCountEnum,
   FF_Paths,
   IBlockchainEvent,
   ICreatedFilter,
+  IMetric,
   IPagedBlockchainEventResponse,
 } from '../../../interfaces';
-import { DEFAULT_PADDING } from '../../../theme';
+import {
+  BlockchainEventCategoryEnum,
+  FF_BE_CATEGORY_MAP,
+} from '../../../interfaces/enums/blockchainEventTypes';
+import { DEFAULT_HIST_HEIGHT, DEFAULT_PADDING, FFColors } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
+import {
+  isHistogramEmpty,
+  makeColorArray,
+  makeKeyArray,
+} from '../../../utils/charts';
+import { makeBlockchainEventHistogram } from '../../../utils/histograms/blockchainEventHistogram';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -54,6 +67,9 @@ export const BlockchainEvents: () => JSX.Element = () => {
   const [viewBlockchainEvent, setViewBlockchainEvent] = useState<
     IBlockchainEvent | undefined
   >();
+
+  // Events histogram
+  const [beHistData, setBeHistData] = useState<BarDatum[]>();
 
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
@@ -109,11 +125,32 @@ export const BlockchainEvents: () => JSX.Element = () => {
       });
   }, [rowsPerPage, currentPage, selectedNamespace]);
 
+  // Histogram
+  useEffect(() => {
+    const currentTime = dayjs().unix();
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+
+    fetchCatcher(
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+        BucketCollectionEnum.BlockchainEvents,
+        createdFilterObject.filterTime,
+        currentTime,
+        BucketCountEnum.Large
+      )}`
+    )
+      .then((histTypes: IMetric[]) => {
+        setBeHistData(makeBlockchainEventHistogram(histTypes));
+      })
+      .catch((err) => {
+        reportFetchError(err);
+      });
+  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+
   const beColHeaders = [
-    t('sequence'),
     t('name'),
     t('id'),
-    t('address'),
+    t('protocolID'),
+    t('source'),
     t('timestamp'),
   ];
   const beRecords: IDataTableRecord[] | undefined = blockchainEvents?.map(
@@ -121,25 +158,21 @@ export const BlockchainEvents: () => JSX.Element = () => {
       key: be.id,
       columns: [
         {
-          value: <Typography>{be.sequence}</Typography>,
-        },
-        {
           value: <Typography>{be.name}</Typography>,
         },
         {
           value: <HashPopover shortHash={true} address={be.id}></HashPopover>,
         },
         {
-          value: (
-            <HashPopover
-              shortHash={true}
-              address={be.info?.address ?? ''}
-            ></HashPopover>
-          ),
+          value: <HashPopover address={be.protocolId}></HashPopover>,
+        },
+        {
+          value: <HashPopover address={be.source}></HashPopover>,
         },
         { value: dayjs(be.timestamp).format('MM/DD/YYYY h:mm A') },
       ],
       onClick: () => setViewBlockchainEvent(be),
+      leftBorderColor: FFColors.Yellow,
     })
   );
 
@@ -148,7 +181,7 @@ export const BlockchainEvents: () => JSX.Element = () => {
       <Header title={t('blockchainEvents')} subtitle={t('blockchain')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
-          <ChartHeader
+          <ChartTableHeader
             title={t('allBlockchainEvents')}
             filter={
               <Button variant="outlined">
@@ -164,48 +197,32 @@ export const BlockchainEvents: () => JSX.Element = () => {
             borderRadius={1}
             sx={{
               width: '100%',
-              height: 200,
+              height: DEFAULT_HIST_HEIGHT,
               backgroundColor: 'background.paper',
             }}
           >
-            {/* TODO: Histogram */}
-            {/* {!messageHistData ? (
-              <FFCircleLoader height={200} color="warning"></FFCircleLoader>
-            ) : isEventHistogramEmpty(messageHistData) ? (
-              <CardEmptyState
-                height={200}
-                text={t('noMessages')}
-              ></CardEmptyState>
-            ) : (
-              <Histogram
-                colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
-                data={messageHistData}
-                indexBy="timestamp"
-                keys={[
-                  EventCategoryEnum.BLOCKCHAIN,
-                  EventCategoryEnum.MESSAGES,
-                  EventCategoryEnum.TOKENS,
-                ]}
-                includeLegend={true}
-              ></Histogram>
-            )} */}
+            <Histogram
+              colors={makeColorArray(FF_BE_CATEGORY_MAP)}
+              data={beHistData}
+              indexBy="timestamp"
+              keys={makeKeyArray(FF_BE_CATEGORY_MAP)}
+              includeLegend={true}
+              emptyText={t('noBlockchainEvents')}
+              isEmpty={isHistogramEmpty(
+                beHistData ?? [],
+                Object.keys(BlockchainEventCategoryEnum)
+              )}
+            ></Histogram>
           </Box>
-          {!blockchainEvents ? (
-            <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : blockchainEvents.length ? (
-            <DataTable
-              stickyHeader={true}
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              records={beRecords}
-              columnHeaders={beColHeaders}
-              {...{ pagination }}
-            />
-          ) : (
-            <DataTableEmptyState
-              message={t('noBlockchainEvents')}
-            ></DataTableEmptyState>
-          )}
+          <DataTable
+            stickyHeader={true}
+            minHeight="300px"
+            maxHeight="calc(100vh - 340px)"
+            records={beRecords}
+            columnHeaders={beColHeaders}
+            {...{ pagination }}
+            emptyStateText={t('noBlockchainEvents')}
+          />
         </Grid>
       </Grid>
     </>

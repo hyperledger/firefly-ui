@@ -1,9 +1,10 @@
 import { RouteObject } from 'react-router-dom';
 import { NAMESPACES_PATH } from '../../interfaces';
+import { BlockchainApis } from './views/Apis';
 import { BlockchainDashboard } from './views/Dashboard';
 import { BlockchainEvents } from './views/Events';
 import { BlockchainInterfaces } from './views/Interfaces';
-import { BlockchainSubscriptions } from './views/Subscriptions';
+import { BlockchainListeners } from './views/Listeners';
 
 export const BlockchainRoutes: RouteObject = {
   path: `${NAMESPACES_PATH}/:namespace/blockchain`,
@@ -18,12 +19,16 @@ export const BlockchainRoutes: RouteObject = {
       element: <BlockchainEvents />,
     },
     {
+      path: 'apis',
+      element: <BlockchainApis />,
+    },
+    {
       path: 'interfaces',
       element: <BlockchainInterfaces />,
     },
     {
-      path: 'subscriptions',
-      element: <BlockchainSubscriptions />,
+      path: 'listeners',
+      element: <BlockchainListeners />,
     },
   ],
 };

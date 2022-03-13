@@ -15,16 +15,7 @@
 // limitations under the License.
 
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import {
-  Chip,
-  Divider,
-  Grid,
-  IconButton,
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
-} from '@mui/material';
+import { Grid, IconButton, TablePagination, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -35,33 +26,44 @@ import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
-import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { MediumCardTable } from '../../../components/Tables/MediumCardTable';
 import { DataTable } from '../../../components/Tables/Table';
-import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
-  EventCategoryEnum,
   EVENTS_PATH,
+  FF_NAV_PATHS,
   FF_Paths,
   IBlockchainEvent,
+  IContractInterface,
+  IContractListener,
   ICreatedFilter,
   IGenericPagedResponse,
   IMediumCard,
   IMetric,
   INTERFACES_PATH,
+  IPagedBlockchainEventResponse,
   ISmallCard,
-  ITokenAccount,
-  ITokenPool,
-  SUBSCRIPTIONS_PATH,
+  LISTENERS_PATH,
 } from '../../../interfaces';
+import {
+  BlockchainEventCategoryEnum,
+  FF_BE_CATEGORY_MAP,
+} from '../../../interfaces/enums/blockchainEventTypes';
 import { DEFAULT_PADDING, DEFAULT_SPACING, FFColors } from '../../../theme';
-import { fetchCatcher, makeEventHistogram } from '../../../utils';
-import { isHistogramEmpty } from '../../../utils/charts';
+import { fetchCatcher } from '../../../utils';
+import {
+  isHistogramEmpty,
+  makeColorArray,
+  makeKeyArray,
+} from '../../../utils/charts';
+import { makeBlockchainEventHistogram } from '../../../utils/histograms/blockchainEventHistogram';
+
+const PAGE_LIMITS = [5, 10];
 
 export const BlockchainDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
@@ -69,6 +71,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
     useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const navigate = useNavigate();
+
   // Small cards
   // Blockchain Operations
   const [blockchainOpCount, setBlockchainOpCount] = useState<number>();
@@ -82,37 +85,87 @@ export const BlockchainDashboard: () => JSX.Element = () => {
   const [blockchainEventCount, setBlockchainEventCount] = useState<number>();
   const [blockchainEventErrorCount, setBlockchainEventErrorCount] =
     useState<number>(0);
+  // Contract interfaces count
+  const [contractInterfacesCount, setContractInterfacesCount] =
+    useState<number>();
+  const [contractInterfacesErrorCount, setContractInterfacesErrorCount] =
+    useState<number>(0);
 
   // Medium cards
   // Events histogram
-  const [eventHistData, setEventHistData] = useState<BarDatum[]>();
-  // Blockchain Events
-  const [blockchainEvents, setBlockchainEvents] =
-    useState<IBlockchainEvent[]>();
+  const [beHistData, setBeHistData] = useState<BarDatum[]>();
+  // Contract interfaces
+  const [contractInterfaces, setContractInterfaces] =
+    useState<IContractInterface[]>();
+  // Contract listeners
+  const [contractListeners, setContractListeners] =
+    useState<IContractListener[]>();
   // View Blockchain Events
   const [viewBlockchainEvent, setViewBlockchainEvent] =
     useState<IBlockchainEvent>();
+
+  const [blockchainEvents, setBlockchainEvents] =
+    useState<IBlockchainEvent[]>();
+  const [blockchainEventsTotal, setBlockchainEventsTotal] = useState(0);
+
+  const [currentPage, setCurrentPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
+
+  const handleChangePage = (_event: unknown, newPage: number) => {
+    if (
+      newPage > currentPage &&
+      rowsPerPage * (currentPage + 1) >= blockchainEventsTotal
+    ) {
+      return;
+    }
+    setCurrentPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setCurrentPage(0);
+    setRowsPerPage(+event.target.value);
+  };
+
+  const pagination = (
+    <TablePagination
+      component="div"
+      count={-1}
+      rowsPerPage={rowsPerPage}
+      page={currentPage}
+      onPageChange={handleChangePage}
+      onRowsPerPageChange={handleChangeRowsPerPage}
+      rowsPerPageOptions={PAGE_LIMITS}
+      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
+      sx={{ color: 'text.secondary' }}
+    />
+  );
 
   const smallCards: ISmallCard[] = [
     {
       header: t('blockchainOperations'),
       numErrors: blockchainOpErrorCount,
-      data: [{ header: t('total'), data: blockchainOpCount }],
+      data: [{ data: blockchainOpCount }],
+      clickPath: FF_NAV_PATHS.activityOpPath(selectedNamespace),
     },
     {
       header: t('blockchainTransactions'),
       numErrors: blockchainTxErrorCount,
-      data: [{ header: t('total'), data: blockchainTxCount }],
+      data: [{ data: blockchainTxCount }],
+      clickPath: FF_NAV_PATHS.activityTxPath(selectedNamespace),
     },
     {
       header: t('blockchainEvents'),
       numErrors: blockchainEventErrorCount,
-      data: [{ header: t('total'), data: blockchainEventCount }],
+      data: [{ data: blockchainEventCount }],
+      clickPath: FF_NAV_PATHS.blockchainEventsPath(selectedNamespace),
     },
     {
-      header: t('TBD'),
-      numErrors: 0,
-      data: [{ header: t('total'), data: 0 }],
+      header: t('contractInterfaces'),
+      numErrors: contractInterfacesErrorCount,
+      data: [{ data: contractInterfacesCount }],
+      clickPath: FF_NAV_PATHS.blockchainInterfacesPath(selectedNamespace),
     },
   ];
 
@@ -120,6 +173,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
     const qParams = `?count=true&limit=1${createdFilterObject.filterString}`;
+    const qParamsNoRange = `?count=true&limit=1`;
 
     Promise.all([
       // Blockchain Operations
@@ -134,6 +188,10 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.blockchainEvents}${qParams}`
       ),
+      // Contract interfaces
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.contractInterfaces}${qParamsNoRange}`
+      ),
     ])
       .then(
         ([
@@ -143,6 +201,8 @@ export const BlockchainDashboard: () => JSX.Element = () => {
           txs,
           // Blockchain Events
           events,
+          // Contract interfaces
+          interfaces,
         ]: IGenericPagedResponse[] | any[]) => {
           // Operations
           setBlockchainOpCount(ops.total);
@@ -150,12 +210,45 @@ export const BlockchainDashboard: () => JSX.Element = () => {
           setBlockchainTxCount(txs.total);
           // Events
           setBlockchainEventCount(events.total);
+          // Interfaces
+          setContractInterfacesCount(interfaces.total);
         }
       )
       .catch((err) => {
         reportFetchError(err);
       });
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+
+  const ciColHeaders = [t('name'), t('version'), t('interfaceID')];
+  const ciRecords: IDataTableRecord[] | undefined = contractInterfaces?.map(
+    (ci) => ({
+      key: ci.name,
+      columns: [
+        {
+          value: <Typography>{ci.name}</Typography>,
+        },
+        {
+          value: <Typography>{ci.version}</Typography>,
+        },
+        {
+          value: <HashPopover shortHash address={ci.id} />,
+        },
+      ],
+      onClick: () => navigate(INTERFACES_PATH),
+    })
+  );
+
+  const clColHeaders = [t('name'), t('eventName')];
+  const clRecords: IDataTableRecord[] | undefined = contractListeners?.map(
+    (cl) => ({
+      key: cl.name,
+      columns: [
+        { value: <HashPopover shortHash address={cl.name} /> },
+        { value: <Typography>{cl.event.name}</Typography> },
+      ],
+      onClick: () => navigate(LISTENERS_PATH),
+    })
+  );
 
   const mediumCards: IMediumCard[] = [
     {
@@ -167,19 +260,15 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       ),
       component: (
         <Histogram
-          colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
-          data={eventHistData}
+          colors={makeColorArray(FF_BE_CATEGORY_MAP)}
+          data={beHistData}
           indexBy="timestamp"
-          keys={[
-            EventCategoryEnum.BLOCKCHAIN,
-            EventCategoryEnum.MESSAGES,
-            EventCategoryEnum.TOKENS,
-          ]}
+          keys={makeKeyArray(FF_BE_CATEGORY_MAP)}
           includeLegend={true}
           emptyText={t('noBlockchainEvents')}
           isEmpty={isHistogramEmpty(
-            eventHistData ?? [],
-            Object.keys(EventCategoryEnum)
+            beHistData ?? [],
+            Object.keys(BlockchainEventCategoryEnum)
           )}
         ></Histogram>
       ),
@@ -192,62 +281,28 @@ export const BlockchainDashboard: () => JSX.Element = () => {
         </IconButton>
       ),
       component: (
-        <List sx={{ width: '100%' }}>
-          <ListItem sx={{ color: 'text.secondary', fontSize: 10 }}>
-            <ListItemText primary={t('id')} />
-            <ListItemText primary={t('api')} />
-            <ListItemText primary={t('status')} />
-          </ListItem>
-          <Divider />
-          <ListItem>
-            <ListItemText primary="Interface ID/Name" />
-            <ListItemText primary="3" />
-            <Chip label="test" />
-          </ListItem>
-          <Divider />
-          <ListItem>
-            <ListItemText primary="Interface ID/Name" />
-            <ListItemText primary="3" />
-            <Chip label="test" />
-          </ListItem>
-          <Divider />
-          <ListItem>
-            <ListItemText primary="Interface ID/Name" />
-            <ListItemText primary="3" />
-            <Chip label="test" />
-          </ListItem>
-        </List>
+        <MediumCardTable
+          records={ciRecords}
+          columnHeaders={ciColHeaders}
+          emptyMessage={t('noContractInterfaces')}
+          stickyHeader={true}
+        ></MediumCardTable>
       ),
     },
     {
-      headerText: t('contractSubscriptions'),
+      headerText: t('contractListeners'),
       headerComponent: (
-        <IconButton onClick={() => navigate(SUBSCRIPTIONS_PATH)}>
+        <IconButton onClick={() => navigate(LISTENERS_PATH)}>
           <ArrowForwardIcon />
         </IconButton>
       ),
       component: (
-        <List sx={{ width: '100%' }}>
-          <ListItem sx={{ color: 'text.secondary', fontSize: 10 }}>
-            <ListItemText primary={t('name')} />
-            <ListItemText primary={t('created')} />
-          </ListItem>
-          <Divider />
-          <ListItem>
-            <ListItemText primary="Subscription ID/Name" />
-            <ListItemText primary="01/24/2022" />
-          </ListItem>
-          <Divider />
-          <ListItem>
-            <ListItemText primary="Subscription ID/Name" />
-            <ListItemText primary="01/24/2022" />
-          </ListItem>
-          <Divider />
-          <ListItem>
-            <ListItemText primary="Subscription ID/Name" />
-            <ListItemText primary="01/24/2022" />
-          </ListItem>
-        </List>
+        <MediumCardTable
+          records={clRecords}
+          columnHeaders={clColHeaders}
+          emptyMessage={t('noContractListeners')}
+          stickyHeader={true}
+        ></MediumCardTable>
       ),
     },
   ];
@@ -255,21 +310,19 @@ export const BlockchainDashboard: () => JSX.Element = () => {
   // Medium Card UseEffect
   useEffect(() => {
     fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.contractInterfaces}`
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.contractInterfaces}?limit=5`
     )
-      .then((interfaces: ITokenPool[]) => {
-        // TODO: Set correctly
-        // setTokenPools(interfaces);
+      .then((interfaces: IContractInterface[]) => {
+        setContractInterfaces(interfaces);
       })
       .catch((err) => {
         reportFetchError(err);
       });
     fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.contractSubscriptions}`
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.contractListeners}?limit=5`
     )
-      .then((subs: ITokenAccount[]) => {
-        // TODO: Set correctly
-        // setTokenAccounts(subs);
+      .then((listeners: IContractListener[]) => {
+        setContractListeners(listeners);
       })
       .catch((err) => {
         reportFetchError(err);
@@ -283,14 +336,14 @@ export const BlockchainDashboard: () => JSX.Element = () => {
 
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.Events,
+        BucketCollectionEnum.BlockchainEvents,
         createdFilterObject.filterTime,
         currentTime,
         BucketCountEnum.Small
       )}`
     )
       .then((histTypes: IMetric[]) => {
-        setEventHistData(makeEventHistogram(histTypes));
+        setBeHistData(makeBlockchainEventHistogram(histTypes));
       })
       .catch((err) => {
         reportFetchError(err);
@@ -298,10 +351,10 @@ export const BlockchainDashboard: () => JSX.Element = () => {
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
   const beColHeaders = [
-    t('sequence'),
     t('name'),
     t('id'),
-    t('address'),
+    t('protocolID'),
+    t('source'),
     t('timestamp'),
   ];
   const beRecords: IDataTableRecord[] | undefined = blockchainEvents?.map(
@@ -309,25 +362,21 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       key: be.id,
       columns: [
         {
-          value: <Typography>{be.sequence}</Typography>,
-        },
-        {
           value: <Typography>{be.name}</Typography>,
         },
         {
           value: <HashPopover shortHash={true} address={be.id}></HashPopover>,
         },
         {
-          value: (
-            <HashPopover
-              shortHash={true}
-              address={be.info?.address ?? ''}
-            ></HashPopover>
-          ),
+          value: <Typography>{be.protocolId}</Typography>,
+        },
+        {
+          value: <Typography>{be.source}</Typography>,
         },
         { value: dayjs(be.timestamp).format('MM/DD/YYYY h:mm A') },
       ],
       onClick: () => setViewBlockchainEvent(be),
+      leftBorderColor: FFColors.Yellow,
     })
   );
 
@@ -336,15 +385,20 @@ export const BlockchainDashboard: () => JSX.Element = () => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
     fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.blockchainEvents}?limit=5${createdFilterObject.filterString}`
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${
+        FF_Paths.blockchainEvents
+      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+        createdFilterObject.filterString
+      }`
     )
-      .then((blockchainEvents: IBlockchainEvent[]) => {
-        setBlockchainEvents(blockchainEvents);
+      .then((blockchainEvents: IPagedBlockchainEventResponse) => {
+        setBlockchainEvents(blockchainEvents.items);
+        setBlockchainEventsTotal(blockchainEvents.total);
       })
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+  }, [rowsPerPage, currentPage, selectedNamespace]);
 
   return (
     <>
@@ -400,34 +454,23 @@ export const BlockchainDashboard: () => JSX.Element = () => {
             })}
           </Grid>
           {/* Blockchain Events */}
-          {!blockchainEvents ? (
-            <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : blockchainEvents.length ? (
-            <DataTable
-              header={t('recentBlockchainEvents')}
-              stickyHeader={true}
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              records={beRecords}
-              columnHeaders={beColHeaders}
-            />
-          ) : (
-            <DataTableEmptyState
-              message={t('noBlockchainEvents')}
-            ></DataTableEmptyState>
-          )}
+          <DataTable
+            header={t('recentBlockchainEvents')}
+            stickyHeader={true}
+            minHeight="300px"
+            maxHeight="calc(100vh - 340px)"
+            records={beRecords}
+            columnHeaders={beColHeaders}
+            {...{ pagination }}
+            emptyStateText={t('noBlockchainEvents')}
+            headerBtn={
+              <IconButton onClick={() => navigate(EVENTS_PATH)}>
+                <ArrowForwardIcon />
+              </IconButton>
+            }
+          />
         </Grid>
       </Grid>
-      {/* TODO: Add slideover */}
-      {/* {viewBlockchainEvent && (
-        <TransferSlide
-          transfer={viewBlockchainEvent}
-          open={!!viewBlockchainEvent}
-          onClose={() => {
-            setViewTransfer(undefined);
-          }}
-        />
-      )} */}
     </>
   );
 };
