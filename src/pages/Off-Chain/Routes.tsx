@@ -3,7 +3,7 @@ import { NAMESPACES_PATH } from '../../interfaces';
 import { OffChainDashboard } from './views/Dashboard';
 import { OffChainData } from './views/Data';
 import { OffChainDataTypes } from './views/DataTypes';
-import { OffChainFileExplorer } from './views/FileExplorer';
+import { OffChainMessages } from './views/Messages';
 
 export const OffChainRoutes: RouteObject = {
   path: `${NAMESPACES_PATH}/:namespace/offChain`,
@@ -14,15 +14,15 @@ export const OffChainRoutes: RouteObject = {
       element: <OffChainDashboard />,
     },
     {
+      path: 'messages',
+      element: <OffChainMessages />,
+    },
+    {
       path: 'data',
       element: <OffChainData />,
     },
     {
-      path: 'fileExplorer',
-      element: <OffChainFileExplorer />,
-    },
-    {
-      path: 'dataTypes',
+      path: 'datatypes',
       element: <OffChainDataTypes />,
     },
   ],

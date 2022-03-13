@@ -14,21 +14,170 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid } from '@mui/material';
-import React from 'react';
+import DownloadIcon from '@mui/icons-material/Download';
+import {
+  Button,
+  Grid,
+  IconButton,
+  TablePagination,
+  Typography,
+} from '@mui/material';
+import dayjs from 'dayjs';
+import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
+import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
+import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { DataTable } from '../../../components/Tables/Table';
+import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
+import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { SnackbarContext } from '../../../contexts/SnackbarContext';
+import {
+  FF_Paths,
+  ICreatedFilter,
+  IData,
+  IPagedDataResponse,
+} from '../../../interfaces';
 import { DEFAULT_PADDING } from '../../../theme';
+import { downloadBlobFile, fetchCatcher } from '../../../utils';
+
+const PAGE_LIMITS = [10, 25];
 
 export const OffChainData: () => JSX.Element = () => {
+  const { createdFilter, lastEvent, selectedNamespace } =
+    useContext(ApplicationContext);
+  const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  // Data
+  const [data, setData] = useState<IData[]>();
+  // View data slide out
+  const [viewData, setViewData] = useState<IData | undefined>();
+  // Data total
+  const [dataTotal, setDataTotal] = useState(0);
+  const [currentPage, setCurrentPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
+
+  const handleChangePage = (_event: unknown, newPage: number) => {
+    if (newPage > currentPage && rowsPerPage * (currentPage + 1) >= dataTotal) {
+      return;
+    }
+    setCurrentPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setCurrentPage(0);
+    setRowsPerPage(+event.target.value);
+  };
+
+  const pagination = (
+    <TablePagination
+      component="div"
+      count={-1}
+      rowsPerPage={rowsPerPage}
+      page={currentPage}
+      onPageChange={handleChangePage}
+      onRowsPerPageChange={handleChangeRowsPerPage}
+      rowsPerPageOptions={PAGE_LIMITS}
+      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
+      sx={{ color: 'text.secondary' }}
+    />
+  );
+
+  // Data
+  useEffect(() => {
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+
+    fetchCatcher(
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${
+        FF_Paths.data
+      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+        createdFilterObject.filterString
+      }`
+    )
+      .then((dataRes: IPagedDataResponse) => {
+        setData(dataRes.items);
+        setDataTotal(dataRes.total);
+      })
+      .catch((err) => {
+        reportFetchError(err);
+      });
+  }, [rowsPerPage, currentPage, selectedNamespace]);
+
+  const dataColHeaders = [
+    t('id'),
+    t('validator'),
+    t('dataHash'),
+    t('blobName'),
+    t('blobSize'),
+    t('created'),
+    t(''),
+  ];
+
+  const dataRecords: IDataTableRecord[] | undefined = data?.map((d) => ({
+    key: d.id,
+    columns: [
+      {
+        value: <HashPopover shortHash address={d.id}></HashPopover>,
+      },
+      {
+        value: <Typography>{d.validator}</Typography>,
+      },
+      {
+        value: <HashPopover shortHash address={d.hash}></HashPopover>,
+      },
+      {
+        value: d.blob?.name && (
+          <HashPopover address={d.blob.name}></HashPopover>
+        ),
+      },
+      {
+        value: d.blob && <Typography>{d.blob?.size}</Typography>,
+      },
+      {
+        value: dayjs(d.created).format('MM/DD/YYYY h:mm A'),
+      },
+      {
+        value: d.blob && (
+          <IconButton
+            onClick={(e) => {
+              e.stopPropagation();
+              downloadBlobFile(d.id, d.blob?.name);
+            }}
+          >
+            <DownloadIcon />
+          </IconButton>
+        ),
+      },
+    ],
+  }));
 
   return (
     <>
-      <Header title={t('dashboard')} subtitle={t('data')}></Header>
+      <Header title={t('data')} subtitle={t('offChain')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
-          Data Dashboard
+          <ChartTableHeader
+            title={t('allData')}
+            filter={
+              <Button variant="outlined">
+                <Typography p={0.75} sx={{ fontSize: 12 }}>
+                  {t('filter')}
+                </Typography>
+              </Button>
+            }
+          />
+          <DataTable
+            stickyHeader={true}
+            minHeight="300px"
+            maxHeight="calc(100vh - 340px)"
+            records={dataRecords}
+            columnHeaders={dataColHeaders}
+            {...{ pagination }}
+            emptyStateText={t('noDataToDisplay')}
+          />
         </Grid>
       </Grid>
     </>
