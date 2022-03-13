@@ -21,10 +21,8 @@ import { useTranslation } from 'react-i18next';
 import Jazzicon, { jsNumberForAddress } from 'react-jazzicon';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
-import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { PoolSlide } from '../../../components/Slides/PoolSlide';
 import { DataTable } from '../../../components/Tables/Table';
-import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
@@ -40,8 +38,7 @@ import { fetchCatcher } from '../../../utils';
 const PAGE_LIMITS = [10, 25];
 
 export const PoolDetails: () => JSX.Element = () => {
-  const { createdFilter, lastEvent, orgName, selectedNamespace } =
-    useContext(ApplicationContext);
+  const { createdFilter, selectedNamespace } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   // Token pools
@@ -150,22 +147,15 @@ export const PoolDetails: () => JSX.Element = () => {
       <Header title={t('pools')} subtitle={t('tokens')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
-          {!tokenPools ? (
-            <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : tokenPools.length ? (
-            <DataTable
-              stickyHeader={true}
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              records={tokenPoolRecords()}
-              columnHeaders={tokenPoolColHeaders}
-              {...{ pagination }}
-            />
-          ) : (
-            <DataTableEmptyState
-              message={t('noTokenPoolsToDisplay')}
-            ></DataTableEmptyState>
-          )}
+          <DataTable
+            stickyHeader={true}
+            minHeight="300px"
+            maxHeight="calc(100vh - 340px)"
+            records={tokenPoolRecords()}
+            columnHeaders={tokenPoolColHeaders}
+            {...{ pagination }}
+            emptyStateText={t('noTokenPoolsToDisplay')}
+          />
         </Grid>
       </Grid>
       {viewPool && (

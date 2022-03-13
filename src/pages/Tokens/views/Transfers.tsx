@@ -20,15 +20,13 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChartHeader } from '../../../components/Charts/Header';
+import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
-import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { TransferSlide } from '../../../components/Slides/TransferSlide';
 import { DataTable } from '../../../components/Tables/Table';
-import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
@@ -42,12 +40,17 @@ import {
   ITokenTransfer,
 } from '../../../interfaces';
 import {
+  FF_TRANSFER_CATEGORY_MAP,
   TransferCategoryEnum,
   TransferIconMap,
 } from '../../../interfaces/enums';
-import { DEFAULT_PADDING, FFColors } from '../../../theme';
+import { DEFAULT_HIST_HEIGHT, DEFAULT_PADDING } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
-import { isHistogramEmpty } from '../../../utils/charts';
+import {
+  isHistogramEmpty,
+  makeColorArray,
+  makeKeyArray,
+} from '../../../utils/charts';
 import { makeTransferHistogram } from '../../../utils/histograms/transferHistogram';
 
 const PAGE_LIMITS = [10, 25];
@@ -150,7 +153,6 @@ export const TokensTransfers: () => JSX.Element = () => {
     t('amount'),
     t('blockchainEvent'),
     t('author'),
-    t('details'),
     t('timestamp'),
   ];
   const tokenTransferRecords: IDataTableRecord[] | undefined =
@@ -160,11 +162,20 @@ export const TokensTransfers: () => JSX.Element = () => {
         {
           value: (
             <>
-              <Grid container justifyContent="flex-start" alignItems="center">
-                {TransferIconMap[transfer.type]}{' '}
-                <Typography pl={DEFAULT_PADDING} variant="body1">
-                  {transfer.type.toUpperCase()}
-                </Typography>
+              <Grid
+                direction="row"
+                justifyContent="flex-start"
+                alignItems="center"
+                container
+              >
+                <Grid container item justifyContent="flex-start" xs={2}>
+                  {TransferIconMap[transfer.type]}
+                </Grid>
+                <Grid container item justifyContent="flex-start" xs={10}>
+                  <Typography>
+                    {t(FF_TRANSFER_CATEGORY_MAP[transfer.type].nicename)}
+                  </Typography>
+                </Grid>
               </Grid>
             </>
           ),
@@ -201,10 +212,10 @@ export const TokensTransfers: () => JSX.Element = () => {
             <HashPopover shortHash={true} address={transfer.key}></HashPopover>
           ),
         },
-        { value: 'TODO' },
         { value: dayjs(transfer.created).format('MM/DD/YYYY h:mm A') },
       ],
       onClick: () => setViewTransfer(transfer),
+      leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type].color,
     }));
 
   return (
@@ -212,7 +223,7 @@ export const TokensTransfers: () => JSX.Element = () => {
       <Header title={t('transfers')} subtitle={t('tokens')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
-          <ChartHeader
+          <ChartTableHeader
             title={t('allTransfers')}
             filter={
               <Button variant="outlined">
@@ -228,19 +239,15 @@ export const TokensTransfers: () => JSX.Element = () => {
             borderRadius={1}
             sx={{
               width: '100%',
-              height: 200,
+              height: DEFAULT_HIST_HEIGHT,
               backgroundColor: 'background.paper',
             }}
           >
             <Histogram
-              colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+              colors={makeColorArray(FF_TRANSFER_CATEGORY_MAP)}
               data={transferHistData}
               indexBy="timestamp"
-              keys={[
-                TransferCategoryEnum.MINT,
-                TransferCategoryEnum.TRANSFER,
-                TransferCategoryEnum.BURN,
-              ]}
+              keys={makeKeyArray(FF_TRANSFER_CATEGORY_MAP)}
               includeLegend={true}
               emptyText={t('noTransfers')}
               isEmpty={isHistogramEmpty(
@@ -249,22 +256,15 @@ export const TokensTransfers: () => JSX.Element = () => {
               )}
             ></Histogram>
           </Box>
-          {!tokenTransfers ? (
-            <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : tokenTransfers.length ? (
-            <DataTable
-              stickyHeader={true}
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              records={tokenTransferRecords}
-              columnHeaders={tokenTransferColHeaders}
-              {...{ pagination }}
-            />
-          ) : (
-            <DataTableEmptyState
-              message={t('noTokenTransfersToDisplay')}
-            ></DataTableEmptyState>
-          )}
+          <DataTable
+            stickyHeader={true}
+            minHeight="300px"
+            maxHeight="calc(100vh - 340px)"
+            records={tokenTransferRecords}
+            columnHeaders={tokenTransferColHeaders}
+            {...{ pagination }}
+            emptyStateText={t('noTokenTransfersToDisplay')}
+          />
         </Grid>
       </Grid>
       {viewTransfer && (

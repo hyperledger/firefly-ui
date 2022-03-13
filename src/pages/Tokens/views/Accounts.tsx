@@ -14,9 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid } from '@mui/material';
+import { Button, Grid, Typography } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { Header } from '../../../components/Header';
 import { DEFAULT_PADDING } from '../../../theme';
 
@@ -28,6 +29,16 @@ export const TokensAccounts: () => JSX.Element = () => {
       <Header title={t('accounts')} subtitle={t('tokens')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
+          <ChartTableHeader
+            title={t('allAccounts')}
+            filter={
+              <Button variant="outlined">
+                <Typography p={0.75} sx={{ fontSize: 12 }}>
+                  {t('filter')}
+                </Typography>
+              </Button>
+            }
+          />
           TBD
         </Grid>
       </Grid>

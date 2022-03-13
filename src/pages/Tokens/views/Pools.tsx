@@ -14,17 +14,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid, TablePagination, Typography } from '@mui/material';
+import { Button, Grid, TablePagination, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon, { jsNumberForAddress } from 'react-jazzicon';
+import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
-import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { PoolSlide } from '../../../components/Slides/PoolSlide';
 import { DataTable } from '../../../components/Tables/Table';
-import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
@@ -40,8 +39,7 @@ import { fetchCatcher } from '../../../utils';
 const PAGE_LIMITS = [10, 25];
 
 export const TokensPools: () => JSX.Element = () => {
-  const { createdFilter, lastEvent, orgName, selectedNamespace } =
-    useContext(ApplicationContext);
+  const { createdFilter, selectedNamespace } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   // Token pools
@@ -118,14 +116,19 @@ export const TokensPools: () => JSX.Element = () => {
       columns: [
         {
           value: (
-            <>
-              <Grid container justifyContent="flex-start" alignItems="center">
-                <Jazzicon diameter={20} seed={jsNumberForAddress(pool.id)} />
-                <Typography pl={DEFAULT_PADDING} variant="body1">
-                  {pool.name}
-                </Typography>
+            <Grid
+              direction="row"
+              justifyContent="flex-start"
+              alignItems="center"
+              container
+            >
+              <Grid container item justifyContent="flex-start" xs={4}>
+                <Jazzicon diameter={34} seed={jsNumberForAddress(pool.id)} />
               </Grid>
-            </>
+              <Grid container item justifyContent="flex-start" xs={8}>
+                <Typography>{pool.name}</Typography>
+              </Grid>
+            </Grid>
           ),
         },
         {
@@ -148,22 +151,25 @@ export const TokensPools: () => JSX.Element = () => {
       <Header title={t('pools')} subtitle={t('tokens')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
-          {!tokenPools ? (
-            <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : tokenPools.length ? (
-            <DataTable
-              stickyHeader={true}
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              records={tokenPoolRecords}
-              columnHeaders={tokenPoolColHeaders}
-              {...{ pagination }}
-            />
-          ) : (
-            <DataTableEmptyState
-              message={t('noTokenPoolsToDisplay')}
-            ></DataTableEmptyState>
-          )}
+          <ChartTableHeader
+            title={t('allPools')}
+            filter={
+              <Button variant="outlined">
+                <Typography p={0.75} sx={{ fontSize: 12 }}>
+                  {t('filter')}
+                </Typography>
+              </Button>
+            }
+          />
+          <DataTable
+            stickyHeader={true}
+            minHeight="300px"
+            maxHeight="calc(100vh - 340px)"
+            records={tokenPoolRecords}
+            columnHeaders={tokenPoolColHeaders}
+            {...{ pagination }}
+            emptyStateText={t('noTokenPoolsToDisplay')}
+          />
         </Grid>
       </Grid>
       {viewPool && (

@@ -15,25 +15,22 @@
 // limitations under the License.
 
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import { Chip, Divider, Grid, IconButton, Typography } from '@mui/material';
+import { Grid, IconButton, TablePagination, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
 import { useNavigate } from 'react-router-dom';
-import { CardEmptyState } from '../../../components/Cards/CardEmptyState';
 import { MediumCard } from '../../../components/Cards/MediumCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
-import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { TransferSlide } from '../../../components/Slides/TransferSlide';
+import { MediumCardTable } from '../../../components/Tables/MediumCardTable';
 import { DataTable } from '../../../components/Tables/Table';
-import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
@@ -46,6 +43,7 @@ import {
   IGenericPagedResponse,
   IMediumCard,
   IMetric,
+  IPagedTokenTransferResponse,
   ISmallCard,
   ITokenAccount,
   ITokenPool,
@@ -54,13 +52,20 @@ import {
   TRANSFERS_PATH,
 } from '../../../interfaces';
 import {
+  FF_TRANSFER_CATEGORY_MAP,
   TransferCategoryEnum,
   TransferIconMap,
 } from '../../../interfaces/enums';
-import { DEFAULT_PADDING, DEFAULT_SPACING, FFColors } from '../../../theme';
+import { DEFAULT_PADDING, DEFAULT_SPACING } from '../../../theme';
 import { fetchCatcher, jsNumberForAddress } from '../../../utils';
-import { isHistogramEmpty } from '../../../utils/charts';
+import {
+  isHistogramEmpty,
+  makeColorArray,
+  makeKeyArray,
+} from '../../../utils/charts';
 import { makeTransferHistogram } from '../../../utils/histograms/transferHistogram';
+
+const PAGE_LIMITS = [5, 10];
 
 export const TokensDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
@@ -68,6 +73,7 @@ export const TokensDashboard: () => JSX.Element = () => {
     useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const navigate = useNavigate();
+
   // Small cards
   // Tokens
   const [tokenTransfersCount, setTokenTransfersCount] = useState<number>();
@@ -91,10 +97,45 @@ export const TokensDashboard: () => JSX.Element = () => {
   const [tokenPools, setTokenPools] = useState<ITokenPool[]>();
   // Token transfers
   const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>();
+  // Token Transfer totals
+  const [tokenTransferTotal, setTokenTransferTotal] = useState(0);
   // View transfer slide out
   const [viewTransfer, setViewTransfer] = useState<
     ITokenTransfer | undefined
   >();
+  const [currentPage, setCurrentPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
+
+  const handleChangePage = (_event: unknown, newPage: number) => {
+    if (
+      newPage > currentPage &&
+      rowsPerPage * (currentPage + 1) >= tokenTransferTotal
+    ) {
+      return;
+    }
+    setCurrentPage(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    setCurrentPage(0);
+    setRowsPerPage(+event.target.value);
+  };
+
+  const pagination = (
+    <TablePagination
+      component="div"
+      count={-1}
+      rowsPerPage={rowsPerPage}
+      page={currentPage}
+      onPageChange={handleChangePage}
+      onRowsPerPageChange={handleChangeRowsPerPage}
+      rowsPerPageOptions={PAGE_LIMITS}
+      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
+      sx={{ color: 'text.secondary' }}
+    />
+  );
 
   const smallCards: ISmallCard[] = [
     {
@@ -105,16 +146,19 @@ export const TokensDashboard: () => JSX.Element = () => {
         { header: t('mint'), data: tokenMintCount },
         { header: t('burn'), data: tokenBurnCount },
       ],
+      clickPath: TRANSFERS_PATH,
     },
     {
       header: t('accounts'),
       numErrors: 0,
       data: [{ header: t('total'), data: tokenAccountsCount }],
+      clickPath: ACCOUNTS_PATH,
     },
     {
       header: t('tokenPools'),
       numErrors: tokenPoolErrorCount,
       data: [{ header: t('total'), data: tokenPoolCount }],
+      clickPath: POOLS_PATH,
     },
     {
       header: t('connectors'),
@@ -192,43 +236,43 @@ export const TokensDashboard: () => JSX.Element = () => {
       });
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
-  const tokenAccountsColHeaders = [t('key'), t('')];
+  const tokenAccountsColHeaders = [t('key')];
   const tokenAccountRecords: IDataTableRecord[] | undefined =
     tokenAccounts?.map((acct) => ({
       key: acct.key,
       columns: [
         {
-          value: (
-            <>
-              <Typography noWrap>{acct.key}</Typography>
-            </>
-          ),
+          value: <HashPopover address={acct.key} />,
         },
-        { value: <ArrowForwardIcon /> },
       ],
+      onClick: () => navigate(ACCOUNTS_PATH),
     }));
 
-  const tokenPoolColHeaders = [t('name'), t('created')];
+  const tokenPoolColHeaders = [t('name'), t('standard')];
   const tokenPoolRecords: IDataTableRecord[] | undefined = tokenPools?.map(
     (pool) => ({
       key: pool.id,
       columns: [
         {
           value: (
-            <>
-              <Grid
-                direction="row"
-                justifyContent="flex-start"
-                alignItems="center"
-              >
+            <Grid
+              direction="row"
+              justifyContent="flex-start"
+              alignItems="center"
+              container
+            >
+              <Grid container item justifyContent="flex-start" xs={2}>
                 <Jazzicon diameter={20} seed={jsNumberForAddress(pool.name)} />
+              </Grid>
+              <Grid container item justifyContent="flex-start" xs={10}>
                 <Typography flexWrap="wrap">{pool.name}</Typography>
               </Grid>
-            </>
+            </Grid>
           ),
         },
-        { value: dayjs(pool.created).format('MM/DD/YYYY h:mm A') },
+        { value: <Typography>{pool.standard}</Typography> },
       ],
+      onClick: () => navigate(POOLS_PATH),
     })
   );
 
@@ -242,14 +286,10 @@ export const TokensDashboard: () => JSX.Element = () => {
       ),
       component: (
         <Histogram
-          colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+          colors={makeColorArray(FF_TRANSFER_CATEGORY_MAP)}
           data={transferHistData}
           indexBy="timestamp"
-          keys={[
-            TransferCategoryEnum.MINT,
-            TransferCategoryEnum.TRANSFER,
-            TransferCategoryEnum.BURN,
-          ]}
+          keys={makeKeyArray(FF_TRANSFER_CATEGORY_MAP)}
           includeLegend={true}
           emptyText={t('noTransfers')}
           isEmpty={isHistogramEmpty(
@@ -266,40 +306,13 @@ export const TokensDashboard: () => JSX.Element = () => {
           <ArrowForwardIcon />
         </IconButton>
       ),
-      component: !tokenAccounts ? (
-        <FFCircleLoader color="warning"></FFCircleLoader>
-      ) : !tokenAccounts.length ? (
-        <CardEmptyState text={t('noAccounts')}></CardEmptyState>
-      ) : (
-        <Grid container justifyContent="center" alignItems="center">
-          <Grid xs={12}>
-            <Typography color="secondary">{t('key')}</Typography>
-          </Grid>
-          {tokenAccounts.map((acct) => {
-            return (
-              <>
-                <Grid
-                  container
-                  justifyContent="center"
-                  alignItems="center"
-                  pt={DEFAULT_PADDING}
-                >
-                  <Grid item xs={11}>
-                    <Typography sx={{ fontWeight: 'bold' }} color="primary">
-                      {acct.key}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={1} justifyContent="center">
-                    <IconButton>
-                      <VisibilityIcon />
-                    </IconButton>
-                  </Grid>
-                </Grid>
-                <Divider />
-              </>
-            );
-          })}
-        </Grid>
+      component: (
+        <MediumCardTable
+          records={tokenAccountRecords}
+          columnHeaders={tokenAccountsColHeaders}
+          emptyMessage={t('noTokenAccounts')}
+          stickyHeader={true}
+        ></MediumCardTable>
       ),
     },
     {
@@ -309,51 +322,13 @@ export const TokensDashboard: () => JSX.Element = () => {
           <ArrowForwardIcon />
         </IconButton>
       ),
-      component: !tokenPools ? (
-        <FFCircleLoader color="warning"></FFCircleLoader>
-      ) : !tokenPools.length ? (
-        <CardEmptyState text={t('noTokenPools')}></CardEmptyState>
-      ) : (
-        <Grid container justifyContent="center" alignItems="center">
-          {tokenPools.map((pool) => {
-            return (
-              <>
-                <Grid
-                  container
-                  justifyContent="center"
-                  alignItems="center"
-                  pt={DEFAULT_PADDING}
-                  direction="row"
-                >
-                  <Grid direction="row" container item xs={6}>
-                    <Jazzicon
-                      diameter={25}
-                      seed={jsNumberForAddress(pool.name)}
-                    />
-                    <Typography
-                      pl={DEFAULT_PADDING}
-                      sx={{ fontWeight: 'bold' }}
-                      color="primary"
-                    >
-                      {pool.name}
-                    </Typography>
-                  </Grid>
-                  <Grid direction="row" container item xs={4}>
-                    <Typography pl={DEFAULT_PADDING} color="primary">
-                      {pool.standard}
-                    </Typography>
-                  </Grid>
-                  <Grid item xs={2} container justifyContent="center">
-                    <IconButton>
-                      <VisibilityIcon />
-                    </IconButton>
-                  </Grid>
-                </Grid>
-                <Divider />
-              </>
-            );
-          })}
-        </Grid>
+      component: (
+        <MediumCardTable
+          records={tokenPoolRecords}
+          columnHeaders={tokenPoolColHeaders}
+          emptyMessage={t('noTokenPools')}
+          stickyHeader={true}
+        ></MediumCardTable>
       ),
     },
   ];
@@ -408,9 +383,7 @@ export const TokensDashboard: () => JSX.Element = () => {
     t('to'),
     t('blockchainEvent'),
     t('author'),
-    t('details'),
     t('timestamp'),
-    t('status'),
   ];
   const tokenTransferRecords: IDataTableRecord[] | undefined =
     tokenTransfers?.map((transfer) => ({
@@ -418,14 +391,21 @@ export const TokensDashboard: () => JSX.Element = () => {
       columns: [
         {
           value: (
-            <>
-              <Grid container justifyContent="flex-start" alignItems="center">
-                {TransferIconMap[transfer.type]}{' '}
-                <Typography pl={DEFAULT_PADDING} variant="body1">
-                  {transfer.type.toUpperCase()}
+            <Grid
+              direction="row"
+              justifyContent="flex-start"
+              alignItems="center"
+              container
+            >
+              <Grid container item justifyContent="flex-start" xs={2}>
+                {TransferIconMap[transfer.type]}
+              </Grid>
+              <Grid container item justifyContent="flex-start" xs={10}>
+                <Typography pl={DEFAULT_PADDING}>
+                  {t(FF_TRANSFER_CATEGORY_MAP[transfer.type].nicename)}
                 </Typography>
               </Grid>
-            </>
+            </Grid>
           ),
         },
         {
@@ -457,11 +437,10 @@ export const TokensDashboard: () => JSX.Element = () => {
             <HashPopover shortHash={true} address={transfer.key}></HashPopover>
           ),
         },
-        { value: 'TODO' },
         { value: dayjs(transfer.created).format('MM/DD/YYYY h:mm A') },
-        { value: <Chip color="success" label="TODO"></Chip> }, //TODO: Make Dynamic
       ],
       onClick: () => setViewTransfer(transfer),
+      leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type].color,
     }));
 
   // Recent token transfers
@@ -469,15 +448,20 @@ export const TokensDashboard: () => JSX.Element = () => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
     fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}?limit=5${createdFilterObject.filterString}`
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${
+        FF_Paths.tokenTransfers
+      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+        createdFilterObject.filterString
+      }`
     )
-      .then((tokenTransfers: ITokenTransfer[]) => {
-        setTokenTransfers(tokenTransfers);
+      .then((tokenTransfers: IPagedTokenTransferResponse) => {
+        setTokenTransfers(tokenTransfers.items);
+        setTokenTransferTotal(tokenTransfers.total);
       })
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+  }, [rowsPerPage, currentPage, selectedNamespace]);
 
   return (
     <>
@@ -533,22 +517,21 @@ export const TokensDashboard: () => JSX.Element = () => {
             })}
           </Grid>
           {/* Recent Transfers */}
-          {!tokenTransfers ? (
-            <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : tokenTransfers.length ? (
-            <DataTable
-              header={t('recentTokenTransfers')}
-              stickyHeader={true}
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              records={tokenTransferRecords}
-              columnHeaders={tokenTransferColHeaders}
-            />
-          ) : (
-            <DataTableEmptyState
-              message={t('noTokenTransfersToDisplay')}
-            ></DataTableEmptyState>
-          )}
+          <DataTable
+            header={t('recentTokenTransfers')}
+            stickyHeader={true}
+            minHeight="300px"
+            {...{ pagination }}
+            maxHeight="calc(100vh - 340px)"
+            records={tokenTransferRecords}
+            columnHeaders={tokenTransferColHeaders}
+            emptyStateText={t('noTokenTransfersToDisplay')}
+            headerBtn={
+              <IconButton onClick={() => navigate(TRANSFERS_PATH)}>
+                <ArrowForwardIcon />
+              </IconButton>
+            }
+          />
         </Grid>
       </Grid>
       {viewTransfer && (
