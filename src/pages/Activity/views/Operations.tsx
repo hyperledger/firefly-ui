@@ -26,31 +26,37 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChartHeader } from '../../../components/Charts/Header';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
-import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
+import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { OperationSlide } from '../../../components/Slides/OperationSlide';
 import { DataTable } from '../../../components/Tables/Table';
-import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
-  EventCategoryEnum,
   FF_Paths,
   ICreatedFilter,
   IMetric,
   IOperation,
   IPagedOperationResponse,
 } from '../../../interfaces';
-import { OpCategoryEnum } from '../../../interfaces/enums';
-import { DEFAULT_PADDING, FFColors } from '../../../theme';
+import {
+  FF_OP_CATEGORY_MAP,
+  OpCategoryEnum,
+  OpStatusColorMap,
+} from '../../../interfaces/enums';
+import { DEFAULT_HIST_HEIGHT, DEFAULT_PADDING } from '../../../theme';
 import { fetchCatcher, makeOperationHistogram } from '../../../utils';
-import { isHistogramEmpty } from '../../../utils/charts';
+import {
+  isHistogramEmpty,
+  makeColorArray,
+  makeKeyArray,
+} from '../../../utils/charts';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -64,7 +70,7 @@ export const ActivityOperations: () => JSX.Element = () => {
   // Operation totals
   const [opTotal, setOpTotal] = useState(0);
   // View transaction slide out
-  const [viewOp, setViewOp] = useState<IOperation | undefined>();
+  const [viewOp, setViewOp] = useState<IOperation>();
   // Op types histogram
   const [opHistData, setOpHistData] = useState<BarDatum[]>();
 
@@ -143,29 +149,41 @@ export const ActivityOperations: () => JSX.Element = () => {
   const opsColumnHeaders = [
     t('type'),
     t('operationID'),
+    t('plugin'),
     t('transactionID'),
-    t('updated'),
     t('status'),
+    t('updated'),
   ];
 
   const opsRecords: IDataTableRecord[] | undefined = ops?.map((op) => ({
     key: op.id,
     columns: [
       {
-        value: <Typography>{op.type.toLocaleUpperCase()}</Typography>,
+        value: (
+          <Typography>{t(FF_OP_CATEGORY_MAP[op.type].nicename)}</Typography>
+        ),
       },
       {
         value: <HashPopover shortHash={true} address={op.id}></HashPopover>,
       },
       {
+        value: <Typography>{op.plugin}</Typography>,
+      },
+      {
         value: <HashPopover shortHash={true} address={op.tx}></HashPopover>,
       },
-      { value: dayjs(op.updated).format('MM/DD/YYYY h:mm A') },
       {
-        value: <Chip color="success" label="Success"></Chip>,
+        value: (
+          <Chip
+            sx={{ backgroundColor: OpStatusColorMap[op.status] }}
+            label={op.status.toLocaleUpperCase()}
+          ></Chip>
+        ),
       },
+      { value: dayjs(op.updated).format('MM/DD/YYYY h:mm A') },
     ],
     onClick: () => setViewOp(op),
+    leftBorderColor: FF_OP_CATEGORY_MAP[op.type].color,
   }));
 
   return (
@@ -173,7 +191,7 @@ export const ActivityOperations: () => JSX.Element = () => {
       <Header title={t('operations')} subtitle={t('activity')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
-          <ChartHeader
+          <ChartTableHeader
             title={t('allOperations')}
             filter={
               <Button variant="outlined">
@@ -189,19 +207,15 @@ export const ActivityOperations: () => JSX.Element = () => {
             borderRadius={1}
             sx={{
               width: '100%',
-              height: 200,
+              height: DEFAULT_HIST_HEIGHT,
               backgroundColor: 'background.paper',
             }}
           >
             <Histogram
-              colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+              colors={makeColorArray(FF_OP_CATEGORY_MAP)}
               data={opHistData}
               indexBy="timestamp"
-              keys={[
-                EventCategoryEnum.BLOCKCHAIN,
-                EventCategoryEnum.MESSAGES,
-                EventCategoryEnum.TOKENS,
-              ]}
+              keys={makeKeyArray(FF_OP_CATEGORY_MAP)}
               includeLegend={true}
               emptyText={t('noOperations')}
               isEmpty={isHistogramEmpty(
@@ -210,33 +224,26 @@ export const ActivityOperations: () => JSX.Element = () => {
               )}
             ></Histogram>
           </Box>
-          {!ops ? (
-            <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : ops.length ? (
-            <DataTable
-              stickyHeader={true}
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              records={opsRecords}
-              columnHeaders={opsColumnHeaders}
-              {...{ pagination }}
-            />
-          ) : (
-            <DataTableEmptyState
-              message={t('noOperationsToDisplay')}
-            ></DataTableEmptyState>
-          )}
+          <DataTable
+            stickyHeader={true}
+            minHeight="300px"
+            maxHeight="calc(100vh - 340px)"
+            records={opsRecords}
+            columnHeaders={opsColumnHeaders}
+            {...{ pagination }}
+            emptyStateText={t('noOperationsToDisplay')}
+          />
         </Grid>
       </Grid>
-      {/* {viewOp && (
-        <EventTransactionSlide
-          transaction={viewOp.tx}
+      {viewOp && (
+        <OperationSlide
+          op={viewOp}
           open={!!viewOp}
           onClose={() => {
             setViewOp(undefined);
           }}
         />
-      )} */}
+      )}
     </>
   );
 };

@@ -19,15 +19,13 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChartHeader } from '../../../components/Charts/Header';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
-import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
+import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
-import { EventTransactionSlide } from '../../../components/Slides/EventTransactionSlide';
+import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { DataTable } from '../../../components/Tables/Table';
-import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
@@ -44,9 +42,13 @@ import {
   FF_TX_CATEGORY_MAP,
   TxCategoryEnum,
 } from '../../../interfaces/enums/transactionTypes';
-import { DEFAULT_PADDING, FFColors } from '../../../theme';
+import { DEFAULT_HIST_HEIGHT, DEFAULT_PADDING } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
-import { isHistogramEmpty } from '../../../utils/charts';
+import {
+  isHistogramEmpty,
+  makeColorArray,
+  makeKeyArray,
+} from '../../../utils/charts';
 import { makeTxHistogram } from '../../../utils/histograms/transactionHistogram';
 
 const PAGE_LIMITS = [10, 25];
@@ -138,8 +140,9 @@ export const ActivityTransactions: () => JSX.Element = () => {
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
   const txColumnHeaders = [
-    t('id'),
     t('type'),
+    t('id'),
+    t('details'),
     t('blockchainIds'),
     t('created'),
   ];
@@ -148,18 +151,21 @@ export const ActivityTransactions: () => JSX.Element = () => {
     key: tx.id,
     columns: [
       {
-        value: <HashPopover shortHash={true} address={tx.id}></HashPopover>,
-      },
-      {
         value: (
           <Typography>{t(FF_TX_CATEGORY_MAP[tx.type].nicename)}</Typography>
         ),
       },
       {
+        value: <HashPopover shortHash={true} address={tx.id}></HashPopover>,
+      },
+      {
+        value: 'TODO',
+      },
+      {
         value: (
           <>
             {tx.blockchainIds?.map((bid) => (
-              // TODO: Suppor multiple items in array better
+              // TODO: Support multiple items in array better
               <HashPopover shortHash={true} address={bid}></HashPopover>
             ))}
           </>
@@ -168,6 +174,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
       { value: dayjs(tx.created).format('MM/DD/YYYY h:mm A') },
     ],
     onClick: () => setViewTx(tx),
+    leftBorderColor: FF_TX_CATEGORY_MAP[tx.type].color,
   }));
 
   return (
@@ -175,7 +182,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
       <Header title={t('transactions')} subtitle={t('activity')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
-          <ChartHeader
+          <ChartTableHeader
             title={t('allTransactions')}
             filter={
               <Button variant="outlined">
@@ -191,19 +198,15 @@ export const ActivityTransactions: () => JSX.Element = () => {
             borderRadius={1}
             sx={{
               width: '100%',
-              height: 200,
+              height: DEFAULT_HIST_HEIGHT,
               backgroundColor: 'background.paper',
             }}
           >
             <Histogram
-              colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+              colors={makeColorArray(FF_TX_CATEGORY_MAP)}
               data={txHistData}
               indexBy="timestamp"
-              keys={[
-                TxCategoryEnum.BLOCKCHAIN,
-                TxCategoryEnum.MESSAGES,
-                TxCategoryEnum.TOKENS,
-              ]}
+              keys={makeKeyArray(FF_TX_CATEGORY_MAP)}
               includeLegend={true}
               emptyText={t('noTransactions')}
               isEmpty={isHistogramEmpty(
@@ -212,26 +215,19 @@ export const ActivityTransactions: () => JSX.Element = () => {
               )}
             ></Histogram>
           </Box>
-          {!txs ? (
-            <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : txs.length ? (
-            <DataTable
-              stickyHeader={true}
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              records={txRecords}
-              columnHeaders={txColumnHeaders}
-              {...{ pagination }}
-            />
-          ) : (
-            <DataTableEmptyState
-              message={t('noTransactionsToDisplay')}
-            ></DataTableEmptyState>
-          )}
+          <DataTable
+            stickyHeader={true}
+            minHeight="300px"
+            maxHeight="calc(100vh - 340px)"
+            records={txRecords}
+            columnHeaders={txColumnHeaders}
+            {...{ pagination }}
+            emptyStateText={t('noTransactionsToDisplay')}
+          />
         </Grid>
       </Grid>
       {viewTx && (
-        <EventTransactionSlide
+        <TransactionSlide
           transaction={viewTx}
           open={!!viewTx}
           onClose={() => {

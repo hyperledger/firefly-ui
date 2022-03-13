@@ -20,7 +20,7 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChartHeader } from '../../../components/Charts/Header';
+import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
@@ -31,22 +31,27 @@ import {
   BucketCollectionEnum,
   BucketCountEnum,
   EventCategoryEnum,
+  FF_EVENTS_CATEGORY_MAP,
   FF_Paths,
   ICreatedFilter,
   IMetric,
 } from '../../../interfaces';
-import { DEFAULT_PADDING, FFColors } from '../../../theme';
+import { DEFAULT_HIST_HEIGHT, DEFAULT_PADDING } from '../../../theme';
 import { fetchCatcher, makeEventHistogram } from '../../../utils';
-import { isHistogramEmpty } from '../../../utils/charts';
+import {
+  isHistogramEmpty,
+  makeColorArray,
+  makeKeyArray,
+} from '../../../utils/charts';
 
-export const ActivityDashboard: () => JSX.Element = () => {
+export const ActivityTimeline: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
     useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
-  // Event types histogram
-  const [eventHistData, setEventHistData] = useState<BarDatum[]>();
 
+  // Events Histogram
+  const [eventHistData, setEventHistData] = useState<BarDatum[]>();
   useEffect(() => {
     const currentTime = dayjs().unix();
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
@@ -73,7 +78,7 @@ export const ActivityDashboard: () => JSX.Element = () => {
       <Header title={t('timeline')} subtitle={t('activity')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
-          <ChartHeader
+          <ChartTableHeader
             title={t('allActivity')}
             filter={
               <Button variant="outlined">
@@ -89,19 +94,15 @@ export const ActivityDashboard: () => JSX.Element = () => {
             borderRadius={1}
             sx={{
               width: '100%',
-              height: 200,
+              height: DEFAULT_HIST_HEIGHT,
               backgroundColor: 'background.paper',
             }}
           >
             <Histogram
-              colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+              colors={makeColorArray(FF_EVENTS_CATEGORY_MAP)}
               data={eventHistData}
               indexBy="timestamp"
-              keys={[
-                EventCategoryEnum.BLOCKCHAIN,
-                EventCategoryEnum.MESSAGES,
-                EventCategoryEnum.TOKENS,
-              ]}
+              keys={makeKeyArray(FF_EVENTS_CATEGORY_MAP)}
               includeLegend={true}
               isEmpty={isHistogramEmpty(
                 eventHistData ?? [],

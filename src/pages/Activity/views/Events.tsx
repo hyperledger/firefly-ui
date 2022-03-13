@@ -19,15 +19,13 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChartHeader } from '../../../components/Charts/Header';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
-import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
+import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
-import { EventTransactionSlide } from '../../../components/Slides/EventTransactionSlide';
+import { EventSlide } from '../../../components/Slides/EventSlide';
 import { DataTable } from '../../../components/Tables/Table';
-import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
@@ -42,9 +40,13 @@ import {
   IMetric,
   IPagedEventResponse,
 } from '../../../interfaces';
-import { DEFAULT_PADDING, FFColors } from '../../../theme';
+import { DEFAULT_HIST_HEIGHT, DEFAULT_PADDING } from '../../../theme';
 import { fetchCatcher, makeEventHistogram } from '../../../utils';
-import { isHistogramEmpty } from '../../../utils/charts';
+import {
+  isHistogramEmpty,
+  makeColorArray,
+  makeKeyArray,
+} from '../../../utils/charts';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -96,7 +98,7 @@ export const ActivityEvents: () => JSX.Element = () => {
     />
   );
 
-  // Events
+  // Events list
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
@@ -133,13 +135,14 @@ export const ActivityEvents: () => JSX.Element = () => {
         setEventHistData(makeEventHistogram(histTypes));
       })
       .catch((err) => {
+        setEventHistData([]);
         reportFetchError(err);
       });
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
   const eventsColumnHeaders = [
-    t('id'),
     t('type'),
+    t('id'),
     t('reference'),
     t('transactionID'),
     t('created'),
@@ -151,14 +154,14 @@ export const ActivityEvents: () => JSX.Element = () => {
       columns: [
         {
           value: (
-            <HashPopover shortHash={true} address={event.id}></HashPopover>
+            <Typography>
+              {t(FF_EVENTS_CATEGORY_MAP[event.type].nicename)}
+            </Typography>
           ),
         },
         {
           value: (
-            <Typography>
-              {t(FF_EVENTS_CATEGORY_MAP[event.type].nicename)}
-            </Typography>
+            <HashPopover shortHash={true} address={event.id}></HashPopover>
           ),
         },
         {
@@ -177,6 +180,7 @@ export const ActivityEvents: () => JSX.Element = () => {
         { value: dayjs(event.created).format('MM/DD/YYYY h:mm A') },
       ],
       onClick: () => setViewEvent(event),
+      leftBorderColor: FF_EVENTS_CATEGORY_MAP[event.type].color,
     })
   );
 
@@ -185,7 +189,7 @@ export const ActivityEvents: () => JSX.Element = () => {
       <Header title={t('events')} subtitle={t('activity')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
-          <ChartHeader
+          <ChartTableHeader
             title={t('allEvents')}
             filter={
               <Button variant="outlined">
@@ -201,19 +205,15 @@ export const ActivityEvents: () => JSX.Element = () => {
             borderRadius={1}
             sx={{
               width: '100%',
-              height: 200,
+              height: DEFAULT_HIST_HEIGHT,
               backgroundColor: 'background.paper',
             }}
           >
             <Histogram
-              colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+              colors={makeColorArray(FF_EVENTS_CATEGORY_MAP)}
               data={eventHistData}
               indexBy="timestamp"
-              keys={[
-                EventCategoryEnum.BLOCKCHAIN,
-                EventCategoryEnum.MESSAGES,
-                EventCategoryEnum.TOKENS,
-              ]}
+              keys={makeKeyArray(FF_EVENTS_CATEGORY_MAP)}
               includeLegend={true}
               emptyText={t('noEvents')}
               isEmpty={isHistogramEmpty(
@@ -222,26 +222,19 @@ export const ActivityEvents: () => JSX.Element = () => {
               )}
             ></Histogram>
           </Box>
-          {!events ? (
-            <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : events.length ? (
-            <DataTable
-              stickyHeader={true}
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              records={eventsRecords}
-              columnHeaders={eventsColumnHeaders}
-              {...{ pagination }}
-            />
-          ) : (
-            <DataTableEmptyState
-              message={t('noEventsToDisplay')}
-            ></DataTableEmptyState>
-          )}
+          <DataTable
+            stickyHeader={true}
+            minHeight="300px"
+            maxHeight="calc(100vh - 340px)"
+            records={eventsRecords}
+            columnHeaders={eventsColumnHeaders}
+            {...{ pagination }}
+            emptyStateText={t('noEventsToDisplay')}
+          />
         </Grid>
       </Grid>
       {viewEvent && (
-        <EventTransactionSlide
+        <EventSlide
           event={viewEvent}
           open={!!viewEvent}
           onClose={() => {
