@@ -10,8 +10,8 @@ export const makeMsgHistogram = (histList: IMetric[]): BarDatum[] => {
   const timeMap: IHistMsgTimeMap = {};
   histList.map((hist) => {
     timeMap[hist.timestamp] = {
-      [MsgCategoryEnum.BLOCKCHAIN]: 0,
       [MsgCategoryEnum.BROADCAST]: 0,
+      [MsgCategoryEnum.DEFINITON]: 0,
       [MsgCategoryEnum.PRIVATE]: 0,
     };
     hist.types.map((type) => {
@@ -21,12 +21,12 @@ export const makeMsgHistogram = (histList: IMetric[]): BarDatum[] => {
           timeMap[hist.timestamp][MsgCategoryEnum.BROADCAST] =
             timeMap[hist.timestamp][MsgCategoryEnum.BROADCAST] + +type.count;
           break;
-        // Message
-        case MsgCategoryEnum.BLOCKCHAIN:
-          timeMap[hist.timestamp][MsgCategoryEnum.BLOCKCHAIN] =
-            timeMap[hist.timestamp][MsgCategoryEnum.BLOCKCHAIN] + +type.count;
+        // Definition
+        case MsgCategoryEnum.DEFINITON:
+          timeMap[hist.timestamp][MsgCategoryEnum.DEFINITON] =
+            timeMap[hist.timestamp][MsgCategoryEnum.DEFINITON] + +type.count;
           break;
-        // Tokens
+        // Private
         case MsgCategoryEnum.PRIVATE:
           timeMap[hist.timestamp][MsgCategoryEnum.PRIVATE] =
             timeMap[hist.timestamp][MsgCategoryEnum.PRIVATE] + +type.count;

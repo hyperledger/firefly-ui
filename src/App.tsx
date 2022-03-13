@@ -115,22 +115,22 @@ const App: React.FC = () => {
       });
   }, [routerNamespace]);
 
-  useEffect(() => {
-    if (selectedNamespace) {
-      ws.current = new ReconnectingWebSocket(
-        `${protocol}://${window.location.hostname}:${window.location.port}/ws?namespace=${selectedNamespace}&ephemeral&autoack`
-      );
-      ws.current.onmessage = (event: any) => {
-        setLastEvent(event);
-      };
+  // useEffect(() => {
+  //   if (selectedNamespace) {
+  //     ws.current = new ReconnectingWebSocket(
+  //       `${protocol}://${window.location.hostname}:${window.location.port}/ws?namespace=${selectedNamespace}&ephemeral&autoack`
+  //     );
+  //     ws.current.onmessage = (event: any) => {
+  //       setLastEvent(event);
+  //     };
 
-      return () => {
-        if (ws.current) {
-          ws.current.close();
-        }
-      };
-    }
-  }, [selectedNamespace]);
+  //     return () => {
+  //       if (ws.current) {
+  //         ws.current.close();
+  //       }
+  //     };
+  //   }
+  // }, [selectedNamespace]);
 
   const reportFetchError = (err: any) => {
     summarizeFetchError(err).then((message: string) => {

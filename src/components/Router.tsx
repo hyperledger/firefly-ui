@@ -21,7 +21,6 @@ import { QueryParamProvider } from 'use-query-params';
 import { ActivityRoutes } from '../pages/Activity/Routes';
 import { BlockchainRoutes } from '../pages/Blockchain/Routes';
 import { HomeRoutes } from '../pages/Home/Routes';
-import { MessagesRoutes } from '../pages/Messages/Routes';
 import { MyNodeRoutes } from '../pages/MyNode/Routes';
 import { NetworkRoutes } from '../pages/Network/Routes';
 import { OffChainRoutes } from '../pages/Off-Chain/Routes';
@@ -65,7 +64,6 @@ export function getAllRoutes(): RouteObject[] {
     ActivityRoutes,
     BlockchainRoutes,
     OffChainRoutes,
-    MessagesRoutes,
     TokensRoutes,
     NetworkRoutes,
     MyNodeRoutes,

@@ -1,7 +1,9 @@
 // Copyright © 2022 Kaleido, Inc.
 
+import { IBlockchainCategory } from '../interfaces';
+
 export const getShortHash = (hash: string): string => {
-  return hash?.length >= 10 ? `${hash.slice(0, 5)}...${hash.slice(-5)}` : '';
+  return hash?.length >= 10 ? `${hash.slice(0, 5)}...${hash.slice(-5)}` : hash;
 };
 
 export const jsNumberForAddress = (address: string): number => {
@@ -10,20 +12,13 @@ export const jsNumberForAddress = (address: string): number => {
   return seed;
 };
 
-export const stringToColor = (value: string): string => {
-  let hash = 0;
-  let i;
-
-  for (i = 0; i < value.length; i += 1) {
-    hash = value.charCodeAt(i) + ((hash << 5) - hash);
-  }
-
-  let color = '#';
-
-  for (i = 0; i < 3; i += 1) {
-    const value = (hash >> (i * 8)) & 0xff;
-    color += `00${value.toString(16)}`.substr(-2);
-  }
-
-  return color;
+export const makeMultipleQueryParams = (
+  map: { [key: string]: IBlockchainCategory },
+  key: string,
+  queryKey: string
+) => {
+  const str = Object.keys(map)
+    .filter((k) => map[k].category === key)
+    .toString();
+  return `&${queryKey}=${str.replaceAll(',', `&${queryKey}=`)}`;
 };
