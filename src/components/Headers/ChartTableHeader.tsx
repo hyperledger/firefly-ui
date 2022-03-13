@@ -1,11 +1,11 @@
 import { Grid, Typography } from '@mui/material';
 
 type Props = {
-  filter: JSX.Element;
+  filter?: JSX.Element;
   title: string;
 };
 
-export const ChartHeader: React.FC<Props> = ({ filter, title }) => {
+export const ChartTableHeader: React.FC<Props> = ({ filter, title }) => {
   return (
     <Grid
       container
@@ -17,7 +17,7 @@ export const ChartHeader: React.FC<Props> = ({ filter, title }) => {
         <Typography fontWeight="bold">{title}</Typography>
       </Grid>
       <Grid xs={6} item container justifyContent="flex-end" alignItems="center">
-        <Typography>{filter}</Typography>
+        {filter}
       </Grid>
     </Grid>
   );

@@ -27,7 +27,6 @@ export const Histogram: React.FC<Props> = ({
 }) => {
   return (
     <Box
-      mt={2}
       borderRadius={1}
       sx={{
         width: '100%',
@@ -36,7 +35,7 @@ export const Histogram: React.FC<Props> = ({
       }}
     >
       {!data ? (
-        <FFCircleLoader color="warning"></FFCircleLoader>
+        <FFCircleLoader height="100%" color="warning"></FFCircleLoader>
       ) : isEmpty ? (
         <CardEmptyState text={emptyText}></CardEmptyState>
       ) : (
@@ -109,8 +108,8 @@ export const Histogram: React.FC<Props> = ({
             <div
               style={{
                 padding: 12,
-                color: '#ffffff',
-                background: '#1e242a',
+                color: themeOptions.palette?.text?.primary,
+                background: themeOptions.palette?.background?.paper,
               }}
             >
               {dayjs(data.timestamp).format('MM/DD/YYYY h:mm A')}
