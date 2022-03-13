@@ -15,90 +15,55 @@
 // limitations under the License.
 
 import InventoryIcon from '@mui/icons-material/Inventory';
-import {
-  Collapse,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-} from '@mui/material';
-import ExpandMore from 'mdi-react/ChevronDownIcon';
-import ExpandLess from 'mdi-react/ChevronUpIcon';
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import {
   DATA_PATH,
   DATA_TYPES_PATH,
-  FILE_EXPLORER_PATH,
   INavItem,
+  MESSAGES_PATH,
   NAMESPACES_PATH,
   OFFCHAIN_PATH,
 } from '../../interfaces';
-import { themeOptions } from '../../theme';
-import { NavItem } from './NavItem';
+import { NavSection } from './NavSection';
 
 export const OffChainNav = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { selectedNamespace } = useContext(ApplicationContext);
-  const [offChainOpen, setOffChainOpen] = useState(false);
-  const baseOffChainPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${OFFCHAIN_PATH}`;
+  const basePath = `/${NAMESPACES_PATH}/${selectedNamespace}/${OFFCHAIN_PATH}`;
 
   const navItems: INavItem[] = [
     {
       name: t('dashboard'),
-      action: () => navigate(baseOffChainPath),
-      itemIsActive: pathname === baseOffChainPath,
+      action: () => navigate(basePath),
+      itemIsActive: pathname === basePath,
+    },
+    {
+      name: t('messages'),
+      action: () => navigate(`${basePath}/${MESSAGES_PATH}`),
+      itemIsActive: pathname === `${basePath}/${MESSAGES_PATH}`,
     },
     {
       name: t('data'),
-      action: () => navigate(`${baseOffChainPath}/${DATA_PATH}`),
-      itemIsActive: pathname === `${baseOffChainPath}/${DATA_PATH}`,
+      action: () => navigate(`${basePath}/${DATA_PATH}`),
+      itemIsActive: pathname === `${basePath}/${DATA_PATH}`,
     },
     {
-      name: t('fileExplorer'),
-      action: () => navigate(`${baseOffChainPath}/${FILE_EXPLORER_PATH}`),
-      itemIsActive: pathname === `${baseOffChainPath}/${FILE_EXPLORER_PATH}`,
-    },
-    {
-      name: t('dataTypes'),
-      action: () => navigate(`${baseOffChainPath}/${DATA_TYPES_PATH}`),
-      itemIsActive: pathname === `${baseOffChainPath}/${DATA_TYPES_PATH}`,
+      name: t('datatypes'),
+      action: () => navigate(`${basePath}/${DATA_TYPES_PATH}`),
+      itemIsActive: pathname === `${basePath}/${DATA_TYPES_PATH}`,
     },
   ];
 
   return (
-    <>
-      <ListItemButton
-        sx={{
-          borderLeft: 6,
-          borderLeftColor: themeOptions.palette?.background?.default,
-          backgroundColor: themeOptions.palette?.background?.default,
-        }}
-        onClick={() => setOffChainOpen(!offChainOpen)}
-      >
-        <ListItemIcon>
-          <InventoryIcon />
-        </ListItemIcon>
-        <ListItemText>
-          <Typography>{t('offChain')}</Typography>
-        </ListItemText>
-        {offChainOpen ? <ExpandLess /> : <ExpandMore />}
-      </ListItemButton>
-
-      <Collapse in={offChainOpen} unmountOnExit>
-        {navItems.map((item) => (
-          <NavItem
-            name={item.name}
-            action={item.action}
-            itemIsActive={item.itemIsActive}
-            key={item.name}
-          />
-        ))}
-      </Collapse>
-    </>
+    <NavSection
+      icon={<InventoryIcon />}
+      navItems={navItems}
+      title={t('offChain')}
+    />
   );
 };

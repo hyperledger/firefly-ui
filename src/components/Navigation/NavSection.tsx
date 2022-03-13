@@ -14,7 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import AdjustIcon from '@mui/icons-material/Adjust';
 import {
   Collapse,
   ListItemButton,
@@ -24,39 +23,19 @@ import {
 } from '@mui/material';
 import ExpandMore from 'mdi-react/ChevronDownIcon';
 import ExpandLess from 'mdi-react/ChevronUpIcon';
-import React, { useContext, useState } from 'react';
-import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
-import { ApplicationContext } from '../../contexts/ApplicationContext';
-import {
-  ACTIVITY_PATH,
-  INavItem,
-  MESSAGES_PATH,
-  NAMESPACES_PATH,
-} from '../../interfaces';
+import { useState } from 'react';
+import { INavItem } from '../../interfaces';
 import { themeOptions } from '../../theme';
 import { NavItem } from './NavItem';
-import MessageIcon from '@mui/icons-material/Message';
-export const MessagesNav = () => {
-  const { t } = useTranslation();
-  const navigate = useNavigate();
-  const { pathname } = useLocation();
-  const { selectedNamespace } = useContext(ApplicationContext);
-  const [messagesOpen, setMessagesOpen] = useState(false);
-  const baseMessagesPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${MESSAGES_PATH}`;
 
-  const navItems: INavItem[] = [
-    {
-      name: t('dashboard'),
-      action: () => navigate(baseMessagesPath),
-      itemIsActive: pathname === baseMessagesPath,
-    },
-    {
-      name: t('activity'),
-      action: () => navigate(`${baseMessagesPath}/${ACTIVITY_PATH}`),
-      itemIsActive: pathname === `${baseMessagesPath}/${ACTIVITY_PATH}`,
-    },
-  ];
+interface Props {
+  icon: JSX.Element;
+  navItems: INavItem[];
+  title: string;
+}
+
+export const NavSection = ({ icon, navItems, title }: Props) => {
+  const [open, setOpen] = useState(false);
 
   return (
     <>
@@ -66,18 +45,16 @@ export const MessagesNav = () => {
           borderLeftColor: themeOptions.palette?.background?.default,
           backgroundColor: themeOptions.palette?.background?.default,
         }}
-        onClick={() => setMessagesOpen(!messagesOpen)}
+        onClick={() => setOpen(!open)}
       >
-        <ListItemIcon>
-          <MessageIcon />
-        </ListItemIcon>
+        <ListItemIcon>{icon}</ListItemIcon>
         <ListItemText>
-          <Typography>{t('messages')}</Typography>
+          <Typography>{title}</Typography>
         </ListItemText>
-        {messagesOpen ? <ExpandLess /> : <ExpandMore />}
+        {open ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>
 
-      <Collapse in={messagesOpen} unmountOnExit>
+      <Collapse in={open} unmountOnExit>
         {navItems.map((item) => (
           <NavItem
             name={item.name}

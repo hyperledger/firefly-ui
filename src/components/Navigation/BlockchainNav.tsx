@@ -15,16 +15,7 @@
 // limitations under the License.
 
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
-import {
-  Collapse,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-} from '@mui/material';
-import ExpandMore from 'mdi-react/ChevronDownIcon';
-import ExpandLess from 'mdi-react/ChevronUpIcon';
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
@@ -34,70 +25,51 @@ import {
   EVENTS_PATH,
   INavItem,
   INTERFACES_PATH,
+  LISTENERS_PATH,
   NAMESPACES_PATH,
-  SUBSCRIPTIONS_PATH,
 } from '../../interfaces';
-import { themeOptions } from '../../theme';
-import { NavItem } from './NavItem';
+import { NavSection } from './NavSection';
 
 export const BlockchainNav = () => {
   const { t } = useTranslation();
-  const [blockchainOpen, setBlockchainOpen] = useState(false);
   const navigate = useNavigate();
   const { selectedNamespace } = useContext(ApplicationContext);
   const { pathname } = useLocation();
-  const baseBlockchainPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${BLOCKCHAIN_PATH}`;
+  const basePath = `/${NAMESPACES_PATH}/${selectedNamespace}/${BLOCKCHAIN_PATH}`;
 
   const navItems: INavItem[] = [
     {
       name: t('dashboard'),
-      action: () => navigate(baseBlockchainPath),
-      itemIsActive: pathname === baseBlockchainPath,
+      action: () => navigate(basePath),
+      itemIsActive: pathname === basePath,
     },
     {
       name: t('events'),
-      action: () => navigate(`${baseBlockchainPath}/${EVENTS_PATH}`),
-      itemIsActive: pathname === `${baseBlockchainPath}/${EVENTS_PATH}`,
+      action: () => navigate(`${basePath}/${EVENTS_PATH}`),
+      itemIsActive: pathname === `${basePath}/${EVENTS_PATH}`,
+    },
+    {
+      name: t('apis'),
+      action: () => navigate(`${basePath}/${APIS_PATH}`),
+      itemIsActive: pathname === `${basePath}/${APIS_PATH}`,
     },
     {
       name: t('interfaces'),
-      action: () => navigate(`${baseBlockchainPath}/${INTERFACES_PATH}`),
-      itemIsActive: pathname === `${baseBlockchainPath}/${INTERFACES_PATH}`,
+      action: () => navigate(`${basePath}/${INTERFACES_PATH}`),
+      itemIsActive: pathname === `${basePath}/${INTERFACES_PATH}`,
     },
     {
-      name: t('subscriptions'),
-      action: () => navigate(`${baseBlockchainPath}/${SUBSCRIPTIONS_PATH}`),
-      itemIsActive: pathname === `${baseBlockchainPath}/${SUBSCRIPTIONS_PATH}`,
+      name: t('listeners'),
+      action: () => navigate(`${basePath}/${LISTENERS_PATH}`),
+      itemIsActive: pathname === `${basePath}/${LISTENERS_PATH}`,
     },
   ];
 
   return (
-    <>
-      <ListItemButton
-        sx={{
-          borderLeft: 6,
-          borderLeftColor: themeOptions.palette?.background?.default,
-          backgroundColor: themeOptions.palette?.background?.default,
-        }}
-        onClick={() => setBlockchainOpen(!blockchainOpen)}
-      >
-        <ListItemIcon>{<ViewInArIcon />}</ListItemIcon>
-        <ListItemText>
-          <Typography>{t('blockchain')}</Typography>
-        </ListItemText>
-        {blockchainOpen ? <ExpandLess /> : <ExpandMore />}
-      </ListItemButton>
-
-      <Collapse in={blockchainOpen} unmountOnExit>
-        {navItems.map((item) => (
-          <NavItem
-            name={item.name}
-            action={item.action}
-            itemIsActive={item.itemIsActive}
-            key={item.name}
-          />
-        ))}
-      </Collapse>
-    </>
+    <NavSection
+      icon={<ViewInArIcon />}
+      navItems={navItems}
+      title={t('blockchain')}
+    />
   );
 };

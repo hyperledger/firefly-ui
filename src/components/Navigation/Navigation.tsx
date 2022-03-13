@@ -22,7 +22,6 @@ import {
 import { MenuLogo } from '../MenuLogo';
 import { ActivityNav } from './ActivityNav';
 import { BlockchainNav } from './BlockchainNav';
-import { MessagesNav } from './MessagesNav';
 import { NavItem } from './NavItem';
 import { NetworkNav } from './NetworkNav';
 import { OffChainNav } from './OffChainNav';
@@ -50,7 +49,6 @@ export const Navigation: React.FC = () => {
       <ActivityNav />
       <BlockchainNav />
       <OffChainNav />
-      <MessagesNav />
       <TokensNav />
       <NetworkNav />
       <NavItem

@@ -15,16 +15,7 @@
 // limitations under the License.
 
 import AdjustIcon from '@mui/icons-material/Adjust';
-import {
-  Collapse,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-} from '@mui/material';
-import ExpandMore from 'mdi-react/ChevronDownIcon';
-import ExpandLess from 'mdi-react/ChevronUpIcon';
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
@@ -36,69 +27,39 @@ import {
   TOKENS_PATH,
   TRANSFERS_PATH,
 } from '../../interfaces';
-import { themeOptions } from '../../theme';
-import { NavItem } from './NavItem';
+import { NavSection } from './NavSection';
 
 export const TokensNav = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { selectedNamespace } = useContext(ApplicationContext);
-  const [tokensOpen, setTokensOpen] = useState(false);
-  const baseTokensPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${TOKENS_PATH}`;
+  const basePath = `/${NAMESPACES_PATH}/${selectedNamespace}/${TOKENS_PATH}`;
 
   const navItems: INavItem[] = [
     {
       name: t('dashboard'),
-      action: () => navigate(baseTokensPath),
-      itemIsActive: pathname === baseTokensPath,
+      action: () => navigate(basePath),
+      itemIsActive: pathname === basePath,
     },
     {
       name: t('transfers'),
-      action: () => navigate(`${baseTokensPath}/${TRANSFERS_PATH}`),
-      itemIsActive: pathname === `${baseTokensPath}/${TRANSFERS_PATH}`,
+      action: () => navigate(`${basePath}/${TRANSFERS_PATH}`),
+      itemIsActive: pathname === `${basePath}/${TRANSFERS_PATH}`,
     },
     {
       name: t('pools'),
-      action: () => navigate(`${baseTokensPath}/${POOLS_PATH}`),
-      itemIsActive: pathname === `${baseTokensPath}/${POOLS_PATH}`,
+      action: () => navigate(`${basePath}/${POOLS_PATH}`),
+      itemIsActive: pathname === `${basePath}/${POOLS_PATH}`,
     },
     {
       name: t('accounts'),
-      action: () => navigate(`${baseTokensPath}/${ACCOUNTS_PATH}`),
-      itemIsActive: pathname === `${baseTokensPath}/${ACCOUNTS_PATH}`,
+      action: () => navigate(`${basePath}/${ACCOUNTS_PATH}`),
+      itemIsActive: pathname === `${basePath}/${ACCOUNTS_PATH}`,
     },
   ];
 
   return (
-    <>
-      <ListItemButton
-        sx={{
-          borderLeft: 6,
-          borderLeftColor: themeOptions.palette?.background?.default,
-          backgroundColor: themeOptions.palette?.background?.default,
-        }}
-        onClick={() => setTokensOpen(!tokensOpen)}
-      >
-        <ListItemIcon>
-          <AdjustIcon />
-        </ListItemIcon>
-        <ListItemText>
-          <Typography>{t('tokens')}</Typography>
-        </ListItemText>
-        {tokensOpen ? <ExpandLess /> : <ExpandMore />}
-      </ListItemButton>
-
-      <Collapse in={tokensOpen} unmountOnExit>
-        {navItems.map((item) => (
-          <NavItem
-            name={item.name}
-            action={item.action}
-            itemIsActive={item.itemIsActive}
-            key={item.name}
-          />
-        ))}
-      </Collapse>
-    </>
+    <NavSection icon={<AdjustIcon />} navItems={navItems} title={t('tokens')} />
   );
 };

@@ -14,88 +14,56 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useContext, useState } from 'react';
-import {
-  Collapse,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-} from '@mui/material';
-import { useTranslation } from 'react-i18next';
-import ExpandLess from 'mdi-react/ChevronUpIcon';
-import ExpandMore from 'mdi-react/ChevronDownIcon';
 import ChartBoxOutline from 'mdi-react/ChartBoxOutlineIcon';
-import { NavItem } from './NavItem';
+import React, { useContext } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
-import { INavItem, NAMESPACES_PATH } from '../../interfaces';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import {
   ACTIVITY_PATH,
   EVENTS_PATH,
+  INavItem,
+  NAMESPACES_PATH,
   OPERATIONS_PATH,
   TRANSACTIONS_PATH,
 } from '../../interfaces';
-import { themeOptions } from '../../theme';
+import { NavSection } from './NavSection';
 
 export const ActivityNav = () => {
   const { t } = useTranslation();
-  const [activityOpen, setActivityOpen] = useState(false);
   const navigate = useNavigate();
   const { selectedNamespace } = useContext(ApplicationContext);
   const { pathname } = useLocation();
-  const baseActivityPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${ACTIVITY_PATH}`;
+  const basePath = `/${NAMESPACES_PATH}/${selectedNamespace}/${ACTIVITY_PATH}`;
 
   const navItems: INavItem[] = [
     {
-      name: t('dashboard'),
-      action: () => navigate(baseActivityPath),
-      itemIsActive: pathname === baseActivityPath,
+      name: t('timeline'),
+      action: () => navigate(basePath),
+      itemIsActive: pathname === basePath,
     },
     {
       name: t('events'),
-      action: () => navigate(`${baseActivityPath}/${EVENTS_PATH}`),
-      itemIsActive: pathname === `${baseActivityPath}/${EVENTS_PATH}`,
+      action: () => navigate(`${basePath}/${EVENTS_PATH}`),
+      itemIsActive: pathname === `${basePath}/${EVENTS_PATH}`,
     },
     {
       name: t('transactions'),
-      action: () => navigate(`${baseActivityPath}/${TRANSACTIONS_PATH}`),
-      itemIsActive: pathname === `${baseActivityPath}/${TRANSACTIONS_PATH}`,
+      action: () => navigate(`${basePath}/${TRANSACTIONS_PATH}`),
+      itemIsActive: pathname === `${basePath}/${TRANSACTIONS_PATH}`,
     },
     {
       name: t('operations'),
-      action: () => navigate(`${baseActivityPath}/${OPERATIONS_PATH}`),
-      itemIsActive: pathname === `${baseActivityPath}/${OPERATIONS_PATH}`,
+      action: () => navigate(`${basePath}/${OPERATIONS_PATH}`),
+      itemIsActive: pathname === `${basePath}/${OPERATIONS_PATH}`,
     },
   ];
 
   return (
-    <>
-      <ListItemButton
-        sx={{
-          borderLeft: 6,
-          borderLeftColor: themeOptions.palette?.background?.default,
-          backgroundColor: themeOptions.palette?.background?.default,
-        }}
-        onClick={() => setActivityOpen(!activityOpen)}
-      >
-        <ListItemIcon>{<ChartBoxOutline />}</ListItemIcon>
-        <ListItemText>
-          <Typography>{t('activity')}</Typography>
-        </ListItemText>
-        {activityOpen ? <ExpandLess /> : <ExpandMore />}
-      </ListItemButton>
-
-      <Collapse in={activityOpen} unmountOnExit>
-        {navItems.map((item) => (
-          <NavItem
-            name={item.name}
-            action={item.action}
-            itemIsActive={item.itemIsActive}
-            key={item.name}
-          />
-        ))}
-      </Collapse>
-    </>
+    <NavSection
+      icon={<ChartBoxOutline />}
+      navItems={navItems}
+      title={t('activity')}
+    />
   );
 };

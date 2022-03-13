@@ -15,16 +15,7 @@
 // limitations under the License.
 
 import LanguageIcon from '@mui/icons-material/Language';
-import {
-  Collapse,
-  ListItemButton,
-  ListItemIcon,
-  ListItemText,
-  Typography,
-} from '@mui/material';
-import ExpandMore from 'mdi-react/ChevronDownIcon';
-import ExpandLess from 'mdi-react/ChevronUpIcon';
-import React, { useContext, useState } from 'react';
+import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
@@ -35,62 +26,38 @@ import {
   NODES_PATH,
   ORGANIZATIONS_PATH,
 } from '../../interfaces';
-import { themeOptions } from '../../theme';
-import { NavItem } from './NavItem';
+import { NavSection } from './NavSection';
 
 export const NetworkNav = () => {
   const { t } = useTranslation();
-  const [networkOpen, setNetworkOpen] = useState(false);
   const navigate = useNavigate();
   const { selectedNamespace } = useContext(ApplicationContext);
   const { pathname } = useLocation();
-  const baseNetworkPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${NETWORK_PATH}`;
+  const basePath = `/${NAMESPACES_PATH}/${selectedNamespace}/${NETWORK_PATH}`;
 
   const navItems: INavItem[] = [
     {
       name: t('dashboard'),
-      action: () => navigate(baseNetworkPath),
-      itemIsActive: pathname === baseNetworkPath,
+      action: () => navigate(basePath),
+      itemIsActive: pathname === basePath,
     },
     {
       name: t('organizations'),
-      action: () => navigate(`${baseNetworkPath}/${ORGANIZATIONS_PATH}`),
-      itemIsActive: pathname === `${baseNetworkPath}/${ORGANIZATIONS_PATH}`,
+      action: () => navigate(`${basePath}/${ORGANIZATIONS_PATH}`),
+      itemIsActive: pathname === `${basePath}/${ORGANIZATIONS_PATH}`,
     },
     {
       name: t('nodes'),
-      action: () => navigate(`${baseNetworkPath}/${NODES_PATH}`),
-      itemIsActive: pathname === `${baseNetworkPath}/${NODES_PATH}`,
+      action: () => navigate(`${basePath}/${NODES_PATH}`),
+      itemIsActive: pathname === `${basePath}/${NODES_PATH}`,
     },
   ];
 
   return (
-    <>
-      <ListItemButton
-        sx={{
-          borderLeft: 6,
-          borderLeftColor: themeOptions.palette?.background?.default,
-          backgroundColor: themeOptions.palette?.background?.default,
-        }}
-        onClick={() => setNetworkOpen(!networkOpen)}
-      >
-        <ListItemIcon>{<LanguageIcon />}</ListItemIcon>
-        <ListItemText>
-          <Typography>{t('network')}</Typography>
-        </ListItemText>
-        {networkOpen ? <ExpandLess /> : <ExpandMore />}
-      </ListItemButton>
-
-      <Collapse in={networkOpen} unmountOnExit>
-        {navItems.map((item) => (
-          <NavItem
-            name={item.name}
-            action={item.action}
-            itemIsActive={item.itemIsActive}
-            key={item.name}
-          />
-        ))}
-      </Collapse>
-    </>
+    <NavSection
+      icon={<LanguageIcon />}
+      navItems={navItems}
+      title={t('network')}
+    />
   );
 };
