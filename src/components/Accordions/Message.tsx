@@ -16,7 +16,7 @@ import {
   MsgStateColorMap,
 } from '../../interfaces';
 import { themeOptions } from '../../theme';
-import { IDataWithHeader } from '../../_core/interfaces';
+import { IDataWithHeader } from '../../interfaces';
 import { HashPopover } from '../Popovers/HashPopover';
 
 interface Props {

@@ -13,7 +13,7 @@ import { useTranslation } from 'react-i18next';
 import { IOperation } from '../../interfaces';
 import { FF_OP_CATEGORY_MAP, OpStatusColorMap } from '../../interfaces/enums';
 import { themeOptions } from '../../theme';
-import { IDataWithHeader } from '../../_core/interfaces';
+import { IDataWithHeader } from '../../interfaces';
 import { HashPopover } from '../Popovers/HashPopover';
 
 interface Props {

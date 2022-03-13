@@ -12,7 +12,7 @@ import { useTranslation } from 'react-i18next';
 import { ITransaction } from '../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../interfaces/enums/transactionTypes';
 import { themeOptions } from '../../theme';
-import { IDataWithHeader } from '../../_core/interfaces';
+import { IDataWithHeader } from '../../interfaces';
 import { HashPopover } from '../Popovers/HashPopover';
 
 interface Props {

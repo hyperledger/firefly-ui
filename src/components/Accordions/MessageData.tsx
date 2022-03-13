@@ -15,7 +15,7 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IData } from '../../interfaces';
 import { DEFAULT_PADDING, themeOptions } from '../../theme';
-import { IDataWithHeader } from '../../_core/interfaces';
+import { IDataWithHeader } from '../../interfaces';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { HashPopover } from '../Popovers/HashPopover';
 

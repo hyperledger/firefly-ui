@@ -9,9 +9,8 @@ import {
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IContractListener } from '../../interfaces';
+import { IContractListener, IDataWithHeader } from '../../interfaces';
 import { themeOptions } from '../../theme';
-import { IDataWithHeader } from '../../_core/interfaces';
 import { HashPopover } from '../Popovers/HashPopover';
 
 interface Props {

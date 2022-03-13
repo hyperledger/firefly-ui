@@ -21,7 +21,7 @@ import { useLocation, useNavigate } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import {
   DATA_PATH,
-  DATA_TYPES_PATH,
+  DATATYPES_PATH,
   INavItem,
   MESSAGES_PATH,
   NAMESPACES_PATH,
@@ -54,8 +54,8 @@ export const OffChainNav = () => {
     },
     {
       name: t('datatypes'),
-      action: () => navigate(`${basePath}/${DATA_TYPES_PATH}`),
-      itemIsActive: pathname === `${basePath}/${DATA_TYPES_PATH}`,
+      action: () => navigate(`${basePath}/${DATATYPES_PATH}`),
+      itemIsActive: pathname === `${basePath}/${DATATYPES_PATH}`,
     },
   ];
 

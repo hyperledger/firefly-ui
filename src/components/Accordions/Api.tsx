@@ -11,9 +11,8 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IFireflyApi } from '../../interfaces';
+import { IDataWithHeader, IFireflyApi } from '../../interfaces';
 import { themeOptions } from '../../theme';
-import { IDataWithHeader } from '../../_core/interfaces';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { HashPopover } from '../Popovers/HashPopover';
 
