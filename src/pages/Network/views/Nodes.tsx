@@ -19,18 +19,16 @@ import { Button, Chip, Grid, TablePagination, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChartHeader } from '../../../components/Charts/Header';
 import { Header } from '../../../components/Header';
-import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
+import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { DataTable } from '../../../components/Tables/Table';
-import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import { FF_Paths, INode, IPagedNodeResponse } from '../../../interfaces';
 import { DEFAULT_PADDING } from '../../../theme';
-import { fetchCatcher, stringToColor } from '../../../utils';
+import { fetchCatcher } from '../../../utils';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -102,62 +100,50 @@ export const NetworkNodes: () => JSX.Element = () => {
     t(''),
   ];
 
-  const nodeRecords = (): IDataTableRecord[] => {
-    return nodes
-      ? nodes.map((node) => {
-          return {
-            key: node.id,
-            columns: [
-              {
-                value: (
-                  <>
-                    <Grid
-                      container
-                      justifyContent="flex-start"
-                      alignItems="center"
-                    >
-                      <HexagonIcon
-                        sx={{ color: stringToColor(node.created) }}
-                      />
-                      <Typography pl={DEFAULT_PADDING} variant="body1">
-                        {node.name}
-                      </Typography>
-                    </Grid>
-                  </>
-                ),
-              },
-              {
-                value: <HashPopover shortHash={true} address={node.id} />,
-              },
-              {
-                value: <HashPopover shortHash={true} address={node.did} />,
-              },
-              {
-                value: (
-                  <HashPopover shortHash={true} address={node.messages.claim} />
-                ),
-              },
-              { value: dayjs(node.created).format('MM/DD/YYYY h:mm A') },
-              {
-                value:
-                  nodeName === node.name ? (
-                    <Chip color="success" label={t('thisNode')}></Chip>
-                  ) : (
-                    ''
-                  ),
-              },
-            ],
-          };
-        })
-      : [];
-  };
+  const nodeRecords: IDataTableRecord[] | undefined = nodes?.map((node) => {
+    return {
+      key: node.id,
+      columns: [
+        {
+          value: (
+            <>
+              <Grid container justifyContent="flex-start" alignItems="center">
+                <HexagonIcon sx={{ color: '#FFFFFF' }} />
+                <Typography pl={DEFAULT_PADDING} variant="body1">
+                  {node.name}
+                </Typography>
+              </Grid>
+            </>
+          ),
+        },
+        {
+          value: <HashPopover shortHash={true} address={node.id} />,
+        },
+        {
+          value: <HashPopover address={node.did} />,
+        },
+        {
+          value: <HashPopover shortHash={true} address={node.messages.claim} />,
+        },
+        { value: dayjs(node.created).format('MM/DD/YYYY h:mm A') },
+        {
+          value:
+            nodeName === node.name ? (
+              <Chip color="success" label={t('yourNode')}></Chip>
+            ) : (
+              ''
+            ),
+        },
+      ],
+    };
+  });
 
   return (
     <>
       <Header title={t('nodes')} subtitle={t('network')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
-          <ChartHeader
+          <ChartTableHeader
             title={t('allNodes')}
             filter={
               <Button variant="outlined">
@@ -167,22 +153,15 @@ export const NetworkNodes: () => JSX.Element = () => {
               </Button>
             }
           />
-          {!nodes ? (
-            <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : nodes.length ? (
-            <DataTable
-              stickyHeader={true}
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              records={nodeRecords()}
-              columnHeaders={nodeColHeaders}
-              {...{ pagination }}
-            />
-          ) : (
-            <DataTableEmptyState
-              message={t('noNodesToDisplay')}
-            ></DataTableEmptyState>
-          )}
+          <DataTable
+            stickyHeader={true}
+            minHeight="300px"
+            maxHeight="calc(100vh - 340px)"
+            records={nodeRecords}
+            columnHeaders={nodeColHeaders}
+            {...{ pagination }}
+            emptyStateText={t('noNodesToDisplay')}
+          />
         </Grid>
       </Grid>
     </>

@@ -19,12 +19,10 @@ import { Button, Chip, Grid, TablePagination, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChartHeader } from '../../../components/Charts/Header';
 import { Header } from '../../../components/Header';
-import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
+import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { DataTable } from '../../../components/Tables/Table';
-import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
@@ -34,7 +32,7 @@ import {
   IPagedOrganizationResponse,
 } from '../../../interfaces';
 import { DEFAULT_PADDING } from '../../../theme';
-import { fetchCatcher, stringToColor } from '../../../utils';
+import { fetchCatcher } from '../../../utils';
 
 const PAGE_LIMITS = [10, 25];
 
@@ -105,63 +103,50 @@ export const NetworkOrganizations: () => JSX.Element = () => {
     t('joined'),
     t(''),
   ];
-  const orgRecords = (): IDataTableRecord[] => {
-    return orgs
-      ? orgs.map((org) => {
-          return {
-            key: org.id,
-            columns: [
-              {
-                value: (
-                  <>
-                    <Grid
-                      container
-                      justifyContent="flex-start"
-                      alignItems="center"
-                    >
-                      {/* <Avatar sx={{ bgcolor: stringToColor(org.created) }}>
-                        {'O'}
-                      </Avatar> */}
-                      <HiveIcon sx={{ color: stringToColor(org.created) }} />
-                      <Typography pl={DEFAULT_PADDING} variant="body1">
-                        {org.name}
-                      </Typography>
-                    </Grid>
-                  </>
-                ),
-              },
-              {
-                value: <HashPopover shortHash={true} address={org.id} />,
-              },
-              {
-                value: <HashPopover shortHash={true} address={org.did} />,
-              },
-              {
-                value: (
-                  <HashPopover shortHash={true} address={org.messages.claim} />
-                ),
-              },
-              { value: dayjs(org.created).format('MM/DD/YYYY h:mm A') },
-              {
-                value:
-                  orgName === org.name ? (
-                    <Chip color="success" label={t('yourOrg')}></Chip>
-                  ) : (
-                    ''
-                  ),
-              },
-            ],
-          };
-        })
-      : [];
-  };
+  const orgRecords: IDataTableRecord[] | undefined = orgs?.map((org) => {
+    return {
+      key: org.id,
+      columns: [
+        {
+          value: (
+            <>
+              <Grid container justifyContent="flex-start" alignItems="center">
+                <HiveIcon sx={{ color: '#FFFFFF' }} />
+                <Typography pl={DEFAULT_PADDING} variant="body1">
+                  {org.name}
+                </Typography>
+              </Grid>
+            </>
+          ),
+        },
+        {
+          value: <HashPopover shortHash={true} address={org.id} />,
+        },
+        {
+          value: <HashPopover address={org.did} />,
+        },
+        {
+          value: <HashPopover shortHash={true} address={org.messages.claim} />,
+        },
+        { value: dayjs(org.created).format('MM/DD/YYYY h:mm A') },
+        {
+          value:
+            orgName === org.name ? (
+              <Chip color="success" label={t('yourOrg')}></Chip>
+            ) : (
+              ''
+            ),
+        },
+      ],
+    };
+  });
 
   return (
     <>
       <Header title={t('organizations')} subtitle={t('network')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
-          <ChartHeader
+          <ChartTableHeader
             title={t('allOrganizations')}
             filter={
               <Button variant="outlined">
@@ -171,22 +156,15 @@ export const NetworkOrganizations: () => JSX.Element = () => {
               </Button>
             }
           />
-          {!orgs ? (
-            <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : orgs.length ? (
-            <DataTable
-              stickyHeader={true}
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              records={orgRecords()}
-              columnHeaders={orgColHeaders}
-              {...{ pagination }}
-            />
-          ) : (
-            <DataTableEmptyState
-              message={t('noOrganizationsToDisplay')}
-            ></DataTableEmptyState>
-          )}
+          <DataTable
+            stickyHeader={true}
+            minHeight="300px"
+            maxHeight="calc(100vh - 340px)"
+            records={orgRecords}
+            columnHeaders={orgColHeaders}
+            {...{ pagination }}
+            emptyStateText={t('noOrganizationsToDisplay')}
+          />
         </Grid>
       </Grid>
     </>

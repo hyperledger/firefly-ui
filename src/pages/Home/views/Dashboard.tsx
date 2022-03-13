@@ -16,17 +16,17 @@ import { Header } from '../../../components/Header';
 import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { NetworkMap } from '../../../components/NetworkMap/NetworkMap';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
-import { EventTransactionSlide } from '../../../components/Slides/EventTransactionSlide';
+import { EventSlide } from '../../../components/Slides/EventSlide';
+import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
-  ACTIVITY_PATH,
-  BLOCKCHAIN_PATH,
   BucketCollectionEnum,
   BucketCountEnum,
   EventCategoryEnum,
-  EVENTS_PATH,
   FF_EVENTS_CATEGORY_MAP,
+  FF_NAV_PATHS,
+  FF_OP_CATEGORY_MAP,
   ICreatedFilter,
   IDataWithHeader,
   IEvent,
@@ -36,18 +36,22 @@ import {
   INode,
   ISmallCard,
   ITableCard,
-  MESSAGES_PATH,
-  MY_NODES_PATH,
-  NAMESPACES_PATH,
-  NETWORK_PATH,
-  OFFCHAIN_PATH,
-  TOKENS_PATH,
-  TRANSACTIONS_PATH,
+  ITransaction,
+  OpCategoryEnum,
 } from '../../../interfaces';
 import { FF_Paths } from '../../../interfaces/constants';
-import { DEFAULT_PADDING, DEFAULT_SPACING, FFColors } from '../../../theme';
-import { fetchCatcher, makeEventHistogram } from '../../../utils';
-import { isHistogramEmpty } from '../../../utils/charts';
+import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
+import { DEFAULT_PADDING, DEFAULT_SPACING } from '../../../theme';
+import {
+  fetchCatcher,
+  makeEventHistogram,
+  makeMultipleQueryParams,
+} from '../../../utils';
+import {
+  isHistogramEmpty,
+  makeColorArray,
+  makeKeyArray,
+} from '../../../utils/charts';
 
 export const HomeDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
@@ -62,35 +66,27 @@ export const HomeDashboard: () => JSX.Element = () => {
   } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const navigate = useNavigate();
-  const activityPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${ACTIVITY_PATH}`;
-  const blockchainPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${BLOCKCHAIN_PATH}`;
-  const offchainPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${OFFCHAIN_PATH}`;
-  const eventsPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${ACTIVITY_PATH}/${EVENTS_PATH}`;
-  const msgsPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${MESSAGES_PATH}`;
-  const myNodePath = `/${NAMESPACES_PATH}/${selectedNamespace}/${MY_NODES_PATH}`;
-  const networkPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${NETWORK_PATH}`;
-  const tokensPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${TOKENS_PATH}`;
-  const transactionsPath = `/${NAMESPACES_PATH}/${selectedNamespace}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}`;
-  const [viewEvent, setViewEvent] = useState<IEvent | undefined>();
+  const [viewTx, setViewTx] = useState<ITransaction>();
+  const [viewEvent, setViewEvent] = useState<IEvent>();
 
   // Small cards
   // Blockchain
   const [blockchainTxCount, setBlockchainTxCount] = useState<number>();
   const [blockchainEventCount, setBlockchainEventCount] = useState<number>();
-  const [blockchainErrorCount, setBlockchainErrorCount] = useState<number>(0);
-  // Off-Chain
-  const [offchainInCount, setOffchainInCount] = useState<number>();
-  const [offchainOutCount, setOffchainOutCount] = useState<number>();
-  const [offchainErrorCount, setOffchainErrorCount] = useState<number>(0);
   // Messages
   const [messagesTxCount, setMessagesTxCount] = useState<number>();
   const [messagesEventCount, setMessagesEventCount] = useState<number>();
-  const [messagesErrorCount, setMessagesErrorCount] = useState<number>(0);
   // Tokens
   const [tokenTransfersCount, setTokenTransfersCount] = useState<number>();
   const [tokenMintCount, setTokenMintcount] = useState<number>();
   const [tokenBurnCount, setTokenBurnCount] = useState<number>();
-  const [tokenErrorCount, setTokenErrorCount] = useState<number>(0);
+  // Operations
+  const [blockchainOperationsCount, setBlockchainOperationsCount] =
+    useState<number>();
+  const [messageOperationsCount, setMessageOperationsCount] =
+    useState<number>();
+  const [tokensOperationsCount, setTokensOperationsCount] = useState<number>();
+  const [operationsErrorCount, setOperationsErrorCount] = useState<number>();
 
   // Medium cards
   // Event types histogram
@@ -98,52 +94,46 @@ export const HomeDashboard: () => JSX.Element = () => {
   // My Node
   const [myNode, setMyNode] = useState<INode>();
   // Table cards
-  const [recentTxs, setRecentTxs] = useState<IEvent[]>();
+  const [recentEventTxs, setRecentEventTxs] = useState<IEvent[]>();
   const [recentEvents, setRecentEvents] = useState<IEvent[]>();
 
   const smallCards: ISmallCard[] = [
     {
       header: t('blockchain'),
-      numErrors: blockchainErrorCount,
       data: [
         { header: t('tx'), data: blockchainTxCount },
         { header: t('events'), data: blockchainEventCount },
       ],
-      clickPath: blockchainPath,
-    },
-    {
-      header: t('offChain'),
-      // TODO: Figure out error API call
-      numErrors: offchainErrorCount,
-      // TODO: Figure out in/out API call
-      data: [
-        { header: t('in'), data: offchainInCount },
-        { header: t('out'), data: offchainOutCount },
-      ],
-      clickPath: offchainPath,
+      clickPath: FF_NAV_PATHS.blockchainPath(selectedNamespace),
     },
     {
       header: t('messages'),
-      // TODO: Figure out error API call
-      numErrors: messagesErrorCount,
       data: [
         { header: t('tx'), data: messagesTxCount },
         { header: t('events'), data: messagesEventCount },
       ],
-      clickPath: msgsPath,
+      clickPath: FF_NAV_PATHS.offchainMessagesPath(selectedNamespace),
     },
     {
       header: t('tokens'),
-      numErrors: tokenErrorCount,
       data: [
         { header: t('transfers'), data: tokenTransfersCount },
         { header: t('mint'), data: tokenMintCount },
         { header: t('burn'), data: tokenBurnCount },
       ],
-      clickPath: tokensPath,
+      clickPath: FF_NAV_PATHS.tokensTransfersPath(selectedNamespace),
+    },
+    {
+      header: t('operations'),
+      numErrors: operationsErrorCount,
+      data: [
+        { header: t('blockchain'), data: blockchainOperationsCount },
+        { header: t('messages'), data: messageOperationsCount },
+        { header: t('tokens'), data: tokensOperationsCount },
+      ],
+      clickPath: FF_NAV_PATHS.activityOpPath(selectedNamespace),
     },
   ];
-
   // Small Card UseEffect
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
@@ -156,17 +146,6 @@ export const HomeDashboard: () => JSX.Element = () => {
       ),
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.blockchainEvents}${qParams}`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&type=blockchain_batch_pin&type=blockchain_invoke&status=Failed`
-      ),
-      // TODO: Figure out API calls
-      // Off-Chain
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}`
       ),
       // Messages
       fetchCatcher(
@@ -185,39 +164,67 @@ export const HomeDashboard: () => JSX.Element = () => {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}${qParams}&type=burn`
       ),
+      // Operations
       fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&type=token_create_pool&type=token_activate_pool&type=token_transfer&status=Failed`
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.operations
+        }${qParams}${makeMultipleQueryParams(
+          FF_OP_CATEGORY_MAP,
+          OpCategoryEnum.BLOCKCHAIN,
+          'type'
+        )}`
+      ),
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.operations
+        }${qParams}${makeMultipleQueryParams(
+          FF_OP_CATEGORY_MAP,
+          OpCategoryEnum.MESSAGES,
+          'type'
+        )}`
+      ),
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.operations
+        }${qParams}${makeMultipleQueryParams(
+          FF_OP_CATEGORY_MAP,
+          OpCategoryEnum.TOKENS,
+          'type'
+        )}`
+      ),
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&error=!`
       ),
     ])
       .then(
         ([
           blockchainTx,
           blockchainEvents,
-          blockchainErrors,
-          offChainIn,
-          offChainOut,
           msgsTx,
           msgsEvents,
           tokensTransfer,
           tokensMint,
           tokensBurn,
-          tokenErrors,
+          opsBlockchain,
+          opsMessages,
+          opsTokens,
+          opsErrors,
         ]: IGenericPagedResponse[]) => {
+          // Blockchain
           setBlockchainTxCount(blockchainTx.total);
           setBlockchainEventCount(blockchainEvents.total);
-          setBlockchainErrorCount(blockchainErrors.total);
-
-          // TODO: Set values once API calls done
-          setOffchainInCount(0);
-          setOffchainOutCount(0);
-
+          // Messages
           setMessagesEventCount(msgsTx.total);
           setMessagesTxCount(msgsEvents.total);
-
+          // Tokens
           setTokenTransfersCount(tokensTransfer.total);
           setTokenMintcount(tokensMint.total);
           setTokenBurnCount(tokensBurn.total);
-          setTokenErrorCount(tokenErrors.total);
+          // Operations
+          setBlockchainOperationsCount(opsBlockchain.total);
+          setMessageOperationsCount(opsMessages.total);
+          setTokensOperationsCount(opsTokens.total);
+          setOperationsErrorCount(opsErrors.total);
         }
       )
       .catch((err) => {
@@ -255,33 +262,35 @@ export const HomeDashboard: () => JSX.Element = () => {
   const mediumCards: IMediumCard[] = [
     {
       headerComponent: (
-        <IconButton onClick={() => navigate(activityPath)}>
+        <IconButton
+          onClick={() =>
+            navigate(FF_NAV_PATHS.activityEventsPath(selectedNamespace))
+          }
+        >
           <ArrowForwardIcon />
         </IconButton>
       ),
       headerText: t('activity'),
       component: (
         <Histogram
-          colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+          colors={makeColorArray(FF_EVENTS_CATEGORY_MAP)}
           data={eventHistData}
           indexBy="timestamp"
+          keys={makeKeyArray(FF_EVENTS_CATEGORY_MAP)}
           emptyText={t('noActivity')}
           isEmpty={isHistogramEmpty(
             eventHistData ?? [],
             Object.keys(EventCategoryEnum)
           )}
-          keys={[
-            EventCategoryEnum.BLOCKCHAIN,
-            EventCategoryEnum.MESSAGES,
-            EventCategoryEnum.TOKENS,
-          ]}
           includeLegend={true}
         ></Histogram>
       ),
     },
     {
       headerComponent: (
-        <IconButton onClick={() => navigate(networkPath)}>
+        <IconButton
+          onClick={() => navigate(FF_NAV_PATHS.networkPath(selectedNamespace))}
+        >
           <ArrowForwardIcon />
         </IconButton>
       ),
@@ -290,7 +299,9 @@ export const HomeDashboard: () => JSX.Element = () => {
     },
     {
       headerComponent: (
-        <IconButton onClick={() => navigate(myNodePath)}>
+        <IconButton
+          onClick={() => navigate(FF_NAV_PATHS.myNodePath(selectedNamespace))}
+        >
           <ArrowForwardIcon />
         </IconButton>
       ),
@@ -346,7 +357,11 @@ export const HomeDashboard: () => JSX.Element = () => {
     // Recently submitted Transactions
     {
       headerComponent: (
-        <IconButton onClick={() => navigate(transactionsPath)}>
+        <IconButton
+          onClick={() =>
+            navigate(FF_NAV_PATHS.activityTxPath(selectedNamespace))
+          }
+        >
           <ArrowForwardIcon />
         </IconButton>
       ),
@@ -359,18 +374,20 @@ export const HomeDashboard: () => JSX.Element = () => {
             bgcolor: 'background.paper',
           }}
         >
-          {!recentTxs ? (
+          {!recentEventTxs ? (
             <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : recentTxs.length ? (
-            recentTxs.map((tx, idx) => (
-              <div key={idx} onClick={() => setViewEvent(tx)}>
+          ) : recentEventTxs.length ? (
+            recentEventTxs.map((event, idx) => (
+              <div key={idx} onClick={() => setViewTx(event.transaction)}>
                 <TableCardItem
-                  borderColor={FF_EVENTS_CATEGORY_MAP[tx.type].color}
+                  borderColor={FF_EVENTS_CATEGORY_MAP[event.type].color}
                   key={idx}
-                  date={dayjs(tx.created).format('MM/DD/YYYY h:mm A')}
-                  header={t(FF_EVENTS_CATEGORY_MAP[tx.type].nicename)}
-                  status={tx.reference}
-                  subText={t(FF_EVENTS_CATEGORY_MAP[tx.type].nicename)}
+                  date={dayjs(event.created).format('MM/DD/YYYY h:mm A')}
+                  header={t(
+                    FF_TX_CATEGORY_MAP[event?.transaction?.type ?? ''].nicename
+                  )}
+                  status={event.reference}
+                  subText={t(FF_EVENTS_CATEGORY_MAP[event.type].nicename)}
                 />
               </div>
             ))
@@ -383,7 +400,11 @@ export const HomeDashboard: () => JSX.Element = () => {
     // Recent Network Events
     {
       headerComponent: (
-        <IconButton onClick={() => navigate(eventsPath)}>
+        <IconButton
+          onClick={() =>
+            navigate(FF_NAV_PATHS.activityEventsPath(selectedNamespace))
+          }
+        >
           <ArrowForwardIcon />
         </IconButton>
       ),
@@ -399,15 +420,15 @@ export const HomeDashboard: () => JSX.Element = () => {
           {!recentEvents ? (
             <FFCircleLoader color="warning"></FFCircleLoader>
           ) : recentEvents?.length ? (
-            recentEvents.map((tx, idx) => (
-              <div key={idx} onClick={() => setViewEvent(tx)}>
+            recentEvents.map((event, idx) => (
+              <div key={idx} onClick={() => setViewEvent(event)}>
                 <TableCardItem
-                  borderColor={FF_EVENTS_CATEGORY_MAP[tx.type].color}
+                  borderColor={FF_EVENTS_CATEGORY_MAP[event.type].color}
                   key={idx}
-                  date={dayjs(tx.created).format('MM/DD/YYYY h:mm A')}
-                  header={t(FF_EVENTS_CATEGORY_MAP[tx.type].nicename)}
-                  status={tx.reference}
-                  subText={t(FF_EVENTS_CATEGORY_MAP[tx.type].nicename)}
+                  date={dayjs(event.created).format('MM/DD/YYYY h:mm A')}
+                  header={t(FF_EVENTS_CATEGORY_MAP[event.type].nicename)}
+                  status={event.reference}
+                  subText={t(FF_EVENTS_CATEGORY_MAP[event.type].nicename)}
                 />
               </div>
             ))
@@ -426,14 +447,14 @@ export const HomeDashboard: () => JSX.Element = () => {
 
     Promise.all([
       fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}&type=transaction_submitted`
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}&type=transaction_submitted&fetchreferences=true`
       ),
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}&type=!transaction_submitted`
       ),
     ])
-      .then(([recentTxs, recentEvents]) => {
-        setRecentTxs(recentTxs);
+      .then(([recentEventTxs, recentEvents]) => {
+        setRecentEventTxs(recentEventTxs);
         setRecentEvents(recentEvents);
       })
       .catch((err) => {
@@ -521,8 +542,17 @@ export const HomeDashboard: () => JSX.Element = () => {
           </Grid>
         </Grid>
       </Grid>
+      {viewTx && (
+        <TransactionSlide
+          transaction={viewTx}
+          open={!!viewTx}
+          onClose={() => {
+            setViewTx(undefined);
+          }}
+        />
+      )}
       {viewEvent && (
-        <EventTransactionSlide
+        <EventSlide
           event={viewEvent}
           open={!!viewEvent}
           onClose={() => {
