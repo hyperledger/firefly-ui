@@ -15,9 +15,8 @@
 // limitations under the License.
 
 import { TableCell, TableRow, Typography } from '@mui/material';
-import { withStyles } from '@mui/styles';
 import React from 'react';
-import { FFColors } from '../../theme';
+import { FFBackgroundHover, themeOptions } from '../../theme';
 import { IDataTableRecord } from './TableInterfaces';
 
 interface Props {
@@ -26,24 +25,41 @@ interface Props {
 }
 
 export const DataTableRow: React.FC<Props> = ({ record, leftBorderColor }) => {
+  const borderRadius = '8px';
+
   return (
-    <>
-      <StyledTableRow onClick={record.onClick}>
-        {record.columns.map((column, index) => (
-          <TableCell key={index}>
+    <TableRow
+      sx={{
+        backgroundColor: themeOptions.palette?.background?.paper,
+        '&:hover': {
+          backgroundColor: FFBackgroundHover,
+          cursor: 'pointer',
+        },
+      }}
+      onClick={record.onClick}
+    >
+      {record.columns.map((column, index) => {
+        return (
+          <TableCell
+            key={index}
+            sx={{
+              cursor: 'pointer',
+              borderLeft:
+                index == 0 ? `8px solid ${leftBorderColor}` : undefined,
+              borderTopLeftRadius: index == 0 ? borderRadius : undefined,
+              borderBottomLeftRadius: index == 0 ? borderRadius : undefined,
+              borderTopRightRadius:
+                index == record.columns.length - 1 ? borderRadius : undefined,
+              borderBottomRightRadius:
+                index == record.columns.length - 1 ? borderRadius : undefined,
+              margin: '16px 16px 16px 16px',
+              padding: '12px',
+            }}
+          >
             <Typography>{column.value}</Typography>
           </TableCell>
-        ))}
-      </StyledTableRow>
-    </>
+        );
+      })}
+    </TableRow>
   );
 };
-
-const StyledTableRow = withStyles((theme) => ({
-  root: {
-    borderLeft: 10,
-    borderLeftColor: FFColors.Pink, // TODO: Make dynamic
-    borderLeftStyle: 'solid',
-    backgroundColor: theme.palette.background.paper,
-  },
-}))(TableRow);

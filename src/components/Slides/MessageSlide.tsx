@@ -20,7 +20,12 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
-import { IMessage, IMessageData, IMessageTransaction } from '../../interfaces';
+import {
+  FF_NAV_PATHS,
+  IMessage,
+  IMessageData,
+  IMessageTransaction,
+} from '../../interfaces';
 import { FF_Paths } from '../../interfaces/constants';
 import {
   FF_MESSAGES_CATEGORY_MAP,
@@ -150,7 +155,10 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
           {/* Message Transaction */}
           {msgTransaction && (
             <>
-              <SlideSectionHeader title={t('messageTransaction')} />
+              <SlideSectionHeader
+                clickPath={FF_NAV_PATHS.activityTxPath(selectedNamespace)}
+                title={t('messageTransaction')}
+              />
               <Grid container item>
                 <TransactionAccordion tx={msgTransaction} />
               </Grid>

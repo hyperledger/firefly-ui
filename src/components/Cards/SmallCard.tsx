@@ -43,7 +43,7 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
             {card.header}
           </Typography>
         </Grid>
-        {card.numErrors > 0 && (
+        {card.numErrors && card.numErrors > 0 ? (
           <Grid item>
             <Chip
               label={`${card.numErrors} ${t('failed')}`}
@@ -52,6 +52,8 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
               sx={{ fontSize: 10, fontWeight: 'bold' }}
             />
           </Grid>
+        ) : (
+          <></>
         )}
       </Grid>
       <Grid

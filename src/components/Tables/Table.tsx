@@ -26,6 +26,8 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { themeOptions } from '../../theme';
+import { FFCircleLoader } from '../Loaders/FFCircleLoader';
+import { DataTableEmptyState } from './TableEmptyState';
 import { IDataTableRecord } from './TableInterfaces';
 import { DataTableRow } from './TableRow';
 
@@ -37,7 +39,8 @@ interface Props {
   header?: string;
   minHeight?: string;
   maxHeight?: string;
-  leftBorderColor?: string;
+  emptyStateText?: string;
+  headerBtn?: JSX.Element;
 }
 
 export const DataTable: React.FC<Props> = ({
@@ -46,58 +49,77 @@ export const DataTable: React.FC<Props> = ({
   stickyHeader,
   pagination,
   header,
+  headerBtn,
   minHeight,
   maxHeight,
-  leftBorderColor,
+  emptyStateText,
 }) => {
   return (
     <>
       <Grid item xs={12}>
         {header && (
-          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-            {header}
-          </Typography>
+          <Grid container alignItems={'center'}>
+            <Grid container item xs={6} justifyContent="flex-start">
+              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+                {header}
+              </Typography>
+            </Grid>
+            {headerBtn && (
+              <Grid container item xs={6} justifyContent="flex-end">
+                {headerBtn}
+              </Grid>
+            )}
+          </Grid>
         )}
-        <TableContainer
-          style={{ maxHeight, minHeight }}
-          sx={{ paddingTop: 2, whiteSpace: 'nowrap' }}
-        >
-          <Table stickyHeader={stickyHeader}>
-            <TableHead>
-              <TableRow>
-                {columnHeaders?.map((header, index) => (
-                  <TableCell
-                    sx={{
-                      borderBottom: 0,
-                    }}
-                    key={index}
-                  >
-                    <Typography
-                      sx={{
-                        color: themeOptions.palette?.text?.secondary,
-                        fontSize: 12,
-                        textTransform: 'uppercase',
-                      }}
-                      noWrap
-                    >
-                      {header}
-                    </Typography>
-                  </TableCell>
-                ))}
-              </TableRow>
-            </TableHead>
-            <TableBody>
-              {records?.map((record) => (
-                <DataTableRow
-                  key={record.key}
-                  leftBorderColor={leftBorderColor}
-                  {...{ record }}
-                />
-              ))}
-            </TableBody>
-          </Table>
-        </TableContainer>
-        {pagination}
+
+        {!records ? (
+          <FFCircleLoader color="warning"></FFCircleLoader>
+        ) : records.length ? (
+          <>
+            <TableContainer
+              style={{ maxHeight, minHeight }}
+              sx={{ paddingTop: 1, whiteSpace: 'nowrap' }}
+            >
+              <Table stickyHeader={stickyHeader}>
+                <TableHead>
+                  <TableRow>
+                    {columnHeaders?.map((header, index) => (
+                      <TableCell
+                        sx={{
+                          borderBottom: 0,
+                        }}
+                        key={index}
+                      >
+                        <Typography
+                          sx={{
+                            color: themeOptions.palette?.text?.secondary,
+                            fontSize: 12,
+                            textTransform: 'uppercase',
+                          }}
+                          noWrap
+                        >
+                          {header}
+                        </Typography>
+                      </TableCell>
+                    ))}
+                  </TableRow>
+                </TableHead>
+                <TableBody>
+                  {records?.map((record) => (
+                    <DataTableRow
+                      key={record.key}
+                      leftBorderColor={record.leftBorderColor}
+                      {...{ record }}
+                    />
+                  ))}
+                </TableBody>
+              </Table>
+            </TableContainer>
+            {pagination}
+          </>
+        ) : (
+          <DataTableEmptyState message={emptyStateText}></DataTableEmptyState>
+        )}
       </Grid>
     </>
   );

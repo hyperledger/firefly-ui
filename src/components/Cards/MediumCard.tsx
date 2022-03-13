@@ -41,7 +41,7 @@ export const MediumCard: React.FC<Props> = ({ card, position }) => {
           container
           alignItems={position ?? 'center'}
           justifyContent="center"
-          sx={{ height: 350, width: '100%' }}
+          sx={{ height: 375, width: '100%' }}
           item
         >
           {card.component}
