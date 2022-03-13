@@ -1,6 +1,16 @@
 import { IBlockchainCategory } from '.';
 import { FFColors } from '../../theme';
 
+export interface IHistOpBucket {
+  [OpCategoryEnum.BLOCKCHAIN]: number;
+  [OpCategoryEnum.MESSAGES]: number;
+  [OpCategoryEnum.TOKENS]: number;
+}
+
+export interface IHistOpTimeMap {
+  [key: string]: IHistOpBucket;
+}
+
 export enum OpCategoryEnum {
   BLOCKCHAIN = 'Blockchain',
   MESSAGES = 'Messages',
@@ -14,20 +24,10 @@ export enum OperationStatus {
 }
 
 export const OpStatusColorMap: { [key: string]: string } = {
-  [OperationStatus.SUCCEEDED]: FFColors.Purple,
-  [OperationStatus.PENDING]: FFColors.Orange,
-  [OperationStatus.FAILED]: FFColors.Red,
+  Succeeded: FFColors.Purple,
+  Pending: FFColors.Orange,
+  Failed: FFColors.Red,
 };
-
-export interface IHistOpBucket {
-  [OpCategoryEnum.BLOCKCHAIN]: number;
-  [OpCategoryEnum.MESSAGES]: number;
-  [OpCategoryEnum.TOKENS]: number;
-}
-
-export interface IHistOpTimeMap {
-  [key: string]: IHistOpBucket;
-}
 
 export enum FF_OPS {
   // Blockchain Event

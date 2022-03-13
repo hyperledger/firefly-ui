@@ -4,12 +4,6 @@ import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import { IBlockchainCategory } from '.';
 import { FFColors } from '../../theme';
 
-export enum TransferCategoryEnum {
-  MINT = 'Mint',
-  BURN = 'Burn',
-  TRANSFER = 'Transfer',
-}
-
 export interface IHistTransferBucket {
   [TransferCategoryEnum.MINT]: number;
   [TransferCategoryEnum.BURN]: number;
@@ -20,16 +14,16 @@ export interface IHistTransferTimeMap {
   [key: string]: IHistTransferBucket;
 }
 
-export const PoolStateColorMap = {
+export enum TransferCategoryEnum {
+  MINT = 'Mint',
+  BURN = 'Burn',
+  TRANSFER = 'Transfer',
+}
+
+export const PoolStateColorMap: { [key: string]: string } = {
   unknown: FFColors.Red,
   confirmed: FFColors.Purple,
   pending: FFColors.Orange,
-};
-
-export const TransferColorMap = {
-  mint: FFColors.Yellow,
-  transfer: FFColors.Orange,
-  burn: FFColors.Pink,
 };
 
 export enum FF_TRANSFERS {
@@ -45,15 +39,15 @@ export const FF_TRANSFER_CATEGORY_MAP: { [key: string]: IBlockchainCategory } =
       color: FFColors.Pink,
       nicename: 'mint',
     },
-    [FF_TRANSFERS.BURN]: {
-      category: TransferCategoryEnum.BURN,
-      color: FFColors.Yellow,
-      nicename: 'burn',
-    },
     [FF_TRANSFERS.TRANSFER]: {
       category: TransferCategoryEnum.TRANSFER,
-      color: FFColors.Orange,
+      color: FFColors.Yellow,
       nicename: 'transfer',
+    },
+    [FF_TRANSFERS.BURN]: {
+      category: TransferCategoryEnum.BURN,
+      color: FFColors.Orange,
+      nicename: 'burn',
     },
   };
 

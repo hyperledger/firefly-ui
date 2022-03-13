@@ -20,6 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import {
+  FF_NAV_PATHS,
   IContractInterface,
   IContractListener,
   IFireflyApi,
@@ -30,7 +31,6 @@ import { fetchCatcher } from '../../utils';
 import { ApiAccordion } from '../Accordions/Api';
 import { ListenerAccordion } from '../Accordions/Listener';
 import { FFCopyButton } from '../Buttons/CopyButton';
-import { FF_NAV_PATHS } from '../Navigation/Paths';
 import { DisplaySlide } from './DisplaySlide';
 import { DrawerListItem, IDataListItem } from './ListItem';
 import { SlideHeader } from './SlideHeader';

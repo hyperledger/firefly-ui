@@ -1,4 +1,5 @@
 export enum BucketCollectionEnum {
+  BlockchainEvents = 'blockchainevents',
   Events = 'events',
   Messages = 'messages',
   Operations = 'operations',

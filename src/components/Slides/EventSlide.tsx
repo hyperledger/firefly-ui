@@ -22,6 +22,7 @@ import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import {
   FF_EVENTS_CATEGORY_MAP,
+  FF_NAV_PATHS,
   FF_Paths,
   IData,
   IEvent,
@@ -33,7 +34,6 @@ import { MessageAccordion } from '../Accordions/Message';
 import { MessageDataAccordion } from '../Accordions/MessageData';
 import { TransactionAccordion } from '../Accordions/Transaction';
 import { FFCopyButton } from '../Buttons/CopyButton';
-import { FF_NAV_PATHS } from '../Navigation/Paths';
 import { DisplaySlide } from './DisplaySlide';
 import { DrawerListItem, IDataListItem } from './ListItem';
 import { SlideHeader } from './SlideHeader';

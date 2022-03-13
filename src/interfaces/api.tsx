@@ -16,6 +16,62 @@ export interface IBlockchainEvent {
   };
 }
 
+export interface IContractInterface {
+  id: string;
+  message: string;
+  namespace: string;
+  name: string;
+  description: string;
+  version: string;
+}
+
+export interface IContractListener {
+  id: string;
+  interface: {
+    id: string;
+  };
+  namespace: string;
+  name: string;
+  protocolId: string;
+  location: {
+    address: string;
+  };
+  created: string;
+  event: {
+    name: string;
+    description?: '';
+    params: IFireFlyParam[];
+  };
+}
+
+export interface IData {
+  id: string;
+  validator: string;
+  namespace: string;
+  hash: string;
+  created: string;
+  value?: any;
+  blob?: IDatablob;
+}
+
+export interface IDatablob {
+  hash: string;
+  size: number;
+  name: string;
+}
+
+export interface IDatatype {
+  id: string;
+  message: string;
+  validator: string;
+  namespace: string;
+  name: string;
+  version: string;
+  hash: string;
+  created: string;
+  value?: any;
+}
+
 export interface IEvent {
   id: string;
   sequence: number;
@@ -24,6 +80,31 @@ export interface IEvent {
   reference: string;
   created: string;
   tx: string;
+  blockchainevent?: IBlockchainEvent;
+  message?: IMessage;
+  transaction?: ITransaction;
+}
+
+export interface IFireflyApi {
+  id: string;
+  namespace: string;
+  interface: {
+    id: string;
+  };
+  location: {
+    address: string;
+  };
+  name: string;
+  message: string;
+  urls: {
+    openapi: string;
+    ui: string;
+  };
+}
+
+export interface IFireFlyParam {
+  name: string;
+  schema: any;
 }
 
 export interface IGenericPagedResponse {
@@ -149,10 +230,45 @@ export interface IPagedBlockchainEventResponse {
   total: number;
 }
 
+export interface IPagedContractInterfaceResponse {
+  pageParam: number;
+  count: number;
+  items: IContractInterface[];
+  total: number;
+}
+
+export interface IPagedContractListenerResponse {
+  pageParam: number;
+  count: number;
+  items: IContractListener[];
+  total: number;
+}
+
+export interface IPagedDataResponse {
+  pageParam: number;
+  count: number;
+  items: IData[];
+  total: number;
+}
+
+export interface IPagedDatatypeResponse {
+  pageParam: number;
+  count: number;
+  items: IDatatype[];
+  total: number;
+}
+
 export interface IPagedEventResponse {
   pageParam: number;
   count: number;
   items: IEvent[];
+  total: number;
+}
+
+export interface IPagedFireFlyApiResponse {
+  pageParam: number;
+  count: number;
+  items: IFireflyApi[];
   total: number;
 }
 

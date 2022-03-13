@@ -1,11 +1,11 @@
 export interface IDataWithHeader {
   header?: string;
-  data: string | number | undefined;
+  data: string | number | undefined | JSX.Element;
 }
 
 export interface ISmallCard {
   header: string;
-  numErrors: number;
+  numErrors?: number;
   data: IDataWithHeader[];
   clickPath?: string;
 }

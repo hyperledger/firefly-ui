@@ -13,13 +13,13 @@ import { default as React, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
+import { FF_NAV_PATHS } from '../../interfaces';
 import { MenuLogo } from '../MenuLogo';
 import { ActivityNav } from './ActivityNav';
 import { BlockchainNav } from './BlockchainNav';
 import { NavItem } from './NavItem';
 import { NetworkNav } from './NetworkNav';
 import { OffChainNav } from './OffChainNav';
-import { FF_NAV_PATHS } from './Paths';
 import { TokensNav } from './TokensNav';
 
 export const NAV_WIDTH = 225;

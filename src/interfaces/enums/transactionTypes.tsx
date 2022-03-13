@@ -1,6 +1,16 @@
 import { IBlockchainCategory } from '.';
 import { FFColors } from '../../theme';
 
+export interface IHistTxBucket {
+  [TxCategoryEnum.BLOCKCHAIN]: number;
+  [TxCategoryEnum.MESSAGES]: number;
+  [TxCategoryEnum.TOKENS]: number;
+}
+
+export interface IHistTxTimeMap {
+  [key: string]: IHistTxBucket;
+}
+
 export enum TxCategoryEnum {
   BLOCKCHAIN = 'Blockchain',
   MESSAGES = 'Messages',
@@ -14,20 +24,10 @@ export enum TransactionStatus {
 }
 
 export const TxStatusColorMap: { [key: string]: string } = {
-  [TransactionStatus.SUCCEEDED]: FFColors.Purple,
-  [TransactionStatus.PENDING]: FFColors.Orange,
-  [TransactionStatus.FAILED]: FFColors.Red,
+  Succeeded: FFColors.Purple,
+  Pending: FFColors.Orange,
+  Failed: FFColors.Red,
 };
-
-export interface IHistTxBucket {
-  [TxCategoryEnum.BLOCKCHAIN]: number;
-  [TxCategoryEnum.MESSAGES]: number;
-  [TxCategoryEnum.TOKENS]: number;
-}
-
-export interface IHistTxTimeMap {
-  [key: string]: IHistTxBucket;
-}
 
 export enum FF_TX {
   // Blockchain Event

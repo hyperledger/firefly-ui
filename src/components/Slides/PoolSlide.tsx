@@ -24,6 +24,7 @@ import { useNavigate } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import {
+  FF_NAV_PATHS,
   IPagedTokenTransferResponse,
   ITokenPool,
   ITokenTransfer,
@@ -37,7 +38,6 @@ import {
 import { DEFAULT_PADDING } from '../../theme';
 import { fetchCatcher } from '../../utils';
 import { FFCopyButton } from '../Buttons/CopyButton';
-import { FF_NAV_PATHS } from '../Navigation/Paths';
 import { HashPopover } from '../Popovers/HashPopover';
 import { DataTable } from '../Tables/Table';
 import { IDataTableRecord } from '../Tables/TableInterfaces';

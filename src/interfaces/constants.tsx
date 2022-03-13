@@ -38,9 +38,9 @@ export const FF_Paths = {
     `/contracts/interfaces/${name}/${version}`,
   contractInvoke: '/contracts/invoke',
   contractQuery: '/contracts/query',
-  contractSubscriptions: '/contracts/subscriptions',
-  contractSubscriptionsByNameId: (nameOrId: string) =>
-    `/contracts/subscriptions/${nameOrId}`,
+  contractListeners: '/contracts/listeners',
+  contractListenersByNameId: (nameOrId: string) =>
+    `/contracts/listeners/${nameOrId}`,
   // Data
   data: '/data',
   dataById: (id: string) => `/data/${id}`,
@@ -102,8 +102,6 @@ export const FF_Paths = {
   status: '/status',
   statusBatchManager: '/status/batchmanager',
 };
-
-export const FF_DOCS = 'https://hyperledger.github.io/firefly/';
 
 export enum FF_MESSAGE_TYPES {
   // Message/Definitions

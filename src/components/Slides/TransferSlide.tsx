@@ -21,6 +21,7 @@ import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import {
+  FF_NAV_PATHS,
   IBlockchainEvent,
   IOperation,
   ITokenTransfer,
@@ -36,7 +37,6 @@ import { fetchCatcher } from '../../utils';
 import { BlockchainEventAccordion } from '../Accordions/BlockchainEvent';
 import { OperationAccordion } from '../Accordions/Operation';
 import { FFCopyButton } from '../Buttons/CopyButton';
-import { FF_NAV_PATHS } from '../Navigation/Paths';
 import { DisplaySlide } from './DisplaySlide';
 import { DrawerListItem, IDataListItem } from './ListItem';
 import { SlideHeader } from './SlideHeader';

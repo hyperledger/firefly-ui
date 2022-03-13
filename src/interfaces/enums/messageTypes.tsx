@@ -2,8 +2,8 @@ import { IBlockchainCategory } from '.';
 import { FFColors } from '../../theme';
 
 export interface IHistMsgBucket {
-  [MsgCategoryEnum.BLOCKCHAIN]: number;
   [MsgCategoryEnum.BROADCAST]: number;
+  [MsgCategoryEnum.DEFINITON]: number;
   [MsgCategoryEnum.PRIVATE]: number;
 }
 
@@ -12,10 +12,11 @@ export interface IHistMsgTimeMap {
 }
 
 export enum MsgCategoryEnum {
-  BLOCKCHAIN = 'Blockchain',
   BROADCAST = 'Broadcast',
+  DEFINITON = 'Definition',
   PRIVATE = 'Private',
 }
+
 export enum MessageStatus {
   STAGED = 'staged',
   READY = 'ready',
@@ -35,29 +36,24 @@ export const MsgStateColorMap = {
 };
 
 export enum FF_MESSAGES {
-  // Blockchain
+  // Definition
   DEFINITON = 'definition',
-  GROUP_INIT = 'groupinit',
   // Broadcast
   BROADCAST = 'broadcast',
   TRANSFER_BROADCAST = 'transfer_broadcast',
   // Private
   PRIVATE = 'private',
   TRANSFER_PRIVATE = 'transfer_private',
+  GROUP_INIT = 'groupinit',
 }
 
 export const FF_MESSAGES_CATEGORY_MAP: { [key: string]: IBlockchainCategory } =
   {
-    // Blockchain events
+    // Definition
     [FF_MESSAGES.DEFINITON]: {
-      category: MsgCategoryEnum.BLOCKCHAIN,
+      category: MsgCategoryEnum.DEFINITON,
       color: FFColors.Yellow,
       nicename: 'definition',
-    },
-    [FF_MESSAGES.GROUP_INIT]: {
-      category: MsgCategoryEnum.BLOCKCHAIN,
-      color: FFColors.Yellow,
-      nicename: 'groupInit',
     },
     // Broadcast
     [FF_MESSAGES.BROADCAST]: {
@@ -80,5 +76,10 @@ export const FF_MESSAGES_CATEGORY_MAP: { [key: string]: IBlockchainCategory } =
       category: MsgCategoryEnum.PRIVATE,
       color: FFColors.Pink,
       nicename: 'transferPrivate',
+    },
+    [FF_MESSAGES.GROUP_INIT]: {
+      category: MsgCategoryEnum.PRIVATE,
+      color: FFColors.Pink,
+      nicename: 'groupInit',
     },
   };

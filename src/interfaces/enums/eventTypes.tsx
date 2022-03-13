@@ -51,6 +51,7 @@ export const FF_EVENTS_CATEGORY_MAP: { [key: string]: IBlockchainCategory } = {
     category: EventCategoryEnum.BLOCKCHAIN,
     color: FFColors.Yellow,
     nicename: 'blockchainEventReceived',
+    enrichedEventKey: 'blockchainEvent',
   },
   [FF_EVENTS.CONTRACT_API_CONFIRMED]: {
     category: EventCategoryEnum.BLOCKCHAIN,
@@ -92,16 +93,19 @@ export const FF_EVENTS_CATEGORY_MAP: { [key: string]: IBlockchainCategory } = {
     category: EventCategoryEnum.MESSAGES,
     color: FFColors.Orange,
     nicename: 'messageConfirmed',
+    enrichedEventKey: 'message',
   },
   [FF_EVENTS.MSG_REJECTED]: {
     category: EventCategoryEnum.MESSAGES,
     color: FFColors.Orange,
     nicename: 'messageRejected',
+    enrichedEventKey: 'message',
   },
   [FF_EVENTS.TX_SUBMITTED]: {
     category: EventCategoryEnum.MESSAGES,
     color: FFColors.Orange,
     nicename: 'transactionSubmitted',
+    enrichedEventKey: 'transaction',
   },
   // Token Events
   [FF_EVENTS.TOKEN_POOL_CONFIRMED]: {
