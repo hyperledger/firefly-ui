@@ -22,14 +22,9 @@ interface Props {
 
 export const OperationAccordion: React.FC<Props> = ({ op }) => {
   const { t } = useTranslation();
+  const [expanded, setExpanded] = useState<boolean>(false);
 
-  const [opExpanded, setOpExpanded] = useState<IOperation>();
-  const handleOpChange =
-    (op: IOperation) => (event: any, isExpanded: boolean) => {
-      setOpExpanded(isExpanded ? op : undefined);
-    };
-
-  const opInfo: IDataWithHeader[] = [
+  const accInfo: IDataWithHeader[] = [
     {
       header: t('id'),
       data: <HashPopover address={op.id} shortHash />,
@@ -51,8 +46,8 @@ export const OperationAccordion: React.FC<Props> = ({ op }) => {
   return (
     <Accordion
       key={op.id}
-      expanded={opExpanded?.id === op.id}
-      onChange={handleOpChange(op)}
+      expanded={expanded}
+      onChange={() => setExpanded(!expanded)}
       sx={{
         backgroundColor: themeOptions.palette?.background?.default,
         width: '100%',
@@ -67,16 +62,15 @@ export const OperationAccordion: React.FC<Props> = ({ op }) => {
           {/* Status */}
           <Grid xs={6} item container justifyContent="flex-end">
             <Chip
-              label={op.status}
+              label={op.status.toLocaleUpperCase()}
               sx={{ backgroundColor: OpStatusColorMap[op.status] }}
-              size="small"
             ></Chip>
           </Grid>
         </Grid>
       </AccordionSummary>
       <AccordionDetails>
         <Grid container item direction="row">
-          {opInfo.map((info) => (
+          {accInfo.map((info) => (
             <Grid item xs={4} pb={1} justifyContent="flex-start">
               <Typography pb={1} variant="body2">
                 {info.header}

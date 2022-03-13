@@ -9,33 +9,37 @@ import {
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IBlockchainEvent } from '../../interfaces';
+import { IContractListener } from '../../interfaces';
 import { themeOptions } from '../../theme';
 import { IDataWithHeader } from '../../_core/interfaces';
 import { HashPopover } from '../Popovers/HashPopover';
 
 interface Props {
-  be: IBlockchainEvent;
+  listener: IContractListener;
 }
 
-export const BlockchainEventAccordion: React.FC<Props> = ({ be }) => {
+export const ListenerAccordion: React.FC<Props> = ({ listener }) => {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState<boolean>(false);
 
-  const accInfo: IDataWithHeader[] = [
+  const accIfno: IDataWithHeader[] = [
     {
-      header: t('id'),
-      data: <HashPopover address={be.id} shortHash />,
+      header: t('listenerID'),
+      data: <HashPopover address={listener.id} shortHash />,
     },
     {
-      header: t('source'),
-      data: <Typography variant="body2">{be.source}</Typography>,
+      header: t('protocolID'),
+      data: <HashPopover address={listener.protocolId} shortHash />,
+    },
+    {
+      header: t('location'),
+      data: <HashPopover address={listener.location.address} shortHash />,
     },
   ];
 
   return (
     <Accordion
-      key={be.id}
+      key={listener.id}
       expanded={expanded}
       onChange={() => setExpanded(!expanded)}
       sx={{
@@ -45,22 +49,29 @@ export const BlockchainEventAccordion: React.FC<Props> = ({ be }) => {
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Grid container direction="row" alignItems="center">
-          {/* Protocol ID */}
+          {/* Event Name */}
           <Grid xs={6} item container justifyContent="flex-start">
-            <Typography>{be.protocolId}</Typography>
+            <Typography>{listener.event.name}</Typography>
           </Grid>
-          {/* Time */}
+          {/* Created */}
           <Grid xs={6} item container justifyContent="flex-end">
             <Typography>
-              {dayjs(be.timestamp).format('MM/DD/YYYY h:mm A')}
+              {dayjs(listener.created).format('MM/DD/YYYY h:mm A')}
             </Typography>
           </Grid>
         </Grid>
       </AccordionSummary>
       <AccordionDetails>
+        {/* Basic Data */}
         <Grid container item direction="row">
-          {accInfo.map((info) => (
-            <Grid item xs={6} pb={1} justifyContent="flex-start">
+          {accIfno.map((info) => (
+            <Grid
+              key={info.header}
+              item
+              xs={4}
+              pb={1}
+              justifyContent="flex-start"
+            >
               <Typography pb={1} variant="body2">
                 {info.header}
               </Typography>
