@@ -11,7 +11,7 @@ type Props = {
     | 'warning'
     | 'inherit'
     | undefined;
-  height?: number;
+  height?: number | string;
 };
 
 export const FFCircleLoader: React.FC<Props> = ({ color, height }) => {
