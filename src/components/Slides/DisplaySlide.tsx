@@ -15,9 +15,9 @@
 // limitations under the License.
 
 import { IconButton, Modal, Paper, Slide } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import CloseIcon from 'mdi-react/CloseIcon';
 import React from 'react';
+import { theme } from '../../App';
 import { DEFAULT_PADDING } from '../../theme';
 
 export interface Props {
@@ -26,16 +26,31 @@ export interface Props {
 }
 
 export const DisplaySlide: React.FC<Props> = ({ children, open, onClose }) => {
-  const classes = useStyles();
-
   return (
     <>
       <Modal {...{ open }} {...{ onClose }}>
         <Slide direction="left" in={open} mountOnEnter unmountOnExit>
-          <Paper square elevation={0} className={classes.paper}>
+          <Paper
+            square
+            elevation={0}
+            sx={{
+              backgroundColor: theme.palette.background.default,
+              height: '100vh',
+              outline: 'none',
+              width: '45vw',
+              marginLeft: '55vw',
+              overflowY: 'auto',
+              padding: 3,
+            }}
+          >
             <IconButton
               onClick={onClose}
-              className={classes.close}
+              sx={{
+                position: 'absolute',
+                right: theme.spacing(DEFAULT_PADDING),
+                top: theme.spacing(DEFAULT_PADDING),
+                color: theme.palette.text.primary,
+              }}
               size="large"
             >
               <CloseIcon />
@@ -47,21 +62,3 @@ export const DisplaySlide: React.FC<Props> = ({ children, open, onClose }) => {
     </>
   );
 };
-
-const useStyles = makeStyles((theme) => ({
-  paper: {
-    backgroundColor: theme.palette.background.default,
-    height: '100vh',
-    outline: 'none',
-    width: '40vw',
-    marginLeft: '60vw',
-    overflowY: 'auto',
-    padding: 3,
-  },
-  close: {
-    position: 'absolute',
-    right: theme.spacing(DEFAULT_PADDING),
-    top: theme.spacing(DEFAULT_PADDING),
-    color: theme.palette.text.primary,
-  },
-}));

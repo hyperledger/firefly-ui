@@ -216,7 +216,8 @@ export const NetworkMap: () => JSX.Element = () => {
     });
   });
 
-  const useHardcodedData = false; // testing
+  // TODO: Fix
+  const useHardcodedData = true; // testing
   const isDense =
     useHardcodedData || (orgs?.length || 0) > 4 || (nodes?.length || 0) > 6
       ? true

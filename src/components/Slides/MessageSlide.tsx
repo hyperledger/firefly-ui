@@ -14,37 +14,28 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import VisibilityIcon from '@mui/icons-material/Visibility';
-import {
-  Chip,
-  Grid,
-  IconButton,
-  Modal,
-  Paper,
-  Typography,
-} from '@mui/material';
+import { Chip, Grid } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
-import {
-  IMessage,
-  IMessageData,
-  IMessageEvent,
-  IMessageOperation,
-  IMessageTransaction,
-} from '../../interfaces';
+import { IMessage, IMessageData, IMessageTransaction } from '../../interfaces';
 import { FF_Paths } from '../../interfaces/constants';
-import { OpStatusColorMap } from '../../interfaces/enums';
+import {
+  FF_MESSAGES_CATEGORY_MAP,
+  MsgStateColorMap,
+} from '../../interfaces/enums';
+import { FF_TX_CATEGORY_MAP } from '../../interfaces/enums/transactionTypes';
 import { DEFAULT_PADDING } from '../../theme';
 import { fetchCatcher } from '../../utils';
+import { MessageDataAccordion } from '../Accordions/MessageData';
+import { TransactionAccordion } from '../Accordions/Transaction';
 import { FFCopyButton } from '../Buttons/CopyButton';
-import { HashPopover } from '../Popovers/HashPopover';
 import { DisplaySlide } from './DisplaySlide';
 import { DrawerListItem, IDataListItem } from './ListItem';
-import { DrawerPanel, IOperationListItem } from './Panel';
+import { SlideHeader } from './SlideHeader';
+import { SlideSectionHeader } from './SlideSectionHeader';
 
 interface Props {
   message: IMessage;
@@ -57,37 +48,10 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
   const { selectedNamespace } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
 
-  const [msgBlockchainEvents, setMsgBlockchainEvents] = useState<
-    IMessageEvent[]
-  >([]);
   const [msgData, setMsgData] = useState<IMessageData[]>([]);
-  const [msgOperations, setMsgOperations] = useState<IMessageOperation[]>([]);
   const [msgTransaction, setMsgTransaction] = useState<IMessageTransaction>();
 
-  const [openDataModal, setOpenDataModal] = useState(false);
-  const [dataModalText, setDataModalText] = useState('');
-  const handleDataModalOpen = (text: string) => {
-    setDataModalText(text);
-    setOpenDataModal(true);
-  };
-  const handleDataModalClose = () => {
-    setOpenDataModal(false);
-    setDataModalText('');
-  };
-
   useEffect(() => {
-    // Message events
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messageEventsById(
-        message.header.id
-      )}`
-    )
-      .then((events: IMessageEvent[]) => {
-        setMsgBlockchainEvents(events);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
     // Message Data
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messageDataById(
@@ -96,18 +60,6 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
     )
       .then((msgData: IMessageData[]) => {
         setMsgData(msgData);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    // Message Operations
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messageOpsById(
-        message.header.id
-      )}`
-    )
-      .then((msgOps: IMessageOperation[]) => {
-        setMsgOperations(msgOps);
       })
       .catch((err) => {
         reportFetchError(err);
@@ -134,7 +86,7 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
     },
     {
       label: t('transactionType'),
-      value: message.header.txtype.toLocaleUpperCase(),
+      value: t(FF_TX_CATEGORY_MAP[message.header.txtype].nicename).toString(),
       button: <FFCopyButton value={message.header.txtype} />,
     },
     {
@@ -155,9 +107,16 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
       ) : undefined,
     },
     {
+      label: t('topics'),
+      value: message.header.topics?.toString() ?? t('noTopicInMessage'),
+    },
+    {
       label: t('status'),
       value: (
-        <Chip label={message.state.toLocaleUpperCase()} color="success"></Chip>
+        <Chip
+          label={message.state.toLocaleUpperCase()}
+          sx={{ backgroundColor: MsgStateColorMap[message.state] }}
+        ></Chip>
       ),
     },
     {
@@ -166,89 +125,15 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
     },
   ];
 
-  const msgDataList: IOperationListItem[] = msgData?.map((data) => {
-    return {
-      label: data.id,
-      value: (
-        <Typography>
-          {dayjs(data.created).format('MM/DD/YYYY h:mm A')}
-        </Typography>
-      ),
-      badge: <Chip label={data.validator} size="small"></Chip>,
-      button: (
-        <IconButton onClick={() => handleDataModalOpen(data.value || '')}>
-          <VisibilityIcon />
-        </IconButton>
-      ),
-    };
-  });
-
-  const operationsList: IOperationListItem[] = msgOperations?.map((op) => {
-    return {
-      label: op.type.toLocaleUpperCase(),
-      value: <HashPopover address={op.id} shortHash={true}></HashPopover>,
-      badge: (
-        <Chip
-          label={op.status}
-          sx={{ backgroundColor: OpStatusColorMap[op.status] }}
-          size="small"
-        ></Chip>
-      ),
-      button: (
-        <IconButton>
-          <ArrowForwardIcon />
-        </IconButton>
-      ),
-    };
-  });
-
-  const blockchainEventsList: IOperationListItem[] = msgBlockchainEvents?.map(
-    (be) => {
-      return {
-        label: be.type.toLocaleUpperCase(),
-        value: <HashPopover address={be.id} shortHash={true}></HashPopover>,
-        button: (
-          <IconButton>
-            <ArrowForwardIcon />
-          </IconButton>
-        ),
-      };
-    }
-  );
-
-  const msgTransactionItem: IOperationListItem = {
-    label: msgTransaction?.type.toLocaleUpperCase() ?? '',
-    value: (
-      <HashPopover
-        address={msgTransaction?.id ?? ''}
-        shortHash={true}
-      ></HashPopover>
-    ),
-    button: (
-      <IconButton>
-        <ArrowForwardIcon />
-      </IconButton>
-    ),
-  };
-
   return (
     <>
       <DisplaySlide open={open} onClose={onClose}>
         <Grid container direction="column" p={DEFAULT_PADDING}>
           {/* Header */}
-          <Grid item pb={5}>
-            <Typography variant="subtitle1">{t('message')}</Typography>
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 'bold',
-                fontSize: '14',
-                textTransform: 'uppercase',
-              }}
-            >
-              {message.header.type}
-            </Typography>
-          </Grid>
+          <SlideHeader
+            subtitle={t('message')}
+            title={t(FF_MESSAGES_CATEGORY_MAP[message.header.type].nicename)}
+          />
           {/* Data list */}
           <Grid container item>
             {dataList.map((data, idx) => (
@@ -256,102 +141,23 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
             ))}
           </Grid>
           {/* Message Attached Data */}
-          <Grid item py={DEFAULT_PADDING}>
-            <Typography
-              variant="subtitle1"
-              sx={{
-                fontWeight: 'bold',
-                fontSize: '12',
-              }}
-            >
-              {`${t('messageData')} (${msgDataList?.length})`}
-            </Typography>
-          </Grid>
+          <SlideSectionHeader title={t('messageData')} />
           <Grid container item>
-            {msgDataList?.map((data, idx) => (
-              <DrawerPanel key={idx} item={data} />
-            ))}
-          </Grid>
-          {/* Operations */}
-          <Grid item py={DEFAULT_PADDING}>
-            <Typography
-              variant="subtitle1"
-              sx={{
-                fontWeight: 'bold',
-                fontSize: '12',
-              }}
-            >
-              {`${t('operations')} (${operationsList?.length})`}
-            </Typography>
-          </Grid>
-          <Grid container item>
-            {operationsList?.map((op, idx) => (
-              <DrawerPanel key={idx} item={op} />
-            ))}
-          </Grid>
-          {/* Blockchain Events */}
-          <Grid item py={DEFAULT_PADDING}>
-            <Typography
-              variant="subtitle1"
-              sx={{
-                fontWeight: 'bold',
-                fontSize: '12',
-              }}
-            >
-              {`${t('blockchainEvents')} (${blockchainEventsList?.length})`}
-            </Typography>
-          </Grid>
-          <Grid container item>
-            {blockchainEventsList?.map((be, idx) => (
-              <DrawerPanel key={idx} item={be} />
+            {msgData?.map((data, idx) => (
+              <MessageDataAccordion key={idx} data={data} />
             ))}
           </Grid>
           {/* Message Transaction */}
-          <Grid item py={DEFAULT_PADDING}>
-            <Typography
-              variant="subtitle1"
-              sx={{
-                fontWeight: 'bold',
-                fontSize: '12',
-              }}
-            >
-              {`${t('messageTransaction')}`}
-            </Typography>
-          </Grid>
-          <Grid container item>
-            <DrawerPanel item={msgTransactionItem} />
-          </Grid>
+          {msgTransaction && (
+            <>
+              <SlideSectionHeader title={t('messageTransaction')} />
+              <Grid container item>
+                <TransactionAccordion tx={msgTransaction} />
+              </Grid>
+            </>
+          )}
         </Grid>
       </DisplaySlide>
-      <Modal
-        open={openDataModal}
-        onClose={handleDataModalClose}
-        sx={{ wordWrap: 'break-word' }}
-      >
-        <Paper sx={modalStyle}>
-          <Typography>{JSON.stringify(dataModalText, null, 2)}</Typography>
-          <Grid pt={DEFAULT_PADDING} container justifyContent="center">
-            <FFCopyButton
-              longForm
-              value={JSON.stringify(dataModalText, null, 2)}
-            />
-          </Grid>
-        </Paper>
-      </Modal>
     </>
   );
-};
-
-const modalStyle = {
-  position: 'absolute' as const,
-  overflow: 'auto',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '40%',
-  bgcolor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
-  wordWrap: 'break-word',
 };

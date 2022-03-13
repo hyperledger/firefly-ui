@@ -23,14 +23,12 @@ import { SnackbarContext } from '../../contexts/SnackbarContext';
 import {
   IBlockchainEvent,
   IOperation,
-  ITokenTransfer,
+  ITransaction,
   ITxStatus,
+  TxStatusColorMap,
 } from '../../interfaces';
 import { FF_Paths } from '../../interfaces/constants';
-import {
-  FF_TRANSFER_CATEGORY_MAP,
-  TxStatusColorMap,
-} from '../../interfaces/enums';
+import { FF_TX_CATEGORY_MAP } from '../../interfaces/enums/transactionTypes';
 import { DEFAULT_PADDING } from '../../theme';
 import { fetchCatcher } from '../../utils';
 import { BlockchainEventAccordion } from '../Accordions/BlockchainEvent';
@@ -43,12 +41,16 @@ import { SlideHeader } from './SlideHeader';
 import { SlideSectionHeader } from './SlideSectionHeader';
 
 interface Props {
-  transfer: ITokenTransfer;
   open: boolean;
+  transaction: ITransaction;
   onClose: () => void;
 }
 
-export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
+export const TransactionSlide: React.FC<Props> = ({
+  open,
+  transaction,
+  onClose,
+}) => {
   const { t } = useTranslation();
   const { selectedNamespace } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
@@ -64,7 +66,7 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
     fetchCatcher(
       `${
         FF_Paths.nsPrefix
-      }/${selectedNamespace}${FF_Paths.transactionByIdStatus(transfer.tx.id)}`
+      }/${selectedNamespace}${FF_Paths.transactionByIdStatus(transaction.id)}`
     )
       .then((txStatus: ITxStatus) => {
         setTxStatus(txStatus);
@@ -77,7 +79,7 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
       `${
         FF_Paths.nsPrefix
       }/${selectedNamespace}${FF_Paths.transactionByIdOperations(
-        transfer.tx.id
+        transaction.id
       )}`
     )
       .then((txOperations: IOperation[]) => {
@@ -91,7 +93,7 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
       `${
         FF_Paths.nsPrefix
       }/${selectedNamespace}${FF_Paths.transactionByIdBlockchainEvents(
-        transfer.tx.id
+        transaction.id
       )}`
     )
       .then((txBlockchainEvents: IBlockchainEvent[]) => {
@@ -100,35 +102,13 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [transfer]);
+  }, [event]);
 
   const dataList: IDataListItem[] = [
     {
-      label: t('localID'),
-      value: transfer.localId,
-      button: <FFCopyButton value={transfer.localId} />,
-    },
-    {
-      label: t('poolID'),
-      value: transfer.pool,
-      button: <FFCopyButton value={transfer.pool} />,
-    },
-    {
-      label: t('transactionID'),
-      value: transfer.tx.id,
-      button: <FFCopyButton value={transfer.tx.id} />,
-    },
-    {
-      label: t('authorKey'),
-      value: transfer.key,
-      button: <FFCopyButton value={transfer.key} />,
-    },
-    {
-      label: t('messageID'),
-      value: transfer.message ?? t('noMessageInTransfer'),
-      button: transfer.message ? (
-        <FFCopyButton value={transfer.message} />
-      ) : undefined,
+      label: t('id'),
+      value: transaction.id,
+      button: <FFCopyButton value={transaction.id} />,
     },
     {
       label: t('status'),
@@ -141,7 +121,7 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
     },
     {
       label: t('created'),
-      value: dayjs(transfer.created).format('MM/DD/YYYY h:mm A'),
+      value: dayjs(transaction.created).format('MM/DD/YYYY h:mm A'),
     },
   ];
 
@@ -149,10 +129,10 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
     <>
       <DisplaySlide open={open} onClose={onClose}>
         <Grid container direction="column" p={DEFAULT_PADDING}>
-          {/* Header */}
+          {/* Title */}
           <SlideHeader
-            subtitle={t('tokenTransfer')}
-            title={t(FF_TRANSFER_CATEGORY_MAP[transfer.type].nicename)}
+            subtitle={t('transaction')}
+            title={t(FF_TX_CATEGORY_MAP[transaction.type].nicename)}
           />
           {/* Data list */}
           <Grid container item>
@@ -163,21 +143,21 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
           {/* Operations */}
           <SlideSectionHeader
             clickPath={FF_NAV_PATHS.activityOpPath(selectedNamespace)}
-            title={t('operations')}
+            title={t('recentOperations')}
           />
           <Grid container item>
-            {txOperations?.map((op, idx) => (
-              <OperationAccordion op={op} key={idx} />
+            {txOperations?.map((op) => (
+              <OperationAccordion op={op} />
             ))}
           </Grid>
           {/* Blockchain Events */}
           <SlideSectionHeader
             clickPath={FF_NAV_PATHS.blockchainEventsPath(selectedNamespace)}
-            title={t('blockchainEvents')}
+            title={t('recentBlockchainEvents')}
           />
           <Grid container item>
-            {txBlockchainEvents?.map((be, idx) => (
-              <BlockchainEventAccordion key={idx} be={be} />
+            {txBlockchainEvents?.map((be) => (
+              <BlockchainEventAccordion be={be} />
             ))}
           </Grid>
         </Grid>

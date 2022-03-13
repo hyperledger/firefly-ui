@@ -14,19 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import {
-  Chip,
-  Grid,
-  IconButton,
-  Popover,
-  Theme,
-  Typography,
-} from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
-import clsx from 'clsx';
+import { Chip, Grid, IconButton, Popover, Typography } from '@mui/material';
 import ContentCopyIcon from 'mdi-react/ContentCopyIcon';
 import React, { useRef, useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
+import { theme } from '../../App';
 import { getShortHash } from '../../utils';
 
 interface Props {
@@ -44,18 +36,30 @@ export const HashPopover: React.FC<Props> = ({
   paper,
   fullLength,
 }) => {
-  const classes = useStyles();
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
+
   return (
     <>
       <Chip
         label={shortHash ? getShortHash(address) : address}
-        sx={{ width: fullLength ? '100%' : shortHash ? 110 : 200 }}
-        className={clsx(
-          paper ? classes.paperChip : classes.chip,
-          textColor === 'secondary' && classes.addressSecondaryText
-        )}
+        sx={{
+          width: fullLength ? '100%' : shortHash ? 110 : 200,
+          color:
+            textColor === 'secondary'
+              ? theme.palette.text.secondary
+              : undefined,
+          // Chip styling
+          borderRadius: paper ? 2 : 16,
+          backgroundColor: paper
+            ? theme.palette.background.paper
+            : theme.palette.background.default,
+          '&:hover, &:focus': {
+            backgroundColor: paper
+              ? theme.palette.background.paper
+              : theme.palette.background.default,
+          },
+        }}
         onClick={(event) => {
           event.stopPropagation();
           setOpen(!open);
@@ -87,14 +91,17 @@ export const HashPopover: React.FC<Props> = ({
           spacing={1}
           container
           direction="row"
-          className={classes.popoverContainer}
+          sx={{ padding: theme.spacing(1) }}
         >
           <Grid item>
             <Typography>{address}</Typography>
           </Grid>
           <Grid item>
             <CopyToClipboard text={address}>
-              <IconButton className={classes.button} size="large">
+              <IconButton
+                sx={{ color: theme.palette.text.primary, padding: 0 }}
+                size="large"
+              >
                 <ContentCopyIcon />
               </IconButton>
             </CopyToClipboard>
@@ -104,30 +111,3 @@ export const HashPopover: React.FC<Props> = ({
     </>
   );
 };
-
-const useStyles = makeStyles<Theme>((theme) => ({
-  chip: {
-    borderRadius: 16,
-    backgroundColor: theme.palette.background.default,
-    '&:hover, &:focus': {
-      backgroundColor: theme.palette.background.default,
-    },
-  },
-  popoverContainer: {
-    padding: theme.spacing(1),
-  },
-  button: {
-    color: theme.palette.text.primary,
-    padding: 0,
-  },
-  addressSecondaryText: {
-    color: theme.palette.text.secondary,
-  },
-  paperChip: {
-    borderRadius: 2,
-    backgroundColor: theme.palette.background.paper,
-    '&:hover, &:focus': {
-      backgroundColor: theme.palette.background.paper,
-    },
-  },
-}));
