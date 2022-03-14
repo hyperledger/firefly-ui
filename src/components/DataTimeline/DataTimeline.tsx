@@ -14,76 +14,82 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useContext } from 'react';
-import { Paper, Avatar, Tooltip, CircularProgress, Grid } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
+import React from 'react';
+import { Paper, Grid, Typography, Divider } from '@mui/material';
 import { Timeline } from '@mui/lab';
 import { TimelineItemWrapper } from './TimelineItemWrapper';
-import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { ITimelineItem } from '../../interfaces';
+import { ITimelineElement } from '../../interfaces';
 
 interface Props {
-  items: ITimelineItem[];
+  elements: ITimelineElement[];
   observerRef?: React.MutableRefObject<HTMLDivElement | null>;
   isFetching?: boolean;
+  leftHeader?: string;
+  rightHeader?: string;
 }
 
 export const DataTimeline: React.FC<Props> = ({
-  items,
+  elements,
   observerRef,
   isFetching,
+  leftHeader,
+  rightHeader,
 }) => {
-  const classes = useStyles();
-  const { identity, orgName } = useContext(ApplicationContext);
-
-  const determineOpposite = (author: string | undefined) => {
-    if (!author) return true;
-    if (author === identity) return true;
-    return false;
-  };
-
   return (
-    <>
-      <Paper className={classes.paper}>
-        <Tooltip title={orgName}>
-          <Avatar className={classes.avatar} alt={orgName}>
-            {orgName.charAt(0)}
-          </Avatar>
-        </Tooltip>
-        <Timeline>
-          {items.map((item) => (
-            <TimelineItemWrapper
-              key={item.key}
-              item={item}
-              opposite={determineOpposite(item.author)}
-            />
-          ))}
-          {isFetching && (
-            <Grid item className={classes.loading}>
-              <CircularProgress className={classes.loading} />
-            </Grid>
-          )}
-          <div ref={observerRef}></div>
-        </Timeline>
-      </Paper>
-    </>
+    <Paper
+      sx={{
+        width: '100%',
+        height: 500,
+        backgroundColor: 'background.paper',
+      }}
+      elevation={0}
+    >
+      <Grid
+        container
+        alignItems="flex-start"
+        justifyContent="center"
+        direction="column"
+        padding={2}
+      >
+        <Grid container item>
+          <Grid xs={6} container item justifyContent="center">
+            <Typography fontSize="12" variant="caption" fontWeight="bold">
+              {leftHeader}
+            </Typography>
+          </Grid>
+          <Grid xs={6} container item justifyContent="center">
+            <Typography fontSize="12" variant="caption" fontWeight="bold">
+              {rightHeader}
+            </Typography>
+          </Grid>
+        </Grid>
+      </Grid>
+      <Grid item>
+        <Divider />
+      </Grid>
+      <Timeline
+        sx={{
+          paddingLeft: '5%',
+          paddingRight: '5%',
+          marginTop: 0,
+          paddingTop: 0,
+        }}
+      >
+        {elements.map((element) => (
+          <TimelineItemWrapper
+            key={element.key}
+            {...{ element }}
+            opposite={element.opposite}
+          />
+        ))}
+        {/* USED FOR INFINITE SCROLL */}
+        {/* {isFetching && (
+          <Grid item>
+            <CircularProgress sx={{ margin: 1, textAlign: 'center' }} />
+          </Grid>
+        )} */}
+        <div ref={observerRef}></div>
+      </Timeline>
+    </Paper>
   );
 };
-
-const useStyles = makeStyles((theme) => ({
-  paper: {
-    padding: theme.spacing(2),
-    width: '100%',
-    maxHeight: 'calc(100vh - 100px)',
-    overflow: 'auto',
-  },
-  avatar: {
-    textTransform: 'uppercase',
-    backgroundColor: theme.palette.info.dark,
-    color: theme.palette.text.primary,
-  },
-  loading: {
-    margin: theme.spacing(1),
-    textAlign: 'center',
-  },
-}));

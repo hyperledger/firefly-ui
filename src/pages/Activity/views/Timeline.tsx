@@ -14,16 +14,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Button, Grid, Typography } from '@mui/material';
+import { Grid, Paper } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Histogram } from '../../../components/Charts/Histogram';
+import { EventCardWrapper } from '../../../components/DataTimeline/Cards/Events/EventCardWrapper';
+import { DataTimeline } from '../../../components/DataTimeline/DataTimeline';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
-import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
-import { TimelinePanel } from '../../../components/Timeline/Panel';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
@@ -32,9 +32,12 @@ import {
   FF_EVENTS_CATEGORY_MAP,
   FF_Paths,
   ICreatedFilter,
-  IMetric,
+  IEvent,
+  ITimelineElement,
+  FF_EVENTS,
+  EventCategoryEnum,
 } from '../../../interfaces';
-import { DEFAULT_HIST_HEIGHT, DEFAULT_PADDING } from '../../../theme';
+import { DEFAULT_HIST_HEIGHT, DEFAULT_PADDING, FFColors } from '../../../theme';
 import { fetchCatcher, makeEventHistogram } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -46,60 +49,89 @@ export const ActivityTimeline: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
     useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
+  const [eventHistData, setEventHistData] = useState<BarDatum[]>([]);
+  const [events, setEvents] = useState<IEvent[]>([]);
   const { t } = useTranslation();
 
   // Events Histogram
-  const [eventHistData, setEventHistData] = useState<BarDatum[]>();
   useEffect(() => {
     const currentTime = dayjs().unix();
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.Events,
-        createdFilterObject.filterTime,
-        currentTime,
-        BucketCountEnum.Large
-      )}`
-    )
-      .then((histTypes: IMetric[]) => {
-        setEventHistData(makeEventHistogram(histTypes));
+    Promise.all([
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+          BucketCollectionEnum.Events,
+          createdFilterObject.filterTime,
+          currentTime,
+          BucketCountEnum.Large
+        )}`
+      ),
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?fetchreferences`
+      ),
+    ])
+      .then(([histEvents, events]) => {
+        setEventHistData(makeEventHistogram(histEvents));
+        setEvents(events);
       })
       .catch((err) => {
-        setEventHistData([]);
         reportFetchError(err);
       });
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
+  const determineOpposite = (eventType: string) => {
+    switch (eventType) {
+      case FF_EVENTS.TX_SUBMITTED:
+        return true;
+      default:
+        return false;
+    }
+  };
+
+  const timelineElements: ITimelineElement[] = events.map((event) => ({
+    key: event.id,
+    item: <EventCardWrapper {...{ event }} />,
+    opposite: determineOpposite(event.type),
+  }));
+
   return (
     <>
-      <Header title={t('timeline')} subtitle={t('activity')}></Header>
-      <Grid container px={DEFAULT_PADDING}>
-        <Grid container item wrap="nowrap" direction="column">
-          <ChartTableHeader
-            title={t('allActivity')}
-            filter={
-              <Button variant="outlined">
-                <Typography p={0.75} sx={{ fontSize: 12 }}>
-                  {t('filter')}
-                </Typography>
-              </Button>
-            }
-          />
-          <Histogram
-            height={DEFAULT_HIST_HEIGHT}
-            colors={makeColorArray(FF_EVENTS_CATEGORY_MAP)}
-            data={eventHistData}
-            indexBy="timestamp"
-            keys={makeKeyArray(FF_EVENTS_CATEGORY_MAP)}
-            includeLegend={true}
-            isEmpty={isHistogramEmpty(eventHistData ?? [])}
-            emptyText={t('noActivity')}
-          />
-          <TimelinePanel
+      <Header title={t('timeline')} subtitle={t('activity')} />
+      <Grid container px={DEFAULT_PADDING} direction="column" spacing={2}>
+        <Grid item>
+          <Paper
+            sx={{
+              width: '100%',
+              height: 200,
+              backgroundColor: 'background.paper',
+            }}
+            elevation={0}
+          >
+            <Histogram
+              colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+              data={eventHistData}
+              indexBy="timestamp"
+              keys={[
+                EventCategoryEnum.BLOCKCHAIN,
+                EventCategoryEnum.MESSAGES,
+                EventCategoryEnum.TOKENS,
+              ]}
+              includeLegend={true}
+              isEmpty={isHistogramEmpty(
+                eventHistData ?? []
+              )}
+              emptyText={t('noActivity')}
+              height={DEFAULT_HIST_HEIGHT}
+            />
+          </Paper>
+        </Grid>
+        <Grid item>
+          <DataTimeline
             leftHeader={t('submittedByMe')}
             rightHeader={t('receivedFromEveryone')}
-          ></TimelinePanel>
+            elements={timelineElements}
+          />
         </Grid>
       </Grid>
     </>

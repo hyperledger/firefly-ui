@@ -15,22 +15,22 @@
 // limitations under the License.
 
 import React from 'react';
-import { ITimelineItem } from '../../interfaces';
+import { ITimelineElement } from '../../interfaces';
 import { OppositeTimelineItem } from './TimelineItems/OppositeTimelineItem';
 import { TimelineItem } from './TimelineItems/TimelineItem';
 
 interface Props {
-  item: ITimelineItem;
+  element: ITimelineElement;
   opposite?: boolean;
 }
 
-export const TimelineItemWrapper: React.FC<Props> = ({ item, opposite }) => {
+export const TimelineItemWrapper: React.FC<Props> = ({ element, opposite }) => {
   return (
     <>
       {opposite ? (
-        <OppositeTimelineItem item={item} />
+        <OppositeTimelineItem {...{ element }} />
       ) : (
-        <TimelineItem item={item} />
+        <TimelineItem {...{ element }} />
       )}
     </>
   );

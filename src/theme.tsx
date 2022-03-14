@@ -47,3 +47,4 @@ export const themeOptions: ThemeOptions = {
 };
 
 export const FFBackgroundHover = '#252C32';
+export const FFTimelineLine = '#4B5955';
