@@ -4,12 +4,14 @@ import { IMediumCard } from '../../interfaces';
 
 type Props = {
   card: IMediumCard;
+  position?: string;
 };
 
-export const MediumCard: React.FC<Props> = ({ card }) => {
+export const MediumCard: React.FC<Props> = ({ card, position }) => {
   return (
     <Box
-      p={2}
+      px={2}
+      py={1}
       borderRadius={1}
       sx={{
         width: '100%',
@@ -19,7 +21,7 @@ export const MediumCard: React.FC<Props> = ({ card }) => {
     >
       <Grid
         container
-        alignItems="flex-start"
+        alignItems="center"
         justifyContent="space-between"
         direction="row"
         sx={{ paddingBottom: 1 }}
@@ -31,15 +33,15 @@ export const MediumCard: React.FC<Props> = ({ card }) => {
       </Grid>
       <Grid
         container
-        alignItems="center"
+        alignItems={position ?? 'center'}
         justifyContent="center"
         direction="column"
       >
         <Grid
           container
-          alignItems="center"
+          alignItems={position ?? 'center'}
           justifyContent="center"
-          sx={{ height: 350, width: '100%' }}
+          sx={{ height: 375, width: '100%' }}
           item
         >
           {card.component}

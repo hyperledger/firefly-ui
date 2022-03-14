@@ -14,39 +14,51 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { TableCell, TableRow } from '@mui/material';
-import { withStyles } from '@mui/styles';
+import { TableCell, TableRow, Typography } from '@mui/material';
 import React from 'react';
+import { FFBackgroundHover, themeOptions } from '../../theme';
 import { IDataTableRecord } from './TableInterfaces';
 
 interface Props {
+  leftBorderColor?: string;
   record: IDataTableRecord;
 }
 
-export const DataTableRow: React.FC<Props> = ({ record }) => {
+export const DataTableRow: React.FC<Props> = ({ record, leftBorderColor }) => {
+  const borderRadius = '8px';
+
   return (
-    <>
-      <StyledTableRow onClick={record.onClick}>
-        {record.columns.map((column, index) => (
-          <TableCell key={index}>{column.value}</TableCell>
-        ))}
-      </StyledTableRow>
-    </>
+    <TableRow
+      sx={{
+        backgroundColor: themeOptions.palette?.background?.paper,
+        '&:hover': {
+          backgroundColor: record.onClick ? FFBackgroundHover : undefined,
+          cursor: record.onClick ? 'pointer' : 'default',
+        },
+      }}
+      onClick={record.onClick}
+    >
+      {record.columns.map((column, index) => {
+        return (
+          <TableCell
+            key={index}
+            sx={{
+              borderLeft:
+                index == 0 ? `8px solid ${leftBorderColor}` : undefined,
+              borderTopLeftRadius: index == 0 ? borderRadius : undefined,
+              borderBottomLeftRadius: index == 0 ? borderRadius : undefined,
+              borderTopRightRadius:
+                index == record.columns.length - 1 ? borderRadius : undefined,
+              borderBottomRightRadius:
+                index == record.columns.length - 1 ? borderRadius : undefined,
+              margin: '16px 16px 16px 16px',
+              padding: '8px',
+            }}
+          >
+            <Typography>{column.value}</Typography>
+          </TableCell>
+        );
+      })}
+    </TableRow>
   );
 };
-
-const StyledTableRow = withStyles((theme) => ({
-  root: {
-    tr: {
-      border: 10,
-    },
-    '&:nth-of-type(even)': {
-      backgroundColor: '#21272D',
-      border: 10,
-      borderColor: 'red',
-    },
-    '&:nth-of-type(odd)': {
-      backgroundColor: theme.palette.background.paper,
-    },
-  },
-}))(TableRow);

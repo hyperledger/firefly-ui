@@ -1,8 +1,9 @@
 import { ListItem, ListItemText, Typography } from '@mui/material';
-import { DEFAULT_PADDING, FFColors } from '../../theme';
+import { DEFAULT_PADDING } from '../../theme';
 import { HashPopover } from '../Popovers/HashPopover';
 
 type Props = {
+  borderColor: string;
   date: string;
   header: string;
   status: string;
@@ -10,6 +11,7 @@ type Props = {
 };
 
 export const TableCardItem: React.FC<Props> = ({
+  borderColor,
   date,
   header,
   status,
@@ -17,11 +19,10 @@ export const TableCardItem: React.FC<Props> = ({
 }) => {
   return (
     <ListItem
-      key={header}
       disableGutters
       sx={{
-        borderLeft: 4,
-        borderColor: FFColors.Yellow, // TODO: make dynamic based on category
+        borderLeft: 6,
+        borderColor: borderColor,
         px: 2,
         height: 60,
         borderTop: 1,
@@ -51,7 +52,6 @@ export const TableCardItem: React.FC<Props> = ({
           sx={{
             color: 'text.secondary',
             fontSize: 12,
-            textTransform: 'uppercase',
           }}
         >
           {subText}

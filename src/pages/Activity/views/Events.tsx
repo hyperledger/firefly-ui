@@ -14,53 +14,203 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Button, Grid, Typography } from '@mui/material';
-import React from 'react';
-import { ChartHeader } from '../../../components/Charts/Header';
+import { Box, Button, Grid, Typography } from '@mui/material';
+import { BarDatum } from '@nivo/bar';
+import dayjs from 'dayjs';
+import React, { useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Histogram } from '../../../components/Charts/Histogram';
-import { TimelinePanel } from '../../../components/Timeline/Panel';
+import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
-import { DEFAULT_PADDING, FFColors } from '../../../theme';
+import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
+import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { EventSlide } from '../../../components/Slides/EventSlide';
+import { DataTable } from '../../../components/Tables/Table';
+import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
+import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { SnackbarContext } from '../../../contexts/SnackbarContext';
+import {
+  BucketCollectionEnum,
+  BucketCountEnum,
+  EventCategoryEnum,
+  FF_EVENTS_CATEGORY_MAP,
+  FF_Paths,
+  ICreatedFilter,
+  IEvent,
+  IMetric,
+  IPagedEventResponse,
+} from '../../../interfaces';
+import {
+  DEFAULT_HIST_HEIGHT,
+  DEFAULT_PADDING,
+  DEFAULT_PAGE_LIMITS,
+} from '../../../theme';
+import { fetchCatcher, makeEventHistogram } from '../../../utils';
+import {
+  isHistogramEmpty,
+  makeColorArray,
+  makeKeyArray,
+} from '../../../utils/charts';
 
 export const ActivityEvents: () => JSX.Element = () => {
-  const legend = [
-    {
-      color: FFColors.Yellow,
-      title: 'Blockchain',
-    },
-    {
-      color: FFColors.Orange,
-      title: 'Tokens',
-    },
-    {
-      color: FFColors.Pink,
-      title: 'Messages',
-    },
+  const { createdFilter, lastEvent, selectedNamespace } =
+    useContext(ApplicationContext);
+  const { reportFetchError } = useContext(SnackbarContext);
+  const { t } = useTranslation();
+  // Events
+  const [events, setEvents] = useState<IEvent[]>();
+  // Event totals
+  const [eventTotal, setEventTotal] = useState(0);
+  // Event types histogram
+  const [eventHistData, setEventHistData] = useState<BarDatum[]>();
+  // View transaction slide out
+  const [viewEvent, setViewEvent] = useState<IEvent | undefined>();
+  const [currentPage, setCurrentPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
+
+  // Events list
+  useEffect(() => {
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+
+    fetchCatcher(
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${
+        FF_Paths.events
+      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+        createdFilterObject.filterString
+      }`
+    )
+      .then((eventRes: IPagedEventResponse) => {
+        setEvents(eventRes.items);
+        setEventTotal(eventRes.total);
+      })
+      .catch((err) => {
+        reportFetchError(err);
+      });
+  }, [rowsPerPage, currentPage, selectedNamespace]);
+
+  // Histogram
+  useEffect(() => {
+    const currentTime = dayjs().unix();
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+
+    fetchCatcher(
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+        BucketCollectionEnum.Events,
+        createdFilterObject.filterTime,
+        currentTime,
+        BucketCountEnum.Large
+      )}`
+    )
+      .then((histTypes: IMetric[]) => {
+        setEventHistData(makeEventHistogram(histTypes));
+      })
+      .catch((err) => {
+        setEventHistData([]);
+        reportFetchError(err);
+      });
+  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+
+  const eventsColumnHeaders = [
+    t('type'),
+    t('id'),
+    t('reference'),
+    t('transactionID'),
+    t('created'),
   ];
+
+  const eventsRecords: IDataTableRecord[] | undefined = events?.map(
+    (event) => ({
+      key: event.id,
+      columns: [
+        {
+          value: (
+            <Typography>
+              {t(FF_EVENTS_CATEGORY_MAP[event.type].nicename)}
+            </Typography>
+          ),
+        },
+        {
+          value: (
+            <HashPopover shortHash={true} address={event.id}></HashPopover>
+          ),
+        },
+        {
+          value: (
+            <HashPopover
+              shortHash={true}
+              address={event.reference}
+            ></HashPopover>
+          ),
+        },
+        {
+          value: (
+            <HashPopover shortHash={true} address={event.tx}></HashPopover>
+          ),
+        },
+        { value: dayjs(event.created).format('MM/DD/YYYY h:mm A') },
+      ],
+      onClick: () => setViewEvent(event),
+      leftBorderColor: FF_EVENTS_CATEGORY_MAP[event.type].color,
+    })
+  );
 
   return (
     <>
-      <Header title={'Events'} subtitle={'Activity'}></Header>
+      <Header title={t('events')} subtitle={t('activity')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
-          <ChartHeader
-            title="All Events"
-            legend={legend}
+          <ChartTableHeader
+            title={t('allEvents')}
             filter={
               <Button variant="outlined">
-                <Typography p={0.75} sx={{ fontSize: 10 }}>
-                  Filter
+                <Typography p={0.75} sx={{ fontSize: 12 }}>
+                  {t('filter')}
                 </Typography>
               </Button>
             }
           />
-          {/* <Histogram data="undefined"></Histogram> */}
-          <TimelinePanel
-            leftHeader="Submitted by Me"
-            rightHeader="Received from Everyone"
-          ></TimelinePanel>
+          <Histogram
+            height={DEFAULT_HIST_HEIGHT}
+            colors={makeColorArray(FF_EVENTS_CATEGORY_MAP)}
+            data={eventHistData}
+            indexBy="timestamp"
+            keys={makeKeyArray(FF_EVENTS_CATEGORY_MAP)}
+            includeLegend={true}
+            emptyText={t('noEvents')}
+            isEmpty={isHistogramEmpty(
+              eventHistData ?? [],
+              Object.keys(EventCategoryEnum)
+            )}
+          />
+          <DataTable
+            onHandleCurrPageChange={(currentPage: number) =>
+              setCurrentPage(currentPage)
+            }
+            onHandleRowsPerPage={(rowsPerPage: number) =>
+              setRowsPerPage(rowsPerPage)
+            }
+            stickyHeader={true}
+            minHeight="300px"
+            maxHeight="calc(100vh - 340px)"
+            records={eventsRecords}
+            columnHeaders={eventsColumnHeaders}
+            paginate={true}
+            emptyStateText={t('noEventsToDisplay')}
+            dataTotal={eventTotal}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
+          />
         </Grid>
       </Grid>
+      {viewEvent && (
+        <EventSlide
+          event={viewEvent}
+          open={!!viewEvent}
+          onClose={() => {
+            setViewEvent(undefined);
+          }}
+        />
+      )}
     </>
   );
 };

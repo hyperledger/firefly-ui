@@ -1,9 +1,10 @@
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Grid, List, Typography } from '@mui/material';
+import { Grid, IconButton, List, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
-import { t } from 'i18next';
 import { useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { CardEmptyState } from '../../../components/Cards/CardEmptyState';
 import { MediumCard } from '../../../components/Cards/MediumCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
@@ -14,90 +15,125 @@ import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
 import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { NetworkMap } from '../../../components/NetworkMap/NetworkMap';
+import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { EventSlide } from '../../../components/Slides/EventSlide';
 import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
+  BucketCollectionEnum,
+  BucketCountEnum,
+  EventCategoryEnum,
+  FF_EVENTS_CATEGORY_MAP,
+  FF_NAV_PATHS,
+  FF_OP_CATEGORY_MAP,
   ICreatedFilter,
+  IDataWithHeader,
   IEvent,
   IGenericPagedResponse,
   IMediumCard,
   IMetric,
+  INode,
   ISmallCard,
   ITableCard,
+  ITransaction,
+  OpCategoryEnum,
 } from '../../../interfaces';
 import { FF_Paths } from '../../../interfaces/constants';
-import { DEFAULT_PADDING, DEFAULT_SPACING, FFColors } from '../../../theme';
-import { fetchCatcher } from '../../../utils';
+import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
+import { DEFAULT_PADDING, DEFAULT_SPACING } from '../../../theme';
+import {
+  fetchCatcher,
+  makeEventHistogram,
+  makeMultipleQueryParams,
+} from '../../../utils';
+import {
+  isHistogramEmpty,
+  makeColorArray,
+  makeKeyArray,
+} from '../../../utils/charts';
 
 export const HomeDashboard: () => JSX.Element = () => {
-  const { createdFilter, lastEvent, orgName, selectedNamespace } =
-    useContext(ApplicationContext);
+  const { t } = useTranslation();
+  const {
+    createdFilter,
+    lastEvent,
+    nodeID,
+    nodeName,
+    orgID,
+    orgName,
+    selectedNamespace,
+  } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
-  const [viewEvent, setViewEvent] = useState<IEvent | undefined>();
+  const navigate = useNavigate();
+  const [viewTx, setViewTx] = useState<ITransaction>();
+  const [viewEvent, setViewEvent] = useState<IEvent>();
+
   // Small cards
   // Blockchain
   const [blockchainTxCount, setBlockchainTxCount] = useState<number>();
   const [blockchainEventCount, setBlockchainEventCount] = useState<number>();
-  const [blockchainErrorCount, setBlockchainErrorCount] = useState<number>(0);
-  // Off-Chain
-  const [offchainInCount, setOffchainInCount] = useState<number>();
-  const [offchainOutCount, setOffchainOutCount] = useState<number>();
-  const [offchainErrorCount, setOffchainErrorCount] = useState<number>(0);
   // Messages
   const [messagesTxCount, setMessagesTxCount] = useState<number>();
   const [messagesEventCount, setMessagesEventCount] = useState<number>();
-  const [messagesErrorCount, setMessagesErrorCount] = useState<number>(0);
   // Tokens
   const [tokenTransfersCount, setTokenTransfersCount] = useState<number>();
   const [tokenMintCount, setTokenMintcount] = useState<number>();
   const [tokenBurnCount, setTokenBurnCount] = useState<number>();
-  const [tokenErrorCount, setTokenErrorCount] = useState<number>(0);
+  // Operations
+  const [blockchainOperationsCount, setBlockchainOperationsCount] =
+    useState<number>();
+  const [messageOperationsCount, setMessageOperationsCount] =
+    useState<number>();
+  const [tokensOperationsCount, setTokensOperationsCount] = useState<number>();
+  const [operationsErrorCount, setOperationsErrorCount] = useState<number>();
+
   // Medium cards
   // Event types histogram
-  const [eventTypesData, setEventTypesData] = useState<BarDatum[]>();
+  const [eventHistData, setEventHistData] = useState<BarDatum[]>();
+  // My Node
+  const [myNode, setMyNode] = useState<INode>();
   // Table cards
-  const [recentTxs, setRecentTxs] = useState<IEvent[]>();
+  const [recentEventTxs, setRecentEventTxs] = useState<IEvent[]>();
   const [recentEvents, setRecentEvents] = useState<IEvent[]>();
 
   const smallCards: ISmallCard[] = [
     {
-      header: 'Blockchain',
-      numErrors: blockchainErrorCount,
+      header: t('blockchain'),
       data: [
-        { header: 'Tx', data: blockchainTxCount },
-        { header: 'Events', data: blockchainEventCount },
+        { header: t('tx'), data: blockchainTxCount },
+        { header: t('events'), data: blockchainEventCount },
       ],
+      clickPath: FF_NAV_PATHS.blockchainPath(selectedNamespace),
     },
     {
-      header: 'Off-Chain',
-      // TODO: Figure out error API call
-      numErrors: offchainErrorCount,
+      header: t('messages'),
       data: [
-        { header: 'In', data: offchainInCount },
-        { header: 'Out', data: offchainOutCount },
+        { header: t('tx'), data: messagesTxCount },
+        { header: t('events'), data: messagesEventCount },
       ],
+      clickPath: FF_NAV_PATHS.offchainMessagesPath(selectedNamespace),
     },
     {
-      header: 'Messages',
-      // TODO: Figure out error API call
-      numErrors: messagesErrorCount,
+      header: t('tokens'),
       data: [
-        { header: 'Tx', data: messagesTxCount },
-        { header: 'Events', data: messagesEventCount },
+        { header: t('transfers'), data: tokenTransfersCount },
+        { header: t('mint'), data: tokenMintCount },
+        { header: t('burn'), data: tokenBurnCount },
       ],
+      clickPath: FF_NAV_PATHS.tokensTransfersPath(selectedNamespace),
     },
     {
-      header: 'Tokens',
-      numErrors: tokenErrorCount,
+      header: t('operations'),
+      numErrors: operationsErrorCount,
       data: [
-        { header: 'Transfers', data: tokenTransfersCount },
-        { header: 'Mint', data: tokenMintCount },
-        { header: 'Burn', data: tokenBurnCount },
+        { header: t('blockchain'), data: blockchainOperationsCount },
+        { header: t('messages'), data: messageOperationsCount },
+        { header: t('tokens'), data: tokensOperationsCount },
       ],
+      clickPath: FF_NAV_PATHS.activityOpPath(selectedNamespace),
     },
   ];
-
   // Small Card UseEffect
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
@@ -110,17 +146,6 @@ export const HomeDashboard: () => JSX.Element = () => {
       ),
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.blockchainEvents}${qParams}`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&type=blockchain_batch_pin&type=blockchain_invoke&status=Failed`
-      ),
-      // TODO: Figure out API calls
-      // Off-Chain
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}`
       ),
       // Messages
       fetchCatcher(
@@ -139,39 +164,67 @@ export const HomeDashboard: () => JSX.Element = () => {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}${qParams}&type=burn`
       ),
+      // Operations
       fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&type=token_create_pool&type=token_activate_pool&type=token_transfer&status=Failed`
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.operations
+        }${qParams}${makeMultipleQueryParams(
+          FF_OP_CATEGORY_MAP,
+          OpCategoryEnum.BLOCKCHAIN,
+          'type'
+        )}`
+      ),
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.operations
+        }${qParams}${makeMultipleQueryParams(
+          FF_OP_CATEGORY_MAP,
+          OpCategoryEnum.MESSAGES,
+          'type'
+        )}`
+      ),
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.operations
+        }${qParams}${makeMultipleQueryParams(
+          FF_OP_CATEGORY_MAP,
+          OpCategoryEnum.TOKENS,
+          'type'
+        )}`
+      ),
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&error=!`
       ),
     ])
       .then(
         ([
           blockchainTx,
           blockchainEvents,
-          blockchainErrors,
-          offChainIn,
-          offChainOut,
           msgsTx,
           msgsEvents,
           tokensTransfer,
           tokensMint,
           tokensBurn,
-          tokenErrors,
+          opsBlockchain,
+          opsMessages,
+          opsTokens,
+          opsErrors,
         ]: IGenericPagedResponse[]) => {
+          // Blockchain
           setBlockchainTxCount(blockchainTx.total);
           setBlockchainEventCount(blockchainEvents.total);
-          setBlockchainErrorCount(blockchainErrors.total);
-
-          // TODO: Set values once API calls done
-          setOffchainInCount(0);
-          setOffchainOutCount(0);
-
+          // Messages
           setMessagesEventCount(msgsTx.total);
           setMessagesTxCount(msgsEvents.total);
-
+          // Tokens
           setTokenTransfersCount(tokensTransfer.total);
           setTokenMintcount(tokensMint.total);
           setTokenBurnCount(tokensBurn.total);
-          setTokenErrorCount(tokenErrors.total);
+          // Operations
+          setBlockchainOperationsCount(opsBlockchain.total);
+          setMessageOperationsCount(opsMessages.total);
+          setTokensOperationsCount(opsTokens.total);
+          setOperationsErrorCount(opsErrors.total);
         }
       )
       .catch((err) => {
@@ -179,31 +232,94 @@ export const HomeDashboard: () => JSX.Element = () => {
       });
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
-  const mediumCards: IMediumCard[] = [
+  const myNodeDetailsList: IDataWithHeader[] = [
     {
-      headerComponent: <ArrowForwardIcon />,
-      headerText: `My Node - ${orgName}`,
-      component: <Typography>Placeholder</Typography>,
+      header: t('nodeName'),
+      data: nodeName,
     },
     {
-      headerComponent: <ArrowForwardIcon />,
-      headerText: 'Network Map',
+      header: t('nodeID'),
+      data: nodeID,
+    },
+    {
+      header: t('orgName'),
+      data: orgName,
+    },
+    {
+      header: t('orgID'),
+      data: orgID,
+    },
+    {
+      header: t('profile'),
+      data: myNode?.profile?.id,
+    },
+    {
+      header: t('profileEndpoint'),
+      data: myNode?.profile?.endpoint,
+    },
+  ];
+
+  const mediumCards: IMediumCard[] = [
+    {
+      headerComponent: (
+        <IconButton
+          onClick={() =>
+            navigate(FF_NAV_PATHS.activityEventsPath(selectedNamespace))
+          }
+        >
+          <ArrowForwardIcon />
+        </IconButton>
+      ),
+      headerText: t('activity'),
+      component: (
+        <Histogram
+          height={'100%'}
+          colors={makeColorArray(FF_EVENTS_CATEGORY_MAP)}
+          data={eventHistData}
+          indexBy="timestamp"
+          keys={makeKeyArray(FF_EVENTS_CATEGORY_MAP)}
+          emptyText={t('noActivity')}
+          isEmpty={isHistogramEmpty(
+            eventHistData ?? [],
+            Object.keys(EventCategoryEnum)
+          )}
+          includeLegend={true}
+        />
+      ),
+    },
+    {
+      headerComponent: (
+        <IconButton
+          onClick={() => navigate(FF_NAV_PATHS.networkPath(selectedNamespace))}
+        >
+          <ArrowForwardIcon />
+        </IconButton>
+      ),
+      headerText: t('networkMap'),
       component: <NetworkMap></NetworkMap>,
     },
     {
-      headerComponent: <ArrowForwardIcon />,
-      headerText: 'Event Types',
-      component: !eventTypesData ? (
-        <FFCircleLoader color="warning"></FFCircleLoader>
-      ) : eventTypesData.every((d) => d.count !== 0) ? (
-        <Histogram
-          colors={[FFColors.Yellow]}
-          data={eventTypesData}
-          indexBy="timestamp"
-          keys={['events']}
-        ></Histogram>
-      ) : (
-        <CardEmptyState text={t('noEvents')}></CardEmptyState>
+      headerComponent: (
+        <IconButton
+          onClick={() => navigate(FF_NAV_PATHS.myNodePath(selectedNamespace))}
+        >
+          <ArrowForwardIcon />
+        </IconButton>
+      ),
+      headerText: t('myNode'),
+      component: (
+        <Grid container item>
+          {myNodeDetailsList.map((data, idx) => (
+            <>
+              <Grid key={idx} item xs={6} pb={2}>
+                <Typography pb={1} variant="body2">
+                  {data.header}
+                </Typography>
+                <HashPopover address={data.data?.toString() ?? ''} />
+              </Grid>
+            </>
+          ))}
+        </Grid>
       ),
     },
   ];
@@ -215,52 +331,41 @@ export const HomeDashboard: () => JSX.Element = () => {
 
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        'events'
-      )}?startTime=${
-        createdFilterObject.filterTime
-      }&endTime=${currentTime}&buckets=12`
+        BucketCollectionEnum.Events,
+        createdFilterObject.filterTime,
+        currentTime,
+        BucketCountEnum.Small
+      )}`
     )
-      .then((eventBuckets: IMetric[]) => {
-        setEventTypesData(
-          eventBuckets.map((bucket) => {
-            return {
-              events: bucket.count,
-              eventsColor: FFColors.Yellow,
-              timestamp: bucket.timestamp,
-            } as BarDatum;
-          })
-        );
+      .then((histTypes: IMetric[]) => {
+        setEventHistData(makeEventHistogram(histTypes));
+      })
+      .catch((err) => {
+        setEventHistData([]);
+        reportFetchError(err);
+      });
+
+    fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.networkNodeById(nodeID)}`)
+      .then((nodeRes: INode) => {
+        setMyNode(nodeRes);
       })
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
-
-  // Table Card UseEffect
-  useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-    const qParams = `?limit=7${createdFilterObject.filterString}`;
-
-    Promise.all([
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}&type=transaction_submitted`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}&type=!transaction_submitted`
-      ),
-    ])
-      .then(([recentTxs, recentEvents]) => {
-        setRecentTxs(recentTxs);
-        setRecentEvents(recentEvents);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+  }, [selectedNamespace, createdFilter, lastEvent, createdFilter, nodeID]);
 
   const tableCards: ITableCard[] = [
+    // Recently submitted Transactions
     {
-      headerComponent: <ArrowForwardIcon />,
+      headerComponent: (
+        <IconButton
+          onClick={() =>
+            navigate(FF_NAV_PATHS.activityTxPath(selectedNamespace))
+          }
+        >
+          <ArrowForwardIcon />
+        </IconButton>
+      ),
       headerText: t('myRecentTransactions'),
       component: (
         <List
@@ -270,28 +375,41 @@ export const HomeDashboard: () => JSX.Element = () => {
             bgcolor: 'background.paper',
           }}
         >
-          {!recentTxs ? (
+          {!recentEventTxs ? (
             <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : recentTxs.length ? (
-            recentTxs.map((tx, idx) => (
-              <div key={idx} onClick={() => setViewEvent(tx)}>
+          ) : recentEventTxs.length ? (
+            recentEventTxs.map((event, idx) => (
+              <div key={idx} onClick={() => setViewTx(event.transaction)}>
                 <TableCardItem
-                  date={dayjs(tx.created).format('MM/DD/YYYY h:mm A')}
-                  header={tx.type}
-                  status={tx.reference}
-                  subText={tx.type}
+                  borderColor={FF_EVENTS_CATEGORY_MAP[event.type].color}
+                  key={idx}
+                  date={dayjs(event.created).format('MM/DD/YYYY h:mm A')}
+                  header={t(
+                    FF_TX_CATEGORY_MAP[event?.transaction?.type ?? ''].nicename
+                  )}
+                  status={event.reference}
+                  subText={t(FF_EVENTS_CATEGORY_MAP[event.type].nicename)}
                 />
               </div>
             ))
           ) : (
-            <CardEmptyState text={t('noEvents')}></CardEmptyState>
+            <CardEmptyState text={t('noTransactions')}></CardEmptyState>
           )}
         </List>
       ),
     },
+    // Recent Network Events
     {
-      headerComponent: <ArrowForwardIcon />,
-      headerText: 'Recent Network Events',
+      headerComponent: (
+        <IconButton
+          onClick={() =>
+            navigate(FF_NAV_PATHS.activityEventsPath(selectedNamespace))
+          }
+        >
+          <ArrowForwardIcon />
+        </IconButton>
+      ),
+      headerText: t('recentNetworkEvents'),
       component: (
         <List
           disablePadding
@@ -303,13 +421,15 @@ export const HomeDashboard: () => JSX.Element = () => {
           {!recentEvents ? (
             <FFCircleLoader color="warning"></FFCircleLoader>
           ) : recentEvents?.length ? (
-            recentEvents.map((tx, idx) => (
-              <div key={idx} onClick={() => setViewEvent(tx)}>
+            recentEvents.map((event, idx) => (
+              <div key={idx} onClick={() => setViewEvent(event)}>
                 <TableCardItem
-                  date={dayjs(tx.created).format('MM/DD/YYYY h:mm A')}
-                  header={tx.type}
-                  status={tx.reference}
-                  subText={tx.type}
+                  borderColor={FF_EVENTS_CATEGORY_MAP[event.type].color}
+                  key={idx}
+                  date={dayjs(event.created).format('MM/DD/YYYY h:mm A')}
+                  header={t(FF_EVENTS_CATEGORY_MAP[event.type].nicename)}
+                  status={event.reference}
+                  subText={t(FF_EVENTS_CATEGORY_MAP[event.type].nicename)}
                 />
               </div>
             ))
@@ -320,6 +440,28 @@ export const HomeDashboard: () => JSX.Element = () => {
       ),
     },
   ];
+
+  // Table Card UseEffect
+  useEffect(() => {
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+    const qParams = `?limit=7${createdFilterObject.filterString}`;
+
+    Promise.all([
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}&type=transaction_submitted&fetchreferences=true`
+      ),
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}&type=!transaction_submitted`
+      ),
+    ])
+      .then(([recentEventTxs, recentEvents]) => {
+        setRecentEventTxs(recentEventTxs);
+        setRecentEvents(recentEvents);
+      })
+      .catch((err) => {
+        reportFetchError(err);
+      });
+  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
   return (
     <>
@@ -370,7 +512,7 @@ export const HomeDashboard: () => JSX.Element = () => {
                   item
                   xs={4}
                 >
-                  <MediumCard card={card} />
+                  <MediumCard card={card} position="flex-start" />
                 </Grid>
               );
             })}
@@ -383,10 +525,10 @@ export const HomeDashboard: () => JSX.Element = () => {
             direction="row"
             pb={DEFAULT_PADDING}
           >
-            {tableCards.map((card) => {
+            {tableCards.map((card, idx) => {
               return (
                 <Grid
-                  key={card.headerText}
+                  key={idx}
                   direction="column"
                   alignItems="center"
                   justifyContent="center"
@@ -394,15 +536,24 @@ export const HomeDashboard: () => JSX.Element = () => {
                   item
                   xs={6}
                 >
-                  <TableCard card={card} />
+                  <TableCard key={idx} card={card} />
                 </Grid>
               );
             })}
           </Grid>
         </Grid>
       </Grid>
-      {viewEvent && (
+      {viewTx && (
         <TransactionSlide
+          transaction={viewTx}
+          open={!!viewTx}
+          onClose={() => {
+            setViewTx(undefined);
+          }}
+        />
+      )}
+      {viewEvent && (
+        <EventSlide
           event={viewEvent}
           open={!!viewEvent}
           onClose={() => {

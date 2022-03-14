@@ -1,6 +1,5 @@
 import { Grid, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-// import { ISmallCard } from './interfaces';
 
 type Props = {
   leftHeader: string;
@@ -24,7 +23,7 @@ export const TimelinePanel: React.FC<Props> = ({ leftHeader, rightHeader }) => {
         justifyContent="center"
         direction="column"
       >
-        <Grid container item>
+        <Grid mt={2} container item>
           <Grid xs={6} container item justifyContent="center">
             <Typography fontSize="12" variant="caption" fontWeight="bold">
               {leftHeader}

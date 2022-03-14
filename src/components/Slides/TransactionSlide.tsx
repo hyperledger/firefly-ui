@@ -14,46 +14,51 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import ContentCopyIcon from '@mui/icons-material/ContentCopy';
-import { Chip, Grid, IconButton, Typography } from '@mui/material';
+import { Chip, Grid } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
-import CopyToClipboard from 'react-copy-to-clipboard';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import {
-  IEvent,
-  ITxBlockchainEvent,
-  ITxOperation,
+  FF_NAV_PATHS,
+  IBlockchainEvent,
+  IOperation,
+  ITransaction,
   ITxStatus,
-  OpStatusColorMap,
   TxStatusColorMap,
 } from '../../interfaces';
 import { FF_Paths } from '../../interfaces/constants';
+import { FF_TX_CATEGORY_MAP } from '../../interfaces/enums/transactionTypes';
 import { DEFAULT_PADDING } from '../../theme';
 import { fetchCatcher } from '../../utils';
-import { HashPopover } from '../Popovers/HashPopover';
+import { BlockchainEventAccordion } from '../Accordions/BlockchainEvent';
+import { OperationAccordion } from '../Accordions/Operation';
+import { FFCopyButton } from '../Buttons/CopyButton';
 import { DisplaySlide } from './DisplaySlide';
 import { DrawerListItem, IDataListItem } from './ListItem';
-import { DrawerPanel, IOperationListItem } from './Panel';
+import { SlideHeader } from './SlideHeader';
+import { SlideSectionHeader } from './SlideSectionHeader';
 
 interface Props {
-  event: IEvent;
   open: boolean;
+  transaction: ITransaction;
   onClose: () => void;
 }
 
-export const TransactionSlide: React.FC<Props> = ({ event, open, onClose }) => {
+export const TransactionSlide: React.FC<Props> = ({
+  open,
+  transaction,
+  onClose,
+}) => {
   const { t } = useTranslation();
   const { selectedNamespace } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
 
   const [txBlockchainEvents, setTxBlockchainEvents] = useState<
-    ITxBlockchainEvent[]
+    IBlockchainEvent[]
   >([]);
-  const [txOperations, setTxOperations] = useState<ITxOperation[]>([]);
+  const [txOperations, setTxOperations] = useState<IOperation[]>([]);
   const [txStatus, setTxStatus] = useState<ITxStatus>();
 
   useEffect(() => {
@@ -61,7 +66,7 @@ export const TransactionSlide: React.FC<Props> = ({ event, open, onClose }) => {
     fetchCatcher(
       `${
         FF_Paths.nsPrefix
-      }/${selectedNamespace}${FF_Paths.transactionByIdStatus(event.tx)}`
+      }/${selectedNamespace}${FF_Paths.transactionByIdStatus(transaction.id)}`
     )
       .then((txStatus: ITxStatus) => {
         setTxStatus(txStatus);
@@ -73,9 +78,11 @@ export const TransactionSlide: React.FC<Props> = ({ event, open, onClose }) => {
     fetchCatcher(
       `${
         FF_Paths.nsPrefix
-      }/${selectedNamespace}${FF_Paths.transactionByIdOperations(event.tx)}`
+      }/${selectedNamespace}${FF_Paths.transactionByIdOperations(
+        transaction.id
+      )}`
     )
-      .then((txOperations: ITxOperation[]) => {
+      .then((txOperations: IOperation[]) => {
         setTxOperations(txOperations);
       })
       .catch((err) => {
@@ -86,10 +93,10 @@ export const TransactionSlide: React.FC<Props> = ({ event, open, onClose }) => {
       `${
         FF_Paths.nsPrefix
       }/${selectedNamespace}${FF_Paths.transactionByIdBlockchainEvents(
-        event.tx
+        transaction.id
       )}`
     )
-      .then((txBlockchainEvents: ITxBlockchainEvent[]) => {
+      .then((txBlockchainEvents: IBlockchainEvent[]) => {
         setTxBlockchainEvents(txBlockchainEvents);
       })
       .catch((err) => {
@@ -100,126 +107,57 @@ export const TransactionSlide: React.FC<Props> = ({ event, open, onClose }) => {
   const dataList: IDataListItem[] = [
     {
       label: t('id'),
-      value: event.tx,
-      button: (
-        <CopyToClipboard text={event.tx}>
-          <IconButton>
-            <ContentCopyIcon />
-          </IconButton>
-        </CopyToClipboard>
-      ),
-    },
-    {
-      label: t('type'),
-      value: event.type,
+      value: transaction.id,
+      button: <FFCopyButton value={transaction.id} />,
     },
     {
       label: t('status'),
       value: txStatus && (
         <Chip
-          label={txStatus.status}
+          label={txStatus.status.toLocaleUpperCase()}
           sx={{ backgroundColor: TxStatusColorMap[txStatus.status] }}
         ></Chip>
       ),
     },
     {
-      label: t('operations'),
-      value: txOperations.length,
-    },
-    {
-      label: t('timestamp'),
-      value: dayjs(event.created).format('MM/DD/YYYY h:mm A'),
+      label: t('created'),
+      value: dayjs(transaction.created).format('MM/DD/YYYY h:mm A'),
     },
   ];
-
-  const operationsList: IOperationListItem[] = txOperations.map((op) => {
-    return {
-      label: op.type,
-      value: <HashPopover address={op.id} shortHash={true}></HashPopover>,
-      badge: (
-        <Chip
-          label={op.status}
-          sx={{ backgroundColor: OpStatusColorMap[op.status] }}
-          size="small"
-        ></Chip>
-      ),
-      button: (
-        <IconButton>
-          <ArrowForwardIcon />
-        </IconButton>
-      ),
-    };
-  });
-
-  const blockchainEventsList: IOperationListItem[] = txBlockchainEvents.map(
-    (be) => {
-      return {
-        label: be.name,
-        value: <HashPopover address={be.id} shortHash={true}></HashPopover>,
-        button: (
-          <IconButton>
-            <ArrowForwardIcon />
-          </IconButton>
-        ),
-      };
-    }
-  );
 
   return (
     <>
       <DisplaySlide open={open} onClose={onClose}>
         <Grid container direction="column" p={DEFAULT_PADDING}>
-          {/* Data */}
-          <Grid item pb={5}>
-            <Typography variant="subtitle1">{t('transaction')}</Typography>
-            <Typography
-              variant="h5"
-              sx={{
-                fontWeight: 'bold',
-                fontSize: '14',
-                textTransform: 'uppercase',
-              }}
-            >
-              {event.type}
-            </Typography>
-          </Grid>
+          {/* Title */}
+          <SlideHeader
+            subtitle={t('transaction')}
+            title={t(FF_TX_CATEGORY_MAP[transaction.type].nicename)}
+          />
+          {/* Data list */}
           <Grid container item>
             {dataList.map((data, idx) => (
               <DrawerListItem key={idx} item={data} />
             ))}
           </Grid>
           {/* Operations */}
-          <Grid item py={5}>
-            <Typography
-              variant="subtitle1"
-              sx={{
-                fontWeight: 'bold',
-                fontSize: '12',
-              }}
-            >
-              {`${t('operations')} (${operationsList.length})`}
-            </Typography>
-          </Grid>
+          <SlideSectionHeader
+            clickPath={FF_NAV_PATHS.activityOpPath(selectedNamespace)}
+            title={t('recentOperations')}
+          />
           <Grid container item>
-            {operationsList.map((op, idx) => (
-              <DrawerPanel key={idx} item={op} />
+            {txOperations?.map((op) => (
+              <OperationAccordion op={op} />
             ))}
           </Grid>
           {/* Blockchain Events */}
-          <Grid item py={5}>
-            <Typography
-              variant="subtitle1"
-              sx={{
-                fontWeight: 'bold',
-                fontSize: '12',
-              }}
-            >
-              {`${t('blockchainEvents')} (${blockchainEventsList.length})`}
-            </Typography>
-          </Grid>
+          <SlideSectionHeader
+            clickPath={FF_NAV_PATHS.blockchainEventsPath(selectedNamespace)}
+            title={t('recentBlockchainEvents')}
+          />
           <Grid container item>
-            {blockchainEventsList.map((be, idx) => (
-              <DrawerPanel key={idx} item={be} />
+            {txBlockchainEvents?.map((be) => (
+              <BlockchainEventAccordion be={be} />
             ))}
           </Grid>
         </Grid>

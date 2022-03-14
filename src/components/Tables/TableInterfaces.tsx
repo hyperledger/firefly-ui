@@ -6,4 +6,5 @@ export interface IDataTableRecord {
   columns: IDataTableColumn[];
   key: string;
   onClick?: () => void;
+  leftBorderColor?: string;
 }

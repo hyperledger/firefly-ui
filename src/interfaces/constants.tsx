@@ -18,7 +18,13 @@ export const FF_Paths = {
   blockchainEvents: '/blockchainevents',
   blockchainEventsById: (id: string) => `/blockchainevents/${id}`,
   // Charts
-  chartsHistogram: (collection: string) => `/charts/histogram/${collection}`,
+  chartsHistogram: (
+    collection: string,
+    startTime: number,
+    endTime: number,
+    numBuckets: number
+  ) =>
+    `/charts/histogram/${collection}?startTime=${startTime}&endTime=${endTime}&buckets=${numBuckets}`,
   // Contracts
   contractInterfaces: '/contracts/interfaces',
   contractInterfacesById: (id: string) => `/contracts/interfaces/${id}`,
@@ -32,9 +38,9 @@ export const FF_Paths = {
     `/contracts/interfaces/${name}/${version}`,
   contractInvoke: '/contracts/invoke',
   contractQuery: '/contracts/query',
-  contractSubscriptions: '/contracts/subscriptions',
-  contractSubscriptionsByNameId: (nameOrId: string) =>
-    `/contracts/subscriptions/${nameOrId}`,
+  contractListeners: '/contracts/listeners',
+  contractListenersByNameId: (nameOrId: string) =>
+    `/contracts/listeners/${nameOrId}`,
   // Data
   data: '/data',
   dataById: (id: string) => `/data/${id}`,
@@ -96,3 +102,29 @@ export const FF_Paths = {
   status: '/status',
   statusBatchManager: '/status/batchmanager',
 };
+
+export enum FF_MESSAGE_TYPES {
+  // Message/Definitions
+  BROADCAST = 'broadcast',
+  PRIVATE = 'private',
+  // Blockchain Event
+  DEFINITION = 'definition',
+  GROUP_INIT = 'groupinit',
+  // Transfers
+  TRANSFER_BROADCAST = 'transfer_broadcast',
+  TRANSFER_PRIVATE = 'transfer_private',
+}
+
+export enum FF_OPERATIONS {
+  // Message/Definitions
+  PS_BATCH_BROADCAST = 'publicstorage_batch_broadcast',
+  DX_BATCH_SEND = 'dataexchange_batch_send',
+  DX_BLOB_SEND = 'dataexchange_blob_send',
+  // Blockchain Event
+  BLOCKCHAIN_BATCH_PIN = 'blockchain_batch_pin',
+  BLOCKCHAIN_INVOKE = 'blockchain_invoke',
+  // Transfers
+  TOKEN_CREATE_POOL = 'token_create_pool',
+  TOKEN_ACTIVATE_POOL = 'token_activate_pool',
+  TOKEN_TRANSFER = 'token_transfer',
+}

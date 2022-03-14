@@ -192,7 +192,7 @@ export const NetworkMap: () => JSX.Element = () => {
   orgs?.forEach((o) =>
     orgMap.set(
       o,
-      nodes?.filter((n) => n.owner === o.identity)
+      nodes?.filter((n) => n.parent === o.id)
     )
   );
 
@@ -209,7 +209,7 @@ export const NetworkMap: () => JSX.Element = () => {
           value: NODE_VALUE,
         })) || []
       ).concat({
-        id: o.identity,
+        id: o.did,
         value: IDENTITY_VALUE,
       }),
     });

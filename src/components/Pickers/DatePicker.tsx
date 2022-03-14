@@ -14,10 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useContext, useMemo, useEffect } from 'react';
-import { TextField, MenuItem } from '@mui/material';
+import { MenuItem, TextField } from '@mui/material';
+import React, { useContext, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useQueryParam, StringParam } from 'use-query-params';
+import { StringParam, useQueryParam } from 'use-query-params';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { CreatedFilterOptions } from '../../interfaces';
 

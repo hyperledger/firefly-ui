@@ -19,7 +19,10 @@ import { CreatedFilterOptions, INamespace } from '../interfaces';
 
 export interface IApplicationContext {
   identity: string;
+  orgID: string;
   orgName: string;
+  nodeID: string;
+  nodeName: string;
   lastEvent: any;
   setLastEvent: Dispatch<SetStateAction<any>>;
   createdFilter: CreatedFilterOptions;

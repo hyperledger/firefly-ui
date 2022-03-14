@@ -1,7 +1,9 @@
 import { Chip, Grid, Skeleton, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { useTranslation } from 'react-i18next';
+import { useNavigate } from 'react-router-dom';
 import { ISmallCard } from '../../interfaces';
+import { FFBackgroundHover } from '../../theme';
 
 type Props = {
   card: ISmallCard;
@@ -9,6 +11,7 @@ type Props = {
 
 export const SmallCard: React.FC<Props> = ({ card }) => {
   const { t } = useTranslation();
+  const navigate = useNavigate();
   return (
     <Box
       p={2}
@@ -17,11 +20,16 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
         width: '100%',
         height: '100%',
         backgroundColor: 'background.paper',
+        '&:hover': card.clickPath && {
+          backgroundColor: FFBackgroundHover,
+          cursor: 'pointer',
+        },
       }}
+      onClick={() => (card.clickPath ? navigate(card.clickPath) : undefined)}
     >
       <Grid
         container
-        alignItems="flex-start"
+        alignItems="flex-end"
         justifyContent="space-between"
         direction="row"
         sx={{ paddingBottom: 1 }}
@@ -35,7 +43,7 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
             {card.header}
           </Typography>
         </Grid>
-        {card.numErrors > 0 && (
+        {card.numErrors && card.numErrors > 0 ? (
           <Grid item>
             <Chip
               label={`${card.numErrors} ${t('failed')}`}
@@ -44,12 +52,14 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
               sx={{ fontSize: 10, fontWeight: 'bold' }}
             />
           </Grid>
+        ) : (
+          <></>
         )}
       </Grid>
       <Grid
         container
         alignItems="flex-end"
-        justifyContent="space-evenly"
+        justifyContent={card.data.length > 1 ? 'space-evenly' : 'flex-start'}
         direction="row"
       >
         {card.data.map((data) => {

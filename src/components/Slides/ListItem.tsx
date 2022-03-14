@@ -3,7 +3,7 @@ import { Grid, Typography } from '@mui/material';
 export interface IDataListItem {
   label: string;
   value: string | JSX.Element | number | undefined;
-  button?: JSX.Element;
+  button?: JSX.Element | undefined;
 }
 
 interface Props {
@@ -12,7 +12,16 @@ interface Props {
 
 export const DrawerListItem: React.FC<Props> = ({ item }) => {
   return (
-    <Grid xs={12} py={1} container item alignItems="center">
+    <Grid
+      xs={12}
+      py={1}
+      sx={{
+        minHeight: '60px',
+      }}
+      container
+      item
+      alignItems="center"
+    >
       <Grid item xs={2}>
         <Typography color="secondary" sx={{ fontSize: 12 }}>
           {item.label}
@@ -26,7 +35,7 @@ export const DrawerListItem: React.FC<Props> = ({ item }) => {
       >
         {item.value}
       </Grid>
-      <Grid item xs={2}>
+      <Grid justifyContent="flex-end" container item xs={2}>
         {item.button}
       </Grid>
     </Grid>

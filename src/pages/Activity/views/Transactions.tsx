@@ -14,104 +14,200 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
-import { Button, Chip, Grid, Typography } from '@mui/material';
+import { Box, Button, Grid, Typography } from '@mui/material';
+import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
-import { ChartHeader } from '../../../components/Charts/Header';
+import React, { useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
 import { Histogram } from '../../../components/Charts/Histogram';
-import { DataTable } from '../../../components/Tables/Table';
-import { DataTableEmptyState } from '../../../components/Tables/TableEmptyState';
-import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
+import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
-import { DEFAULT_PADDING, FFColors } from '../../../theme';
+import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
+import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
+import { DataTable } from '../../../components/Tables/Table';
+import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
+import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { SnackbarContext } from '../../../contexts/SnackbarContext';
+import {
+  BucketCollectionEnum,
+  BucketCountEnum,
+  FF_Paths,
+  ICreatedFilter,
+  IMetric,
+  IPagedTransactionResponse,
+  ITransaction,
+} from '../../../interfaces';
+import {
+  FF_TX_CATEGORY_MAP,
+  TxCategoryEnum,
+} from '../../../interfaces/enums/transactionTypes';
+import {
+  DEFAULT_HIST_HEIGHT,
+  DEFAULT_PADDING,
+  DEFAULT_PAGE_LIMITS,
+} from '../../../theme';
+import { fetchCatcher } from '../../../utils';
+import {
+  isHistogramEmpty,
+  makeColorArray,
+  makeKeyArray,
+} from '../../../utils/charts';
+import { makeTxHistogram } from '../../../utils/histograms/transactionHistogram';
 
 export const ActivityTransactions: () => JSX.Element = () => {
-  const legend = [
-    {
-      color: FFColors.Yellow,
-      title: 'Blockchain',
-    },
-    {
-      color: FFColors.Orange,
-      title: 'Tokens',
-    },
-    {
-      color: FFColors.Pink,
-      title: 'Messages',
-    },
+  const { createdFilter, lastEvent, selectedNamespace } =
+    useContext(ApplicationContext);
+  const { reportFetchError } = useContext(SnackbarContext);
+  const { t } = useTranslation();
+  // Transactions
+  const [txs, setTxs] = useState<ITransaction[]>();
+  // Transaction totals
+  const [txTotal, setTxTotal] = useState(0);
+  // View transaction slide out
+  const [viewTx, setViewTx] = useState<ITransaction | undefined>();
+  // Tx types histogram
+  const [txHistData, setTxHistData] = useState<BarDatum[]>();
+
+  const [currentPage, setCurrentPage] = useState(0);
+  const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
+
+  // Transactions
+  useEffect(() => {
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+
+    fetchCatcher(
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${
+        FF_Paths.transactions
+      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+        createdFilterObject.filterString
+      }`
+    )
+      .then((txRes: IPagedTransactionResponse) => {
+        setTxs(txRes.items);
+        setTxTotal(txRes.total);
+      })
+      .catch((err) => {
+        reportFetchError(err);
+      });
+  }, [rowsPerPage, currentPage, selectedNamespace]);
+
+  // Histogram
+  useEffect(() => {
+    const currentTime = dayjs().unix();
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+
+    fetchCatcher(
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+        BucketCollectionEnum.Transactions,
+        createdFilterObject.filterTime,
+        currentTime,
+        BucketCountEnum.Large
+      )}`
+    )
+      .then((histTypes: IMetric[]) => {
+        setTxHistData(makeTxHistogram(histTypes));
+      })
+      .catch((err) => {
+        reportFetchError(err);
+      });
+  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+
+  const txColumnHeaders = [
+    t('type'),
+    t('id'),
+    t('details'),
+    t('blockchainIds'),
+    t('created'),
   ];
 
-  const columnHeaders = [
-    'Timestamp',
-    'Activity',
-    'Blockchain',
-    'Author',
-    'Details',
-    '',
-  ];
-
-  const records: IDataTableRecord[] = [1, 2, 3, 4, 5, 6].map(() => ({
-    key: 'key',
+  const txRecords: IDataTableRecord[] | undefined = txs?.map((tx) => ({
+    key: tx.id,
     columns: [
       {
         value: (
-          <Typography>
-            {dayjs(new Date()).format('MM/DD/YYYY h:mm A')}
-          </Typography>
+          <Typography>{t(FF_TX_CATEGORY_MAP[tx.type].nicename)}</Typography>
         ),
       },
       {
-        value: <Typography>Token transfer complete</Typography>,
+        value: <HashPopover shortHash={true} address={tx.id}></HashPopover>,
       },
       {
-        value: <Typography>d521b...4d1a15</Typography>,
+        value: 'TODO',
       },
       {
-        value: <Typography>Member Name</Typography>,
+        value: (
+          <>
+            {tx.blockchainIds?.map((bid) => (
+              // TODO: Support multiple items in array better
+              <HashPopover shortHash={true} address={bid}></HashPopover>
+            ))}
+          </>
+        ),
       },
-      {
-        value: <Typography>From=0xabc To=0xbcd</Typography>,
-      },
-      {
-        value: <Chip color="success" label="Success"></Chip>,
-      },
+      { value: dayjs(tx.created).format('MM/DD/YYYY h:mm A') },
     ],
+    onClick: () => setViewTx(tx),
+    leftBorderColor: FF_TX_CATEGORY_MAP[tx.type].color,
   }));
 
   return (
     <>
-      <Header title={'transactions'} subtitle={'Activity'}></Header>
+      <Header title={t('transactions')} subtitle={t('activity')}></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
-          <ChartHeader
-            title="All Events"
-            legend={legend}
+          <ChartTableHeader
+            title={t('allTransactions')}
             filter={
               <Button variant="outlined">
-                <Typography p={0.75} sx={{ fontSize: 10 }}>
-                  Filter
+                <Typography p={0.75} sx={{ fontSize: 12 }}>
+                  {t('filter')}
                 </Typography>
               </Button>
             }
           />
-          {/* <Histogram data="undefined"></Histogram> */}
-          {records.length ? (
-            <DataTable
-              stickyHeader={true}
-              minHeight="300px"
-              maxHeight="calc(100vh - 340px)"
-              columnHeaders={columnHeaders}
-              records={records}
-              // {...{ pagination }}
-            ></DataTable>
-          ) : (
-            <DataTableEmptyState
-              header="No Transactions"
-              message="No Messages to Display"
-            />
-          )}
+          <Histogram
+            height={DEFAULT_HIST_HEIGHT}
+            colors={makeColorArray(FF_TX_CATEGORY_MAP)}
+            data={txHistData}
+            indexBy="timestamp"
+            keys={makeKeyArray(FF_TX_CATEGORY_MAP)}
+            includeLegend={true}
+            emptyText={t('noTransactions')}
+            isEmpty={isHistogramEmpty(
+              txHistData ?? [],
+              Object.keys(TxCategoryEnum)
+            )}
+          />
+          <DataTable
+            onHandleCurrPageChange={(currentPage: number) =>
+              setCurrentPage(currentPage)
+            }
+            onHandleRowsPerPage={(rowsPerPage: number) =>
+              setRowsPerPage(rowsPerPage)
+            }
+            stickyHeader={true}
+            minHeight="300px"
+            maxHeight="calc(100vh - 340px)"
+            records={txRecords}
+            columnHeaders={txColumnHeaders}
+            paginate={true}
+            emptyStateText={t('noTransactionsToDisplay')}
+            dataTotal={txTotal}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
+          />
         </Grid>
       </Grid>
+      {viewTx && (
+        <TransactionSlide
+          transaction={viewTx}
+          open={!!viewTx}
+          onClose={() => {
+            setViewTx(undefined);
+          }}
+        />
+      )}
     </>
   );
 };

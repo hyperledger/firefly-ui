@@ -1,6 +1,8 @@
 import { ThemeOptions } from '@mui/material';
 
+export const DEFAULT_HIST_HEIGHT = 200;
 export const DEFAULT_PADDING = 3;
+export const DEFAULT_PAGE_LIMITS = [5, 10, 25];
 export const DEFAULT_SPACING = 3;
 
 export enum FFColors {
@@ -43,3 +45,5 @@ export const themeOptions: ThemeOptions = {
     },
   },
 };
+
+export const FFBackgroundHover = '#252C32';

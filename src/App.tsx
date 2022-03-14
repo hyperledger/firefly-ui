@@ -57,7 +57,10 @@ const App: React.FC = () => {
   const [lastEvent, setLastEvent] = useState<any>();
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<SnackbarMessageType>('error');
+  const [orgID, setOrgID] = useState('');
   const [orgName, setOrgName] = useState('');
+  const [nodeID, setNodeID] = useState('');
+  const [nodeName, setNodeName] = useState('');
   const [createdFilter, setCreatedFilter] =
     useState<CreatedFilterOptions>('24hours');
   const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
@@ -81,7 +84,10 @@ const App: React.FC = () => {
         if (namespaceResponse.ok && statusResponse.ok) {
           const status: IStatus = await statusResponse.json();
           setIdentity(status.org.identity);
+          setOrgID(status.org.id);
           setOrgName(status.org.name);
+          setNodeID(status.node.id);
+          setNodeName(status.node.name);
           setSelectedNamespace(status.defaults.namespace);
           const ns: INamespace[] = await namespaceResponse.json();
           setNamespaces(ns);
@@ -99,30 +105,32 @@ const App: React.FC = () => {
             );
           }
         } else {
-          setInitError('true');
         }
+      })
+      .catch((e) => {
+        setInitError(e);
       })
       .finally(() => {
         setInitialized(true);
       });
   }, [routerNamespace]);
 
-  useEffect(() => {
-    if (selectedNamespace) {
-      ws.current = new ReconnectingWebSocket(
-        `${protocol}://${window.location.hostname}:${window.location.port}/ws?namespace=${selectedNamespace}&ephemeral&autoack`
-      );
-      ws.current.onmessage = (event: any) => {
-        setLastEvent(event);
-      };
+  // useEffect(() => {
+  //   if (selectedNamespace) {
+  //     ws.current = new ReconnectingWebSocket(
+  //       `${protocol}://${window.location.hostname}:${window.location.port}/ws?namespace=${selectedNamespace}&ephemeral&autoack`
+  //     );
+  //     ws.current.onmessage = (event: any) => {
+  //       setLastEvent(event);
+  //     };
 
-      return () => {
-        if (ws.current) {
-          ws.current.close();
-        }
-      };
-    }
-  }, [selectedNamespace]);
+  //     return () => {
+  //       if (ws.current) {
+  //         ws.current.close();
+  //       }
+  //     };
+  //   }
+  // }, [selectedNamespace]);
 
   const reportFetchError = (err: any) => {
     summarizeFetchError(err).then((message: string) => {
@@ -134,7 +142,15 @@ const App: React.FC = () => {
   if (initialized) {
     if (initError) {
       // figure out what to display
-      return <></>;
+      return (
+        <>
+          <StyledEngineProvider injectFirst>
+            <ThemeProvider {...{ theme }}>
+              <CssBaseline>Fallback</CssBaseline>
+            </ThemeProvider>
+          </StyledEngineProvider>
+        </>
+      );
     } else {
       return (
         <ApplicationContext.Provider
@@ -142,7 +158,10 @@ const App: React.FC = () => {
             namespaces,
             selectedNamespace,
             setSelectedNamespace,
+            orgID,
             orgName,
+            nodeID,
+            nodeName,
             identity,
             lastEvent,
             setLastEvent,

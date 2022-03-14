@@ -16,12 +16,16 @@
 
 import React from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { BrowserRouter, useRoutes } from 'react-router-dom';
+import { BrowserRouter, RouteObject, useRoutes } from 'react-router-dom';
 import { QueryParamProvider } from 'use-query-params';
-import { AppWrapper } from './AppWrapper';
-import { FFRouteObject } from '../interfaces';
-import { HomeRoutes } from '../pages/Home/Routes';
 import { ActivityRoutes } from '../pages/Activity/Routes';
+import { BlockchainRoutes } from '../pages/Blockchain/Routes';
+import { HomeRoutes } from '../pages/Home/Routes';
+import { MyNodeRoutes } from '../pages/MyNode/Routes';
+import { NetworkRoutes } from '../pages/Network/Routes';
+import { OffChainRoutes } from '../pages/Off-Chain/Routes';
+import { TokensRoutes } from '../pages/Tokens/Routes';
+import { AppWrapper } from './AppWrapper';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -54,6 +58,14 @@ export default function Routes() {
   return routes;
 }
 
-export function getAllRoutes(): FFRouteObject[] {
-  return [HomeRoutes, ActivityRoutes];
+export function getAllRoutes(): RouteObject[] {
+  return [
+    HomeRoutes,
+    ActivityRoutes,
+    BlockchainRoutes,
+    OffChainRoutes,
+    TokensRoutes,
+    NetworkRoutes,
+    MyNodeRoutes,
+  ];
 }

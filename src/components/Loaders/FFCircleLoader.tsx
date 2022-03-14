@@ -11,9 +11,10 @@ type Props = {
     | 'warning'
     | 'inherit'
     | undefined;
+  height?: number | string;
 };
 
-export const FFCircleLoader: React.FC<Props> = ({ color }) => {
+export const FFCircleLoader: React.FC<Props> = ({ color, height }) => {
   return (
     <Grid
       container
@@ -21,6 +22,7 @@ export const FFCircleLoader: React.FC<Props> = ({ color }) => {
       alignItems="center"
       py={DEFAULT_PADDING}
       sx={{
+        height,
         minHeight: 150,
       }}
     >
