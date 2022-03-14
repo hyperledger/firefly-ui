@@ -2,7 +2,7 @@ import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import { Grid, IconButton, List, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
-import { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { CardEmptyState } from '../../../components/Cards/CardEmptyState';
@@ -306,14 +306,14 @@ export const HomeDashboard: () => JSX.Element = () => {
       component: (
         <Grid container item>
           {myNodeDetailsList.map((data, idx) => (
-            <>
-              <Grid key={idx} item xs={6} pb={2}>
+            <React.Fragment key={idx}>
+              <Grid item xs={6} pb={2}>
                 <Typography pb={1} variant="body2">
                   {data.header}
                 </Typography>
                 <HashPopover address={data.data?.toString() ?? ''} />
               </Grid>
-            </>
+            </React.Fragment>
           ))}
         </Grid>
       ),

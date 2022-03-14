@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { TableCell, TableRow, Typography } from '@mui/material';
+import { TableCell, TableRow } from '@mui/material';
 import React from 'react';
 import { FFBackgroundHover, themeOptions } from '../../theme';
 import { IDataTableRecord } from './TableInterfaces';
@@ -55,7 +55,7 @@ export const DataTableRow: React.FC<Props> = ({ record, leftBorderColor }) => {
               padding: '8px',
             }}
           >
-            <Typography>{column.value}</Typography>
+            {column.value}
           </TableCell>
         );
       })}

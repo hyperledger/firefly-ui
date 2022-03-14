@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { TableCell, TableRow, Typography } from '@mui/material';
+import { TableCell, TableRow } from '@mui/material';
 import { withStyles } from '@mui/styles';
 import React from 'react';
 import { FFBackgroundHover } from '../../theme';
@@ -29,9 +29,7 @@ export const MediumCardTableRow: React.FC<Props> = ({ record }) => {
     <>
       <StyledTableRow onClick={record.onClick}>
         {record.columns.map((column, index) => (
-          <TableCell key={index}>
-            <Typography>{column.value}</Typography>
-          </TableCell>
+          <TableCell key={index}>{column.value}</TableCell>
         ))}
       </StyledTableRow>
     </>

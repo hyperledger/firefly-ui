@@ -56,7 +56,7 @@ export const OperationSlide: React.FC<Props> = ({ op, open, onClose }) => {
       label: t('status'),
       value: op.status && (
         <Chip
-          label={op.status.toLocaleUpperCase()}
+          label={op.status?.toLocaleUpperCase()}
           sx={{ backgroundColor: OpStatusColorMap[op.status] }}
         ></Chip>
       ),

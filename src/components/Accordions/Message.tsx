@@ -68,7 +68,7 @@ export const MessageAccordion: React.FC<Props> = ({ message }) => {
             {/* State */}
             <Grid xs={6} item container justifyContent="flex-end">
               <Chip
-                label={message.state.toLocaleUpperCase()}
+                label={message.state?.toLocaleUpperCase()}
                 sx={{ backgroundColor: MsgStateColorMap[message.state] }}
               ></Chip>
             </Grid>
@@ -76,8 +76,8 @@ export const MessageAccordion: React.FC<Props> = ({ message }) => {
         </AccordionSummary>
         <AccordionDetails>
           <Grid container item direction="row">
-            {accInfo.map((info) => (
-              <Grid item xs={4} pb={1} justifyContent="flex-start">
+            {accInfo.map((info, idx) => (
+              <Grid key={idx} item xs={4} pb={1} justifyContent="flex-start">
                 <Typography pb={1} variant="body2">
                   {info.header}
                 </Typography>

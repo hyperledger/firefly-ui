@@ -102,7 +102,7 @@ export const TransactionSlide: React.FC<Props> = ({
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [event]);
+  }, [transaction]);
 
   const dataList: IDataListItem[] = [
     {
@@ -114,7 +114,7 @@ export const TransactionSlide: React.FC<Props> = ({
       label: t('status'),
       value: txStatus && (
         <Chip
-          label={txStatus.status.toLocaleUpperCase()}
+          label={txStatus.status?.toLocaleUpperCase()}
           sx={{ backgroundColor: TxStatusColorMap[txStatus.status] }}
         ></Chip>
       ),
@@ -148,8 +148,8 @@ export const TransactionSlide: React.FC<Props> = ({
                 title={t('recentOperations')}
               />
               <Grid container item>
-                {txOperations?.map((op) => (
-                  <OperationAccordion op={op} />
+                {txOperations?.map((op, idx) => (
+                  <OperationAccordion key={idx} op={op} />
                 ))}
               </Grid>
             </>
@@ -162,8 +162,8 @@ export const TransactionSlide: React.FC<Props> = ({
                 title={t('recentBlockchainEvents')}
               />
               <Grid container item>
-                {txBlockchainEvents?.map((be) => (
-                  <BlockchainEventAccordion be={be} />
+                {txBlockchainEvents?.map((be, idx) => (
+                  <BlockchainEventAccordion key={idx} be={be} />
                 ))}
               </Grid>
             </>

@@ -134,7 +134,7 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
       label: t('status'),
       value: txStatus && (
         <Chip
-          label={txStatus.status.toLocaleUpperCase()}
+          label={txStatus.status?.toLocaleUpperCase()}
           sx={{ backgroundColor: TxStatusColorMap[txStatus.status] }}
         ></Chip>
       ),

@@ -29,7 +29,7 @@ export const TransactionAccordion: React.FC<Props> = ({ tx }) => {
       data: (
         <>
           {tx.blockchainIds.map((id) => (
-            <HashPopover shortHash address={id} />
+            <HashPopover key={id} shortHash address={id} />
           ))}
         </>
       ),
@@ -67,8 +67,8 @@ export const TransactionAccordion: React.FC<Props> = ({ tx }) => {
         </AccordionSummary>
         <AccordionDetails>
           <Grid container item direction="row">
-            {accInfo.map((info) => (
-              <Grid item xs={6} pb={1} justifyContent="flex-start">
+            {accInfo.map((info, idx) => (
+              <Grid key={idx} item xs={6} pb={1} justifyContent="flex-start">
                 <Typography pb={1} variant="body2">
                   {info.header}
                 </Typography>

@@ -141,7 +141,7 @@ export const ActivityOperations: () => JSX.Element = () => {
         value: (
           <Chip
             sx={{ backgroundColor: OpStatusColorMap[op.status] }}
-            label={op.status.toLocaleUpperCase()}
+            label={op.status?.toLocaleUpperCase()}
           ></Chip>
         ),
       },
