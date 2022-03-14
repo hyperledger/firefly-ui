@@ -29,7 +29,6 @@ import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
-  FF_EVENTS_CATEGORY_MAP,
   FF_Paths,
   ICreatedFilter,
   IEvent,
@@ -39,11 +38,7 @@ import {
 } from '../../../interfaces';
 import { DEFAULT_HIST_HEIGHT, DEFAULT_PADDING, FFColors } from '../../../theme';
 import { fetchCatcher, makeEventHistogram } from '../../../utils';
-import {
-  isHistogramEmpty,
-  makeColorArray,
-  makeKeyArray,
-} from '../../../utils/charts';
+import { isHistogramEmpty } from '../../../utils/charts';
 
 export const ActivityTimeline: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -118,9 +113,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
                 EventCategoryEnum.TOKENS,
               ]}
               includeLegend={true}
-              isEmpty={isHistogramEmpty(
-                eventHistData ?? []
-              )}
+              isEmpty={isHistogramEmpty(eventHistData ?? [])}
               emptyText={t('noActivity')}
               height={DEFAULT_HIST_HEIGHT}
             />
