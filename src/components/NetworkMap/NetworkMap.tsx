@@ -124,7 +124,7 @@ export const NetworkMap: () => JSX.Element = () => {
           )}
           {isNode &&
             makeTooltipDataRow(
-              t('nodeID'),
+              t('nodeId'),
               <HashPopover
                 textColor="secondary"
                 address={node?.id || p.node.id || ''}
@@ -188,12 +188,11 @@ export const NetworkMap: () => JSX.Element = () => {
     return isNode || isIdentity ? tooltipWrap(circle) : circle;
   };
 
-  // TODO: Fix for new identity stuff
   const orgMap: Map<IOrganization, INode[] | undefined> = new Map();
   orgs?.forEach((o) =>
     orgMap.set(
       o,
-      nodes?.filter((n) => n.did === o.did)
+      nodes?.filter((n) => n.parent === o.id)
     )
   );
 
@@ -216,8 +215,7 @@ export const NetworkMap: () => JSX.Element = () => {
     });
   });
 
-  // TODO: Fix
-  const useHardcodedData = true; // testing
+  const useHardcodedData = false; // testing
   const isDense =
     useHardcodedData || (orgs?.length || 0) > 4 || (nodes?.length || 0) > 6
       ? true
