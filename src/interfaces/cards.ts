@@ -14,35 +14,33 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { CircularProgress, Grid } from '@mui/material';
-import { DEFAULT_PADDING } from '../../theme';
+export interface IDataWithHeader {
+  header?: string;
+  data: string | number | undefined | JSX.Element;
+}
 
-type Props = {
-  color:
-    | 'primary'
-    | 'secondary'
-    | 'error'
-    | 'info'
-    | 'success'
-    | 'warning'
-    | 'inherit'
-    | undefined;
-  height?: number | string;
-};
+export interface ISmallCard {
+  header: string;
+  numErrors?: number;
+  data: IDataWithHeader[];
+  clickPath?: string;
+}
 
-export const FFCircleLoader: React.FC<Props> = ({ color, height }) => {
-  return (
-    <Grid
-      container
-      justifyContent="center"
-      alignItems="center"
-      py={DEFAULT_PADDING}
-      sx={{
-        height,
-        minHeight: 150,
-      }}
-    >
-      <CircularProgress color={color} />
-    </Grid>
-  );
-};
+export interface IMediumCard {
+  headerComponent?: JSX.Element | string;
+  headerText: string;
+  component: JSX.Element;
+}
+
+export interface ITableCard {
+  headerComponent: any;
+  headerText: string;
+  component: any;
+}
+
+export interface ITableCardItem {
+  header: string;
+  status: string;
+  subText: string;
+  date: string;
+}

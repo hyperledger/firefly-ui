@@ -17,47 +17,39 @@
 import {
   TimelineConnector,
   TimelineContent,
-  TimelineDot,
   TimelineItem,
   TimelineOppositeContent,
   TimelineSeparator,
 } from '@mui/lab';
-import makeStyles from '@mui/styles/makeStyles';
+import { Grid } from '@mui/material';
 import React from 'react';
-import { ITimelineItem } from '../../../interfaces';
-import { TimelineContentPanel } from './TimelineContentPanel';
+import { ITimelineElement } from '../../../interfaces';
+import { TimelineLine } from './TimelineLine';
+import { FFTimelineLine } from '../../../theme';
 
 interface Props {
-  item: ITimelineItem;
+  element: ITimelineElement;
 }
 
-export const OppositeTimelineItem: React.FC<Props> = ({ item }) => {
-  const classes = useStyles();
-
+export const OppositeTimelineItem: React.FC<Props> = ({ element }) => {
   return (
     <>
       <TimelineItem>
-        <TimelineOppositeContent>
-          <TimelineContentPanel
-            title={item.title}
-            description={item.description}
-            onClick={item.onClick}
-          />
+        <TimelineOppositeContent sx={{ paddingRight: 0, paddingTop: 2 }}>
+          <Grid container alignItems="center">
+            <Grid item xs={11}>
+              {element.item}
+            </Grid>
+            <Grid item xs={1}>
+              <TimelineLine />
+            </Grid>
+          </Grid>
         </TimelineOppositeContent>
         <TimelineSeparator>
-          <TimelineDot className={classes.dot}>
-            {item.icon ? item.icon : undefined}
-          </TimelineDot>
-          <TimelineConnector />
+          <TimelineConnector sx={{ backgroundColor: FFTimelineLine }} />
         </TimelineSeparator>
-        <TimelineContent>{item.time}</TimelineContent>
+        <TimelineContent />
       </TimelineItem>
     </>
   );
 };
-
-const useStyles = makeStyles(() => ({
-  dot: {
-    backgroundColor: '#2D353C',
-  },
-}));

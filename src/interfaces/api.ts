@@ -105,6 +105,9 @@ export interface IFireflyApi {
 export interface IFireFlyParam {
   name: string;
   schema: any;
+  message?: IMessage;
+  transaction?: ITransaction;
+  blockchainevent?: IBlockchainEvent;
 }
 
 export interface IGenericPagedResponse {
