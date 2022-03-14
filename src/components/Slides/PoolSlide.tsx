@@ -14,33 +14,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Chip, Grid, IconButton, Typography } from '@mui/material';
+import { Chip, Grid, Typography } from '@mui/material';
 import dayjs from 'dayjs';
-import React, { useContext, useEffect, useState } from 'react';
+import React from 'react';
 import { useTranslation } from 'react-i18next';
-import Jazzicon, { jsNumberForAddress } from 'react-jazzicon';
-import { useNavigate } from 'react-router-dom';
-import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { SnackbarContext } from '../../contexts/SnackbarContext';
-import {
-  FF_NAV_PATHS,
-  IPagedTokenTransferResponse,
-  ITokenPool,
-  ITokenTransfer,
-} from '../../interfaces';
-import { FF_Paths } from '../../interfaces/constants';
-import {
-  FF_TRANSFER_CATEGORY_MAP,
-  PoolStateColorMap,
-  TransferIconMap,
-} from '../../interfaces/enums';
+import Jazzicon from 'react-jazzicon';
+import { ITokenPool } from '../../interfaces';
+import { PoolStateColorMap } from '../../interfaces/enums';
 import { DEFAULT_PADDING } from '../../theme';
-import { fetchCatcher } from '../../utils';
+import { jsNumberForAddress } from '../../utils';
 import { FFCopyButton } from '../Buttons/CopyButton';
-import { HashPopover } from '../Popovers/HashPopover';
-import { DataTable } from '../Tables/Table';
-import { IDataTableRecord } from '../Tables/TableInterfaces';
 import { DisplaySlide } from './DisplaySlide';
 import { DrawerListItem, IDataListItem } from './ListItem';
 
@@ -52,23 +35,6 @@ interface Props {
 
 export const PoolSlide: React.FC<Props> = ({ pool, open, onClose }) => {
   const { t } = useTranslation();
-  const { selectedNamespace } = useContext(ApplicationContext);
-  const { reportFetchError } = useContext(SnackbarContext);
-  const navigate = useNavigate();
-  const [recentTransfers, setRecentTransfers] = useState<ITokenTransfer[]>([]);
-
-  useEffect(() => {
-    // Recent transfers in pool
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}?limit=5`
-    )
-      .then((transfers: IPagedTokenTransferResponse) => {
-        setRecentTransfers(transfers.items);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [selectedNamespace]);
 
   const dataList: IDataListItem[] = [
     {
@@ -111,65 +77,6 @@ export const PoolSlide: React.FC<Props> = ({ pool, open, onClose }) => {
     },
   ];
 
-  const tokenTransferColHeaders = [
-    t('txHash'),
-    t('from'),
-    t('to'),
-    t('amount'),
-    t('created'),
-  ];
-  const tokenTransferRecords: IDataTableRecord[] = recentTransfers.map(
-    (transfer) => {
-      return {
-        key: pool.id,
-        columns: [
-          {
-            value: (
-              <>
-                <Grid
-                  direction="row"
-                  justifyContent="flex-start"
-                  alignItems="center"
-                  container
-                >
-                  <Grid container item justifyContent="flex-start" xs={1}>
-                    {TransferIconMap[transfer.type]}
-                  </Grid>
-                  <Grid container item justifyContent="flex-end" xs={11}>
-                    <Typography sx={{ fontSize: '14px' }}>
-                      {t(FF_TRANSFER_CATEGORY_MAP[transfer.type].nicename)}
-                    </Typography>
-                  </Grid>
-                </Grid>
-              </>
-            ),
-          },
-          {
-            value: (
-              <HashPopover
-                shortHash={true}
-                address={transfer.from ?? t('nullAddress')}
-              ></HashPopover>
-            ),
-          },
-          {
-            value: (
-              <HashPopover
-                shortHash={true}
-                address={transfer.to ?? t('nullAddress')}
-              ></HashPopover>
-            ),
-          },
-          {
-            value: <Typography>{transfer.amount}</Typography>,
-          },
-          { value: dayjs(pool.created).format('MM/DD/YYYY h:mm A') },
-        ],
-        leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type].color,
-      };
-    }
-  );
-
   return (
     <>
       <DisplaySlide open={open} onClose={onClose}>
@@ -204,29 +111,10 @@ export const PoolSlide: React.FC<Props> = ({ pool, open, onClose }) => {
           </Grid>
           {/* Data list */}
           <Grid container item pb={DEFAULT_PADDING}>
-            {dataList.map((data, idx) => (
+            {dataList?.map((data, idx) => (
               <DrawerListItem key={idx} item={data} />
             ))}
           </Grid>
-          {/* Recent transfers table */}
-          <DataTable
-            stickyHeader={true}
-            minHeight="300px"
-            maxHeight="calc(100vh - 340px)"
-            records={tokenTransferRecords}
-            columnHeaders={tokenTransferColHeaders}
-            emptyStateText={t('noTokenTransfersInPool')}
-            header={t('recentTokenTransfers')}
-            headerBtn={
-              <IconButton
-                onClick={() =>
-                  navigate(FF_NAV_PATHS.tokensTransfersPath(selectedNamespace))
-                }
-              >
-                <ArrowForwardIcon />
-              </IconButton>
-            }
-          />
         </Grid>
       </DisplaySlide>
     </>

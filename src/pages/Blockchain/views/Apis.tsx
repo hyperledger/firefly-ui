@@ -15,19 +15,12 @@
 // limitations under the License.
 
 import LaunchIcon from '@mui/icons-material/Launch';
-import {
-  Button,
-  Grid,
-  IconButton,
-  Link,
-  TablePagination,
-  Typography,
-} from '@mui/material';
+import { Button, Grid, IconButton, Link, Typography } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
+import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { DataTable } from '../../../components/Tables/Table';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
@@ -39,10 +32,8 @@ import {
   IFireflyApi,
   IPagedFireFlyApiResponse,
 } from '../../../interfaces';
-import { DEFAULT_PADDING } from '../../../theme';
+import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
-
-const PAGE_LIMITS = [10, 25];
 
 export const BlockchainApis: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -55,35 +46,7 @@ export const BlockchainApis: () => JSX.Element = () => {
   const [apiTotal, setApiTotal] = useState(0);
 
   const [currentPage, setCurrentPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-
-  const handleChangePage = (_event: unknown, newPage: number) => {
-    if (newPage > currentPage && rowsPerPage * (currentPage + 1) >= apiTotal) {
-      return;
-    }
-    setCurrentPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setCurrentPage(0);
-    setRowsPerPage(+event.target.value);
-  };
-
-  const pagination = (
-    <TablePagination
-      component="div"
-      count={-1}
-      rowsPerPage={rowsPerPage}
-      page={currentPage}
-      onPageChange={handleChangePage}
-      onRowsPerPageChange={handleChangeRowsPerPage}
-      rowsPerPageOptions={PAGE_LIMITS}
-      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
-      sx={{ color: 'text.secondary' }}
-    />
-  );
+  const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
   // Listeners
   useEffect(() => {
@@ -176,13 +139,22 @@ export const BlockchainApis: () => JSX.Element = () => {
             }
           />
           <DataTable
+            onHandleCurrPageChange={(currentPage: number) =>
+              setCurrentPage(currentPage)
+            }
+            onHandleRowsPerPage={(rowsPerPage: number) =>
+              setRowsPerPage(rowsPerPage)
+            }
             stickyHeader={true}
             minHeight="300px"
             maxHeight="calc(100vh - 340px)"
             records={apiRecords}
             columnHeaders={apiColHeaders}
-            {...{ pagination }}
+            paginate={true}
             emptyStateText={t('noApisToDisplay')}
+            dataTotal={apiTotal}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
           />
         </Grid>
       </Grid>

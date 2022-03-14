@@ -14,16 +14,16 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Button, Grid, TablePagination, Typography } from '@mui/material';
+import { Button, Grid, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
+import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { TransferSlide } from '../../../components/Slides/TransferSlide';
 import { DataTable } from '../../../components/Tables/Table';
@@ -44,7 +44,11 @@ import {
   TransferCategoryEnum,
   TransferIconMap,
 } from '../../../interfaces/enums';
-import { DEFAULT_HIST_HEIGHT, DEFAULT_PADDING } from '../../../theme';
+import {
+  DEFAULT_HIST_HEIGHT,
+  DEFAULT_PADDING,
+  DEFAULT_PAGE_LIMITS,
+} from '../../../theme';
 import { fetchCatcher } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -52,8 +56,6 @@ import {
   makeKeyArray,
 } from '../../../utils/charts';
 import { makeTransferHistogram } from '../../../utils/histograms/transferHistogram';
-
-const PAGE_LIMITS = [10, 25];
 
 export const TokensTransfers: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -71,38 +73,7 @@ export const TokensTransfers: () => JSX.Element = () => {
     ITokenTransfer | undefined
   >();
   const [currentPage, setCurrentPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-
-  const handleChangePage = (_event: unknown, newPage: number) => {
-    if (
-      newPage > currentPage &&
-      rowsPerPage * (currentPage + 1) >= tokenTransferTotal
-    ) {
-      return;
-    }
-    setCurrentPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setCurrentPage(0);
-    setRowsPerPage(+event.target.value);
-  };
-
-  const pagination = (
-    <TablePagination
-      component="div"
-      count={-1}
-      rowsPerPage={rowsPerPage}
-      page={currentPage}
-      onPageChange={handleChangePage}
-      onRowsPerPageChange={handleChangeRowsPerPage}
-      rowsPerPageOptions={PAGE_LIMITS}
-      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
-      sx={{ color: 'text.secondary' }}
-    />
-  );
+  const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
   // Token transfers
   useEffect(() => {
@@ -257,13 +228,22 @@ export const TokensTransfers: () => JSX.Element = () => {
             ></Histogram>
           </Box>
           <DataTable
+            onHandleCurrPageChange={(currentPage: number) =>
+              setCurrentPage(currentPage)
+            }
+            onHandleRowsPerPage={(rowsPerPage: number) =>
+              setRowsPerPage(rowsPerPage)
+            }
             stickyHeader={true}
             minHeight="300px"
             maxHeight="calc(100vh - 340px)"
             records={tokenTransferRecords}
             columnHeaders={tokenTransferColHeaders}
-            {...{ pagination }}
+            paginate={true}
             emptyStateText={t('noTokenTransfersToDisplay')}
+            dataTotal={tokenTransferTotal}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
           />
         </Grid>
       </Grid>

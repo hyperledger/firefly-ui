@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Grid, IconButton, TablePagination, Typography } from '@mui/material';
+import { Grid, IconButton, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -56,7 +56,11 @@ import {
   TransferCategoryEnum,
   TransferIconMap,
 } from '../../../interfaces/enums';
-import { DEFAULT_PADDING, DEFAULT_SPACING } from '../../../theme';
+import {
+  DEFAULT_PADDING,
+  DEFAULT_PAGE_LIMITS,
+  DEFAULT_SPACING,
+} from '../../../theme';
 import { fetchCatcher, jsNumberForAddress } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -65,11 +69,9 @@ import {
 } from '../../../utils/charts';
 import { makeTransferHistogram } from '../../../utils/histograms/transferHistogram';
 
-const PAGE_LIMITS = [5, 10];
-
 export const TokensDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
-  const { createdFilter, lastEvent, orgName, selectedNamespace } =
+  const { createdFilter, lastEvent, selectedNamespace } =
     useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const navigate = useNavigate();
@@ -104,38 +106,7 @@ export const TokensDashboard: () => JSX.Element = () => {
     ITokenTransfer | undefined
   >();
   const [currentPage, setCurrentPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-
-  const handleChangePage = (_event: unknown, newPage: number) => {
-    if (
-      newPage > currentPage &&
-      rowsPerPage * (currentPage + 1) >= tokenTransferTotal
-    ) {
-      return;
-    }
-    setCurrentPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setCurrentPage(0);
-    setRowsPerPage(+event.target.value);
-  };
-
-  const pagination = (
-    <TablePagination
-      component="div"
-      count={-1}
-      rowsPerPage={rowsPerPage}
-      page={currentPage}
-      onPageChange={handleChangePage}
-      onRowsPerPageChange={handleChangeRowsPerPage}
-      rowsPerPageOptions={PAGE_LIMITS}
-      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
-      sx={{ color: 'text.secondary' }}
-    />
-  );
+  const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
   const smallCards: ISmallCard[] = [
     {
@@ -516,21 +487,29 @@ export const TokensDashboard: () => JSX.Element = () => {
               );
             })}
           </Grid>
-          {/* Recent Transfers */}
           <DataTable
             header={t('recentTokenTransfers')}
-            stickyHeader={true}
-            minHeight="300px"
-            {...{ pagination }}
-            maxHeight="calc(100vh - 340px)"
-            records={tokenTransferRecords}
-            columnHeaders={tokenTransferColHeaders}
-            emptyStateText={t('noTokenTransfersToDisplay')}
             headerBtn={
               <IconButton onClick={() => navigate(TRANSFERS_PATH)}>
                 <ArrowForwardIcon />
               </IconButton>
             }
+            onHandleCurrPageChange={(currentPage: number) =>
+              setCurrentPage(currentPage)
+            }
+            onHandleRowsPerPage={(rowsPerPage: number) =>
+              setRowsPerPage(rowsPerPage)
+            }
+            stickyHeader={true}
+            minHeight="300px"
+            maxHeight="calc(100vh - 340px)"
+            records={tokenTransferRecords}
+            columnHeaders={tokenTransferColHeaders}
+            paginate={true}
+            emptyStateText={t('noTokenTransfersToDisplay')}
+            dataTotal={tokenTransferTotal}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
           />
         </Grid>
       </Grid>

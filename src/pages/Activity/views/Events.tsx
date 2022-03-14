@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Button, Grid, TablePagination, Typography } from '@mui/material';
+import { Box, Button, Grid, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -40,15 +40,17 @@ import {
   IMetric,
   IPagedEventResponse,
 } from '../../../interfaces';
-import { DEFAULT_HIST_HEIGHT, DEFAULT_PADDING } from '../../../theme';
+import {
+  DEFAULT_HIST_HEIGHT,
+  DEFAULT_PADDING,
+  DEFAULT_PAGE_LIMITS,
+} from '../../../theme';
 import { fetchCatcher, makeEventHistogram } from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
   makeKeyArray,
 } from '../../../utils/charts';
-
-const PAGE_LIMITS = [10, 25];
 
 export const ActivityEvents: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -63,40 +65,8 @@ export const ActivityEvents: () => JSX.Element = () => {
   const [eventHistData, setEventHistData] = useState<BarDatum[]>();
   // View transaction slide out
   const [viewEvent, setViewEvent] = useState<IEvent | undefined>();
-
   const [currentPage, setCurrentPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-
-  const handleChangePage = (_event: unknown, newPage: number) => {
-    if (
-      newPage > currentPage &&
-      rowsPerPage * (currentPage + 1) >= eventTotal
-    ) {
-      return;
-    }
-    setCurrentPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setCurrentPage(0);
-    setRowsPerPage(+event.target.value);
-  };
-
-  const pagination = (
-    <TablePagination
-      component="div"
-      count={-1}
-      rowsPerPage={rowsPerPage}
-      page={currentPage}
-      onPageChange={handleChangePage}
-      onRowsPerPageChange={handleChangeRowsPerPage}
-      rowsPerPageOptions={PAGE_LIMITS}
-      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
-      sx={{ color: 'text.secondary' }}
-    />
-  );
+  const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
   // Events list
   useEffect(() => {
@@ -223,13 +193,22 @@ export const ActivityEvents: () => JSX.Element = () => {
             ></Histogram>
           </Box>
           <DataTable
+            onHandleCurrPageChange={(currentPage: number) =>
+              setCurrentPage(currentPage)
+            }
+            onHandleRowsPerPage={(rowsPerPage: number) =>
+              setRowsPerPage(rowsPerPage)
+            }
             stickyHeader={true}
             minHeight="300px"
             maxHeight="calc(100vh - 340px)"
             records={eventsRecords}
             columnHeaders={eventsColumnHeaders}
-            {...{ pagination }}
+            paginate={true}
             emptyStateText={t('noEventsToDisplay')}
+            dataTotal={eventTotal}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
           />
         </Grid>
       </Grid>

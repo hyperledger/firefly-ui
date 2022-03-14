@@ -408,7 +408,7 @@ export const HomeDashboard: () => JSX.Element = () => {
           <ArrowForwardIcon />
         </IconButton>
       ),
-      headerText: 'Recent Network Events',
+      headerText: t('recentNetworkEvents'),
       component: (
         <List
           disablePadding
@@ -524,10 +524,10 @@ export const HomeDashboard: () => JSX.Element = () => {
             direction="row"
             pb={DEFAULT_PADDING}
           >
-            {tableCards.map((card) => {
+            {tableCards.map((card, idx) => {
               return (
                 <Grid
-                  key={card.headerText}
+                  key={idx}
                   direction="column"
                   alignItems="center"
                   justifyContent="center"
@@ -535,7 +535,7 @@ export const HomeDashboard: () => JSX.Element = () => {
                   item
                   xs={6}
                 >
-                  <TableCard card={card} />
+                  <TableCard key={idx} card={card} />
                 </Grid>
               );
             })}

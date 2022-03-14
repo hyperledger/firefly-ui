@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Button, Grid, TablePagination, Typography } from '@mui/material';
+import { Box, Button, Grid, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -42,7 +42,11 @@ import {
   FF_TX_CATEGORY_MAP,
   TxCategoryEnum,
 } from '../../../interfaces/enums/transactionTypes';
-import { DEFAULT_HIST_HEIGHT, DEFAULT_PADDING } from '../../../theme';
+import {
+  DEFAULT_HIST_HEIGHT,
+  DEFAULT_PADDING,
+  DEFAULT_PAGE_LIMITS,
+} from '../../../theme';
 import { fetchCatcher } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -50,8 +54,6 @@ import {
   makeKeyArray,
 } from '../../../utils/charts';
 import { makeTxHistogram } from '../../../utils/histograms/transactionHistogram';
-
-const PAGE_LIMITS = [10, 25];
 
 export const ActivityTransactions: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -68,35 +70,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
   const [txHistData, setTxHistData] = useState<BarDatum[]>();
 
   const [currentPage, setCurrentPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-
-  const handleChangePage = (_event: unknown, newPage: number) => {
-    if (newPage > currentPage && rowsPerPage * (currentPage + 1) >= txTotal) {
-      return;
-    }
-    setCurrentPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setCurrentPage(0);
-    setRowsPerPage(+event.target.value);
-  };
-
-  const pagination = (
-    <TablePagination
-      component="div"
-      count={-1}
-      rowsPerPage={rowsPerPage}
-      page={currentPage}
-      onPageChange={handleChangePage}
-      onRowsPerPageChange={handleChangeRowsPerPage}
-      rowsPerPageOptions={PAGE_LIMITS}
-      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
-      sx={{ color: 'text.secondary' }}
-    />
-  );
+  const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
   // Transactions
   useEffect(() => {
@@ -216,13 +190,22 @@ export const ActivityTransactions: () => JSX.Element = () => {
             ></Histogram>
           </Box>
           <DataTable
+            onHandleCurrPageChange={(currentPage: number) =>
+              setCurrentPage(currentPage)
+            }
+            onHandleRowsPerPage={(rowsPerPage: number) =>
+              setRowsPerPage(rowsPerPage)
+            }
             stickyHeader={true}
             minHeight="300px"
             maxHeight="calc(100vh - 340px)"
             records={txRecords}
             columnHeaders={txColumnHeaders}
-            {...{ pagination }}
+            paginate={true}
             emptyStateText={t('noTransactionsToDisplay')}
+            dataTotal={txTotal}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
           />
         </Grid>
       </Grid>

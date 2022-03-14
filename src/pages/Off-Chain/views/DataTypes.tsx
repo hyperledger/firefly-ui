@@ -14,13 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Button, Grid, TablePagination, Typography } from '@mui/material';
+import { Button, Grid, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
+import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { DataTable } from '../../../components/Tables/Table';
 import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
@@ -32,14 +32,11 @@ import {
   IDatatype,
   IPagedDatatypeResponse,
 } from '../../../interfaces';
-import { DEFAULT_PADDING } from '../../../theme';
+import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
 
-const PAGE_LIMITS = [10, 25];
-
 export const OffChainDataTypes: () => JSX.Element = () => {
-  const { createdFilter, lastEvent, selectedNamespace } =
-    useContext(ApplicationContext);
+  const { createdFilter, selectedNamespace } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   // Datatype
@@ -47,38 +44,7 @@ export const OffChainDataTypes: () => JSX.Element = () => {
   // Data total
   const [datatypeTotal, setDatatypeTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-
-  const handleChangePage = (_event: unknown, newPage: number) => {
-    if (
-      newPage > currentPage &&
-      rowsPerPage * (currentPage + 1) >= datatypeTotal
-    ) {
-      return;
-    }
-    setCurrentPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setCurrentPage(0);
-    setRowsPerPage(+event.target.value);
-  };
-
-  const pagination = (
-    <TablePagination
-      component="div"
-      count={-1}
-      rowsPerPage={rowsPerPage}
-      page={currentPage}
-      onPageChange={handleChangePage}
-      onRowsPerPageChange={handleChangeRowsPerPage}
-      rowsPerPageOptions={PAGE_LIMITS}
-      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
-      sx={{ color: 'text.secondary' }}
-    />
-  );
+  const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
   // Data type
   useEffect(() => {
@@ -155,13 +121,22 @@ export const OffChainDataTypes: () => JSX.Element = () => {
             }
           />
           <DataTable
+            onHandleCurrPageChange={(currentPage: number) =>
+              setCurrentPage(currentPage)
+            }
+            onHandleRowsPerPage={(rowsPerPage: number) =>
+              setRowsPerPage(rowsPerPage)
+            }
             stickyHeader={true}
             minHeight="300px"
             maxHeight="calc(100vh - 340px)"
             records={datatypeRecords}
             columnHeaders={datatypeColHeaders}
-            {...{ pagination }}
+            paginate={true}
             emptyStateText={t('noDatatypesToDisplay')}
+            dataTotal={datatypeTotal}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
           />
         </Grid>
       </Grid>

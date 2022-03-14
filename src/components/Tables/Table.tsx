@@ -21,11 +21,12 @@ import {
   TableCell,
   TableContainer,
   TableHead,
+  TablePagination,
   TableRow,
   Typography,
 } from '@mui/material';
 import React from 'react';
-import { themeOptions } from '../../theme';
+import { DEFAULT_PAGE_LIMITS, themeOptions } from '../../theme';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { DataTableEmptyState } from './TableEmptyState';
 import { IDataTableRecord } from './TableInterfaces';
@@ -35,25 +36,54 @@ interface Props {
   records?: IDataTableRecord[];
   columnHeaders?: string[];
   stickyHeader?: boolean;
-  pagination?: JSX.Element;
   header?: string;
   minHeight?: string;
   maxHeight?: string;
   emptyStateText?: string;
   headerBtn?: JSX.Element;
+  paginate?: boolean;
+  onHandleCurrPageChange?: any;
+  onHandleRowsPerPage?: any;
+  currentPage?: number;
+  rowsPerPage?: number;
+  dataTotal?: number;
 }
 
 export const DataTable: React.FC<Props> = ({
   records,
   columnHeaders,
   stickyHeader,
-  pagination,
   header,
   headerBtn,
   minHeight,
   maxHeight,
   emptyStateText,
+  paginate,
+  onHandleCurrPageChange,
+  onHandleRowsPerPage,
+  currentPage,
+  rowsPerPage,
+  dataTotal,
 }) => {
+  const handleChangePage = (_event: unknown, newPage: number) => {
+    if (currentPage && rowsPerPage && dataTotal) {
+      if (
+        newPage > currentPage &&
+        rowsPerPage * (currentPage + 1) >= dataTotal
+      ) {
+        return;
+      }
+    }
+    onHandleCurrPageChange(newPage);
+  };
+
+  const handleChangeRowsPerPage = (
+    event: React.ChangeEvent<HTMLInputElement>
+  ) => {
+    onHandleCurrPageChange(0);
+    onHandleRowsPerPage(+event.target.value);
+  };
+
   return (
     <>
       <Grid item xs={12}>
@@ -115,7 +145,24 @@ export const DataTable: React.FC<Props> = ({
                 </TableBody>
               </Table>
             </TableContainer>
-            {pagination}
+            {paginate &&
+              handleChangePage !== undefined &&
+              handleChangeRowsPerPage !== undefined &&
+              currentPage !== undefined &&
+              rowsPerPage !== undefined &&
+              dataTotal !== undefined && (
+                <TablePagination
+                  component="div"
+                  count={-1}
+                  rowsPerPage={rowsPerPage ?? 5}
+                  page={currentPage ?? 0}
+                  onPageChange={handleChangePage}
+                  onRowsPerPageChange={handleChangeRowsPerPage}
+                  rowsPerPageOptions={DEFAULT_PAGE_LIMITS}
+                  labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
+                  sx={{ color: 'text.secondary' }}
+                />
+              )}
           </>
         ) : (
           <DataTableEmptyState message={emptyStateText}></DataTableEmptyState>

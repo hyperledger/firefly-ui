@@ -16,13 +16,7 @@
 
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import DownloadIcon from '@mui/icons-material/Download';
-import {
-  Chip,
-  Grid,
-  IconButton,
-  TablePagination,
-  Typography,
-} from '@mui/material';
+import { Chip, Grid, IconButton, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -43,8 +37,8 @@ import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
-  DATA_PATH,
   DATATYPES_PATH,
+  DATA_PATH,
   FF_MESSAGES_CATEGORY_MAP,
   FF_Paths,
   ICreatedFilter,
@@ -61,7 +55,11 @@ import {
   MsgStateColorMap,
 } from '../../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
-import { DEFAULT_PADDING, DEFAULT_SPACING, FFColors } from '../../../theme';
+import {
+  DEFAULT_PADDING,
+  DEFAULT_PAGE_LIMITS,
+  DEFAULT_SPACING,
+} from '../../../theme';
 import {
   downloadBlobFile,
   fetchCatcher,
@@ -72,8 +70,6 @@ import {
   makeColorArray,
   makeKeyArray,
 } from '../../../utils/charts';
-
-const PAGE_LIMITS = [5, 10];
 
 export const OffChainDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
@@ -110,38 +106,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
   // View message slide out
   const [viewMsg, setViewMsg] = useState<IMessage | undefined>();
   const [currentPage, setCurrentPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-
-  const handleChangePage = (_event: unknown, newPage: number) => {
-    if (
-      newPage > currentPage &&
-      rowsPerPage * (currentPage + 1) >= messageTotal
-    ) {
-      return;
-    }
-    setCurrentPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setCurrentPage(0);
-    setRowsPerPage(+event.target.value);
-  };
-
-  const pagination = (
-    <TablePagination
-      component="div"
-      count={-1}
-      rowsPerPage={rowsPerPage}
-      page={currentPage}
-      onPageChange={handleChangePage}
-      onRowsPerPageChange={handleChangeRowsPerPage}
-      rowsPerPageOptions={PAGE_LIMITS}
-      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
-      sx={{ color: 'text.secondary' }}
-    />
-  );
+  const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
   const smallCards: ISmallCard[] = [
     {
@@ -487,16 +452,24 @@ export const OffChainDashboard: () => JSX.Element = () => {
               );
             })}
           </Grid>
-          {/* Messages */}
           <DataTable
             header={t('recentMessages')}
+            onHandleCurrPageChange={(currentPage: number) =>
+              setCurrentPage(currentPage)
+            }
+            onHandleRowsPerPage={(rowsPerPage: number) =>
+              setRowsPerPage(rowsPerPage)
+            }
             stickyHeader={true}
             minHeight="300px"
             maxHeight="calc(100vh - 340px)"
             records={msgRecords}
             columnHeaders={msgColumnHeaders}
-            {...{ pagination }}
+            paginate={true}
             emptyStateText={t('noMessagesToDisplay')}
+            dataTotal={messageTotal}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
             headerBtn={
               <IconButton onClick={() => navigate(MESSAGES_PATH)}>
                 <ArrowForwardIcon />

@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Grid, IconButton, TablePagination, Typography } from '@mui/material';
+import { Grid, IconButton, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -54,7 +54,12 @@ import {
   BlockchainEventCategoryEnum,
   FF_BE_CATEGORY_MAP,
 } from '../../../interfaces/enums/blockchainEventTypes';
-import { DEFAULT_PADDING, DEFAULT_SPACING, FFColors } from '../../../theme';
+import {
+  DEFAULT_PADDING,
+  DEFAULT_PAGE_LIMITS,
+  DEFAULT_SPACING,
+  FFColors,
+} from '../../../theme';
 import { fetchCatcher } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -62,8 +67,6 @@ import {
   makeKeyArray,
 } from '../../../utils/charts';
 import { makeBlockchainEventHistogram } from '../../../utils/histograms/blockchainEventHistogram';
-
-const PAGE_LIMITS = [5, 10];
 
 export const BlockchainDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
@@ -109,38 +112,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
   const [blockchainEventsTotal, setBlockchainEventsTotal] = useState(0);
 
   const [currentPage, setCurrentPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(PAGE_LIMITS[0]);
-
-  const handleChangePage = (_event: unknown, newPage: number) => {
-    if (
-      newPage > currentPage &&
-      rowsPerPage * (currentPage + 1) >= blockchainEventsTotal
-    ) {
-      return;
-    }
-    setCurrentPage(newPage);
-  };
-
-  const handleChangeRowsPerPage = (
-    event: React.ChangeEvent<HTMLInputElement>
-  ) => {
-    setCurrentPage(0);
-    setRowsPerPage(+event.target.value);
-  };
-
-  const pagination = (
-    <TablePagination
-      component="div"
-      count={-1}
-      rowsPerPage={rowsPerPage}
-      page={currentPage}
-      onPageChange={handleChangePage}
-      onRowsPerPageChange={handleChangeRowsPerPage}
-      rowsPerPageOptions={PAGE_LIMITS}
-      labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
-      sx={{ color: 'text.secondary' }}
-    />
-  );
+  const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
   const smallCards: ISmallCard[] = [
     {
@@ -453,16 +425,24 @@ export const BlockchainDashboard: () => JSX.Element = () => {
               );
             })}
           </Grid>
-          {/* Blockchain Events */}
           <DataTable
             header={t('recentBlockchainEvents')}
+            onHandleCurrPageChange={(currentPage: number) =>
+              setCurrentPage(currentPage)
+            }
+            onHandleRowsPerPage={(rowsPerPage: number) =>
+              setRowsPerPage(rowsPerPage)
+            }
             stickyHeader={true}
             minHeight="300px"
             maxHeight="calc(100vh - 340px)"
             records={beRecords}
             columnHeaders={beColHeaders}
-            {...{ pagination }}
+            paginate={true}
             emptyStateText={t('noBlockchainEvents')}
+            dataTotal={blockchainEventsTotal}
+            currentPage={currentPage}
+            rowsPerPage={rowsPerPage}
             headerBtn={
               <IconButton onClick={() => navigate(EVENTS_PATH)}>
                 <ArrowForwardIcon />
