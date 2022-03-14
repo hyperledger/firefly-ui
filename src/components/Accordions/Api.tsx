@@ -60,8 +60,8 @@ export const ApiAccordion: React.FC<Props> = ({ api }) => {
       <AccordionDetails>
         {/* Basic Data */}
         <Grid container pb={1} item direction="row">
-          {accInfo.map((info) => (
-            <Grid item xs={6} pb={1} justifyContent="flex-start">
+          {accInfo.map((info, idx) => (
+            <Grid key={idx} item xs={6} pb={1} justifyContent="flex-start">
               <Typography pb={1} variant="body2">
                 {info.header}
               </Typography>

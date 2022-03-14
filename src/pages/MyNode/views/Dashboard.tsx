@@ -123,8 +123,8 @@ export const MyNodeDashboard: () => JSX.Element = () => {
                   </Typography>
                 </Grid>
                 {/* Node Details */}
-                {nodeInputs.map((input) => (
-                  <Grid item xs={4}>
+                {nodeInputs.map((input, idx) => (
+                  <Grid key={idx} item xs={4}>
                     <FFTextField
                       key={input.defaultValue}
                       defaultValue={input.defaultValue}
@@ -148,8 +148,8 @@ export const MyNodeDashboard: () => JSX.Element = () => {
                   </Typography>
                 </Grid>
                 {/* Org Details */}
-                {orgInputs.map((input) => (
-                  <Grid item xs={4}>
+                {orgInputs.map((input, idx) => (
+                  <Grid key={idx} item xs={4}>
                     <FFTextField
                       key={input.defaultValue}
                       defaultValue={input.defaultValue}
@@ -173,8 +173,8 @@ export const MyNodeDashboard: () => JSX.Element = () => {
                   </Typography>
                 </Grid>
                 {/* Profile Details */}
-                {profileInputs.map((input) => (
-                  <Grid item xs={4}>
+                {profileInputs.map((input, idx) => (
+                  <Grid key={idx} item xs={4}>
                     <FFTextField
                       key={input.defaultValue}
                       defaultValue={input.defaultValue}

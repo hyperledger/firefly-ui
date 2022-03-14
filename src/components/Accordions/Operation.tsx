@@ -69,9 +69,9 @@ export const OperationAccordion: React.FC<Props> = ({ op }) => {
         </Grid>
       </AccordionSummary>
       <AccordionDetails>
-        <Grid container item direction="row">
-          {accInfo.map((info) => (
-            <Grid item xs={4} pb={1} justifyContent="flex-start">
+        <Grid container direction="row">
+          {accInfo.map((info, idx) => (
+            <Grid key={idx} item xs={4} pb={1} justifyContent="flex-start">
               <Typography pb={1} variant="body2">
                 {info.header}
               </Typography>

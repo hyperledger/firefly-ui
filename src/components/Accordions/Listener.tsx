@@ -63,14 +63,8 @@ export const ListenerAccordion: React.FC<Props> = ({ listener }) => {
       <AccordionDetails>
         {/* Basic Data */}
         <Grid container item direction="row">
-          {accIfno.map((info) => (
-            <Grid
-              key={info.header}
-              item
-              xs={4}
-              pb={1}
-              justifyContent="flex-start"
-            >
+          {accIfno.map((info, idx) => (
+            <Grid key={idx} item xs={4} pb={1} justifyContent="flex-start">
               <Typography pb={1} variant="body2">
                 {info.header}
               </Typography>

@@ -58,8 +58,8 @@ export const BlockchainEventAccordion: React.FC<Props> = ({ be }) => {
       </AccordionSummary>
       <AccordionDetails>
         <Grid container item direction="row">
-          {accInfo.map((info) => (
-            <Grid item xs={6} pb={1} justifyContent="flex-start">
+          {accInfo.map((info, idx) => (
+            <Grid key={idx} item xs={6} pb={1} justifyContent="flex-start">
               <Typography pb={1} variant="body2">
                 {info.header}
               </Typography>

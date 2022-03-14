@@ -14,6 +14,7 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
   const navigate = useNavigate();
   return (
     <Box
+      key={card.header}
       p={2}
       borderRadius={1}
       sx={{
@@ -62,9 +63,9 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
         justifyContent={card.data.length > 1 ? 'space-evenly' : 'flex-start'}
         direction="row"
       >
-        {card.data.map((data) => {
+        {card.data.map((data, idx) => {
           return (
-            <Grid key={data.header} item>
+            <Grid key={idx} item>
               <Typography
                 sx={{ fontSize: 12, textTransform: 'uppercase' }}
                 variant="subtitle2"

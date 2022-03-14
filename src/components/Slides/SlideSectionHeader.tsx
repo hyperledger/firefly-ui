@@ -36,7 +36,7 @@ export const SlideSectionHeader: React.FC<Props> = ({ clickPath, title }) => {
       direction="row"
       alignItems="center"
     >
-      <Grid xs={6}>
+      <Grid item xs={6}>
         <Typography
           variant="subtitle1"
           sx={{
@@ -48,7 +48,7 @@ export const SlideSectionHeader: React.FC<Props> = ({ clickPath, title }) => {
         </Typography>
       </Grid>
       {clickPath && (
-        <Grid xs={6} container justifyContent="flex-end">
+        <Grid item xs={6} container justifyContent="flex-end">
           <IconButton onClick={() => navigate(clickPath)}>
             <ArrowForwardIcon />
           </IconButton>

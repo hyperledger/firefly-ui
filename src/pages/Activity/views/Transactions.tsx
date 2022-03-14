@@ -135,9 +135,13 @@ export const ActivityTransactions: () => JSX.Element = () => {
       {
         value: (
           <>
-            {tx.blockchainIds?.map((bid) => (
+            {tx.blockchainIds?.map((bid, idx) => (
               // TODO: Support multiple items in array better
-              <HashPopover shortHash={true} address={bid}></HashPopover>
+              <HashPopover
+                key={idx}
+                shortHash={true}
+                address={bid}
+              ></HashPopover>
             ))}
           </>
         ),

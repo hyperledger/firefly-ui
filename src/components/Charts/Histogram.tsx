@@ -2,6 +2,7 @@ import { Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { BarDatum, ResponsiveBar } from '@nivo/bar';
 import dayjs from 'dayjs';
+import React from 'react';
 import { themeOptions } from '../../theme';
 import { CardEmptyState } from '../Cards/CardEmptyState';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
@@ -108,21 +109,23 @@ export const Histogram: React.FC<Props> = ({
           }}
           tooltip={({ data }) => (
             <div
+              key={data.timestamp}
               style={{
                 padding: 12,
                 color: themeOptions.palette?.text?.primary,
                 background: themeOptions.palette?.background?.paper,
               }}
             >
-              {dayjs(data.timestamp).format('MM/DD/YYYY h:mm A')}
-              <br />
+              <Typography>
+                {dayjs(data.timestamp).format('MM/DD/YYYY h:mm A')}
+              </Typography>
               {keys.map((key, idx) => {
                 return (
-                  <>
-                    <Typography sx={{ color: colors[idx] }}>
+                  <React.Fragment key={idx}>
+                    <Typography key={idx} sx={{ color: colors[idx] }}>
                       {`${key.toUpperCase()}: ${data[key] ?? 0}`}
                     </Typography>
-                  </>
+                  </React.Fragment>
                 );
               })}
             </div>
