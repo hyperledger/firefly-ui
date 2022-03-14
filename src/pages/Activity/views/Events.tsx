@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Button, Grid, Typography } from '@mui/material';
+import { Button, Grid, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -32,7 +32,6 @@ import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
-  EventCategoryEnum,
   FF_EVENTS_CATEGORY_MAP,
   FF_Paths,
   ICreatedFilter,
@@ -177,10 +176,7 @@ export const ActivityEvents: () => JSX.Element = () => {
             keys={makeKeyArray(FF_EVENTS_CATEGORY_MAP)}
             includeLegend={true}
             emptyText={t('noEvents')}
-            isEmpty={isHistogramEmpty(
-              eventHistData ?? [],
-              Object.keys(EventCategoryEnum)
-            )}
+            isEmpty={isHistogramEmpty(eventHistData ?? [])}
           />
           <DataTable
             onHandleCurrPageChange={(currentPage: number) =>

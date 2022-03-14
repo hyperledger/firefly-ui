@@ -53,7 +53,6 @@ import {
 } from '../../../interfaces';
 import {
   FF_TRANSFER_CATEGORY_MAP,
-  TransferCategoryEnum,
   TransferIconMap,
 } from '../../../interfaces/enums';
 import {
@@ -264,10 +263,7 @@ export const TokensDashboard: () => JSX.Element = () => {
           keys={makeKeyArray(FF_TRANSFER_CATEGORY_MAP)}
           includeLegend={true}
           emptyText={t('noTransfers')}
-          isEmpty={isHistogramEmpty(
-            transferHistData ?? [],
-            Object.keys(TransferCategoryEnum)
-          )}
+          isEmpty={isHistogramEmpty(transferHistData ?? [])}
         />
       ),
     },

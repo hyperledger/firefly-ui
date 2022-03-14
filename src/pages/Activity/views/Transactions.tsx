@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Button, Grid, Typography } from '@mui/material';
+import { Button, Grid, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -38,10 +38,7 @@ import {
   IPagedTransactionResponse,
   ITransaction,
 } from '../../../interfaces';
-import {
-  FF_TX_CATEGORY_MAP,
-  TxCategoryEnum,
-} from '../../../interfaces/enums/transactionTypes';
+import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
 import {
   DEFAULT_HIST_HEIGHT,
   DEFAULT_PADDING,
@@ -174,10 +171,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
             keys={makeKeyArray(FF_TX_CATEGORY_MAP)}
             includeLegend={true}
             emptyText={t('noTransactions')}
-            isEmpty={isHistogramEmpty(
-              txHistData ?? [],
-              Object.keys(TxCategoryEnum)
-            )}
+            isEmpty={isHistogramEmpty(txHistData ?? [])}
           />
           <DataTable
             onHandleCurrPageChange={(currentPage: number) =>

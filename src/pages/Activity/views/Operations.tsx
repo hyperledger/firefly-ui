@@ -40,7 +40,6 @@ import {
 } from '../../../interfaces';
 import {
   FF_OP_CATEGORY_MAP,
-  OpCategoryEnum,
   OpStatusColorMap,
 } from '../../../interfaces/enums';
 import {
@@ -175,10 +174,7 @@ export const ActivityOperations: () => JSX.Element = () => {
             keys={makeKeyArray(FF_OP_CATEGORY_MAP)}
             includeLegend={true}
             emptyText={t('noOperations')}
-            isEmpty={isHistogramEmpty(
-              opHistData ?? [],
-              Object.keys(OpCategoryEnum)
-            )}
+            isEmpty={isHistogramEmpty(opHistData ?? [])}
           />
           <DataTable
             onHandleCurrPageChange={(currentPage: number) =>

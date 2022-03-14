@@ -37,10 +37,7 @@ import {
   IMetric,
   IPagedBlockchainEventResponse,
 } from '../../../interfaces';
-import {
-  BlockchainEventCategoryEnum,
-  FF_BE_CATEGORY_MAP,
-} from '../../../interfaces/enums/blockchainEventTypes';
+import { FF_BE_CATEGORY_MAP } from '../../../interfaces/enums/blockchainEventTypes';
 import {
   DEFAULT_HIST_HEIGHT,
   DEFAULT_PADDING,
@@ -168,10 +165,7 @@ export const BlockchainEvents: () => JSX.Element = () => {
             keys={makeKeyArray(FF_BE_CATEGORY_MAP)}
             includeLegend={true}
             emptyText={t('noBlockchainEvents')}
-            isEmpty={isHistogramEmpty(
-              beHistData ?? [],
-              Object.keys(BlockchainEventCategoryEnum)
-            )}
+            isEmpty={isHistogramEmpty(beHistData ?? [])}
           />
           <DataTable
             onHandleCurrPageChange={(currentPage: number) =>

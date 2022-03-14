@@ -15,22 +15,20 @@
 // limitations under the License.
 
 import { Button, Grid, Typography } from '@mui/material';
-import { Box } from '@mui/system';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
+import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { TimelinePanel } from '../../../components/Timeline/Panel';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
-  EventCategoryEnum,
   FF_EVENTS_CATEGORY_MAP,
   FF_Paths,
   ICreatedFilter,
@@ -95,10 +93,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
             indexBy="timestamp"
             keys={makeKeyArray(FF_EVENTS_CATEGORY_MAP)}
             includeLegend={true}
-            isEmpty={isHistogramEmpty(
-              eventHistData ?? [],
-              Object.keys(EventCategoryEnum)
-            )}
+            isEmpty={isHistogramEmpty(eventHistData ?? [])}
             emptyText={t('noActivity')}
           />
           <TimelinePanel

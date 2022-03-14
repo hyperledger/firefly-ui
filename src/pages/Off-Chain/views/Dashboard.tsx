@@ -51,7 +51,6 @@ import {
   IPagedMessageResponse,
   ISmallCard,
   MESSAGES_PATH,
-  MsgCategoryEnum,
   MsgStateColorMap,
 } from '../../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
@@ -221,10 +220,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
           data={messageHistData}
           indexBy="timestamp"
           emptyText={t('noMessages')}
-          isEmpty={isHistogramEmpty(
-            messageHistData ?? [],
-            Object.keys(MsgCategoryEnum)
-          )}
+          isEmpty={isHistogramEmpty(messageHistData ?? [])}
           keys={makeKeyArray(FF_MESSAGES_CATEGORY_MAP)}
           includeLegend={true}
         />

@@ -50,10 +50,7 @@ import {
   ISmallCard,
   LISTENERS_PATH,
 } from '../../../interfaces';
-import {
-  BlockchainEventCategoryEnum,
-  FF_BE_CATEGORY_MAP,
-} from '../../../interfaces/enums/blockchainEventTypes';
+import { FF_BE_CATEGORY_MAP } from '../../../interfaces/enums/blockchainEventTypes';
 import {
   DEFAULT_PADDING,
   DEFAULT_PAGE_LIMITS,
@@ -232,10 +229,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
           keys={makeKeyArray(FF_BE_CATEGORY_MAP)}
           includeLegend={true}
           emptyText={t('noBlockchainEvents')}
-          isEmpty={isHistogramEmpty(
-            beHistData ?? [],
-            Object.keys(BlockchainEventCategoryEnum)
-          )}
+          isEmpty={isHistogramEmpty(beHistData ?? [])}
         />
       ),
     },

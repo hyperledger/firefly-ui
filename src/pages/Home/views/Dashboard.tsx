@@ -23,7 +23,6 @@ import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
-  EventCategoryEnum,
   FF_EVENTS_CATEGORY_MAP,
   FF_NAV_PATHS,
   FF_OP_CATEGORY_MAP,
@@ -279,10 +278,7 @@ export const HomeDashboard: () => JSX.Element = () => {
           indexBy="timestamp"
           keys={makeKeyArray(FF_EVENTS_CATEGORY_MAP)}
           emptyText={t('noActivity')}
-          isEmpty={isHistogramEmpty(
-            eventHistData ?? [],
-            Object.keys(EventCategoryEnum)
-          )}
+          isEmpty={isHistogramEmpty(eventHistData ?? [])}
           includeLegend={true}
         />
       ),

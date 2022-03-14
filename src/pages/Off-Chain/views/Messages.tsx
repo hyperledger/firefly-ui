@@ -40,7 +40,6 @@ import {
 } from '../../../interfaces';
 import {
   FF_MESSAGES_CATEGORY_MAP,
-  MsgCategoryEnum,
   MsgStateColorMap,
 } from '../../../interfaces/enums';
 import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
@@ -202,10 +201,7 @@ export const OffChainMessages: () => JSX.Element = () => {
             keys={makeKeyArray(FF_MESSAGES_CATEGORY_MAP)}
             includeLegend={true}
             emptyText={t('noMessages')}
-            isEmpty={isHistogramEmpty(
-              messageHistData ?? [],
-              Object.keys(MsgCategoryEnum)
-            )}
+            isEmpty={isHistogramEmpty(messageHistData ?? [])}
           />
           <DataTable
             onHandleCurrPageChange={(currentPage: number) =>

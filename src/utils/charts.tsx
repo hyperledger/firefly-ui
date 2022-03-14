@@ -1,19 +1,18 @@
 import { BarDatum } from '@nivo/bar';
 import { IBlockchainCategory } from '../interfaces';
 
-export const isHistogramEmpty = (
-  hist: BarDatum[],
-  categories: string[]
-): boolean => {
-  return hist.length
-    ? hist.every((d) => {
-        let isEmpty = true;
-        Object.keys(categories).map((k) => {
-          isEmpty = d[k] === 0;
-        });
-        return isEmpty;
-      })
-    : true;
+export const isHistogramEmpty = (hist: BarDatum[]): boolean => {
+  let isEmpty = true;
+  if (hist.length) {
+    hist.map((d) => {
+      Object.keys(d).map((k) => {
+        if (k !== 'timestamp' && d[k] !== 0) {
+          isEmpty = false;
+        }
+      });
+    });
+  }
+  return isEmpty;
 };
 
 export const makeColorArray = (map: { [key: string]: IBlockchainCategory }) => {
