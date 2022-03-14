@@ -141,7 +141,6 @@ export const BlockchainEvents: () => JSX.Element = () => {
         },
         { value: dayjs(be.timestamp).format('MM/DD/YYYY h:mm A') },
       ],
-      onClick: () => setViewBlockchainEvent(be),
       leftBorderColor: FFColors.Yellow,
     })
   );

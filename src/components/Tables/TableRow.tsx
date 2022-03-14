@@ -32,8 +32,8 @@ export const DataTableRow: React.FC<Props> = ({ record, leftBorderColor }) => {
       sx={{
         backgroundColor: themeOptions.palette?.background?.paper,
         '&:hover': {
-          backgroundColor: FFBackgroundHover,
-          cursor: 'pointer',
+          backgroundColor: record.onClick ? FFBackgroundHover : undefined,
+          cursor: record.onClick ? 'pointer' : 'default',
         },
       }}
       onClick={record.onClick}
@@ -43,7 +43,6 @@ export const DataTableRow: React.FC<Props> = ({ record, leftBorderColor }) => {
           <TableCell
             key={index}
             sx={{
-              cursor: 'pointer',
               borderLeft:
                 index == 0 ? `8px solid ${leftBorderColor}` : undefined,
               borderTopLeftRadius: index == 0 ? borderRadius : undefined,
@@ -53,7 +52,7 @@ export const DataTableRow: React.FC<Props> = ({ record, leftBorderColor }) => {
               borderBottomRightRadius:
                 index == record.columns.length - 1 ? borderRadius : undefined,
               margin: '16px 16px 16px 16px',
-              padding: '12px',
+              padding: '8px',
             }}
           >
             <Typography>{column.value}</Typography>

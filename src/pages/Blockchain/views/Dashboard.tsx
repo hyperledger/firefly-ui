@@ -82,17 +82,11 @@ export const BlockchainDashboard: () => JSX.Element = () => {
     useState<number>(0);
   // Blockchain Transactions
   const [blockchainTxCount, setBlockchainTxCount] = useState<number>();
-  const [blockchainTxErrorCount, setBlockchainTxErrorCount] =
-    useState<number>(0);
   // Blockchain Events
   const [blockchainEventCount, setBlockchainEventCount] = useState<number>();
-  const [blockchainEventErrorCount, setBlockchainEventErrorCount] =
-    useState<number>(0);
   // Contract interfaces count
   const [contractInterfacesCount, setContractInterfacesCount] =
     useState<number>();
-  const [contractInterfacesErrorCount, setContractInterfacesErrorCount] =
-    useState<number>(0);
 
   // Medium cards
   // Events histogram
@@ -103,16 +97,13 @@ export const BlockchainDashboard: () => JSX.Element = () => {
   // Contract listeners
   const [contractListeners, setContractListeners] =
     useState<IContractListener[]>();
-  // View Blockchain Events
-  const [viewBlockchainEvent, setViewBlockchainEvent] =
-    useState<IBlockchainEvent>();
 
   const [blockchainEvents, setBlockchainEvents] =
     useState<IBlockchainEvent[]>();
   const [blockchainEventsTotal, setBlockchainEventsTotal] = useState(0);
 
   const [currentPage, setCurrentPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
+  const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[0]);
 
   const smallCards: ISmallCard[] = [
     {
@@ -123,19 +114,16 @@ export const BlockchainDashboard: () => JSX.Element = () => {
     },
     {
       header: t('blockchainTransactions'),
-      numErrors: blockchainTxErrorCount,
       data: [{ data: blockchainTxCount }],
       clickPath: FF_NAV_PATHS.activityTxPath(selectedNamespace),
     },
     {
       header: t('blockchainEvents'),
-      numErrors: blockchainEventErrorCount,
       data: [{ data: blockchainEventCount }],
       clickPath: FF_NAV_PATHS.blockchainEventsPath(selectedNamespace),
     },
     {
       header: t('contractInterfaces'),
-      numErrors: contractInterfacesErrorCount,
       data: [{ data: contractInterfacesCount }],
       clickPath: FF_NAV_PATHS.blockchainInterfacesPath(selectedNamespace),
     },
@@ -151,6 +139,9 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       // Blockchain Operations
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}`
+      ),
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&error=!`
       ),
       // Blockchain Transactions
       fetchCatcher(
@@ -169,6 +160,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
         ([
           // Blockchain Operations
           ops,
+          opsErr,
           // Blockchain Transactions
           txs,
           // Blockchain Events
@@ -178,6 +170,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
         ]: IGenericPagedResponse[] | any[]) => {
           // Operations
           setBlockchainOpCount(ops.total);
+          setBlockchainOpErrorCount(opsErr.total);
           // Transactions
           setBlockchainTxCount(txs.total);
           // Events
@@ -348,7 +341,6 @@ export const BlockchainDashboard: () => JSX.Element = () => {
         },
         { value: dayjs(be.timestamp).format('MM/DD/YYYY h:mm A') },
       ],
-      onClick: () => setViewBlockchainEvent(be),
       leftBorderColor: FFColors.Yellow,
     })
   );

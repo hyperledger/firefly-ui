@@ -81,15 +81,10 @@ export const OffChainDashboard: () => JSX.Element = () => {
   // Small cards
   // Message count
   const [msgCount, setMsgCount] = useState<number>();
-  const [msgErrorCount, setMsgErrorCount] = useState<number>(0);
   // Data count
   const [dataCount, setDataCount] = useState<number>();
-  const [dataErrorCount, setDataErrorCount] = useState<number>(0);
   // Datatypes
   const [datatypesCount, setDatatypesCount] = useState<number>();
-  const [datatypesErrorCount, setDatatypesErrorCount] = useState<number>(0);
-  // TODO: File size
-  const [fileSize, setTotalFileSize] = useState<number>();
 
   // Medium cards
   // Messages histogram
@@ -106,30 +101,26 @@ export const OffChainDashboard: () => JSX.Element = () => {
   // View message slide out
   const [viewMsg, setViewMsg] = useState<IMessage | undefined>();
   const [currentPage, setCurrentPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
+  const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[0]);
 
   const smallCards: ISmallCard[] = [
     {
       header: t('messages'),
-      numErrors: msgErrorCount,
       data: [{ data: msgCount }],
       clickPath: `${MESSAGES_PATH}`,
     },
     {
       header: t('data'),
-      numErrors: dataErrorCount,
       data: [{ data: dataCount }],
       clickPath: `${DATA_PATH}`,
     },
     {
       header: t('totalDatatypes'),
-      numErrors: datatypesErrorCount,
       data: [{ data: datatypesCount }],
       clickPath: DATATYPES_PATH,
     },
     {
       header: t('totalFileSize'),
-      numErrors: 0,
       data: [{ data: 0 }],
     },
   ];

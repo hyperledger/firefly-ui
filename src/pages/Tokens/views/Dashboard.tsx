@@ -106,7 +106,7 @@ export const TokensDashboard: () => JSX.Element = () => {
     ITokenTransfer | undefined
   >();
   const [currentPage, setCurrentPage] = useState(0);
-  const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
+  const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[0]);
 
   const smallCards: ISmallCard[] = [
     {
