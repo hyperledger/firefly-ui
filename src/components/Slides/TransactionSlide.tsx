@@ -141,25 +141,33 @@ export const TransactionSlide: React.FC<Props> = ({
             ))}
           </Grid>
           {/* Operations */}
-          <SlideSectionHeader
-            clickPath={FF_NAV_PATHS.activityOpPath(selectedNamespace)}
-            title={t('recentOperations')}
-          />
-          <Grid container item>
-            {txOperations?.map((op) => (
-              <OperationAccordion op={op} />
-            ))}
-          </Grid>
+          {txOperations?.length > 0 && (
+            <>
+              <SlideSectionHeader
+                clickPath={FF_NAV_PATHS.activityOpPath(selectedNamespace)}
+                title={t('recentOperations')}
+              />
+              <Grid container item>
+                {txOperations?.map((op) => (
+                  <OperationAccordion op={op} />
+                ))}
+              </Grid>
+            </>
+          )}
           {/* Blockchain Events */}
-          <SlideSectionHeader
-            clickPath={FF_NAV_PATHS.blockchainEventsPath(selectedNamespace)}
-            title={t('recentBlockchainEvents')}
-          />
-          <Grid container item>
-            {txBlockchainEvents?.map((be) => (
-              <BlockchainEventAccordion be={be} />
-            ))}
-          </Grid>
+          {txBlockchainEvents?.length > 0 && (
+            <>
+              <SlideSectionHeader
+                clickPath={FF_NAV_PATHS.blockchainEventsPath(selectedNamespace)}
+                title={t('recentBlockchainEvents')}
+              />
+              <Grid container item>
+                {txBlockchainEvents?.map((be) => (
+                  <BlockchainEventAccordion be={be} />
+                ))}
+              </Grid>
+            </>
+          )}
         </Grid>
       </DisplaySlide>
     </>

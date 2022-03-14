@@ -146,12 +146,16 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
             ))}
           </Grid>
           {/* Message Attached Data */}
-          <SlideSectionHeader title={t('messageData')} />
-          <Grid container item>
-            {msgData?.map((data, idx) => (
-              <MessageDataAccordion key={idx} data={data} />
-            ))}
-          </Grid>
+          {msgData.length > 0 && (
+            <>
+              <SlideSectionHeader title={t('messageData')} />
+              <Grid container item>
+                {msgData?.map((data, idx) => (
+                  <MessageDataAccordion key={idx} data={data} />
+                ))}
+              </Grid>
+            </>
+          )}
           {/* Message Transaction */}
           {msgTransaction && (
             <>

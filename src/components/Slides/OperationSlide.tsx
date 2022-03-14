@@ -83,8 +83,9 @@ export const OperationSlide: React.FC<Props> = ({ op, open, onClose }) => {
             ))}
           </Grid>
           {/* Input and Output */}
-          <SlideSectionHeader title={t('inputAndOutput')} />
-          {/* Input */}
+          {(op.input || op.output) && (
+            <SlideSectionHeader title={t('inputAndOutput')} />
+          )}
           {op.input && (
             <Grid container item pb={DEFAULT_PADDING}>
               <JsonViewAccordion
@@ -93,7 +94,6 @@ export const OperationSlide: React.FC<Props> = ({ op, open, onClose }) => {
               />
             </Grid>
           )}
-          {/* Output */}
           {op.output && (
             <Grid container item>
               <JsonViewAccordion

@@ -52,10 +52,11 @@ export const InterfaceSlide: React.FC<Props> = ({
   const { reportFetchError } = useContext(SnackbarContext);
 
   // Interface API
-  const [interfaceApis, setInterfaceApis] = useState<IFireflyApi[]>();
+  const [interfaceApis, setInterfaceApis] = useState<IFireflyApi[]>([]);
   // Interface Listeners
-  const [interfaceListeners, setInterfaceListeners] =
-    useState<IContractListener[]>();
+  const [interfaceListeners, setInterfaceListeners] = useState<
+    IContractListener[]
+  >([]);
 
   useEffect(() => {
     // Interface API, if exists
@@ -117,25 +118,35 @@ export const InterfaceSlide: React.FC<Props> = ({
             ))}
           </Grid>
           {/* APIs */}
-          <SlideSectionHeader
-            clickPath={FF_NAV_PATHS.blockchainApisPath(selectedNamespace)}
-            title={t('apis')}
-          />
-          <Grid container item>
-            {interfaceApis?.map((api, idx) => (
-              <ApiAccordion key={idx} api={api} />
-            ))}
-          </Grid>
+          {interfaceApis?.length > 0 && (
+            <>
+              <SlideSectionHeader
+                clickPath={FF_NAV_PATHS.blockchainApisPath(selectedNamespace)}
+                title={t('apis')}
+              />
+              <Grid container item>
+                {interfaceApis?.map((api, idx) => (
+                  <ApiAccordion key={idx} api={api} />
+                ))}
+              </Grid>
+            </>
+          )}
           {/* Listeners */}
-          <SlideSectionHeader
-            clickPath={FF_NAV_PATHS.blockchainListenersPath(selectedNamespace)}
-            title={t('listeners')}
-          />
-          <Grid container item>
-            {interfaceListeners?.map((listener) => (
-              <ListenerAccordion listener={listener} />
-            ))}
-          </Grid>
+          {interfaceListeners?.length > 0 && (
+            <>
+              <SlideSectionHeader
+                clickPath={FF_NAV_PATHS.blockchainListenersPath(
+                  selectedNamespace
+                )}
+                title={t('listeners')}
+              />
+              <Grid container item>
+                {interfaceListeners?.map((listener) => (
+                  <ListenerAccordion listener={listener} />
+                ))}
+              </Grid>
+            </>
+          )}
         </Grid>
       </DisplaySlide>
     </>

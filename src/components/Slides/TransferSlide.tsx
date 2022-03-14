@@ -161,25 +161,33 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
             ))}
           </Grid>
           {/* Operations */}
-          <SlideSectionHeader
-            clickPath={FF_NAV_PATHS.activityOpPath(selectedNamespace)}
-            title={t('operations')}
-          />
-          <Grid container item>
-            {txOperations?.map((op, idx) => (
-              <OperationAccordion op={op} key={idx} />
-            ))}
-          </Grid>
+          {txOperations.length && (
+            <>
+              <SlideSectionHeader
+                clickPath={FF_NAV_PATHS.activityOpPath(selectedNamespace)}
+                title={t('operations')}
+              />
+              <Grid container item>
+                {txOperations?.map((op, idx) => (
+                  <OperationAccordion op={op} key={idx} />
+                ))}
+              </Grid>
+            </>
+          )}
           {/* Blockchain Events */}
-          <SlideSectionHeader
-            clickPath={FF_NAV_PATHS.blockchainEventsPath(selectedNamespace)}
-            title={t('blockchainEvents')}
-          />
-          <Grid container item>
-            {txBlockchainEvents?.map((be, idx) => (
-              <BlockchainEventAccordion key={idx} be={be} />
-            ))}
-          </Grid>
+          {txBlockchainEvents.length && (
+            <>
+              <SlideSectionHeader
+                clickPath={FF_NAV_PATHS.blockchainEventsPath(selectedNamespace)}
+                title={t('blockchainEvents')}
+              />
+              <Grid container item>
+                {txBlockchainEvents?.map((be, idx) => (
+                  <BlockchainEventAccordion key={idx} be={be} />
+                ))}
+              </Grid>
+            </>
+          )}
         </Grid>
       </DisplaySlide>
     </>
