@@ -119,7 +119,7 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
       label: t('status'),
       value: (
         <Chip
-          label={message.state.toLocaleUpperCase()}
+          label={message.state?.toLocaleUpperCase()}
           sx={{ backgroundColor: MsgStateColorMap[message.state] }}
         ></Chip>
       ),

@@ -68,7 +68,7 @@ export const MessageAccordion: React.FC<Props> = ({ message }) => {
             {/* State */}
             <Grid xs={6} item container justifyContent="flex-end">
               <Chip
-                label={message.state.toLocaleUpperCase()}
+                label={message.state?.toLocaleUpperCase()}
                 sx={{ backgroundColor: MsgStateColorMap[message.state] }}
               ></Chip>
             </Grid>

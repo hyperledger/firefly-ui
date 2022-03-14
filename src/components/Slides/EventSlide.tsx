@@ -151,7 +151,7 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
                 title={t('messageData')}
               />
               <Grid container item>
-                {messageData.map((data) => (
+                {messageData?.map((data) => (
                   <MessageDataAccordion data={data} />
                 ))}
               </Grid>

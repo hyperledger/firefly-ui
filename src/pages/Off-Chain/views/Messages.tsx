@@ -168,7 +168,7 @@ export const OffChainMessages: () => JSX.Element = () => {
       {
         value: (
           <Chip
-            label={msg?.state.toLocaleUpperCase()}
+            label={msg?.state?.toLocaleUpperCase()}
             sx={{ backgroundColor: MsgStateColorMap[msg?.state] }}
           ></Chip>
         ),

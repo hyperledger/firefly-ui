@@ -62,7 +62,7 @@ export const OperationAccordion: React.FC<Props> = ({ op }) => {
           {/* Status */}
           <Grid xs={6} item container justifyContent="flex-end">
             <Chip
-              label={op.status.toLocaleUpperCase()}
+              label={op.status?.toLocaleUpperCase()}
               sx={{ backgroundColor: OpStatusColorMap[op.status] }}
             ></Chip>
           </Grid>

@@ -114,7 +114,7 @@ export const TransactionSlide: React.FC<Props> = ({
       label: t('status'),
       value: txStatus && (
         <Chip
-          label={txStatus.status.toLocaleUpperCase()}
+          label={txStatus.status?.toLocaleUpperCase()}
           sx={{ backgroundColor: TxStatusColorMap[txStatus.status] }}
         ></Chip>
       ),
