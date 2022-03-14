@@ -257,6 +257,7 @@ export const TokensDashboard: () => JSX.Element = () => {
       ),
       component: (
         <Histogram
+          height={'100%'}
           colors={makeColorArray(FF_TRANSFER_CATEGORY_MAP)}
           data={transferHistData}
           indexBy="timestamp"
@@ -267,7 +268,7 @@ export const TokensDashboard: () => JSX.Element = () => {
             transferHistData ?? [],
             Object.keys(TransferCategoryEnum)
           )}
-        ></Histogram>
+        />
       ),
     },
     {

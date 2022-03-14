@@ -15,7 +15,6 @@
 // limitations under the License.
 
 import { Button, Grid, Typography } from '@mui/material';
-import { Box } from '@mui/system';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -204,29 +203,19 @@ export const TokensTransfers: () => JSX.Element = () => {
               </Button>
             }
           />
-          <Box
-            mt={1}
-            pb={2}
-            borderRadius={1}
-            sx={{
-              width: '100%',
-              height: DEFAULT_HIST_HEIGHT,
-              backgroundColor: 'background.paper',
-            }}
-          >
-            <Histogram
-              colors={makeColorArray(FF_TRANSFER_CATEGORY_MAP)}
-              data={transferHistData}
-              indexBy="timestamp"
-              keys={makeKeyArray(FF_TRANSFER_CATEGORY_MAP)}
-              includeLegend={true}
-              emptyText={t('noTransfers')}
-              isEmpty={isHistogramEmpty(
-                transferHistData ?? [],
-                Object.keys(TransferCategoryEnum)
-              )}
-            ></Histogram>
-          </Box>
+          <Histogram
+            height={DEFAULT_HIST_HEIGHT}
+            colors={makeColorArray(FF_TRANSFER_CATEGORY_MAP)}
+            data={transferHistData}
+            indexBy="timestamp"
+            keys={makeKeyArray(FF_TRANSFER_CATEGORY_MAP)}
+            includeLegend={true}
+            emptyText={t('noTransfers')}
+            isEmpty={isHistogramEmpty(
+              transferHistData ?? [],
+              Object.keys(TransferCategoryEnum)
+            )}
+          />
           <DataTable
             onHandleCurrPageChange={(currentPage: number) =>
               setCurrentPage(currentPage)

@@ -225,6 +225,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
       ),
       component: (
         <Histogram
+          height={'100%'}
           colors={makeColorArray(FF_MESSAGES_CATEGORY_MAP)}
           data={messageHistData}
           indexBy="timestamp"
@@ -235,7 +236,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
           )}
           keys={makeKeyArray(FF_MESSAGES_CATEGORY_MAP)}
           includeLegend={true}
-        ></Histogram>
+        />
       ),
     },
     {

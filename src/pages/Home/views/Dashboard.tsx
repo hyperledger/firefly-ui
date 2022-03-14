@@ -273,6 +273,7 @@ export const HomeDashboard: () => JSX.Element = () => {
       headerText: t('activity'),
       component: (
         <Histogram
+          height={'100%'}
           colors={makeColorArray(FF_EVENTS_CATEGORY_MAP)}
           data={eventHistData}
           indexBy="timestamp"
@@ -283,7 +284,7 @@ export const HomeDashboard: () => JSX.Element = () => {
             Object.keys(EventCategoryEnum)
           )}
           includeLegend={true}
-        ></Histogram>
+        />
       ),
     },
     {

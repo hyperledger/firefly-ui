@@ -166,29 +166,19 @@ export const ActivityTransactions: () => JSX.Element = () => {
               </Button>
             }
           />
-          <Box
-            mt={1}
-            pb={2}
-            borderRadius={1}
-            sx={{
-              width: '100%',
-              height: DEFAULT_HIST_HEIGHT,
-              backgroundColor: 'background.paper',
-            }}
-          >
-            <Histogram
-              colors={makeColorArray(FF_TX_CATEGORY_MAP)}
-              data={txHistData}
-              indexBy="timestamp"
-              keys={makeKeyArray(FF_TX_CATEGORY_MAP)}
-              includeLegend={true}
-              emptyText={t('noTransactions')}
-              isEmpty={isHistogramEmpty(
-                txHistData ?? [],
-                Object.keys(TxCategoryEnum)
-              )}
-            ></Histogram>
-          </Box>
+          <Histogram
+            height={DEFAULT_HIST_HEIGHT}
+            colors={makeColorArray(FF_TX_CATEGORY_MAP)}
+            data={txHistData}
+            indexBy="timestamp"
+            keys={makeKeyArray(FF_TX_CATEGORY_MAP)}
+            includeLegend={true}
+            emptyText={t('noTransactions')}
+            isEmpty={isHistogramEmpty(
+              txHistData ?? [],
+              Object.keys(TxCategoryEnum)
+            )}
+          />
           <DataTable
             onHandleCurrPageChange={(currentPage: number) =>
               setCurrentPage(currentPage)

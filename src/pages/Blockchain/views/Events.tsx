@@ -15,7 +15,6 @@
 // limitations under the License.
 
 import { Button, Grid, Typography } from '@mui/material';
-import { Box } from '@mui/system';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -162,29 +161,19 @@ export const BlockchainEvents: () => JSX.Element = () => {
               </Button>
             }
           />
-          <Box
-            mt={1}
-            pb={2}
-            borderRadius={1}
-            sx={{
-              width: '100%',
-              height: DEFAULT_HIST_HEIGHT,
-              backgroundColor: 'background.paper',
-            }}
-          >
-            <Histogram
-              colors={makeColorArray(FF_BE_CATEGORY_MAP)}
-              data={beHistData}
-              indexBy="timestamp"
-              keys={makeKeyArray(FF_BE_CATEGORY_MAP)}
-              includeLegend={true}
-              emptyText={t('noBlockchainEvents')}
-              isEmpty={isHistogramEmpty(
-                beHistData ?? [],
-                Object.keys(BlockchainEventCategoryEnum)
-              )}
-            ></Histogram>
-          </Box>
+          <Histogram
+            height={DEFAULT_HIST_HEIGHT}
+            colors={makeColorArray(FF_BE_CATEGORY_MAP)}
+            data={beHistData}
+            indexBy="timestamp"
+            keys={makeKeyArray(FF_BE_CATEGORY_MAP)}
+            includeLegend={true}
+            emptyText={t('noBlockchainEvents')}
+            isEmpty={isHistogramEmpty(
+              beHistData ?? [],
+              Object.keys(BlockchainEventCategoryEnum)
+            )}
+          />
           <DataTable
             onHandleCurrPageChange={(currentPage: number) =>
               setCurrentPage(currentPage)

@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Button, Chip, Grid, Typography } from '@mui/material';
+import { Button, Chip, Grid, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -167,29 +167,19 @@ export const ActivityOperations: () => JSX.Element = () => {
               </Button>
             }
           />
-          <Box
-            mt={1}
-            pb={2}
-            borderRadius={1}
-            sx={{
-              width: '100%',
-              height: DEFAULT_HIST_HEIGHT,
-              backgroundColor: 'background.paper',
-            }}
-          >
-            <Histogram
-              colors={makeColorArray(FF_OP_CATEGORY_MAP)}
-              data={opHistData}
-              indexBy="timestamp"
-              keys={makeKeyArray(FF_OP_CATEGORY_MAP)}
-              includeLegend={true}
-              emptyText={t('noOperations')}
-              isEmpty={isHistogramEmpty(
-                opHistData ?? [],
-                Object.keys(OpCategoryEnum)
-              )}
-            ></Histogram>
-          </Box>
+          <Histogram
+            height={DEFAULT_HIST_HEIGHT}
+            colors={makeColorArray(FF_OP_CATEGORY_MAP)}
+            data={opHistData}
+            indexBy="timestamp"
+            keys={makeKeyArray(FF_OP_CATEGORY_MAP)}
+            includeLegend={true}
+            emptyText={t('noOperations')}
+            isEmpty={isHistogramEmpty(
+              opHistData ?? [],
+              Object.keys(OpCategoryEnum)
+            )}
+          />
           <DataTable
             onHandleCurrPageChange={(currentPage: number) =>
               setCurrentPage(currentPage)

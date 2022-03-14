@@ -108,7 +108,7 @@ export const DataTable: React.FC<Props> = ({
           <>
             <TableContainer
               style={{ maxHeight, minHeight }}
-              sx={{ paddingTop: 1, whiteSpace: 'nowrap' }}
+              sx={{ whiteSpace: 'nowrap' }}
             >
               <Table stickyHeader={stickyHeader}>
                 <TableHead>

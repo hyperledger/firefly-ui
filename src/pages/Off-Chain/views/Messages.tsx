@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Button, Chip, Grid, Typography } from '@mui/material';
+import { Button, Chip, Grid, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -194,29 +194,19 @@ export const OffChainMessages: () => JSX.Element = () => {
               </Button>
             }
           />
-          <Box
-            mt={1}
-            pb={2}
-            borderRadius={1}
-            sx={{
-              width: '100%',
-              height: DEFAULT_HIST_HEIGHT,
-              backgroundColor: 'background.paper',
-            }}
-          >
-            <Histogram
-              colors={makeColorArray(FF_MESSAGES_CATEGORY_MAP)}
-              data={messageHistData}
-              indexBy="timestamp"
-              keys={makeKeyArray(FF_MESSAGES_CATEGORY_MAP)}
-              includeLegend={true}
-              emptyText={t('noMessages')}
-              isEmpty={isHistogramEmpty(
-                messageHistData ?? [],
-                Object.keys(MsgCategoryEnum)
-              )}
-            ></Histogram>
-          </Box>
+          <Histogram
+            height={DEFAULT_HIST_HEIGHT}
+            colors={makeColorArray(FF_MESSAGES_CATEGORY_MAP)}
+            data={messageHistData}
+            indexBy="timestamp"
+            keys={makeKeyArray(FF_MESSAGES_CATEGORY_MAP)}
+            includeLegend={true}
+            emptyText={t('noMessages')}
+            isEmpty={isHistogramEmpty(
+              messageHistData ?? [],
+              Object.keys(MsgCategoryEnum)
+            )}
+          />
           <DataTable
             onHandleCurrPageChange={(currentPage: number) =>
               setCurrentPage(currentPage)

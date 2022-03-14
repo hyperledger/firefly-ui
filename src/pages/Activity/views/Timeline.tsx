@@ -88,29 +88,19 @@ export const ActivityTimeline: () => JSX.Element = () => {
               </Button>
             }
           />
-          <Box
-            mt={1}
-            pb={2}
-            borderRadius={1}
-            sx={{
-              width: '100%',
-              height: DEFAULT_HIST_HEIGHT,
-              backgroundColor: 'background.paper',
-            }}
-          >
-            <Histogram
-              colors={makeColorArray(FF_EVENTS_CATEGORY_MAP)}
-              data={eventHistData}
-              indexBy="timestamp"
-              keys={makeKeyArray(FF_EVENTS_CATEGORY_MAP)}
-              includeLegend={true}
-              isEmpty={isHistogramEmpty(
-                eventHistData ?? [],
-                Object.keys(EventCategoryEnum)
-              )}
-              emptyText={t('noActivity')}
-            ></Histogram>
-          </Box>
+          <Histogram
+            height={DEFAULT_HIST_HEIGHT}
+            colors={makeColorArray(FF_EVENTS_CATEGORY_MAP)}
+            data={eventHistData}
+            indexBy="timestamp"
+            keys={makeKeyArray(FF_EVENTS_CATEGORY_MAP)}
+            includeLegend={true}
+            isEmpty={isHistogramEmpty(
+              eventHistData ?? [],
+              Object.keys(EventCategoryEnum)
+            )}
+            emptyText={t('noActivity')}
+          />
           <TimelinePanel
             leftHeader={t('submittedByMe')}
             rightHeader={t('receivedFromEveryone')}

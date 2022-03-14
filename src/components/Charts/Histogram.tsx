@@ -10,6 +10,7 @@ interface Props {
   colors: string[];
   data: BarDatum[] | undefined;
   emptyText: string;
+  height: string | number;
   includeLegend: boolean;
   indexBy: string;
   isEmpty: boolean;
@@ -20,6 +21,7 @@ export const Histogram: React.FC<Props> = ({
   colors,
   data,
   emptyText,
+  height,
   includeLegend,
   indexBy,
   isEmpty,
@@ -30,7 +32,7 @@ export const Histogram: React.FC<Props> = ({
       borderRadius={1}
       sx={{
         width: '100%',
-        height: '100%',
+        height,
         backgroundColor: 'background.paper',
       }}
     >
@@ -87,7 +89,7 @@ export const Histogram: React.FC<Props> = ({
           enableLabel={false}
           role="application"
           theme={{
-            background: 'transparent',
+            background: themeOptions.palette?.background?.paper,
             axis: {
               ticks: {
                 line: {
