@@ -1,0 +1,82 @@
+export interface INavItem {
+  name: string;
+  action: () => void;
+  icon?: JSX.Element;
+  itemIsActive: boolean;
+}
+
+export const ACCOUNTS_PATH = 'accounts';
+export const ACTIVITY_PATH = 'activity';
+export const APIS_PATH = 'apis';
+export const BLOCKCHAIN_PATH = 'blockchain';
+export const DATA_PATH = 'data';
+export const DATATYPES_PATH = 'datatypes';
+export const EVENTS_PATH = 'events';
+export const FILE_EXPLORER_PATH = 'fileExplorer';
+export const HOME_PATH = 'home';
+export const INTERFACES_PATH = 'interfaces';
+export const MESSAGES_PATH = 'messages';
+export const MY_NODES_PATH = 'myNode';
+export const NAMESPACES_PATH = 'namespaces';
+export const NETWORK_PATH = 'network';
+export const NODES_PATH = 'nodes';
+export const OFFCHAIN_PATH = 'offChain';
+export const OPERATIONS_PATH = 'operations';
+export const ORGANIZATIONS_PATH = 'organizations';
+export const POOLS_PATH = 'pools';
+export const LISTENERS_PATH = 'listeners';
+export const TOKENS_PATH = 'tokens';
+export const TRANSACTIONS_PATH = 'transactions';
+export const TRANSFERS_PATH = 'transfers';
+export const DOCS_PATH = 'https://hyperledger.github.io/firefly/';
+
+export const FF_NAV_PATHS = {
+  // Home
+  homePath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${HOME_PATH}`,
+  // Activity
+  activityTimelinePath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}`,
+  activityEventsPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${EVENTS_PATH}`,
+  activityTxPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}`,
+  activityOpPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}`,
+  // Blockchain
+  blockchainPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}`,
+  blockchainEventsPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${EVENTS_PATH}`,
+  blockchainApisPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${APIS_PATH}`,
+  blockchainInterfacesPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${INTERFACES_PATH}`,
+  blockchainListenersPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${LISTENERS_PATH}`,
+  // Off-Chain
+  offchainPath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}`,
+  offchainMessagesPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${MESSAGES_PATH}`,
+  offchainDataPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${DATA_PATH}`,
+  offchainDatatypesPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${DATATYPES_PATH}`,
+  // Tokens
+  tokensPath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}`,
+  tokensTransfersPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${TRANSFERS_PATH}`,
+  tokensPoolsPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${POOLS_PATH}`,
+  tokensAccountsPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${ACCOUNTS_PATH}`,
+  // Network
+  networkPath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}`,
+  networkOrgsPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}/${ORGANIZATIONS_PATH}`,
+  networkNodesPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}/${NODES_PATH}`,
+  // My Node
+  myNodePath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${MY_NODES_PATH}`,
+  // Docs
+  docsPath: DOCS_PATH,
+};
