@@ -20,6 +20,7 @@ import { ActivityTimeline } from './views/Timeline';
 import { ActivityEvents } from './views/Events';
 import { ActivityOperations } from './views/Operations';
 import { ActivityTransactions } from './views/Transactions';
+import { TransactionDetails } from './views/TransactionDetails';
 
 export const ActivityRoutes: RouteObject = {
   path: `${NAMESPACES_PATH}/:namespace/activity`,
@@ -36,6 +37,10 @@ export const ActivityRoutes: RouteObject = {
     {
       path: 'transactions',
       element: <ActivityTransactions />,
+    },
+    {
+      path: 'transactions/:txID',
+      element: <TransactionDetails />,
     },
     {
       path: 'operations',
