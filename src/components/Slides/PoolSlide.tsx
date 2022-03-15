@@ -14,18 +14,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Chip, Grid, Typography } from '@mui/material';
-import dayjs from 'dayjs';
+import { Grid, Typography } from '@mui/material';
 import React from 'react';
-import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
 import { ITokenPool } from '../../interfaces';
-import { PoolStateColorMap } from '../../interfaces/enums';
 import { DEFAULT_PADDING } from '../../theme';
 import { jsNumberForAddress } from '../../utils';
-import { FFCopyButton } from '../Buttons/CopyButton';
+import { PoolList } from '../Lists/PoolList';
 import { DisplaySlide } from './DisplaySlide';
-import { DrawerListItem, IDataListItem } from './ListItem';
 
 interface Props {
   pool: ITokenPool;
@@ -34,49 +30,6 @@ interface Props {
 }
 
 export const PoolSlide: React.FC<Props> = ({ pool, open, onClose }) => {
-  const { t } = useTranslation();
-
-  const dataList: IDataListItem[] = [
-    {
-      label: t('id'),
-      value: pool.id,
-      button: <FFCopyButton value={pool.id} />,
-    },
-    {
-      label: t('protocolID'),
-      value: pool.protocolId,
-      button: <FFCopyButton value={pool.protocolId} />,
-    },
-    {
-      label: t('connector'),
-      value: pool.connector,
-      button: <FFCopyButton value={pool.connector} />,
-    },
-    {
-      label: t('transactionID'),
-      value: pool.tx.id,
-      button: <FFCopyButton value={pool.tx.id} />,
-    },
-    {
-      label: t('messageID'),
-      value: pool.message ?? t('noMessageInTransfer'),
-      button: pool.message ? <FFCopyButton value={pool.message} /> : undefined,
-    },
-    {
-      label: t('state'),
-      value: pool.state && (
-        <Chip
-          label={pool.state.toLocaleUpperCase()}
-          sx={{ backgroundColor: PoolStateColorMap[pool.state] }}
-        ></Chip>
-      ),
-    },
-    {
-      label: t('created'),
-      value: dayjs(pool.created).format('MM/DD/YYYY h:mm A'),
-    },
-  ];
-
   return (
     <>
       <DisplaySlide open={open} onClose={onClose}>
@@ -111,9 +64,7 @@ export const PoolSlide: React.FC<Props> = ({ pool, open, onClose }) => {
           </Grid>
           {/* Data list */}
           <Grid container item pb={DEFAULT_PADDING}>
-            {dataList?.map((data, idx) => (
-              <DrawerListItem key={idx} item={data} />
-            ))}
+            <PoolList pool={pool} />
           </Grid>
         </Grid>
       </DisplaySlide>

@@ -9,28 +9,35 @@ import {
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ITransaction } from '../../interfaces';
+import { IDataWithHeader, ITransaction } from '../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../interfaces/enums/transactionTypes';
-import { themeOptions } from '../../theme';
-import { IDataWithHeader } from '../../interfaces';
+import { DEFAULT_BORDER_RADIUS, themeOptions } from '../../theme';
 import { HashPopover } from '../Popovers/HashPopover';
 
 interface Props {
   tx: ITransaction;
+  isOpen?: boolean;
 }
 
-export const TransactionAccordion: React.FC<Props> = ({ tx }) => {
+export const TransactionAccordion: React.FC<Props> = ({
+  tx,
+  isOpen = false,
+}) => {
   const { t } = useTranslation();
-  const [expanded, setExpanded] = useState<boolean>(false);
+  const [expanded, setExpanded] = useState<boolean>(isOpen);
 
   const accInfo: IDataWithHeader[] = [
     {
       header: t('blockchainIds'),
       data: (
         <>
-          {tx.blockchainIds.map((id) => (
-            <HashPopover key={id} shortHash address={id} />
-          ))}
+          {tx.blockchainIds ? (
+            tx.blockchainIds.map((id) => (
+              <HashPopover key={id} shortHash address={id} />
+            ))
+          ) : (
+            <Typography>{t('noBlockchainIds')} </Typography>
+          )}
         </>
       ),
     },
@@ -51,6 +58,11 @@ export const TransactionAccordion: React.FC<Props> = ({ tx }) => {
         sx={{
           backgroundColor: themeOptions.palette?.background?.default,
           width: '100%',
+          borderRadius: DEFAULT_BORDER_RADIUS,
+          minHeight: '60px',
+          '&:before': {
+            display: 'none',
+          },
         }}
       >
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>

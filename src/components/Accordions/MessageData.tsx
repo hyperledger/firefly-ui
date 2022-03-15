@@ -13,19 +13,26 @@ import {
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IData } from '../../interfaces';
-import { DEFAULT_PADDING, themeOptions } from '../../theme';
-import { IDataWithHeader } from '../../interfaces';
+import { IData, IDataWithHeader } from '../../interfaces';
+import {
+  DEFAULT_BORDER_RADIUS,
+  DEFAULT_PADDING,
+  themeOptions,
+} from '../../theme';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { HashPopover } from '../Popovers/HashPopover';
 
 interface Props {
   data: IData;
+  isOpen?: boolean;
 }
 
-export const MessageDataAccordion: React.FC<Props> = ({ data }) => {
+export const MessageDataAccordion: React.FC<Props> = ({
+  data,
+  isOpen = false,
+}) => {
   const { t } = useTranslation();
-  const [expanded, setExpanded] = useState<boolean>(false);
+  const [expanded, setExpanded] = useState<boolean>(isOpen);
   const [openDataModal, setOpenDataModal] = useState(false);
 
   const accInfo: IDataWithHeader[] = [
@@ -60,6 +67,11 @@ export const MessageDataAccordion: React.FC<Props> = ({ data }) => {
         sx={{
           backgroundColor: themeOptions.palette?.background?.default,
           width: '100%',
+          borderRadius: DEFAULT_BORDER_RADIUS,
+          minHeight: '60px',
+          '&:before': {
+            display: 'none',
+          },
         }}
       >
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
@@ -100,9 +112,7 @@ export const MessageDataAccordion: React.FC<Props> = ({ data }) => {
         sx={{ wordWrap: 'break-word' }}
       >
         <Paper sx={modalStyle}>
-          <Typography>
-            <pre>{JSON.stringify(data.value, null, 2)}</pre>
-          </Typography>
+          <pre>{JSON.stringify(data.value, null, 2)}</pre>
           <Grid pt={DEFAULT_PADDING} container justifyContent="center">
             <FFCopyButton
               longForm

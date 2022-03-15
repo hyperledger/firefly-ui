@@ -10,19 +10,19 @@ import {
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IOperation } from '../../interfaces';
+import { IDataWithHeader, IOperation } from '../../interfaces';
 import { FF_OP_CATEGORY_MAP, OpStatusColorMap } from '../../interfaces/enums';
-import { themeOptions } from '../../theme';
-import { IDataWithHeader } from '../../interfaces';
+import { DEFAULT_BORDER_RADIUS, themeOptions } from '../../theme';
 import { HashPopover } from '../Popovers/HashPopover';
 
 interface Props {
   op: IOperation;
+  isOpen?: boolean;
 }
 
-export const OperationAccordion: React.FC<Props> = ({ op }) => {
+export const OperationAccordion: React.FC<Props> = ({ op, isOpen = false }) => {
   const { t } = useTranslation();
-  const [expanded, setExpanded] = useState<boolean>(false);
+  const [expanded, setExpanded] = useState<boolean>(isOpen);
 
   const accInfo: IDataWithHeader[] = [
     {
@@ -51,6 +51,11 @@ export const OperationAccordion: React.FC<Props> = ({ op }) => {
       sx={{
         backgroundColor: themeOptions.palette?.background?.default,
         width: '100%',
+        borderRadius: DEFAULT_BORDER_RADIUS,
+        minHeight: '60px',
+        '&:before': {
+          display: 'none',
+        },
       }}
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>

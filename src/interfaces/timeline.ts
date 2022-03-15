@@ -18,4 +18,5 @@ export interface ITimelineElement {
   key: string;
   item: JSX.Element;
   opposite?: boolean;
+  timestamp: string;
 }

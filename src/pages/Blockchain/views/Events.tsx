@@ -38,12 +38,7 @@ import {
   IPagedBlockchainEventResponse,
 } from '../../../interfaces';
 import { FF_BE_CATEGORY_MAP } from '../../../interfaces/enums/blockchainEventTypes';
-import {
-  DEFAULT_HIST_HEIGHT,
-  DEFAULT_PADDING,
-  DEFAULT_PAGE_LIMITS,
-  FFColors,
-} from '../../../theme';
+import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS, FFColors } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -158,7 +153,6 @@ export const BlockchainEvents: () => JSX.Element = () => {
             }
           />
           <Histogram
-            height={DEFAULT_HIST_HEIGHT}
             colors={makeColorArray(FF_BE_CATEGORY_MAP)}
             data={beHistData}
             indexBy="timestamp"

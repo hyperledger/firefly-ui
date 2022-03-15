@@ -56,6 +56,8 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${EVENTS_PATH}`,
   activityTxPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}`,
+  activityTxDetailPath: (ns: string, txID: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}/${txID}`,
   activityOpPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}`,
   // Blockchain

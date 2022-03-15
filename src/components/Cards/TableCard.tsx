@@ -1,7 +1,7 @@
 import { Grid, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { ITableCard } from '../../interfaces';
-import { DEFAULT_PADDING } from '../../theme';
+import { DEFAULT_BORDER_RADIUS, DEFAULT_PADDING } from '../../theme';
 
 type Props = {
   card: ITableCard;
@@ -10,7 +10,7 @@ type Props = {
 export const TableCard: React.FC<Props> = ({ card }) => {
   return (
     <Box
-      borderRadius={1}
+      borderRadius={DEFAULT_BORDER_RADIUS}
       sx={{
         width: '100%',
         height: '100%',

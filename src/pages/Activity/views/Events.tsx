@@ -39,11 +39,7 @@ import {
   IMetric,
   IPagedEventResponse,
 } from '../../../interfaces';
-import {
-  DEFAULT_HIST_HEIGHT,
-  DEFAULT_PADDING,
-  DEFAULT_PAGE_LIMITS,
-} from '../../../theme';
+import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, makeEventHistogram } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -169,7 +165,6 @@ export const ActivityEvents: () => JSX.Element = () => {
             }
           />
           <Histogram
-            height={DEFAULT_HIST_HEIGHT}
             colors={makeColorArray(FF_EVENTS_CATEGORY_MAP)}
             data={eventHistData}
             indexBy="timestamp"

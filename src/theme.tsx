@@ -1,6 +1,8 @@
 import { ThemeOptions } from '@mui/material';
 
+export const DEFAULT_BORDER_RADIUS = '8px';
 export const DEFAULT_HIST_HEIGHT = 200;
+export const DEFAULT_TIMELINE_HEIGHT = 500;
 export const DEFAULT_PADDING = 3;
 export const DEFAULT_PAGE_LIMITS = [5, 10, 25];
 export const DEFAULT_SPACING = 3;
@@ -11,6 +13,7 @@ export enum FFColors {
   Purple = '#6b00f2',
   Red = '#e1111e',
   Yellow = '#ffca00',
+  White = '#FFFFFF',
 }
 
 export const themeOptions: ThemeOptions = {
@@ -48,3 +51,4 @@ export const themeOptions: ThemeOptions = {
 
 export const FFBackgroundHover = '#252C32';
 export const FFTimelineLine = '#4B5955';
+export const FFTimelineLineHover = '#FFFFFF';

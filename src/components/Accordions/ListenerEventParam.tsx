@@ -8,15 +8,19 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { IFireFlyParam } from '../../interfaces';
-import { themeOptions } from '../../theme';
+import { DEFAULT_BORDER_RADIUS, themeOptions } from '../../theme';
 import { FFCopyButton } from '../Buttons/CopyButton';
 
 interface Props {
   param: IFireFlyParam;
+  isOpen?: boolean;
 }
 
-export const ListenerEventParamAccordion: React.FC<Props> = ({ param }) => {
-  const [expanded, setExpanded] = useState<boolean>(false);
+export const ListenerEventParamAccordion: React.FC<Props> = ({
+  param,
+  isOpen = false,
+}) => {
+  const [expanded, setExpanded] = useState<boolean>(isOpen);
 
   return (
     <Accordion
@@ -26,6 +30,11 @@ export const ListenerEventParamAccordion: React.FC<Props> = ({ param }) => {
       sx={{
         backgroundColor: themeOptions.palette?.background?.default,
         width: '100%',
+        borderRadius: DEFAULT_BORDER_RADIUS,
+        minHeight: '60px',
+        '&:before': {
+          display: 'none',
+        },
       }}
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>

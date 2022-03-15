@@ -1,16 +1,11 @@
 import { Grid, Typography } from '@mui/material';
-
-export interface IDataListItem {
-  label: string;
-  value: string | JSX.Element | number | undefined;
-  button?: JSX.Element | undefined;
-}
+import { IDataListItem } from '../../interfaces/lists';
 
 interface Props {
   item: IDataListItem;
 }
 
-export const DrawerListItem: React.FC<Props> = ({ item }) => {
+export const FFListItem: React.FC<Props> = ({ item }) => {
   return (
     <Grid
       xs={12}

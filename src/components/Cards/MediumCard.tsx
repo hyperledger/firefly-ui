@@ -1,6 +1,7 @@
 import { Grid, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { IMediumCard } from '../../interfaces';
+import { DEFAULT_BORDER_RADIUS } from '../../theme';
 
 type Props = {
   card: IMediumCard;
@@ -12,7 +13,7 @@ export const MediumCard: React.FC<Props> = ({ card, position }) => {
     <Box
       px={2}
       py={1}
-      borderRadius={1}
+      borderRadius={DEFAULT_BORDER_RADIUS}
       sx={{
         width: '100%',
         height: '100%',

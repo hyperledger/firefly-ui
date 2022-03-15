@@ -14,13 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid, Paper } from '@mui/material';
+import { Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Histogram } from '../../../components/Charts/Histogram';
-import { EventCardWrapper } from '../../../components/DataTimeline/Cards/Events/EventCardWrapper';
+import { EventCardWrapper } from '../../../components/DataTimeline/Cards/EventCardWrapper';
 import { DataTimeline } from '../../../components/DataTimeline/DataTimeline';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
@@ -29,14 +29,14 @@ import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
+  EventCategoryEnum,
+  FF_EVENTS,
   FF_Paths,
   ICreatedFilter,
   IEvent,
   ITimelineElement,
-  FF_EVENTS,
-  EventCategoryEnum,
 } from '../../../interfaces';
-import { DEFAULT_HIST_HEIGHT, DEFAULT_PADDING, FFColors } from '../../../theme';
+import { DEFAULT_PADDING, FFColors } from '../../../theme';
 import { fetchCatcher, makeEventHistogram } from '../../../utils';
 import { isHistogramEmpty } from '../../../utils/charts';
 
@@ -45,7 +45,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
     useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const [eventHistData, setEventHistData] = useState<BarDatum[]>([]);
-  const [events, setEvents] = useState<IEvent[]>([]);
+  const [events, setEvents] = useState<IEvent[]>();
   const { t } = useTranslation();
 
   // Events Histogram
@@ -84,46 +84,40 @@ export const ActivityTimeline: () => JSX.Element = () => {
     }
   };
 
-  const timelineElements: ITimelineElement[] = events.map((event) => ({
-    key: event.id,
-    item: <EventCardWrapper {...{ event }} />,
-    opposite: determineOpposite(event.type),
-  }));
+  const timelineElements: ITimelineElement[] | undefined = events?.map(
+    (event) => ({
+      key: event.id,
+      item: <EventCardWrapper {...{ event }} />,
+      opposite: determineOpposite(event.type),
+    })
+  );
 
   return (
     <>
       <Header title={t('timeline')} subtitle={t('activity')} />
       <Grid container px={DEFAULT_PADDING} direction="column" spacing={2}>
         <Grid item>
-          <Paper
-            sx={{
-              width: '100%',
-              height: 200,
-              backgroundColor: 'background.paper',
-            }}
-            elevation={0}
-          >
-            <Histogram
-              colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
-              data={eventHistData}
-              indexBy="timestamp"
-              keys={[
-                EventCategoryEnum.BLOCKCHAIN,
-                EventCategoryEnum.MESSAGES,
-                EventCategoryEnum.TOKENS,
-              ]}
-              includeLegend={true}
-              isEmpty={isHistogramEmpty(eventHistData ?? [])}
-              emptyText={t('noActivity')}
-              height={DEFAULT_HIST_HEIGHT}
-            />
-          </Paper>
+          <Histogram
+            colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+            data={eventHistData}
+            indexBy="timestamp"
+            keys={[
+              EventCategoryEnum.BLOCKCHAIN,
+              EventCategoryEnum.MESSAGES,
+              EventCategoryEnum.TOKENS,
+            ]}
+            includeLegend={true}
+            isEmpty={isHistogramEmpty(eventHistData ?? [])}
+            emptyText={t('noActivity')}
+          />
         </Grid>
         <Grid item>
           <DataTimeline
             leftHeader={t('submittedByMe')}
             rightHeader={t('receivedFromEveryone')}
             elements={timelineElements}
+            emptyText={t('noTimelineEvents')}
+            height={`calc(100vh - 340px)`}
           />
         </Grid>
       </Grid>

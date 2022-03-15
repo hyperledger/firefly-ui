@@ -14,8 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Chip, Grid } from '@mui/material';
-import dayjs from 'dayjs';
+import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
@@ -28,17 +27,13 @@ import {
   ITxStatus,
 } from '../../interfaces';
 import { FF_Paths } from '../../interfaces/constants';
-import {
-  FF_TRANSFER_CATEGORY_MAP,
-  TxStatusColorMap,
-} from '../../interfaces/enums';
+import { FF_TRANSFER_CATEGORY_MAP } from '../../interfaces/enums';
 import { DEFAULT_PADDING } from '../../theme';
 import { fetchCatcher } from '../../utils';
 import { BlockchainEventAccordion } from '../Accordions/BlockchainEvent';
 import { OperationAccordion } from '../Accordions/Operation';
-import { FFCopyButton } from '../Buttons/CopyButton';
+import { TransferList } from '../Lists/TransferList';
 import { DisplaySlide } from './DisplaySlide';
-import { DrawerListItem, IDataListItem } from './ListItem';
 import { SlideHeader } from './SlideHeader';
 import { SlideSectionHeader } from './SlideSectionHeader';
 
@@ -102,49 +97,6 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
       });
   }, [transfer]);
 
-  const dataList: IDataListItem[] = [
-    {
-      label: t('localID'),
-      value: transfer.localId,
-      button: <FFCopyButton value={transfer.localId} />,
-    },
-    {
-      label: t('poolID'),
-      value: transfer.pool,
-      button: <FFCopyButton value={transfer.pool} />,
-    },
-    {
-      label: t('transactionID'),
-      value: transfer.tx.id,
-      button: <FFCopyButton value={transfer.tx.id} />,
-    },
-    {
-      label: t('authorKey'),
-      value: transfer.key,
-      button: <FFCopyButton value={transfer.key} />,
-    },
-    {
-      label: t('messageID'),
-      value: transfer.message ?? t('noMessageInTransfer'),
-      button: transfer.message ? (
-        <FFCopyButton value={transfer.message} />
-      ) : undefined,
-    },
-    {
-      label: t('status'),
-      value: txStatus && (
-        <Chip
-          label={txStatus.status?.toLocaleUpperCase()}
-          sx={{ backgroundColor: TxStatusColorMap[txStatus.status] }}
-        ></Chip>
-      ),
-    },
-    {
-      label: t('created'),
-      value: dayjs(transfer.created).format('MM/DD/YYYY h:mm A'),
-    },
-  ];
-
   return (
     <>
       <DisplaySlide open={open} onClose={onClose}>
@@ -156,9 +108,7 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
           />
           {/* Data list */}
           <Grid container item>
-            {dataList.map((data, idx) => (
-              <DrawerListItem key={idx} item={data} />
-            ))}
+            <TransferList transfer={transfer} txStatus={txStatus} />
           </Grid>
           {/* Operations */}
           {txOperations.length && (

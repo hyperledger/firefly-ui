@@ -7,16 +7,21 @@ import {
   Typography,
 } from '@mui/material';
 import { useState } from 'react';
-import { themeOptions } from '../../theme';
+import { DEFAULT_BORDER_RADIUS, themeOptions } from '../../theme';
 import { FFCopyButton } from '../Buttons/CopyButton';
 
 interface Props {
   header: string;
   json: string;
+  isOpen?: boolean;
 }
 
-export const JsonViewAccordion: React.FC<Props> = ({ header, json }) => {
-  const [expanded, setExpanded] = useState<boolean>(false);
+export const JsonViewAccordion: React.FC<Props> = ({
+  header,
+  json,
+  isOpen = false,
+}) => {
+  const [expanded, setExpanded] = useState<boolean>(isOpen);
 
   return (
     <Accordion
@@ -26,6 +31,11 @@ export const JsonViewAccordion: React.FC<Props> = ({ header, json }) => {
       sx={{
         backgroundColor: themeOptions.palette?.background?.default,
         width: '100%',
+        borderRadius: DEFAULT_BORDER_RADIUS,
+        minHeight: '60px',
+        '&:before': {
+          display: 'none',
+        },
       }}
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>

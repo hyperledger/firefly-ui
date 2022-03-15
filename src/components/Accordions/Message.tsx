@@ -15,17 +15,21 @@ import {
   IMessage,
   MsgStateColorMap,
 } from '../../interfaces';
-import { themeOptions } from '../../theme';
+import { DEFAULT_BORDER_RADIUS, themeOptions } from '../../theme';
 import { IDataWithHeader } from '../../interfaces';
 import { HashPopover } from '../Popovers/HashPopover';
 
 interface Props {
+  isOpen?: boolean;
   message: IMessage;
 }
 
-export const MessageAccordion: React.FC<Props> = ({ message }) => {
+export const MessageAccordion: React.FC<Props> = ({
+  message,
+  isOpen = false,
+}) => {
   const { t } = useTranslation();
-  const [expanded, setExpanded] = useState<boolean>(false);
+  const [expanded, setExpanded] = useState<boolean>(isOpen);
 
   const accInfo: IDataWithHeader[] = [
     {
@@ -55,6 +59,11 @@ export const MessageAccordion: React.FC<Props> = ({ message }) => {
         sx={{
           backgroundColor: themeOptions.palette?.background?.default,
           width: '100%',
+          borderRadius: DEFAULT_BORDER_RADIUS,
+          minHeight: '60px',
+          '&:before': {
+            display: 'none',
+          },
         }}
       >
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>

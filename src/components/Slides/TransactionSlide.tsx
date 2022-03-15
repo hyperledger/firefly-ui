@@ -14,8 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Chip, Grid } from '@mui/material';
-import dayjs from 'dayjs';
+import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
@@ -26,7 +25,6 @@ import {
   IOperation,
   ITransaction,
   ITxStatus,
-  TxStatusColorMap,
 } from '../../interfaces';
 import { FF_Paths } from '../../interfaces/constants';
 import { FF_TX_CATEGORY_MAP } from '../../interfaces/enums/transactionTypes';
@@ -34,9 +32,8 @@ import { DEFAULT_PADDING } from '../../theme';
 import { fetchCatcher } from '../../utils';
 import { BlockchainEventAccordion } from '../Accordions/BlockchainEvent';
 import { OperationAccordion } from '../Accordions/Operation';
-import { FFCopyButton } from '../Buttons/CopyButton';
+import { TxList } from '../Lists/TxList';
 import { DisplaySlide } from './DisplaySlide';
-import { DrawerListItem, IDataListItem } from './ListItem';
 import { SlideHeader } from './SlideHeader';
 import { SlideSectionHeader } from './SlideSectionHeader';
 
@@ -54,7 +51,6 @@ export const TransactionSlide: React.FC<Props> = ({
   const { t } = useTranslation();
   const { selectedNamespace } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
-
   const [txBlockchainEvents, setTxBlockchainEvents] = useState<
     IBlockchainEvent[]
   >([]);
@@ -104,27 +100,6 @@ export const TransactionSlide: React.FC<Props> = ({
       });
   }, [transaction]);
 
-  const dataList: IDataListItem[] = [
-    {
-      label: t('id'),
-      value: transaction.id,
-      button: <FFCopyButton value={transaction.id} />,
-    },
-    {
-      label: t('status'),
-      value: txStatus && (
-        <Chip
-          label={txStatus.status?.toLocaleUpperCase()}
-          sx={{ backgroundColor: TxStatusColorMap[txStatus.status] }}
-        ></Chip>
-      ),
-    },
-    {
-      label: t('created'),
-      value: dayjs(transaction.created).format('MM/DD/YYYY h:mm A'),
-    },
-  ];
-
   return (
     <>
       <DisplaySlide open={open} onClose={onClose}>
@@ -136,9 +111,7 @@ export const TransactionSlide: React.FC<Props> = ({
           />
           {/* Data list */}
           <Grid container item>
-            {dataList.map((data, idx) => (
-              <DrawerListItem key={idx} item={data} />
-            ))}
+            <TxList tx={transaction} txStatus={txStatus} />
           </Grid>
           {/* Operations */}
           {txOperations?.length > 0 && (

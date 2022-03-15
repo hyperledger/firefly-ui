@@ -19,6 +19,7 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { TxButton } from '../../../components/Buttons/TxButton';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
@@ -39,11 +40,7 @@ import {
   ITransaction,
 } from '../../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
-import {
-  DEFAULT_HIST_HEIGHT,
-  DEFAULT_PADDING,
-  DEFAULT_PAGE_LIMITS,
-} from '../../../theme';
+import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -136,7 +133,6 @@ export const ActivityTransactions: () => JSX.Element = () => {
         value: (
           <>
             {tx.blockchainIds?.map((bid, idx) => (
-              // TODO: Support multiple items in array better
               <HashPopover
                 key={idx}
                 shortHash={true}
@@ -147,6 +143,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
         ),
       },
       { value: dayjs(tx.created).format('MM/DD/YYYY h:mm A') },
+      { value: <TxButton ns={selectedNamespace} txID={tx.id} /> },
     ],
     onClick: () => setViewTx(tx),
     leftBorderColor: FF_TX_CATEGORY_MAP[tx.type].color,
@@ -168,7 +165,6 @@ export const ActivityTransactions: () => JSX.Element = () => {
             }
           />
           <Histogram
-            height={DEFAULT_HIST_HEIGHT}
             colors={makeColorArray(FF_TX_CATEGORY_MAP)}
             data={txHistData}
             indexBy="timestamp"

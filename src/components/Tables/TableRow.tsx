@@ -16,7 +16,11 @@
 
 import { TableCell, TableRow } from '@mui/material';
 import React from 'react';
-import { FFBackgroundHover, themeOptions } from '../../theme';
+import {
+  DEFAULT_BORDER_RADIUS,
+  FFBackgroundHover,
+  themeOptions,
+} from '../../theme';
 import { IDataTableRecord } from './TableInterfaces';
 
 interface Props {
@@ -25,8 +29,6 @@ interface Props {
 }
 
 export const DataTableRow: React.FC<Props> = ({ record, leftBorderColor }) => {
-  const borderRadius = '8px';
-
   return (
     <TableRow
       sx={{
@@ -45,12 +47,18 @@ export const DataTableRow: React.FC<Props> = ({ record, leftBorderColor }) => {
             sx={{
               borderLeft:
                 index == 0 ? `8px solid ${leftBorderColor}` : undefined,
-              borderTopLeftRadius: index == 0 ? borderRadius : undefined,
-              borderBottomLeftRadius: index == 0 ? borderRadius : undefined,
+              borderTopLeftRadius:
+                index == 0 ? DEFAULT_BORDER_RADIUS : undefined,
+              borderBottomLeftRadius:
+                index == 0 ? DEFAULT_BORDER_RADIUS : undefined,
               borderTopRightRadius:
-                index == record.columns.length - 1 ? borderRadius : undefined,
+                index == record.columns.length - 1
+                  ? DEFAULT_BORDER_RADIUS
+                  : undefined,
               borderBottomRightRadius:
-                index == record.columns.length - 1 ? borderRadius : undefined,
+                index == record.columns.length - 1
+                  ? DEFAULT_BORDER_RADIUS
+                  : undefined,
               margin: '16px 16px 16px 16px',
               padding: '8px',
             }}

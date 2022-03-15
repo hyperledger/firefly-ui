@@ -10,16 +10,20 @@ import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IBlockchainEvent, IDataWithHeader } from '../../interfaces';
-import { themeOptions } from '../../theme';
+import { DEFAULT_BORDER_RADIUS, themeOptions } from '../../theme';
 import { HashPopover } from '../Popovers/HashPopover';
 
 interface Props {
   be: IBlockchainEvent;
+  isOpen?: boolean;
 }
 
-export const BlockchainEventAccordion: React.FC<Props> = ({ be }) => {
+export const BlockchainEventAccordion: React.FC<Props> = ({
+  be,
+  isOpen = false,
+}) => {
   const { t } = useTranslation();
-  const [expanded, setExpanded] = useState<boolean>(false);
+  const [expanded, setExpanded] = useState<boolean>(isOpen);
 
   const accInfo: IDataWithHeader[] = [
     {
@@ -40,6 +44,11 @@ export const BlockchainEventAccordion: React.FC<Props> = ({ be }) => {
       sx={{
         backgroundColor: themeOptions.palette?.background?.default,
         width: '100%',
+        borderRadius: DEFAULT_BORDER_RADIUS,
+        minHeight: '60px',
+        '&:before': {
+          display: 'none',
+        },
       }}
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>

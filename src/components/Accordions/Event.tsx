@@ -9,40 +9,37 @@ import {
 import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IContractListener, IDataWithHeader } from '../../interfaces';
+import {
+  FF_EVENTS_CATEGORY_MAP,
+  IDataWithHeader,
+  IEvent,
+} from '../../interfaces';
 import { DEFAULT_BORDER_RADIUS, themeOptions } from '../../theme';
 import { HashPopover } from '../Popovers/HashPopover';
 
 interface Props {
-  listener: IContractListener;
+  event: IEvent;
   isOpen?: boolean;
 }
 
-export const ListenerAccordion: React.FC<Props> = ({
-  listener,
-  isOpen = false,
-}) => {
+export const EventAccordion: React.FC<Props> = ({ event, isOpen = false }) => {
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState<boolean>(isOpen);
 
   const accInfo: IDataWithHeader[] = [
     {
-      header: t('listenerID'),
-      data: <HashPopover address={listener.id} shortHash />,
+      header: t('id'),
+      data: <HashPopover address={event.id} shortHash />,
     },
     {
-      header: t('protocolID'),
-      data: <HashPopover address={listener.protocolId} shortHash />,
-    },
-    {
-      header: t('location'),
-      data: <HashPopover address={listener.location.address} shortHash />,
+      header: t('reference'),
+      data: <HashPopover address={event.reference} shortHash />,
     },
   ];
 
   return (
     <Accordion
-      key={listener.id}
+      key={event.id}
       expanded={expanded}
       onChange={() => setExpanded(!expanded)}
       sx={{
@@ -57,23 +54,24 @@ export const ListenerAccordion: React.FC<Props> = ({
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <Grid container direction="row" alignItems="center">
-          {/* Event Name */}
+          {/* Protocol ID */}
           <Grid xs={6} item container justifyContent="flex-start">
-            <Typography>{listener.event.name}</Typography>
+            <Typography>
+              {t(FF_EVENTS_CATEGORY_MAP[event.type].nicename)}
+            </Typography>
           </Grid>
-          {/* Created */}
+          {/* Time */}
           <Grid xs={6} item container justifyContent="flex-end">
             <Typography>
-              {dayjs(listener.created).format('MM/DD/YYYY h:mm A')}
+              {dayjs(event.created).format('MM/DD/YYYY h:mm A')}
             </Typography>
           </Grid>
         </Grid>
       </AccordionSummary>
       <AccordionDetails>
-        {/* Basic Data */}
         <Grid container item direction="row">
           {accInfo.map((info, idx) => (
-            <Grid key={idx} item xs={4} pb={1} justifyContent="flex-start">
+            <Grid key={idx} item xs={6} pb={1} justifyContent="flex-start">
               <Typography pb={1} variant="body2">
                 {info.header}
               </Typography>
