@@ -5,7 +5,7 @@ import { IContractListener } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
-import { FFListItem } from './ListItem';
+import { FFListItem } from './FFListItem';
 
 interface Props {
   listener: IContractListener;

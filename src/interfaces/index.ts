@@ -22,4 +22,5 @@ export * from './enums';
 export * from './enums/eventTypes';
 export * from './filters';
 export * from './navigation';
+export * from './table';
 export * from './timeline';

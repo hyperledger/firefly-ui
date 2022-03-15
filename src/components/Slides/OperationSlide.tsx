@@ -20,7 +20,7 @@ import { useTranslation } from 'react-i18next';
 import { IOperation } from '../../interfaces';
 import { FF_OP_CATEGORY_MAP } from '../../interfaces/enums';
 import { DEFAULT_PADDING } from '../../theme';
-import { JsonViewAccordion } from '../Accordions/JsonViewer';
+import { JsonViewAccordion } from '../Accordions/JsonViewerAccordion';
 import { OperationList } from '../Lists/OperationList';
 import { DisplaySlide } from './DisplaySlide';
 import { SlideHeader } from './SlideHeader';

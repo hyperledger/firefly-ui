@@ -22,7 +22,7 @@ import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { MediumCard } from '../../../components/Cards/MediumCard';
+import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
@@ -31,7 +31,6 @@ import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { MessageSlide } from '../../../components/Slides/MessageSlide';
 import { MediumCardTable } from '../../../components/Tables/MediumCardTable';
 import { DataTable } from '../../../components/Tables/Table';
-import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
@@ -43,9 +42,10 @@ import {
   FF_Paths,
   ICreatedFilter,
   IData,
+  IDataTableRecord,
   IDatatype,
+  IFireFlyCard,
   IGenericPagedResponse,
-  IMediumCard,
   IMessage,
   IMetric,
   IPagedMessageResponse,
@@ -205,7 +205,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
     onClick: () => navigate(DATATYPES_PATH),
   }));
 
-  const mediumCards: IMediumCard[] = [
+  const mediumCards: IFireFlyCard[] = [
     {
       headerText: t('recentMessages'),
       headerComponent: (
@@ -435,7 +435,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
                   item
                   xs={4}
                 >
-                  <MediumCard card={card} position="flex-start" />
+                  <FireFlyCard card={card} position="flex-start" />
                 </Grid>
               );
             })}

@@ -20,75 +20,90 @@ import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Histogram } from '../../../components/Charts/Histogram';
-import { EventCardWrapper } from '../../../components/DataTimeline/Cards/EventCardWrapper';
-import { DataTimeline } from '../../../components/DataTimeline/DataTimeline';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
+import { FFTimelineHeader } from '../../../components/Headers/TimelineHeader';
+import { EventSlide } from '../../../components/Slides/EventSlide';
+import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
+import { EventCardWrapper } from '../../../components/Timeline/Cards/EventCardWrapper';
+import { FFTimeline } from '../../../components/Timeline/FFTimeline';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
   EventCategoryEnum,
-  FF_EVENTS,
+  FF_NAV_PATHS,
   FF_Paths,
   ICreatedFilter,
   IEvent,
   ITimelineElement,
+  ITransaction,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, FFColors } from '../../../theme';
 import { fetchCatcher, makeEventHistogram } from '../../../utils';
 import { isHistogramEmpty } from '../../../utils/charts';
+import { isOppositeTimelineEvent } from '../../../utils/timeline';
 
 export const ActivityTimeline: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
     useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
-  const [eventHistData, setEventHistData] = useState<BarDatum[]>([]);
+  const [eventHistData, setEventHistData] = useState<BarDatum[]>();
   const [events, setEvents] = useState<IEvent[]>();
   const { t } = useTranslation();
+  const [viewTx, setViewTx] = useState<ITransaction>();
+  const [viewEvent, setViewEvent] = useState<IEvent>();
 
   // Events Histogram
   useEffect(() => {
     const currentTime = dayjs().unix();
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    Promise.all([
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-          BucketCollectionEnum.Events,
-          createdFilterObject.filterTime,
-          currentTime,
-          BucketCountEnum.Large
-        )}`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?fetchreferences`
-      ),
-    ])
-      .then(([histEvents, events]) => {
+    fetchCatcher(
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+        BucketCollectionEnum.Events,
+        createdFilterObject.filterTime,
+        currentTime,
+        BucketCountEnum.Large
+      )}`
+    )
+      .then((histEvents) => {
         setEventHistData(makeEventHistogram(histEvents));
-        setEvents(events);
       })
       .catch((err) => {
         reportFetchError(err);
       });
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
-  const determineOpposite = (eventType: string) => {
-    switch (eventType) {
-      case FF_EVENTS.TX_SUBMITTED:
-        return true;
-      default:
-        return false;
-    }
-  };
+  // Timeline useEffect
+  useEffect(() => {
+    const qParams = `?limit=25&fetchreferences=true`;
+
+    fetchCatcher(
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}`
+    )
+      .then((recentEvents) => {
+        setEvents(recentEvents);
+      })
+      .catch((err) => {
+        reportFetchError(err);
+      });
+  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
   const timelineElements: ITimelineElement[] | undefined = events?.map(
     (event) => ({
       key: event.id,
-      item: <EventCardWrapper {...{ event }} />,
-      opposite: determineOpposite(event.type),
+      item: (
+        <EventCardWrapper
+          onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
+          onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
+          link={FF_NAV_PATHS.activityTxDetailPath(selectedNamespace, event.tx)}
+          {...{ event }}
+        />
+      ),
+      opposite: isOppositeTimelineEvent(event.type),
+      timestamp: event.created,
     })
   );
 
@@ -111,16 +126,36 @@ export const ActivityTimeline: () => JSX.Element = () => {
             emptyText={t('noActivity')}
           />
         </Grid>
-        <Grid item>
-          <DataTimeline
+        <Grid container justifyContent={'center'} direction="column" item>
+          <FFTimelineHeader
             leftHeader={t('submittedByMe')}
             rightHeader={t('receivedFromEveryone')}
+          />
+          <FFTimeline
             elements={timelineElements}
             emptyText={t('noTimelineEvents')}
-            height={`calc(100vh - 340px)`}
+            height={'calc(100vh - 340px)'}
           />
         </Grid>
       </Grid>
+      {viewEvent && (
+        <EventSlide
+          event={viewEvent}
+          open={!!viewEvent}
+          onClose={() => {
+            setViewEvent(undefined);
+          }}
+        />
+      )}
+      {viewTx && (
+        <TransactionSlide
+          transaction={viewTx}
+          open={!!viewTx}
+          onClose={() => {
+            setViewTx(undefined);
+          }}
+        />
+      )}
     </>
   );
 };

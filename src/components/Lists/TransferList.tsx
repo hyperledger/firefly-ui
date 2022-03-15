@@ -8,7 +8,7 @@ import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { TxButton } from '../Buttons/TxButton';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
-import { FFListItem } from './ListItem';
+import { FFListItem } from './FFListItem';
 
 interface Props {
   transfer?: ITokenTransfer;

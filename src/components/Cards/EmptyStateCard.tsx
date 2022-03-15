@@ -7,7 +7,7 @@ type Props = {
   subText?: string;
 };
 
-export const CardEmptyState: React.FC<Props> = ({ text, subText, height }) => {
+export const EmptyStateCard: React.FC<Props> = ({ text, subText, height }) => {
   return (
     <Grid
       container

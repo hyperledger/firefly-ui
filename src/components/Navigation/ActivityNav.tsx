@@ -19,14 +19,7 @@ import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
-import {
-  ACTIVITY_PATH,
-  EVENTS_PATH,
-  INavItem,
-  NAMESPACES_PATH,
-  OPERATIONS_PATH,
-  TRANSACTIONS_PATH,
-} from '../../interfaces';
+import { FF_NAV_PATHS, INavItem } from '../../interfaces';
 import { NavSection } from './NavSection';
 
 export const ActivityNav = () => {
@@ -34,28 +27,32 @@ export const ActivityNav = () => {
   const navigate = useNavigate();
   const { selectedNamespace } = useContext(ApplicationContext);
   const { pathname } = useLocation();
-  const basePath = `/${NAMESPACES_PATH}/${selectedNamespace}/${ACTIVITY_PATH}`;
+
+  const timelinePath = FF_NAV_PATHS.activityTimelinePath(selectedNamespace);
+  const eventsPath = FF_NAV_PATHS.activityTimelinePath(selectedNamespace);
+  const txPath = FF_NAV_PATHS.activityTimelinePath(selectedNamespace);
+  const opsPath = FF_NAV_PATHS.activityTimelinePath(selectedNamespace);
 
   const navItems: INavItem[] = [
     {
       name: t('timeline'),
-      action: () => navigate(basePath),
-      itemIsActive: pathname === basePath,
+      action: () => navigate(timelinePath),
+      itemIsActive: pathname === timelinePath,
     },
     {
       name: t('events'),
-      action: () => navigate(`${basePath}/${EVENTS_PATH}`),
-      itemIsActive: pathname === `${basePath}/${EVENTS_PATH}`,
+      action: () => navigate(eventsPath),
+      itemIsActive: pathname === eventsPath,
     },
     {
       name: t('transactions'),
-      action: () => navigate(`${basePath}/${TRANSACTIONS_PATH}`),
-      itemIsActive: pathname === `${basePath}/${TRANSACTIONS_PATH}`,
+      action: () => navigate(txPath),
+      itemIsActive: pathname === txPath,
     },
     {
       name: t('operations'),
-      action: () => navigate(`${basePath}/${OPERATIONS_PATH}`),
-      itemIsActive: pathname === `${basePath}/${OPERATIONS_PATH}`,
+      action: () => navigate(opsPath),
+      itemIsActive: pathname === opsPath,
     },
   ];
 

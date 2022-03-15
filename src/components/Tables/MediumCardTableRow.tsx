@@ -17,8 +17,8 @@
 import { TableCell, TableRow } from '@mui/material';
 import { withStyles } from '@mui/styles';
 import React from 'react';
+import { IDataTableRecord } from '../../interfaces/table';
 import { FFBackgroundHover } from '../../theme';
-import { IDataTableRecord } from './TableInterfaces';
 
 interface Props {
   record: IDataTableRecord;

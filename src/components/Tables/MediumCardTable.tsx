@@ -25,11 +25,11 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
+import { IDataTableRecord } from '../../interfaces/table';
 import { themeOptions } from '../../theme';
-import { MediumCardEmptyState } from '../Cards/MediumCardEmptyState';
+import { EmptyStateCard } from '../Cards/EmptyStateCard';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { MediumCardTableRow } from './MediumCardTableRow';
-import { IDataTableRecord } from './TableInterfaces';
 
 interface Props {
   records?: IDataTableRecord[];
@@ -85,7 +85,7 @@ export const MediumCardTable: React.FC<Props> = ({
           </TableContainer>
         </Grid>
       ) : (
-        <MediumCardEmptyState message={emptyMessage}></MediumCardEmptyState>
+        <EmptyStateCard text={emptyMessage} />
       )}
     </>
   );

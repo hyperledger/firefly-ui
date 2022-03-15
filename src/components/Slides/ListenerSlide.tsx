@@ -19,7 +19,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { IContractListener } from '../../interfaces';
 import { DEFAULT_PADDING } from '../../theme';
-import { ListenerEventParamAccordion } from '../Accordions/ListenerEventParam';
+import { ListenerEventParamAccordion } from '../Accordions/ListenerEventParamAccordion';
 import { ListenerList } from '../Lists/ListenerList';
 import { DisplaySlide } from './DisplaySlide';
 import { SlideHeader } from './SlideHeader';

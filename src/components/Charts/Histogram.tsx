@@ -8,7 +8,7 @@ import {
   DEFAULT_HIST_HEIGHT,
   themeOptions,
 } from '../../theme';
-import { CardEmptyState } from '../Cards/CardEmptyState';
+import { EmptyStateCard } from '../Cards/EmptyStateCard';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 
 interface Props {
@@ -44,7 +44,7 @@ export const Histogram: React.FC<Props> = ({
       {!data ? (
         <FFCircleLoader height="100%" color="warning"></FFCircleLoader>
       ) : isEmpty ? (
-        <CardEmptyState text={emptyText}></CardEmptyState>
+        <EmptyStateCard text={emptyText}></EmptyStateCard>
       ) : (
         <ResponsiveBar
           data={data}

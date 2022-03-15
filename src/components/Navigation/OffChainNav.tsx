@@ -19,14 +19,7 @@ import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
-import {
-  DATA_PATH,
-  DATATYPES_PATH,
-  INavItem,
-  MESSAGES_PATH,
-  NAMESPACES_PATH,
-  OFFCHAIN_PATH,
-} from '../../interfaces';
+import { FF_NAV_PATHS, INavItem } from '../../interfaces';
 import { NavSection } from './NavSection';
 
 export const OffChainNav = () => {
@@ -34,28 +27,32 @@ export const OffChainNav = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { selectedNamespace } = useContext(ApplicationContext);
-  const basePath = `/${NAMESPACES_PATH}/${selectedNamespace}/${OFFCHAIN_PATH}`;
+
+  const offchainPath = FF_NAV_PATHS.offchainPath(selectedNamespace);
+  const messagesPath = FF_NAV_PATHS.offchainMessagesPath(selectedNamespace);
+  const dataPath = FF_NAV_PATHS.offchainDataPath(selectedNamespace);
+  const datatypesPath = FF_NAV_PATHS.offchainDatatypesPath(selectedNamespace);
 
   const navItems: INavItem[] = [
     {
       name: t('dashboard'),
-      action: () => navigate(basePath),
-      itemIsActive: pathname === basePath,
+      action: () => navigate(offchainPath),
+      itemIsActive: pathname === offchainPath,
     },
     {
       name: t('messages'),
-      action: () => navigate(`${basePath}/${MESSAGES_PATH}`),
-      itemIsActive: pathname === `${basePath}/${MESSAGES_PATH}`,
+      action: () => navigate(messagesPath),
+      itemIsActive: pathname === messagesPath,
     },
     {
       name: t('data'),
-      action: () => navigate(`${basePath}/${DATA_PATH}`),
-      itemIsActive: pathname === `${basePath}/${DATA_PATH}`,
+      action: () => navigate(dataPath),
+      itemIsActive: pathname === dataPath,
     },
     {
       name: t('datatypes'),
-      action: () => navigate(`${basePath}/${DATATYPES_PATH}`),
-      itemIsActive: pathname === `${basePath}/${DATATYPES_PATH}`,
+      action: () => navigate(datatypesPath),
+      itemIsActive: pathname === datatypesPath,
     },
   ];
 

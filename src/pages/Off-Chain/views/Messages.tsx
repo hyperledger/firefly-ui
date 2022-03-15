@@ -26,7 +26,6 @@ import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { MessageSlide } from '../../../components/Slides/MessageSlide';
 import { DataTable } from '../../../components/Tables/Table';
-import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
@@ -34,6 +33,7 @@ import {
   BucketCountEnum,
   FF_Paths,
   ICreatedFilter,
+  IDataTableRecord,
   IMessage,
   IMetric,
   IPagedMessageResponse,

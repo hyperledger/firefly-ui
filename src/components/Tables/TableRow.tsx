@@ -16,12 +16,12 @@
 
 import { TableCell, TableRow } from '@mui/material';
 import React from 'react';
+import { IDataTableRecord } from '../../interfaces/table';
 import {
   DEFAULT_BORDER_RADIUS,
   FFBackgroundHover,
   themeOptions,
 } from '../../theme';
-import { IDataTableRecord } from './TableInterfaces';
 
 interface Props {
   leftBorderColor?: string;
@@ -61,6 +61,8 @@ export const DataTableRow: React.FC<Props> = ({ record, leftBorderColor }) => {
                   : undefined,
               margin: '16px 16px 16px 16px',
               padding: '8px',
+              borderBottom:
+                '1px solid ' + themeOptions.palette?.background?.default,
             }}
           >
             {column.value}

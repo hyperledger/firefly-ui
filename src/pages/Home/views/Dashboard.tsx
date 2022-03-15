@@ -1,23 +1,20 @@
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Grid, IconButton, List, Typography } from '@mui/material';
+import { Grid, IconButton, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { CardEmptyState } from '../../../components/Cards/CardEmptyState';
-import { MediumCard } from '../../../components/Cards/MediumCard';
+import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
-import { TableCard } from '../../../components/Cards/TableCard';
-import { TableCardItem } from '../../../components/Cards/TableCardItem';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
-import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { NetworkMap } from '../../../components/NetworkMap/NetworkMap';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { EventSlide } from '../../../components/Slides/EventSlide';
 import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
+import { EventCardWrapper } from '../../../components/Timeline/Cards/EventCardWrapper';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
@@ -29,17 +26,15 @@ import {
   ICreatedFilter,
   IDataWithHeader,
   IEvent,
+  IFireFlyCard,
   IGenericPagedResponse,
-  IMediumCard,
   IMetric,
   INode,
   ISmallCard,
-  ITableCard,
   ITransaction,
   OpCategoryEnum,
 } from '../../../interfaces';
 import { FF_Paths } from '../../../interfaces/constants';
-import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
 import { DEFAULT_PADDING, DEFAULT_SPACING } from '../../../theme';
 import {
   fetchCatcher,
@@ -258,7 +253,7 @@ export const HomeDashboard: () => JSX.Element = () => {
     },
   ];
 
-  const mediumCards: IMediumCard[] = [
+  const mediumCards: IFireFlyCard[] = [
     {
       headerComponent: (
         <IconButton
@@ -350,7 +345,7 @@ export const HomeDashboard: () => JSX.Element = () => {
       });
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter, nodeID]);
 
-  const tableCards: ITableCard[] = [
+  const tableCards: IFireFlyCard[] = [
     // Recently submitted Transactions
     {
       headerComponent: (
@@ -364,34 +359,19 @@ export const HomeDashboard: () => JSX.Element = () => {
       ),
       headerText: t('myRecentTransactions'),
       component: (
-        <List
-          disablePadding
-          sx={{
-            width: '100%',
-            bgcolor: 'background.paper',
-          }}
-        >
-          {!recentEventTxs ? (
-            <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : recentEventTxs.length ? (
-            recentEventTxs.map((event, idx) => (
-              <div key={idx} onClick={() => setViewTx(event.transaction)}>
-                <TableCardItem
-                  borderColor={FF_EVENTS_CATEGORY_MAP[event.type].color}
-                  key={idx}
-                  date={dayjs(event.created).format('MM/DD/YYYY h:mm A')}
-                  header={t(
-                    FF_TX_CATEGORY_MAP[event?.transaction?.type ?? ''].nicename
-                  )}
-                  status={event.reference}
-                  subText={t(FF_EVENTS_CATEGORY_MAP[event.type].nicename)}
-                />
-              </div>
-            ))
-          ) : (
-            <CardEmptyState text={t('noTransactions')}></CardEmptyState>
-          )}
-        </List>
+        <>
+          {recentEventTxs?.map((event) => (
+            <EventCardWrapper
+              onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
+              onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
+              link={FF_NAV_PATHS.activityTxDetailPath(
+                selectedNamespace,
+                event.tx
+              )}
+              {...{ event }}
+            />
+          ))}
+        </>
       ),
     },
     // Recent Network Events
@@ -407,36 +387,22 @@ export const HomeDashboard: () => JSX.Element = () => {
       ),
       headerText: t('recentNetworkEvents'),
       component: (
-        <List
-          disablePadding
-          sx={{
-            width: '100%',
-            bgcolor: 'background.paper',
-          }}
-        >
-          {!recentEvents ? (
-            <FFCircleLoader color="warning"></FFCircleLoader>
-          ) : recentEvents?.length ? (
-            recentEvents.map((event, idx) => (
-              <div key={idx} onClick={() => setViewEvent(event)}>
-                <TableCardItem
-                  borderColor={FF_EVENTS_CATEGORY_MAP[event.type].color}
-                  key={idx}
-                  date={dayjs(event.created).format('MM/DD/YYYY h:mm A')}
-                  header={t(FF_EVENTS_CATEGORY_MAP[event.type].nicename)}
-                  status={event.reference}
-                  subText={t(FF_EVENTS_CATEGORY_MAP[event.type].nicename)}
-                />
-              </div>
-            ))
-          ) : (
-            <CardEmptyState text={t('noEvents')}></CardEmptyState>
-          )}
-        </List>
+        <>
+          {recentEvents?.map((event) => (
+            <EventCardWrapper
+              onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
+              onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
+              link={FF_NAV_PATHS.activityTxDetailPath(
+                selectedNamespace,
+                event.tx
+              )}
+              {...{ event }}
+            />
+          ))}
+        </>
       ),
     },
   ];
-
   // Table Card UseEffect
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
@@ -508,7 +474,7 @@ export const HomeDashboard: () => JSX.Element = () => {
                   item
                   xs={4}
                 >
-                  <MediumCard card={card} position="flex-start" />
+                  <FireFlyCard card={card} position="flex-start" />
                 </Grid>
               );
             })}
@@ -532,7 +498,7 @@ export const HomeDashboard: () => JSX.Element = () => {
                   item
                   xs={6}
                 >
-                  <TableCard key={idx} card={card} />
+                  <FireFlyCard key={idx} card={card} />
                 </Grid>
               );
             })}

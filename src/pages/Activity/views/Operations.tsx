@@ -26,7 +26,6 @@ import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { OperationSlide } from '../../../components/Slides/OperationSlide';
 import { DataTable } from '../../../components/Tables/Table';
-import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
@@ -36,6 +35,7 @@ import {
   ICreatedFilter,
   IMetric,
   IOperation,
+  IDataTableRecord,
   IPagedOperationResponse,
 } from '../../../interfaces';
 import {

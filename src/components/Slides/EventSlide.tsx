@@ -28,10 +28,10 @@ import {
 } from '../../interfaces';
 import { DEFAULT_PADDING } from '../../theme';
 import { fetchCatcher } from '../../utils';
-import { BlockchainEventAccordion } from '../Accordions/BlockchainEvent';
-import { MessageAccordion } from '../Accordions/Message';
-import { MessageDataAccordion } from '../Accordions/MessageData';
-import { TransactionAccordion } from '../Accordions/Transaction';
+import { BlockchainEventAccordion } from '../Accordions/BlockchainEventAccordion';
+import { MessageAccordion } from '../Accordions/MessageAccordion';
+import { MessageDataAccordion } from '../Accordions/MessageDataAccordion';
+import { TransactionAccordion } from '../Accordions/TransactionAccordion';
 import { EventList } from '../Lists/EventList';
 import { DisplaySlide } from './DisplaySlide';
 import { SlideHeader } from './SlideHeader';

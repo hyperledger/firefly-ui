@@ -24,12 +24,12 @@ import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { PoolSlide } from '../../../components/Slides/PoolSlide';
 import { DataTable } from '../../../components/Tables/Table';
-import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   FF_Paths,
   ICreatedFilter,
+  IDataTableRecord,
   IPagedTokenPoolResponse,
   ITokenPool,
 } from '../../../interfaces';

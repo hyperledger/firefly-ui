@@ -1,14 +1,14 @@
 import { Grid, Typography } from '@mui/material';
 import { Box } from '@mui/system';
-import { IMediumCard } from '../../interfaces';
+import { IFireFlyCard } from '../../interfaces';
 import { DEFAULT_BORDER_RADIUS } from '../../theme';
 
 type Props = {
-  card: IMediumCard;
+  card: IFireFlyCard;
   position?: string;
 };
 
-export const MediumCard: React.FC<Props> = ({ card, position }) => {
+export const FireFlyCard: React.FC<Props> = ({ card, position }) => {
   return (
     <Box
       px={2}
@@ -37,6 +37,9 @@ export const MediumCard: React.FC<Props> = ({ card, position }) => {
         alignItems={position ?? 'center'}
         justifyContent="center"
         direction="column"
+        sx={{
+          overflow: 'auto',
+        }}
       >
         <Grid
           container

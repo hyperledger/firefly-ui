@@ -13,7 +13,7 @@ import { FFCopyButton } from '../Buttons/CopyButton';
 import { TxButton } from '../Buttons/TxButton';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { HashPopover } from '../Popovers/HashPopover';
-import { FFListItem } from './ListItem';
+import { FFListItem } from './FFListItem';
 
 interface Props {
   tx?: ITransaction;
