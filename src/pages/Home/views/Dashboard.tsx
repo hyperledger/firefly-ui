@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
@@ -14,7 +15,6 @@ import { NetworkMap } from '../../../components/NetworkMap/NetworkMap';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { EventSlide } from '../../../components/Slides/EventSlide';
 import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
-import { EventCardWrapper } from '../../../components/Timeline/Cards/EventCardWrapper';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
@@ -360,16 +360,19 @@ export const HomeDashboard: () => JSX.Element = () => {
       headerText: t('myRecentTransactions'),
       component: (
         <>
-          {recentEventTxs?.map((event) => (
-            <EventCardWrapper
-              onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
-              onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
-              link={FF_NAV_PATHS.activityTxDetailPath(
-                selectedNamespace,
-                event.tx
-              )}
-              {...{ event }}
-            />
+          {recentEventTxs?.map((event, idx) => (
+            <React.Fragment key={idx}>
+              <EventCardWrapper
+                onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
+                onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
+                link={FF_NAV_PATHS.activityTxDetailPath(
+                  selectedNamespace,
+                  event.tx
+                )}
+                {...{ event }}
+              />
+              <Grid sx={{ padding: '1px' }} />
+            </React.Fragment>
           ))}
         </>
       ),
@@ -388,16 +391,19 @@ export const HomeDashboard: () => JSX.Element = () => {
       headerText: t('recentNetworkEvents'),
       component: (
         <>
-          {recentEvents?.map((event) => (
-            <EventCardWrapper
-              onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
-              onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
-              link={FF_NAV_PATHS.activityTxDetailPath(
-                selectedNamespace,
-                event.tx
-              )}
-              {...{ event }}
-            />
+          {recentEvents?.map((event, idx) => (
+            <React.Fragment key={idx}>
+              <EventCardWrapper
+                onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
+                onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
+                link={FF_NAV_PATHS.activityTxDetailPath(
+                  selectedNamespace,
+                  event.tx
+                )}
+                {...{ event }}
+              />
+              <Grid sx={{ padding: '1px' }} />
+            </React.Fragment>
           ))}
         </>
       ),

@@ -106,7 +106,8 @@ export const BaseCard: React.FC<Props> = ({
                   size="small"
                   onClick={() => navigate(link)}
                   sx={{
-                    backgroundColor: FFColors.Purple,
+                    elevation: 0,
+                    backgroundColor: 'background.paper',
                     '&:hover': {
                       backgroundColor: FFColors.Purple,
                       cursor: onClick && 'pointer',

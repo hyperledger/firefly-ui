@@ -12,11 +12,11 @@ import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
   FF_MESSAGES_CATEGORY_MAP,
+  IDataWithHeader,
   IMessage,
   MsgStateColorMap,
 } from '../../interfaces';
 import { DEFAULT_BORDER_RADIUS, themeOptions } from '../../theme';
-import { IDataWithHeader } from '../../interfaces';
 import { HashPopover } from '../Popovers/HashPopover';
 
 interface Props {
@@ -76,10 +76,12 @@ export const MessageAccordion: React.FC<Props> = ({
             </Grid>
             {/* State */}
             <Grid xs={6} item container justifyContent="flex-end">
-              <Chip
-                label={message.state?.toLocaleUpperCase()}
-                sx={{ backgroundColor: MsgStateColorMap[message.state] }}
-              ></Chip>
+              {message.state && (
+                <Chip
+                  label={message.state?.toLocaleUpperCase()}
+                  sx={{ backgroundColor: MsgStateColorMap[message.state] }}
+                ></Chip>
+              )}
             </Grid>
           </Grid>
         </AccordionSummary>
