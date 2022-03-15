@@ -28,11 +28,10 @@ import {
 import { FF_Paths } from '../../interfaces/constants';
 import { DEFAULT_PADDING } from '../../theme';
 import { fetchCatcher } from '../../utils';
-import { ApiAccordion } from '../Accordions/Api';
-import { ListenerAccordion } from '../Accordions/Listener';
-import { FFCopyButton } from '../Buttons/CopyButton';
+import { ApiAccordion } from '../Accordions/ApiAccordion';
+import { ListenerAccordion } from '../Accordions/ListenerAccordion';
+import { InterfaceList } from '../Lists/InterfaceList';
 import { DisplaySlide } from './DisplaySlide';
-import { DrawerListItem, IDataListItem } from './ListItem';
 import { SlideHeader } from './SlideHeader';
 import { SlideSectionHeader } from './SlideSectionHeader';
 
@@ -81,27 +80,6 @@ export const InterfaceSlide: React.FC<Props> = ({
       });
   }, [cInterface]);
 
-  const dataList: IDataListItem[] = [
-    {
-      label: t('id'),
-      value: cInterface.id,
-      button: <FFCopyButton value={cInterface.id} />,
-    },
-    {
-      label: t('messageID'),
-      value: cInterface.message,
-      button: <FFCopyButton value={cInterface.id} />,
-    },
-    {
-      label: t('version'),
-      value: cInterface.version,
-    },
-    {
-      label: t('description'),
-      value: cInterface.description,
-    },
-  ];
-
   return (
     <>
       <DisplaySlide open={open} onClose={onClose}>
@@ -113,9 +91,7 @@ export const InterfaceSlide: React.FC<Props> = ({
           />
           {/* Data list */}
           <Grid container item>
-            {dataList.map((data, idx) => (
-              <DrawerListItem key={idx} item={data} />
-            ))}
+            <InterfaceList cInterface={cInterface} />
           </Grid>
           {/* APIs */}
           {interfaceApis?.length > 0 && (

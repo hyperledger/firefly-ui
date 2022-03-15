@@ -14,8 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Chip, Grid } from '@mui/material';
-import dayjs from 'dayjs';
+import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
@@ -27,18 +26,13 @@ import {
   IMessageTransaction,
 } from '../../interfaces';
 import { FF_Paths } from '../../interfaces/constants';
-import {
-  FF_MESSAGES_CATEGORY_MAP,
-  MsgStateColorMap,
-} from '../../interfaces/enums';
-import { FF_TX_CATEGORY_MAP } from '../../interfaces/enums/transactionTypes';
+import { FF_MESSAGES_CATEGORY_MAP } from '../../interfaces/enums';
 import { DEFAULT_PADDING } from '../../theme';
 import { fetchCatcher } from '../../utils';
-import { MessageDataAccordion } from '../Accordions/MessageData';
-import { TransactionAccordion } from '../Accordions/Transaction';
-import { FFCopyButton } from '../Buttons/CopyButton';
+import { MessageDataAccordion } from '../Accordions/MessageDataAccordion';
+import { TransactionAccordion } from '../Accordions/TransactionAccordion';
+import { MessageList } from '../Lists/MessageList';
 import { DisplaySlide } from './DisplaySlide';
-import { DrawerListItem, IDataListItem } from './ListItem';
 import { SlideHeader } from './SlideHeader';
 import { SlideSectionHeader } from './SlideSectionHeader';
 
@@ -83,53 +77,6 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
       });
   }, [message]);
 
-  const dataList: IDataListItem[] = [
-    {
-      label: t('id'),
-      value: message.header.id,
-      button: <FFCopyButton value={message.header.id} />,
-    },
-    {
-      label: t('transactionType'),
-      value: t(FF_TX_CATEGORY_MAP[message.header.txtype].nicename).toString(),
-      button: <FFCopyButton value={message.header.txtype} />,
-    },
-    {
-      label: t('author'),
-      value: message.header.author,
-      button: <FFCopyButton value={message.header.author} />,
-    },
-    {
-      label: t('authorKey'),
-      value: message.header.key,
-      button: <FFCopyButton value={message.header.key} />,
-    },
-    {
-      label: t('tag'),
-      value: message.header.tag ?? t('noTagInMessage'),
-      button: message.header.tag ? (
-        <FFCopyButton value={message.header.tag} />
-      ) : undefined,
-    },
-    {
-      label: t('topics'),
-      value: message.header.topics?.toString() ?? t('noTopicInMessage'),
-    },
-    {
-      label: t('status'),
-      value: (
-        <Chip
-          label={message.state?.toLocaleUpperCase()}
-          sx={{ backgroundColor: MsgStateColorMap[message.state] }}
-        ></Chip>
-      ),
-    },
-    {
-      label: t('confirmed'),
-      value: dayjs(message.confirmed).format('MM/DD/YYYY h:mm A'),
-    },
-  ];
-
   return (
     <>
       <DisplaySlide open={open} onClose={onClose}>
@@ -141,9 +88,7 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
           />
           {/* Data list */}
           <Grid container item>
-            {dataList.map((data, idx) => (
-              <DrawerListItem key={idx} item={data} />
-            ))}
+            <MessageList message={message} />
           </Grid>
           {/* Message Attached Data */}
           {msgData.length > 0 && (

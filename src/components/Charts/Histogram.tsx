@@ -3,15 +3,19 @@ import { Box } from '@mui/system';
 import { BarDatum, ResponsiveBar } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React from 'react';
-import { themeOptions } from '../../theme';
-import { CardEmptyState } from '../Cards/CardEmptyState';
+import {
+  DEFAULT_BORDER_RADIUS,
+  DEFAULT_HIST_HEIGHT,
+  themeOptions,
+} from '../../theme';
+import { EmptyStateCard } from '../Cards/EmptyStateCard';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 
 interface Props {
   colors: string[];
   data: BarDatum[] | undefined;
   emptyText: string;
-  height: string | number;
+  height?: string | number;
   includeLegend: boolean;
   indexBy: string;
   isEmpty: boolean;
@@ -30,17 +34,17 @@ export const Histogram: React.FC<Props> = ({
 }) => {
   return (
     <Box
-      borderRadius={1}
+      borderRadius={DEFAULT_BORDER_RADIUS}
       sx={{
         width: '100%',
-        height,
+        height: height ?? DEFAULT_HIST_HEIGHT,
         backgroundColor: 'background.paper',
       }}
     >
       {!data ? (
         <FFCircleLoader height="100%" color="warning"></FFCircleLoader>
       ) : isEmpty ? (
-        <CardEmptyState text={emptyText}></CardEmptyState>
+        <EmptyStateCard text={emptyText}></EmptyStateCard>
       ) : (
         <ResponsiveBar
           data={data}

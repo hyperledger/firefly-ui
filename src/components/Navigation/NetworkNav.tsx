@@ -19,13 +19,7 @@ import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
-import {
-  INavItem,
-  NAMESPACES_PATH,
-  NETWORK_PATH,
-  NODES_PATH,
-  ORGANIZATIONS_PATH,
-} from '../../interfaces';
+import { FF_NAV_PATHS, INavItem } from '../../interfaces';
 import { NavSection } from './NavSection';
 
 export const NetworkNav = () => {
@@ -33,23 +27,26 @@ export const NetworkNav = () => {
   const navigate = useNavigate();
   const { selectedNamespace } = useContext(ApplicationContext);
   const { pathname } = useLocation();
-  const basePath = `/${NAMESPACES_PATH}/${selectedNamespace}/${NETWORK_PATH}`;
+
+  const networkPath = FF_NAV_PATHS.networkPath(selectedNamespace);
+  const orgPath = FF_NAV_PATHS.networkOrgsPath(selectedNamespace);
+  const nodePath = FF_NAV_PATHS.networkNodesPath(selectedNamespace);
 
   const navItems: INavItem[] = [
     {
       name: t('dashboard'),
-      action: () => navigate(basePath),
-      itemIsActive: pathname === basePath,
+      action: () => navigate(networkPath),
+      itemIsActive: pathname === networkPath,
     },
     {
       name: t('organizations'),
-      action: () => navigate(`${basePath}/${ORGANIZATIONS_PATH}`),
-      itemIsActive: pathname === `${basePath}/${ORGANIZATIONS_PATH}`,
+      action: () => navigate(orgPath),
+      itemIsActive: pathname === orgPath,
     },
     {
       name: t('nodes'),
-      action: () => navigate(`${basePath}/${NODES_PATH}`),
-      itemIsActive: pathname === `${basePath}/${NODES_PATH}`,
+      action: () => navigate(nodePath),
+      itemIsActive: pathname === nodePath,
     },
   ];
 

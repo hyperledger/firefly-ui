@@ -27,7 +27,7 @@ import { DatePicker } from './Pickers/DatePicker';
 import { DEFAULT_PADDING, themeOptions } from '../theme';
 import { NamespacePicker } from './Pickers/NamespacePicker';
 interface Props {
-  title: string;
+  title: string | JSX.Element;
   subtitle: string;
 }
 

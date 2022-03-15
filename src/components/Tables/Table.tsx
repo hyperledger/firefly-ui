@@ -26,10 +26,10 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
+import { IDataTableRecord } from '../../interfaces/table';
 import { DEFAULT_PAGE_LIMITS, themeOptions } from '../../theme';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { DataTableEmptyState } from './TableEmptyState';
-import { IDataTableRecord } from './TableInterfaces';
 import { DataTableRow } from './TableRow';
 
 interface Props {

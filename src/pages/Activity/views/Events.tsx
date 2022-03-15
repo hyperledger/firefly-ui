@@ -26,7 +26,6 @@ import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { EventSlide } from '../../../components/Slides/EventSlide';
 import { DataTable } from '../../../components/Tables/Table';
-import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
@@ -38,12 +37,9 @@ import {
   IEvent,
   IMetric,
   IPagedEventResponse,
+  IDataTableRecord,
 } from '../../../interfaces';
-import {
-  DEFAULT_HIST_HEIGHT,
-  DEFAULT_PADDING,
-  DEFAULT_PAGE_LIMITS,
-} from '../../../theme';
+import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, makeEventHistogram } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -169,7 +165,6 @@ export const ActivityEvents: () => JSX.Element = () => {
             }
           />
           <Histogram
-            height={DEFAULT_HIST_HEIGHT}
             colors={makeColorArray(FF_EVENTS_CATEGORY_MAP)}
             data={eventHistData}
             indexBy="timestamp"

@@ -25,7 +25,6 @@ import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { DataTable } from '../../../components/Tables/Table';
-import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
@@ -34,16 +33,12 @@ import {
   FF_Paths,
   IBlockchainEvent,
   ICreatedFilter,
+  IDataTableRecord,
   IMetric,
   IPagedBlockchainEventResponse,
 } from '../../../interfaces';
 import { FF_BE_CATEGORY_MAP } from '../../../interfaces/enums/blockchainEventTypes';
-import {
-  DEFAULT_HIST_HEIGHT,
-  DEFAULT_PADDING,
-  DEFAULT_PAGE_LIMITS,
-  FFColors,
-} from '../../../theme';
+import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS, FFColors } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -158,7 +153,6 @@ export const BlockchainEvents: () => JSX.Element = () => {
             }
           />
           <Histogram
-            height={DEFAULT_HIST_HEIGHT}
             colors={makeColorArray(FF_BE_CATEGORY_MAP)}
             data={beHistData}
             indexBy="timestamp"

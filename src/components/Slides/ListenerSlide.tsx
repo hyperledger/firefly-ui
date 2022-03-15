@@ -15,15 +15,13 @@
 // limitations under the License.
 
 import { Grid } from '@mui/material';
-import dayjs from 'dayjs';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { IContractListener } from '../../interfaces';
 import { DEFAULT_PADDING } from '../../theme';
-import { ListenerEventParamAccordion } from '../Accordions/ListenerEventParam';
-import { FFCopyButton } from '../Buttons/CopyButton';
+import { ListenerEventParamAccordion } from '../Accordions/ListenerEventParamAccordion';
+import { ListenerList } from '../Lists/ListenerList';
 import { DisplaySlide } from './DisplaySlide';
-import { DrawerListItem, IDataListItem } from './ListItem';
 import { SlideHeader } from './SlideHeader';
 import { SlideSectionHeader } from './SlideSectionHeader';
 
@@ -36,39 +34,6 @@ interface Props {
 export const ListenerSlide: React.FC<Props> = ({ listener, open, onClose }) => {
   const { t } = useTranslation();
 
-  const dataList: IDataListItem[] = [
-    {
-      label: t('id'),
-      value: listener.id,
-      button: <FFCopyButton value={listener.id} />,
-    },
-    {
-      label: t('interfaceID'),
-      value: listener.interface.id,
-      button: <FFCopyButton value={listener.interface.id} />,
-    },
-    {
-      label: t('protocolID'),
-      value: listener.protocolId,
-      button: <FFCopyButton value={listener.protocolId} />,
-    },
-    {
-      label: t('address'),
-      value: listener.location.address,
-      button: <FFCopyButton value={listener.location.address} />,
-    },
-    {
-      label: t('description'),
-      value: listener.event.description?.length
-        ? listener.event.description
-        : t('noDescriptionForListener').toString(),
-    },
-    {
-      label: t('created'),
-      value: dayjs(listener.created).format('MM/DD/YYYY h:mm A'),
-    },
-  ];
-
   return (
     <>
       <DisplaySlide open={open} onClose={onClose}>
@@ -80,9 +45,7 @@ export const ListenerSlide: React.FC<Props> = ({ listener, open, onClose }) => {
           />
           {/* Data list */}
           <Grid container item>
-            {dataList.map((data, idx) => (
-              <DrawerListItem key={idx} item={data} />
-            ))}
+            <ListenerList listener={listener} />
           </Grid>
           {/* Event Params */}
           {listener.event.params.length > 0 && (

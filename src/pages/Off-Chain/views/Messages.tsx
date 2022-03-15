@@ -26,7 +26,6 @@ import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { MessageSlide } from '../../../components/Slides/MessageSlide';
 import { DataTable } from '../../../components/Tables/Table';
-import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
@@ -34,6 +33,7 @@ import {
   BucketCountEnum,
   FF_Paths,
   ICreatedFilter,
+  IDataTableRecord,
   IMessage,
   IMetric,
   IPagedMessageResponse,
@@ -43,11 +43,7 @@ import {
   MsgStateColorMap,
 } from '../../../interfaces/enums';
 import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
-import {
-  DEFAULT_HIST_HEIGHT,
-  DEFAULT_PADDING,
-  DEFAULT_PAGE_LIMITS,
-} from '../../../theme';
+import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, makeMsgHistogram } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -194,7 +190,6 @@ export const OffChainMessages: () => JSX.Element = () => {
             }
           />
           <Histogram
-            height={DEFAULT_HIST_HEIGHT}
             colors={makeColorArray(FF_MESSAGES_CATEGORY_MAP)}
             data={messageHistData}
             indexBy="timestamp"

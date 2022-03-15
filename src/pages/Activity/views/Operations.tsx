@@ -26,7 +26,6 @@ import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { OperationSlide } from '../../../components/Slides/OperationSlide';
 import { DataTable } from '../../../components/Tables/Table';
-import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
@@ -36,17 +35,14 @@ import {
   ICreatedFilter,
   IMetric,
   IOperation,
+  IDataTableRecord,
   IPagedOperationResponse,
 } from '../../../interfaces';
 import {
   FF_OP_CATEGORY_MAP,
   OpStatusColorMap,
 } from '../../../interfaces/enums';
-import {
-  DEFAULT_HIST_HEIGHT,
-  DEFAULT_PADDING,
-  DEFAULT_PAGE_LIMITS,
-} from '../../../theme';
+import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, makeOperationHistogram } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -167,7 +163,6 @@ export const ActivityOperations: () => JSX.Element = () => {
             }
           />
           <Histogram
-            height={DEFAULT_HIST_HEIGHT}
             colors={makeColorArray(FF_OP_CATEGORY_MAP)}
             data={opHistData}
             indexBy="timestamp"

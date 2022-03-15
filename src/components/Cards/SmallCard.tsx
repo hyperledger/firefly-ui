@@ -3,7 +3,7 @@ import { Box } from '@mui/system';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ISmallCard } from '../../interfaces';
-import { FFBackgroundHover } from '../../theme';
+import { DEFAULT_BORDER_RADIUS, FFBackgroundHover } from '../../theme';
 
 type Props = {
   card: ISmallCard;
@@ -16,7 +16,7 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
     <Box
       key={card.header}
       p={2}
-      borderRadius={1}
+      borderRadius={DEFAULT_BORDER_RADIUS}
       sx={{
         width: '100%',
         height: '100%',

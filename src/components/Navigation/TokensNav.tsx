@@ -19,14 +19,7 @@ import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
-import {
-  ACCOUNTS_PATH,
-  INavItem,
-  NAMESPACES_PATH,
-  POOLS_PATH,
-  TOKENS_PATH,
-  TRANSFERS_PATH,
-} from '../../interfaces';
+import { FF_NAV_PATHS, INavItem } from '../../interfaces';
 import { NavSection } from './NavSection';
 
 export const TokensNav = () => {
@@ -34,28 +27,32 @@ export const TokensNav = () => {
   const navigate = useNavigate();
   const { pathname } = useLocation();
   const { selectedNamespace } = useContext(ApplicationContext);
-  const basePath = `/${NAMESPACES_PATH}/${selectedNamespace}/${TOKENS_PATH}`;
+
+  const blockchainPath = FF_NAV_PATHS.tokensPath(selectedNamespace);
+  const transfersPath = FF_NAV_PATHS.tokensTransfersPath(selectedNamespace);
+  const poolsPath = FF_NAV_PATHS.tokensPoolsPath(selectedNamespace);
+  const accountsPath = FF_NAV_PATHS.tokensAccountsPath(selectedNamespace);
 
   const navItems: INavItem[] = [
     {
       name: t('dashboard'),
-      action: () => navigate(basePath),
-      itemIsActive: pathname === basePath,
+      action: () => navigate(blockchainPath),
+      itemIsActive: pathname === blockchainPath,
     },
     {
       name: t('transfers'),
-      action: () => navigate(`${basePath}/${TRANSFERS_PATH}`),
-      itemIsActive: pathname === `${basePath}/${TRANSFERS_PATH}`,
+      action: () => navigate(transfersPath),
+      itemIsActive: pathname === transfersPath,
     },
     {
       name: t('pools'),
-      action: () => navigate(`${basePath}/${POOLS_PATH}`),
-      itemIsActive: pathname === `${basePath}/${POOLS_PATH}`,
+      action: () => navigate(poolsPath),
+      itemIsActive: pathname === poolsPath,
     },
     {
       name: t('accounts'),
-      action: () => navigate(`${basePath}/${ACCOUNTS_PATH}`),
-      itemIsActive: pathname === `${basePath}/${ACCOUNTS_PATH}`,
+      action: () => navigate(accountsPath),
+      itemIsActive: pathname === accountsPath,
     },
   ];
 

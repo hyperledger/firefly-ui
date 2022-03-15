@@ -19,15 +19,7 @@ import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
-import {
-  APIS_PATH,
-  BLOCKCHAIN_PATH,
-  EVENTS_PATH,
-  INavItem,
-  INTERFACES_PATH,
-  LISTENERS_PATH,
-  NAMESPACES_PATH,
-} from '../../interfaces';
+import { FF_NAV_PATHS, INavItem } from '../../interfaces';
 import { NavSection } from './NavSection';
 
 export const BlockchainNav = () => {
@@ -35,33 +27,39 @@ export const BlockchainNav = () => {
   const navigate = useNavigate();
   const { selectedNamespace } = useContext(ApplicationContext);
   const { pathname } = useLocation();
-  const basePath = `/${NAMESPACES_PATH}/${selectedNamespace}/${BLOCKCHAIN_PATH}`;
+
+  const blockchainPath = FF_NAV_PATHS.blockchainPath(selectedNamespace);
+  const eventsPath = FF_NAV_PATHS.blockchainEventsPath(selectedNamespace);
+  const apiPath = FF_NAV_PATHS.blockchainApisPath(selectedNamespace);
+  const interfacesPath =
+    FF_NAV_PATHS.blockchainInterfacesPath(selectedNamespace);
+  const listenersPath = FF_NAV_PATHS.blockchainListenersPath(selectedNamespace);
 
   const navItems: INavItem[] = [
     {
       name: t('dashboard'),
-      action: () => navigate(basePath),
-      itemIsActive: pathname === basePath,
+      action: () => navigate(blockchainPath),
+      itemIsActive: pathname === blockchainPath,
     },
     {
       name: t('events'),
-      action: () => navigate(`${basePath}/${EVENTS_PATH}`),
-      itemIsActive: pathname === `${basePath}/${EVENTS_PATH}`,
+      action: () => navigate(eventsPath),
+      itemIsActive: pathname === eventsPath,
     },
     {
       name: t('apis'),
-      action: () => navigate(`${basePath}/${APIS_PATH}`),
-      itemIsActive: pathname === `${basePath}/${APIS_PATH}`,
+      action: () => navigate(apiPath),
+      itemIsActive: pathname === apiPath,
     },
     {
       name: t('interfaces'),
-      action: () => navigate(`${basePath}/${INTERFACES_PATH}`),
-      itemIsActive: pathname === `${basePath}/${INTERFACES_PATH}`,
+      action: () => navigate(interfacesPath),
+      itemIsActive: pathname === interfacesPath,
     },
     {
       name: t('listeners'),
-      action: () => navigate(`${basePath}/${LISTENERS_PATH}`),
-      itemIsActive: pathname === `${basePath}/${LISTENERS_PATH}`,
+      action: () => navigate(listenersPath),
+      itemIsActive: pathname === listenersPath,
     },
   ];
 

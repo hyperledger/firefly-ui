@@ -15,7 +15,6 @@
 // limitations under the License.
 
 import { Grid } from '@mui/material';
-import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
@@ -29,13 +28,12 @@ import {
 } from '../../interfaces';
 import { DEFAULT_PADDING } from '../../theme';
 import { fetchCatcher } from '../../utils';
-import { BlockchainEventAccordion } from '../Accordions/BlockchainEvent';
-import { MessageAccordion } from '../Accordions/Message';
-import { MessageDataAccordion } from '../Accordions/MessageData';
-import { TransactionAccordion } from '../Accordions/Transaction';
-import { FFCopyButton } from '../Buttons/CopyButton';
+import { BlockchainEventAccordion } from '../Accordions/BlockchainEventAccordion';
+import { MessageAccordion } from '../Accordions/MessageAccordion';
+import { MessageDataAccordion } from '../Accordions/MessageDataAccordion';
+import { TransactionAccordion } from '../Accordions/TransactionAccordion';
+import { EventList } from '../Lists/EventList';
 import { DisplaySlide } from './DisplaySlide';
-import { DrawerListItem, IDataListItem } from './ListItem';
 import { SlideHeader } from './SlideHeader';
 import { SlideSectionHeader } from './SlideSectionHeader';
 
@@ -49,7 +47,6 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
   const { t } = useTranslation();
   const { selectedNamespace } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
-
   const [enrichedEvent, setEnrichedEvent] = useState<IEvent>(event);
   const [messageData, setMessageData] = useState<IData[]>();
 
@@ -82,28 +79,6 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
         });
   }, [enrichedEvent]);
 
-  const dataList: IDataListItem[] = [
-    {
-      label: t('id'),
-      value: event.id,
-      button: <FFCopyButton value={event.id} />,
-    },
-    {
-      label: t('transactionID'),
-      value: event.tx,
-      button: <FFCopyButton value={event.tx} />,
-    },
-    {
-      label: t('referenceID'),
-      value: event.reference,
-      button: <FFCopyButton value={event.reference} />,
-    },
-    {
-      label: t('created'),
-      value: dayjs(event.created).format('MM/DD/YYYY h:mm A'),
-    },
-  ];
-
   return (
     <>
       <DisplaySlide open={open} onClose={onClose}>
@@ -115,9 +90,7 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
           />
           {/* Data list */}
           <Grid container item>
-            {dataList.map((data, idx) => (
-              <DrawerListItem key={idx} item={data} />
-            ))}
+            <EventList event={event} showTxLink={true} />
           </Grid>
           {/* Blockchain event */}
           {enrichedEvent['blockchainevent'] && (

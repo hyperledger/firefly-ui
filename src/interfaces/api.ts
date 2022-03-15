@@ -393,7 +393,7 @@ export interface ITransaction {
   namespace: string;
   type: string;
   created: string;
-  blockchainIds: string[];
+  blockchainIds?: string[];
 }
 
 export interface ITxStatus {

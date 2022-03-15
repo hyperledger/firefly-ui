@@ -26,7 +26,6 @@ import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { TransferSlide } from '../../../components/Slides/TransferSlide';
 import { DataTable } from '../../../components/Tables/Table';
-import { IDataTableRecord } from '../../../components/Tables/TableInterfaces';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
@@ -34,6 +33,7 @@ import {
   BucketCountEnum,
   FF_Paths,
   ICreatedFilter,
+  IDataTableRecord,
   IMetric,
   IPagedTokenTransferResponse,
   ITokenTransfer,
@@ -42,11 +42,7 @@ import {
   FF_TRANSFER_CATEGORY_MAP,
   TransferIconMap,
 } from '../../../interfaces/enums';
-import {
-  DEFAULT_HIST_HEIGHT,
-  DEFAULT_PADDING,
-  DEFAULT_PAGE_LIMITS,
-} from '../../../theme';
+import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -203,7 +199,6 @@ export const TokensTransfers: () => JSX.Element = () => {
             }
           />
           <Histogram
-            height={DEFAULT_HIST_HEIGHT}
             colors={makeColorArray(FF_TRANSFER_CATEGORY_MAP)}
             data={transferHistData}
             indexBy="timestamp"

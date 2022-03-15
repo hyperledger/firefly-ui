@@ -27,10 +27,12 @@ export const APIS_PATH = 'apis';
 export const BLOCKCHAIN_PATH = 'blockchain';
 export const DATA_PATH = 'data';
 export const DATATYPES_PATH = 'datatypes';
+export const DOCS_PATH = 'https://hyperledger.github.io/firefly/';
 export const EVENTS_PATH = 'events';
 export const FILE_EXPLORER_PATH = 'fileExplorer';
 export const HOME_PATH = 'home';
 export const INTERFACES_PATH = 'interfaces';
+export const LISTENERS_PATH = 'listeners';
 export const MESSAGES_PATH = 'messages';
 export const MY_NODES_PATH = 'myNode';
 export const NAMESPACES_PATH = 'namespaces';
@@ -40,11 +42,9 @@ export const OFFCHAIN_PATH = 'offChain';
 export const OPERATIONS_PATH = 'operations';
 export const ORGANIZATIONS_PATH = 'organizations';
 export const POOLS_PATH = 'pools';
-export const LISTENERS_PATH = 'listeners';
 export const TOKENS_PATH = 'tokens';
 export const TRANSACTIONS_PATH = 'transactions';
 export const TRANSFERS_PATH = 'transfers';
-export const DOCS_PATH = 'https://hyperledger.github.io/firefly/';
 
 export const FF_NAV_PATHS = {
   // Home
@@ -56,6 +56,8 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${EVENTS_PATH}`,
   activityTxPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}`,
+  activityTxDetailPath: (ns: string, txID: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}/${txID}`,
   activityOpPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}`,
   // Blockchain

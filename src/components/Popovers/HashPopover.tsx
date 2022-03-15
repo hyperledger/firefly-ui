@@ -19,6 +19,7 @@ import ContentCopyIcon from 'mdi-react/ContentCopyIcon';
 import React, { useRef, useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { theme } from '../../App';
+import { DEFAULT_BORDER_RADIUS } from '../../theme';
 import { getShortHash } from '../../utils';
 
 interface Props {
@@ -49,8 +50,7 @@ export const HashPopover: React.FC<Props> = ({
             textColor === 'secondary'
               ? theme.palette.text.secondary
               : undefined,
-          // Chip styling
-          borderRadius: paper ? 2 : 16,
+          borderRadius: DEFAULT_BORDER_RADIUS,
           backgroundColor: paper
             ? theme.palette.background.paper
             : theme.palette.background.default,
