@@ -5,10 +5,15 @@ import { DEFAULT_BORDER_RADIUS } from '../../theme';
 
 type Props = {
   card: IFireFlyCard;
+  height?: string | number;
   position?: string;
 };
 
-export const FireFlyCard: React.FC<Props> = ({ card, position }) => {
+export const FireFlyCard: React.FC<Props> = ({
+  card,
+  height = 375,
+  position,
+}) => {
   return (
     <Box
       px={2}
@@ -45,7 +50,7 @@ export const FireFlyCard: React.FC<Props> = ({ card, position }) => {
           container
           alignItems={position ?? 'center'}
           justifyContent="center"
-          sx={{ height: 375, width: '100%' }}
+          sx={{ height: height, width: '100%' }}
           item
         >
           {card.component}

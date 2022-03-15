@@ -11,6 +11,7 @@ import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
+import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { NetworkMap } from '../../../components/NetworkMap/NetworkMap';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { EventSlide } from '../../../components/Slides/EventSlide';
@@ -348,6 +349,7 @@ export const HomeDashboard: () => JSX.Element = () => {
   const tableCards: IFireFlyCard[] = [
     // Recently submitted Transactions
     {
+      headerText: t('myRecentTransactions'),
       headerComponent: (
         <IconButton
           onClick={() =>
@@ -357,28 +359,32 @@ export const HomeDashboard: () => JSX.Element = () => {
           <ArrowForwardIcon />
         </IconButton>
       ),
-      headerText: t('myRecentTransactions'),
       component: (
         <>
-          {recentEventTxs?.map((event, idx) => (
-            <React.Fragment key={idx}>
-              <EventCardWrapper
-                onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
-                onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
-                link={FF_NAV_PATHS.activityTxDetailPath(
-                  selectedNamespace,
-                  event.tx
-                )}
-                {...{ event }}
-              />
-              <Grid sx={{ padding: '1px' }} />
-            </React.Fragment>
-          ))}
+          {!recentEventTxs ? (
+            <FFCircleLoader color="warning" />
+          ) : (
+            recentEventTxs.map((event, idx) => (
+              <React.Fragment key={idx}>
+                <EventCardWrapper
+                  onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
+                  onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
+                  link={FF_NAV_PATHS.activityTxDetailPath(
+                    selectedNamespace,
+                    event.tx
+                  )}
+                  {...{ event }}
+                />
+                <Grid sx={{ padding: '1px' }} />
+              </React.Fragment>
+            ))
+          )}
         </>
       ),
     },
     // Recent Network Events
     {
+      headerText: t('recentNetworkEvents'),
       headerComponent: (
         <IconButton
           onClick={() =>
@@ -388,23 +394,26 @@ export const HomeDashboard: () => JSX.Element = () => {
           <ArrowForwardIcon />
         </IconButton>
       ),
-      headerText: t('recentNetworkEvents'),
       component: (
         <>
-          {recentEvents?.map((event, idx) => (
-            <React.Fragment key={idx}>
-              <EventCardWrapper
-                onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
-                onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
-                link={FF_NAV_PATHS.activityTxDetailPath(
-                  selectedNamespace,
-                  event.tx
-                )}
-                {...{ event }}
-              />
-              <Grid sx={{ padding: '1px' }} />
-            </React.Fragment>
-          ))}
+          {!recentEvents ? (
+            <FFCircleLoader color="warning" />
+          ) : (
+            recentEvents.map((event, idx) => (
+              <React.Fragment key={idx}>
+                <EventCardWrapper
+                  onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
+                  onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
+                  link={FF_NAV_PATHS.activityTxDetailPath(
+                    selectedNamespace,
+                    event.tx
+                  )}
+                  {...{ event }}
+                />
+                <Grid sx={{ padding: '1px' }} />
+              </React.Fragment>
+            ))
+          )}
         </>
       ),
     },
@@ -412,7 +421,7 @@ export const HomeDashboard: () => JSX.Element = () => {
   // Table Card UseEffect
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-    const qParams = `?limit=7${createdFilterObject.filterString}`;
+    const qParams = `?limit=25${createdFilterObject.filterString}`;
 
     Promise.all([
       fetchCatcher(
