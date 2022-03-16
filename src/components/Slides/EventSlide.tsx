@@ -17,6 +17,7 @@
 import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import {
@@ -49,6 +50,7 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
   const { reportFetchError } = useContext(SnackbarContext);
   const [enrichedEvent, setEnrichedEvent] = useState<IEvent>(event);
   const [messageData, setMessageData] = useState<IData[]>();
+  const { txID } = useParams<{ txID: string }>();
 
   useEffect(() => {
     // Enriched event
@@ -90,7 +92,7 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
           />
           {/* Data list */}
           <Grid container item>
-            <EventList event={event} showTxLink={true} />
+            <EventList event={event} showTxLink={txID !== event.tx} />
           </Grid>
           {/* Blockchain event */}
           {enrichedEvent['blockchainevent'] && (

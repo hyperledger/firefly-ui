@@ -15,10 +15,9 @@
 // limitations under the License.
 
 import { TableCell, TableRow } from '@mui/material';
-import { withStyles } from '@mui/styles';
 import React from 'react';
 import { IDataTableRecord } from '../../interfaces/table';
-import { FFBackgroundHover } from '../../theme';
+import { FFBackgroundHover, themeOptions } from '../../theme';
 
 interface Props {
   record: IDataTableRecord;
@@ -26,23 +25,34 @@ interface Props {
 
 export const MediumCardTableRow: React.FC<Props> = ({ record }) => {
   return (
-    <>
-      <StyledTableRow onClick={record.onClick}>
-        {record.columns.map((column, index) => (
-          <TableCell key={index}>{column.value}</TableCell>
-        ))}
-      </StyledTableRow>
-    </>
+    <TableRow
+      sx={{
+        backgroundColor: themeOptions.palette?.background?.paper,
+        '&:hover': {
+          backgroundColor: record.onClick ? FFBackgroundHover : undefined,
+          cursor: record.onClick ? 'pointer' : 'default',
+        },
+        margin: '16px 16px 16px 16px',
+        padding: '8px',
+        borderBottom: '1px solid ' + themeOptions.palette?.background?.default,
+      }}
+      onClick={record.onClick}
+    >
+      {record.columns.map((column, index) => {
+        return (
+          <TableCell
+            key={index}
+            sx={{
+              margin: '16px 16px 16px 16px',
+              padding: '8px',
+              borderBottom:
+                '1px solid ' + themeOptions.palette?.background?.default,
+            }}
+          >
+            {column.value}
+          </TableCell>
+        );
+      })}
+    </TableRow>
   );
 };
-
-const StyledTableRow = withStyles((theme) => ({
-  root: {
-    borderLeft: 10,
-    backgroundColor: theme.palette.background.paper,
-    cursor: 'pointer',
-    '&:hover': {
-      backgroundColor: FFBackgroundHover,
-    },
-  },
-}))(TableRow);

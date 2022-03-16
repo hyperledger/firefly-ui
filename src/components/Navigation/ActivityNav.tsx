@@ -29,9 +29,9 @@ export const ActivityNav = () => {
   const { pathname } = useLocation();
 
   const timelinePath = FF_NAV_PATHS.activityTimelinePath(selectedNamespace);
-  const eventsPath = FF_NAV_PATHS.activityTimelinePath(selectedNamespace);
-  const txPath = FF_NAV_PATHS.activityTimelinePath(selectedNamespace);
-  const opsPath = FF_NAV_PATHS.activityTimelinePath(selectedNamespace);
+  const eventsPath = FF_NAV_PATHS.activityEventsPath(selectedNamespace);
+  const txPath = FF_NAV_PATHS.activityTxPath(selectedNamespace);
+  const opsPath = FF_NAV_PATHS.activityOpPath(selectedNamespace);
 
   const navItems: INavItem[] = [
     {

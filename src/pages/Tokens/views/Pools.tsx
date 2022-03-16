@@ -19,14 +19,15 @@ import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
+import { useNavigate } from 'react-router-dom';
 import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
-import { PoolSlide } from '../../../components/Slides/PoolSlide';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
+  FF_NAV_PATHS,
   FF_Paths,
   ICreatedFilter,
   IDataTableRecord,
@@ -40,12 +41,11 @@ export const TokensPools: () => JSX.Element = () => {
   const { createdFilter, selectedNamespace } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  const navigate = useNavigate();
   // Token pools
   const [tokenPools, setTokenPools] = useState<ITokenPool[]>();
   // Token pools totals
   const [tokenPoolsTotal, setTokenPoolsTotal] = useState(0);
-  // View transfer slide out
-  const [viewPool, setViewPool] = useState<ITokenPool | undefined>();
 
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
@@ -109,7 +109,10 @@ export const TokensPools: () => JSX.Element = () => {
         },
         { value: dayjs(pool.created).format('MM/DD/YYYY h:mm A') },
       ],
-      onClick: () => setViewPool(pool),
+      onClick: () =>
+        navigate(
+          FF_NAV_PATHS.tokensPoolDetailsPath(selectedNamespace, pool.id)
+        ),
     })
   );
 
@@ -148,15 +151,6 @@ export const TokensPools: () => JSX.Element = () => {
           />
         </Grid>
       </Grid>
-      {viewPool && (
-        <PoolSlide
-          pool={viewPool}
-          open={!!viewPool}
-          onClose={() => {
-            setViewPool(undefined);
-          }}
-        />
-      )}
     </>
   );
 };

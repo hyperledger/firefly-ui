@@ -17,6 +17,7 @@
 import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import {
@@ -47,6 +48,7 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
   const { t } = useTranslation();
   const { selectedNamespace } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
+  const { poolID } = useParams<{ poolID: string }>();
 
   const [txBlockchainEvents, setTxBlockchainEvents] = useState<
     IBlockchainEvent[]
@@ -108,7 +110,11 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
           />
           {/* Data list */}
           <Grid container item>
-            <TransferList transfer={transfer} txStatus={txStatus} />
+            <TransferList
+              transfer={transfer}
+              txStatus={txStatus}
+              showPoolLink={poolID !== transfer.pool}
+            />
           </Grid>
           {/* Operations */}
           {txOperations.length && (

@@ -98,7 +98,7 @@ export const BlockchainApis: () => JSX.Element = () => {
         value: (
           <HashPopover
             shortHash={true}
-            address={api.location.address}
+            address={api.location?.address ?? ''}
           ></HashPopover>
         ),
       },

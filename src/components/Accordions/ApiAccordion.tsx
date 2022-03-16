@@ -28,7 +28,7 @@ export const ApiAccordion: React.FC<Props> = ({ api, isOpen = false }) => {
   const accInfo: IDataWithHeader[] = [
     {
       header: t('location'),
-      data: <HashPopover address={api.location.address} shortHash />,
+      data: <HashPopover address={api.location?.address ?? ''} shortHash />,
     },
     {
       header: t('messageID'),

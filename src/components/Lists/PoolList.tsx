@@ -6,16 +6,17 @@ import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { ITokenPool, PoolStateColorMap } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
+import { PoolButton } from '../Buttons/PoolButton';
 import { TxButton } from '../Buttons/TxButton';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
 
 interface Props {
   pool?: ITokenPool;
-  showTxLink?: boolean;
+  showPoolLink?: boolean;
 }
 
-export const PoolList: React.FC<Props> = ({ pool, showTxLink = true }) => {
+export const PoolList: React.FC<Props> = ({ pool, showPoolLink = true }) => {
   const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
   const [dataList, setDataList] = useState<IDataListItem[]>([]);
@@ -36,16 +37,21 @@ export const PoolList: React.FC<Props> = ({ pool, showTxLink = true }) => {
         {
           label: t('connector'),
           value: pool.connector,
-          button: <FFCopyButton value={pool.connector} />,
+          button: (
+            <>
+              {showPoolLink && (
+                <PoolButton ns={selectedNamespace} poolID={pool.id} />
+              )}
+              <FFCopyButton value={pool.connector} />
+            </>
+          ),
         },
         {
           label: t('transactionID'),
           value: pool.tx.id,
           button: (
             <>
-              {showTxLink && (
-                <TxButton ns={selectedNamespace} txID={pool.tx.id} />
-              )}
+              <TxButton ns={selectedNamespace} txID={pool.tx.id} />
               <FFCopyButton value={pool.tx.id} />
             </>
           ),

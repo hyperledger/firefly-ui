@@ -107,7 +107,7 @@ export const BlockchainListeners: () => JSX.Element = () => {
           value: (
             <HashPopover
               shortHash={true}
-              address={l.location.address}
+              address={l.location?.address ?? ''}
             ></HashPopover>
           ),
         },

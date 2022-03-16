@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Grid, IconButton, Typography } from '@mui/material';
+import { Chip, Grid, IconButton, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -34,7 +34,6 @@ import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
-  ACCOUNTS_PATH,
   BucketCollectionEnum,
   BucketCountEnum,
   FF_Paths,
@@ -45,7 +44,7 @@ import {
   IMetric,
   IPagedTokenTransferResponse,
   ISmallCard,
-  ITokenAccount,
+  ITokenBalance,
   ITokenPool,
   ITokenTransfer,
   POOLS_PATH,
@@ -53,6 +52,7 @@ import {
 } from '../../../interfaces';
 import {
   FF_TRANSFER_CATEGORY_MAP,
+  PoolStateColorMap,
   TransferIconMap,
 } from '../../../interfaces/enums';
 import {
@@ -93,7 +93,7 @@ export const TokensDashboard: () => JSX.Element = () => {
   // Transfer types histogram
   const [transferHistData, setTransferHistData] = useState<BarDatum[]>();
   // Token accounts
-  const [tokenAccounts, setTokenAccounts] = useState<ITokenAccount[]>();
+  const [tokenBalances, setTokenBalances] = useState<ITokenBalance[]>();
   // Token pools
   const [tokenPools, setTokenPools] = useState<ITokenPool[]>();
   // Token transfers
@@ -122,7 +122,7 @@ export const TokensDashboard: () => JSX.Element = () => {
       header: t('accounts'),
       numErrors: 0,
       data: [{ header: t('total'), data: tokenAccountsCount }],
-      clickPath: ACCOUNTS_PATH,
+      clickPath: POOLS_PATH,
     },
     {
       header: t('tokenPools'),
@@ -206,19 +206,25 @@ export const TokensDashboard: () => JSX.Element = () => {
       });
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
-  const tokenAccountsColHeaders = [t('key')];
+  const tokenAccountsColHeaders = [t('key'), t('poolID'), t('balance')];
   const tokenAccountRecords: IDataTableRecord[] | undefined =
-    tokenAccounts?.map((acct) => ({
+    tokenBalances?.map((acct) => ({
       key: acct.key,
       columns: [
         {
           value: <HashPopover address={acct.key} />,
         },
+        {
+          value: <HashPopover shortHash address={acct.pool} />,
+        },
+        {
+          value: <Typography>{acct.balance}</Typography>,
+        },
       ],
-      onClick: () => navigate(ACCOUNTS_PATH),
+      onClick: () => navigate(POOLS_PATH),
     }));
 
-  const tokenPoolColHeaders = [t('name'), t('standard')];
+  const tokenPoolColHeaders = [t('name'), t('standard'), t('state')];
   const tokenPoolRecords: IDataTableRecord[] | undefined = tokenPools?.map(
     (pool) => ({
       key: pool.id,
@@ -241,6 +247,14 @@ export const TokensDashboard: () => JSX.Element = () => {
           ),
         },
         { value: <Typography>{pool.standard}</Typography> },
+        {
+          value: pool.state && (
+            <Chip
+              label={pool.state.toLocaleUpperCase()}
+              sx={{ backgroundColor: PoolStateColorMap[pool.state] }}
+            />
+          ),
+        },
       ],
       onClick: () => navigate(POOLS_PATH),
     })
@@ -268,9 +282,9 @@ export const TokensDashboard: () => JSX.Element = () => {
       ),
     },
     {
-      headerText: t('accounts'),
+      headerText: t('accountBalances'),
       headerComponent: (
-        <IconButton onClick={() => navigate(ACCOUNTS_PATH)}>
+        <IconButton onClick={() => navigate(POOLS_PATH)}>
           <ArrowForwardIcon />
         </IconButton>
       ),
@@ -313,10 +327,10 @@ export const TokensDashboard: () => JSX.Element = () => {
         reportFetchError(err);
       });
     fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenAccounts}`
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenBalances}`
     )
-      .then((accounts: ITokenAccount[]) => {
-        setTokenAccounts(accounts);
+      .then((balances: ITokenBalance[]) => {
+        setTokenBalances(balances);
       })
       .catch((err) => {
         reportFetchError(err);
