@@ -6,6 +6,7 @@ import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { ITokenTransfer, ITxStatus, TxStatusColorMap } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
+import { PoolButton } from '../Buttons/PoolButton';
 import { TxButton } from '../Buttons/TxButton';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
@@ -14,12 +15,14 @@ interface Props {
   transfer?: ITokenTransfer;
   txStatus?: ITxStatus;
   showTxLink?: boolean;
+  showPoolLink?: boolean;
 }
 
 export const TransferList: React.FC<Props> = ({
   transfer,
   txStatus,
   showTxLink = true,
+  showPoolLink = true,
 }) => {
   const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
@@ -36,7 +39,14 @@ export const TransferList: React.FC<Props> = ({
         {
           label: t('poolID'),
           value: transfer.pool,
-          button: <FFCopyButton value={transfer.pool} />,
+          button: (
+            <>
+              {showPoolLink && (
+                <PoolButton ns={selectedNamespace} poolID={transfer.pool} />
+              )}
+              <FFCopyButton value={transfer.pool} />
+            </>
+          ),
         },
         {
           label: t('transactionID'),

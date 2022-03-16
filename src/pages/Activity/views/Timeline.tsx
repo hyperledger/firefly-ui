@@ -17,8 +17,9 @@
 import { Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
-import React, { useContext, useEffect, useState } from 'react';
+import React, { useContext, useEffect, useRef, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useInfiniteQuery, useQueryClient } from 'react-query';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { getCreatedFilter } from '../../../components/Filters/utils';
@@ -29,6 +30,7 @@ import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { FFTimeline } from '../../../components/Timeline/FFTimeline';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
+import useIntersectionObserver from '../../../hooks/useIntersectionObserver';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
@@ -37,13 +39,20 @@ import {
   FF_Paths,
   ICreatedFilter,
   IEvent,
+  IPagedEventResponse,
   ITimelineElement,
   ITransaction,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, FFColors } from '../../../theme';
-import { fetchCatcher, makeEventHistogram } from '../../../utils';
+import {
+  fetchCatcher,
+  fetchWithCredentials,
+  makeEventHistogram,
+} from '../../../utils';
 import { isHistogramEmpty } from '../../../utils/charts';
 import { isOppositeTimelineEvent } from '../../../utils/timeline';
+
+const ROWS_PER_PAGE = 25;
 
 export const ActivityTimeline: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -54,6 +63,11 @@ export const ActivityTimeline: () => JSX.Element = () => {
   const { t } = useTranslation();
   const [viewTx, setViewTx] = useState<ITransaction>();
   const [viewEvent, setViewEvent] = useState<IEvent>();
+
+  const loadingRef = useRef<HTMLDivElement | null>(null);
+  const observer = useIntersectionObserver(loadingRef, {});
+  const isVisible = !!observer?.isIntersecting;
+  const queryClient = useQueryClient();
 
   // Events Histogram
   useEffect(() => {
@@ -90,6 +104,57 @@ export const ActivityTimeline: () => JSX.Element = () => {
         reportFetchError(err);
       });
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+
+  const { data, isFetching, fetchNextPage, hasNextPage, refetch } =
+    useInfiniteQuery(
+      'transactions',
+      async ({ pageParam = 0 }) => {
+        console.log(pageParam);
+        console.log('YYYER');
+        const createdFilterObject: ICreatedFilter =
+          getCreatedFilter(createdFilter);
+
+        const res = await fetchWithCredentials(
+          `/api/v1/namespaces/${selectedNamespace}/events?count&limit=${ROWS_PER_PAGE}&skip=${
+            ROWS_PER_PAGE * pageParam
+          }${createdFilterObject.filterString}${
+            ''
+            // filterString !== undefined ? filterString : ''
+          }`
+        );
+        if (res.ok) {
+          const data = await res.json();
+          return {
+            pageParam,
+            ...data,
+          };
+        }
+      },
+      {
+        getNextPageParam: (lastPage: IPagedEventResponse) => {
+          return lastPage.count === ROWS_PER_PAGE
+            ? lastPage.pageParam + 1
+            : undefined;
+        },
+      }
+    );
+
+  useEffect(() => {
+    console.log('1');
+    if (isVisible && hasNextPage) {
+      fetchNextPage();
+    }
+  }, [isVisible, hasNextPage, fetchNextPage]);
+
+  useEffect(() => {
+    console.log('2');
+    refetch();
+  }, [createdFilter, queryClient, refetch]);
+
+  useEffect(() => {
+    console.log('3');
+    refetch({ refetchPage: (_page, index) => index === 0 });
+  }, [lastEvent, refetch]);
 
   const timelineElements: ITimelineElement[] | undefined = events?.map(
     (event) => ({
@@ -134,7 +199,9 @@ export const ActivityTimeline: () => JSX.Element = () => {
           <FFTimeline
             elements={timelineElements}
             emptyText={t('noTimelineEvents')}
-            height={'calc(100vh - 340px)'}
+            height={'calc(100vh - 400px)'}
+            observerRef={loadingRef}
+            {...{ isFetching }}
           />
         </Grid>
       </Grid>

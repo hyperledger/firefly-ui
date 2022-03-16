@@ -36,7 +36,9 @@ export const ListenerAccordion: React.FC<Props> = ({
     },
     {
       header: t('location'),
-      data: <HashPopover address={listener.location.address} shortHash />,
+      data: (
+        <HashPopover address={listener.location?.address ?? ''} shortHash />
+      ),
     },
   ];
 

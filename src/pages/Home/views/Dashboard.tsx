@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { EmptyStateCard } from '../../../components/Cards/EmptyStateCard';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
@@ -363,6 +364,8 @@ export const HomeDashboard: () => JSX.Element = () => {
         <>
           {!recentEventTxs ? (
             <FFCircleLoader color="warning" />
+          ) : recentEventTxs.length === 0 ? (
+            <EmptyStateCard text={t('noRecentTransactions')} />
           ) : (
             recentEventTxs.map((event, idx) => (
               <React.Fragment key={idx}>
@@ -398,6 +401,8 @@ export const HomeDashboard: () => JSX.Element = () => {
         <>
           {!recentEvents ? (
             <FFCircleLoader color="warning" />
+          ) : recentEvents.length === 0 ? (
+            <EmptyStateCard text={t('noRecentNetworkEvents')} />
           ) : (
             recentEvents.map((event, idx) => (
               <React.Fragment key={idx}>

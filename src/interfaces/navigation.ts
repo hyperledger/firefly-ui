@@ -21,7 +21,6 @@ export interface INavItem {
   itemIsActive: boolean;
 }
 
-export const ACCOUNTS_PATH = 'accounts';
 export const ACTIVITY_PATH = 'activity';
 export const APIS_PATH = 'apis';
 export const BLOCKCHAIN_PATH = 'blockchain';
@@ -85,8 +84,8 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${TRANSFERS_PATH}`,
   tokensPoolsPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${POOLS_PATH}`,
-  tokensAccountsPath: (ns: string) =>
-    `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${ACCOUNTS_PATH}`,
+  tokensPoolDetailsPath: (ns: string, poolID: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${POOLS_PATH}/${poolID}`,
   // Network
   networkPath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}`,
   networkOrgsPath: (ns: string) =>
