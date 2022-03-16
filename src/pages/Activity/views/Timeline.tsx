@@ -22,7 +22,6 @@ import { useTranslation } from 'react-i18next';
 import { useInfiniteQuery, useQueryClient } from 'react-query';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { Histogram } from '../../../components/Charts/Histogram';
-import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
 import { FFTimelineHeader } from '../../../components/Headers/TimelineHeader';
 import { EventSlide } from '../../../components/Slides/EventSlide';
@@ -47,6 +46,7 @@ import { DEFAULT_PADDING, FFColors } from '../../../theme';
 import {
   fetchCatcher,
   fetchWithCredentials,
+  getCreatedFilter,
   makeEventHistogram,
 } from '../../../utils';
 import { isHistogramEmpty } from '../../../utils/charts';

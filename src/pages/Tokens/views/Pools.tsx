@@ -20,7 +20,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
 import { useNavigate } from 'react-router-dom';
-import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { DataTable } from '../../../components/Tables/Table';
@@ -35,7 +34,11 @@ import {
   ITokenPool,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, jsNumberForAddress } from '../../../utils';
+import {
+  fetchCatcher,
+  getCreatedFilter,
+  jsNumberForAddress,
+} from '../../../utils';
 
 export const TokensPools: () => JSX.Element = () => {
   const { createdFilter, selectedNamespace } = useContext(ApplicationContext);

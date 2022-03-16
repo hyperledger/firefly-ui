@@ -25,7 +25,6 @@ import { useNavigate } from 'react-router-dom';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
-import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { MessageSlide } from '../../../components/Slides/MessageSlide';
@@ -62,6 +61,7 @@ import {
 import {
   downloadBlobFile,
   fetchCatcher,
+  getCreatedFilter,
   makeMsgHistogram,
 } from '../../../utils';
 import {

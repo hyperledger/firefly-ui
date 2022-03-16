@@ -21,7 +21,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { Histogram } from '../../../components/Charts/Histogram';
-import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
@@ -53,6 +52,7 @@ import {
   fetchCatcher,
   isOppositeTimelineEvent,
   makeMsgHistogram,
+  getCreatedFilter,
 } from '../../../utils';
 import {
   isHistogramEmpty,

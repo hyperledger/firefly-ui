@@ -24,7 +24,6 @@ import { useNavigate } from 'react-router-dom';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
-import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { MediumCardTable } from '../../../components/Tables/MediumCardTable';
@@ -57,7 +56,7 @@ import {
   DEFAULT_SPACING,
   FFColors,
 } from '../../../theme';
-import { fetchCatcher } from '../../../utils';
+import { fetchCatcher, getCreatedFilter } from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,

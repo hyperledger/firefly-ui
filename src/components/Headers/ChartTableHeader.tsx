@@ -9,14 +9,14 @@ export const ChartTableHeader: React.FC<Props> = ({ filter, title }) => {
   return (
     <Grid
       container
-      alignItems="flex-end"
+      alignItems="center"
       direction="row"
       sx={{ paddingBottom: 1 }}
     >
-      <Grid xs={6} item alignItems="center">
+      <Grid xs={4} item alignItems="center">
         <Typography fontWeight="bold">{title}</Typography>
       </Grid>
-      <Grid xs={6} item container justifyContent="flex-end" alignItems="center">
+      <Grid xs={8} item container justifyContent="flex-end" alignItems="center">
         {filter}
       </Grid>
     </Grid>
