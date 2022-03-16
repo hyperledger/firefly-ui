@@ -31,7 +31,6 @@ export const TokensNav = () => {
   const blockchainPath = FF_NAV_PATHS.tokensPath(selectedNamespace);
   const transfersPath = FF_NAV_PATHS.tokensTransfersPath(selectedNamespace);
   const poolsPath = FF_NAV_PATHS.tokensPoolsPath(selectedNamespace);
-  const accountsPath = FF_NAV_PATHS.tokensAccountsPath(selectedNamespace);
 
   const navItems: INavItem[] = [
     {
@@ -48,11 +47,6 @@ export const TokensNav = () => {
       name: t('pools'),
       action: () => navigate(poolsPath),
       itemIsActive: pathname === poolsPath,
-    },
-    {
-      name: t('accounts'),
-      action: () => navigate(accountsPath),
-      itemIsActive: pathname === accountsPath,
     },
   ];
 

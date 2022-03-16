@@ -1,7 +1,7 @@
 import { RouteObject } from 'react-router-dom';
 import { NAMESPACES_PATH } from '../../interfaces';
-import { TokensAccounts } from './views/Accounts';
 import { TokensDashboard } from './views/Dashboard';
+import { PoolDetails } from './views/PoolDetails';
 import { TokensPools } from './views/Pools';
 import { TokensTransfers } from './views/Transfers';
 
@@ -22,8 +22,8 @@ export const TokensRoutes: RouteObject = {
       element: <TokensPools />,
     },
     {
-      path: 'accounts',
-      element: <TokensAccounts />,
+      path: 'pools/:poolID',
+      element: <PoolDetails />,
     },
   ],
 };

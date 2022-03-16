@@ -17,6 +17,7 @@
 import { Grid, Typography } from '@mui/material';
 import React from 'react';
 import Jazzicon from 'react-jazzicon';
+import { useParams } from 'react-router-dom';
 import { ITokenPool } from '../../interfaces';
 import { DEFAULT_PADDING } from '../../theme';
 import { jsNumberForAddress } from '../../utils';
@@ -30,6 +31,8 @@ interface Props {
 }
 
 export const PoolSlide: React.FC<Props> = ({ pool, open, onClose }) => {
+  const { poolID } = useParams<{ poolID: string }>();
+
   return (
     <>
       <DisplaySlide open={open} onClose={onClose}>
@@ -64,7 +67,7 @@ export const PoolSlide: React.FC<Props> = ({ pool, open, onClose }) => {
           </Grid>
           {/* Data list */}
           <Grid container item pb={DEFAULT_PADDING}>
-            <PoolList pool={pool} />
+            <PoolList pool={pool} showPoolLink={pool.id !== poolID} />
           </Grid>
         </Grid>
       </DisplaySlide>

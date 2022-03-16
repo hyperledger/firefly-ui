@@ -33,8 +33,8 @@ export interface IContractListener {
   namespace: string;
   name: string;
   protocolId: string;
-  location: {
-    address: string;
+  location?: {
+    address?: string;
   };
   created: string;
   event: {
@@ -91,8 +91,8 @@ export interface IFireflyApi {
   interface: {
     id: string;
   };
-  location: {
-    address: string;
+  location?: {
+    address?: string;
   };
   name: string;
   message: string;
@@ -343,6 +343,16 @@ export interface IStatus {
 
 export interface ITokenAccount {
   key: string;
+}
+
+export interface ITokenBalance {
+  pool: string;
+  uri: string;
+  connector: string;
+  namespace: string;
+  key: string;
+  balance: string;
+  updated: string;
 }
 
 export interface ITokenConnector {

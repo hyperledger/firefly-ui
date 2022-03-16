@@ -17,6 +17,7 @@
 import { Grid } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
+import { useParams } from 'react-router-dom';
 import { IOperation } from '../../interfaces';
 import { FF_OP_CATEGORY_MAP } from '../../interfaces/enums';
 import { DEFAULT_PADDING } from '../../theme';
@@ -34,6 +35,7 @@ interface Props {
 
 export const OperationSlide: React.FC<Props> = ({ op, open, onClose }) => {
   const { t } = useTranslation();
+  const { txID } = useParams<{ txID: string }>();
 
   return (
     <>
@@ -46,7 +48,7 @@ export const OperationSlide: React.FC<Props> = ({ op, open, onClose }) => {
           />
           {/* Data list */}
           <Grid container item pb={DEFAULT_PADDING}>
-            <OperationList op={op} showTxLink />
+            <OperationList op={op} showTxLink={txID !== op.tx} />
           </Grid>
           {/* Input and Output */}
           {(op.input || op.output) && (

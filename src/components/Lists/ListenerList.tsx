@@ -35,8 +35,8 @@ export const ListenerList: React.FC<Props> = ({ listener }) => {
         },
         {
           label: t('address'),
-          value: listener.location.address,
-          button: <FFCopyButton value={listener.location.address} />,
+          value: listener.location?.address ?? '',
+          button: <FFCopyButton value={listener.location?.address ?? ''} />,
         },
         {
           label: t('description'),
