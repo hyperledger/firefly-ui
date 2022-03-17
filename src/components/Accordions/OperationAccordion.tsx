@@ -7,12 +7,12 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
-import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IDataWithHeader, IOperation } from '../../interfaces';
 import { FF_OP_CATEGORY_MAP, OpStatusColorMap } from '../../interfaces/enums';
 import { DEFAULT_BORDER_RADIUS, themeOptions } from '../../theme';
+import { getFFTime } from '../../utils';
 import { HashPopover } from '../Popovers/HashPopover';
 
 interface Props {
@@ -36,9 +36,7 @@ export const OperationAccordion: React.FC<Props> = ({ op, isOpen = false }) => {
     {
       header: t('updated'),
       data: (
-        <Typography variant="body2">
-          {dayjs(op.updated).format('MM/DD/YYYY h:mm A')}
-        </Typography>
+        <Typography variant="body2">{getFFTime(op.updated, true)}</Typography>
       ),
     },
   ];
@@ -52,7 +50,6 @@ export const OperationAccordion: React.FC<Props> = ({ op, isOpen = false }) => {
         backgroundColor: themeOptions.palette?.background?.default,
         width: '100%',
         borderRadius: DEFAULT_BORDER_RADIUS,
-        minHeight: '60px',
         '&:before': {
           display: 'none',
         },

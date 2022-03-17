@@ -49,6 +49,7 @@ import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import {
   fetchCatcher,
   getCreatedFilter,
+  getFFTime,
   makeOperationHistogram,
 } from '../../../utils';
 import {
@@ -163,7 +164,7 @@ export const ActivityOperations: () => JSX.Element = () => {
           ></Chip>
         ),
       },
-      { value: dayjs(op.updated).format('MM/DD/YYYY h:mm A') },
+      { value: getFFTime(op.created) },
     ],
     onClick: () => setViewOp(op),
     leftBorderColor: FF_OP_CATEGORY_MAP[op.type].color,

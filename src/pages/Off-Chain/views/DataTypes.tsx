@@ -15,7 +15,6 @@
 // limitations under the License.
 
 import { Grid, Typography } from '@mui/material';
-import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FilterButton } from '../../../components/Filters/FilterButton';
@@ -36,7 +35,7 @@ import {
   IPagedDatatypeResponse,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, getCreatedFilter } from '../../../utils';
+import { fetchCatcher, getCreatedFilter, getFFTime } from '../../../utils';
 
 export const OffChainDataTypes: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -118,7 +117,7 @@ export const OffChainDataTypes: () => JSX.Element = () => {
           value: <Typography>{d.version}</Typography>,
         },
         {
-          value: dayjs(d.created).format('MM/DD/YYYY h:mm A'),
+          value: getFFTime(d.created, true),
         },
       ],
     })

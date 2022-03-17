@@ -42,7 +42,7 @@ import {
 } from '../../../interfaces';
 import { FF_BE_CATEGORY_MAP } from '../../../interfaces/enums/blockchainEventTypes';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS, FFColors } from '../../../theme';
-import { fetchCatcher, getCreatedFilter } from '../../../utils';
+import { fetchCatcher, getCreatedFilter, getFFTime } from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -149,7 +149,7 @@ export const BlockchainEvents: () => JSX.Element = () => {
         {
           value: <HashPopover address={be.source}></HashPopover>,
         },
-        { value: dayjs(be.timestamp).format('MM/DD/YYYY h:mm A') },
+        { value: getFFTime(be.timestamp) },
       ],
       leftBorderColor: FFColors.Yellow,
     })

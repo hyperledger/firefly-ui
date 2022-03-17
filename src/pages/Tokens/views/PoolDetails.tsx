@@ -23,7 +23,6 @@ import {
   Paper,
   Typography,
 } from '@mui/material';
-import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
@@ -59,8 +58,9 @@ import {
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import {
   fetchCatcher,
-  getShortHash,
   getCreatedFilter,
+  getFFTime,
+  getShortHash,
   jsNumberForAddress,
 } from '../../../utils';
 
@@ -149,7 +149,7 @@ export const PoolDetails: () => JSX.Element = () => {
           value: <Typography>{account.balance}</Typography>,
         },
         {
-          value: dayjs(account.updated).format('MM/DD/YYYY h:mm A'),
+          value: getFFTime(account.updated),
         },
       ],
     })
@@ -233,7 +233,7 @@ export const PoolDetails: () => JSX.Element = () => {
             <HashPopover shortHash={true} address={transfer.key}></HashPopover>
           ),
         },
-        { value: dayjs(transfer.created).format('MM/DD/YYYY h:mm A') },
+        { value: getFFTime(transfer.created) },
       ],
       onClick: () => setViewTransfer(transfer),
       leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type].color,

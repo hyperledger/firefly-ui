@@ -16,7 +16,6 @@
 
 import HexagonIcon from '@mui/icons-material/Hexagon';
 import { Button, Chip, Grid, Typography } from '@mui/material';
-import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Header } from '../../../components/Header';
@@ -32,7 +31,7 @@ import {
   IPagedNodeResponse,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher } from '../../../utils';
+import { fetchCatcher, getFFTime } from '../../../utils';
 
 export const NetworkNodes: () => JSX.Element = () => {
   const { nodeName } = useContext(ApplicationContext);
@@ -98,7 +97,7 @@ export const NetworkNodes: () => JSX.Element = () => {
         {
           value: <HashPopover shortHash={true} address={node.messages.claim} />,
         },
-        { value: dayjs(node.created).format('MM/DD/YYYY h:mm A') },
+        { value: getFFTime(node.created, true) },
         {
           value:
             nodeName === node.name ? (

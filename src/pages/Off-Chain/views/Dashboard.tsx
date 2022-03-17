@@ -62,6 +62,7 @@ import {
   downloadBlobFile,
   fetchCatcher,
   getCreatedFilter,
+  getFFTime,
   makeMsgHistogram,
 } from '../../../utils';
 import {
@@ -177,7 +178,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
           <HashPopover shortHash address={data.id} />
         ),
       },
-      { value: dayjs(data.created).format('MM/DD/YYYY h:mm A') },
+      { value: getFFTime(data.created) },
       {
         value: data.blob && (
           <IconButton
@@ -200,7 +201,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
     columns: [
       { value: <HashPopover shortHash address={dt.id} /> },
       { value: <Typography>{dt.version}</Typography> },
-      { value: dayjs(dt.created).format('MM/DD/YYYY h:mm A') },
+      { value: getFFTime(dt.created) },
     ],
     onClick: () => navigate(DATATYPES_PATH),
   }));
@@ -373,7 +374,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
           </Typography>
         ),
       },
-      { value: dayjs(msg?.confirmed).format('MM/DD/YYYY h:mm A') },
+      { value: getFFTime(msg?.confirmed) },
       {
         value: (
           <Chip

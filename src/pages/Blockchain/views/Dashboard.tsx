@@ -56,7 +56,7 @@ import {
   DEFAULT_SPACING,
   FFColors,
 } from '../../../theme';
-import { fetchCatcher, getCreatedFilter } from '../../../utils';
+import { fetchCatcher, getCreatedFilter, getFFTime } from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -332,7 +332,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
         {
           value: <Typography>{be.source}</Typography>,
         },
-        { value: dayjs(be.timestamp).format('MM/DD/YYYY h:mm A') },
+        { value: getFFTime(be.timestamp) },
       ],
       leftBorderColor: FFColors.Yellow,
     })

@@ -31,7 +31,6 @@ export const ListenerEventParamAccordion: React.FC<Props> = ({
         backgroundColor: themeOptions.palette?.background?.default,
         width: '100%',
         borderRadius: DEFAULT_BORDER_RADIUS,
-        minHeight: '60px',
         '&:before': {
           display: 'none',
         },

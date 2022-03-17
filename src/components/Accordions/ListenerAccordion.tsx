@@ -6,11 +6,11 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
-import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IContractListener, IDataWithHeader } from '../../interfaces';
 import { DEFAULT_BORDER_RADIUS, themeOptions } from '../../theme';
+import { getFFTime } from '../../utils';
 import { HashPopover } from '../Popovers/HashPopover';
 
 interface Props {
@@ -40,6 +40,10 @@ export const ListenerAccordion: React.FC<Props> = ({
         <HashPopover address={listener.location?.address ?? ''} shortHash />
       ),
     },
+    {
+      header: t('created'),
+      data: <Typography>{getFFTime(listener.created, true)}</Typography>,
+    },
   ];
 
   return (
@@ -51,7 +55,6 @@ export const ListenerAccordion: React.FC<Props> = ({
         backgroundColor: themeOptions.palette?.background?.default,
         width: '100%',
         borderRadius: DEFAULT_BORDER_RADIUS,
-        minHeight: '60px',
         '&:before': {
           display: 'none',
         },
@@ -65,9 +68,7 @@ export const ListenerAccordion: React.FC<Props> = ({
           </Grid>
           {/* Created */}
           <Grid xs={6} item container justifyContent="flex-end">
-            <Typography>
-              {dayjs(listener.created).format('MM/DD/YYYY h:mm A')}
-            </Typography>
+            <Typography>{getFFTime(listener.created)}</Typography>
           </Grid>
         </Grid>
       </AccordionSummary>
@@ -75,7 +76,7 @@ export const ListenerAccordion: React.FC<Props> = ({
         {/* Basic Data */}
         <Grid container item direction="row">
           {accInfo.map((info, idx) => (
-            <Grid key={idx} item xs={4} pb={1} justifyContent="flex-start">
+            <Grid key={idx} item xs={3} pb={1} justifyContent="flex-start">
               <Typography pb={1} variant="body2">
                 {info.header}
               </Typography>

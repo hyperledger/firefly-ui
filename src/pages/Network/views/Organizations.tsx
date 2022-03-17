@@ -16,7 +16,6 @@
 
 import HiveIcon from '@mui/icons-material/Hive';
 import { Button, Chip, Grid, Typography } from '@mui/material';
-import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Header } from '../../../components/Header';
@@ -32,7 +31,7 @@ import {
   IPagedOrganizationResponse,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher } from '../../../utils';
+import { fetchCatcher, getFFTime } from '../../../utils';
 
 export const NetworkOrganizations: () => JSX.Element = () => {
   const { orgName } = useContext(ApplicationContext);
@@ -97,7 +96,7 @@ export const NetworkOrganizations: () => JSX.Element = () => {
         {
           value: <HashPopover shortHash={true} address={org.messages.claim} />,
         },
-        { value: dayjs(org.created).format('MM/DD/YYYY h:mm A') },
+        { value: getFFTime(org.created, true) },
         {
           value:
             orgName === org.name ? (

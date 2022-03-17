@@ -6,11 +6,11 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
-import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IBlockchainEvent, IDataWithHeader } from '../../interfaces';
 import { DEFAULT_BORDER_RADIUS, themeOptions } from '../../theme';
+import { getFFTime } from '../../utils';
 import { HashPopover } from '../Popovers/HashPopover';
 
 interface Props {
@@ -34,6 +34,12 @@ export const BlockchainEventAccordion: React.FC<Props> = ({
       header: t('source'),
       data: <Typography variant="body2">{be.source}</Typography>,
     },
+    {
+      header: t('timestamp'),
+      data: (
+        <Typography variant="body2">{getFFTime(be.timestamp, true)}</Typography>
+      ),
+    },
   ];
 
   return (
@@ -45,7 +51,6 @@ export const BlockchainEventAccordion: React.FC<Props> = ({
         backgroundColor: themeOptions.palette?.background?.default,
         width: '100%',
         borderRadius: DEFAULT_BORDER_RADIUS,
-        minHeight: '60px',
         '&:before': {
           display: 'none',
         },
@@ -59,16 +64,14 @@ export const BlockchainEventAccordion: React.FC<Props> = ({
           </Grid>
           {/* Time */}
           <Grid xs={6} item container justifyContent="flex-end">
-            <Typography>
-              {dayjs(be.timestamp).format('MM/DD/YYYY h:mm A')}
-            </Typography>
+            <Typography>{getFFTime(be.timestamp)}</Typography>
           </Grid>
         </Grid>
       </AccordionSummary>
       <AccordionDetails>
         <Grid container item direction="row">
           {accInfo.map((info, idx) => (
-            <Grid key={idx} item xs={6} pb={1} justifyContent="flex-start">
+            <Grid key={idx} item xs={4} pb={1} justifyContent="flex-start">
               <Typography pb={1} variant="body2">
                 {info.header}
               </Typography>

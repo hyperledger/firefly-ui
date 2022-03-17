@@ -8,6 +8,7 @@ import {
   DEFAULT_HIST_HEIGHT,
   themeOptions,
 } from '../../theme';
+import { getFFTime } from '../../utils';
 import { EmptyStateCard } from '../Cards/EmptyStateCard';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 
@@ -120,9 +121,6 @@ export const Histogram: React.FC<Props> = ({
                 background: themeOptions.palette?.background?.paper,
               }}
             >
-              <Typography>
-                {dayjs(data.timestamp).format('MM/DD/YYYY h:mm A')}
-              </Typography>
               {keys.map((key, idx) => {
                 return (
                   <React.Fragment key={idx}>
@@ -132,6 +130,12 @@ export const Histogram: React.FC<Props> = ({
                   </React.Fragment>
                 );
               })}
+              <Typography variant="subtitle1" color="secondary">
+                {getFFTime(data.timestamp.toString())}
+              </Typography>
+              <Typography variant="subtitle2" color="secondary">
+                {getFFTime(data.timestamp.toString(), true)}
+              </Typography>
             </div>
           )}
         />

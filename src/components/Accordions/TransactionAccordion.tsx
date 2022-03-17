@@ -6,12 +6,12 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
-import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IDataWithHeader, ITransaction } from '../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../interfaces/enums/transactionTypes';
 import { DEFAULT_BORDER_RADIUS, themeOptions } from '../../theme';
+import { getFFTime } from '../../utils';
 import { HashPopover } from '../Popovers/HashPopover';
 
 interface Props {
@@ -43,9 +43,7 @@ export const TransactionAccordion: React.FC<Props> = ({
     },
     {
       header: t('created'),
-      data: (
-        <Typography>{dayjs(tx.created).format('MM/DD/YYYY h:mm A')}</Typography>
-      ),
+      data: <Typography>{getFFTime(tx.created, true)}</Typography>,
     },
   ];
 
@@ -59,7 +57,6 @@ export const TransactionAccordion: React.FC<Props> = ({
           backgroundColor: themeOptions.palette?.background?.default,
           width: '100%',
           borderRadius: DEFAULT_BORDER_RADIUS,
-          minHeight: '60px',
           '&:before': {
             display: 'none',
           },

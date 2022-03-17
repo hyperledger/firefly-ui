@@ -44,7 +44,7 @@ import {
 } from '../../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, getCreatedFilter } from '../../../utils';
+import { fetchCatcher, getCreatedFilter, getFFTime } from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -160,7 +160,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
           </>
         ),
       },
-      { value: dayjs(tx.created).format('MM/DD/YYYY h:mm A') },
+      { value: getFFTime(tx.created) },
       { value: <TxButton ns={selectedNamespace} txID={tx.id} /> },
     ],
     onClick: () => setViewTx(tx),

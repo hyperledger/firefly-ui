@@ -11,7 +11,6 @@ import {
   Paper,
   Typography,
 } from '@mui/material';
-import dayjs from 'dayjs';
 import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
@@ -22,6 +21,7 @@ import {
   DEFAULT_PADDING,
   themeOptions,
 } from '../../theme';
+import { getFFTime } from '../../utils';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { HashPopover } from '../Popovers/HashPopover';
 
@@ -56,9 +56,7 @@ export const MessageDataAccordion: React.FC<Props> = ({
     {
       header: t('created'),
       data: (
-        <Typography variant="body2">
-          {dayjs(data.created).format('MM/DD/YYYY h:mm A')}
-        </Typography>
+        <Typography variant="body2">{getFFTime(data.created, true)}</Typography>
       ),
     },
   ];
@@ -73,7 +71,6 @@ export const MessageDataAccordion: React.FC<Props> = ({
           backgroundColor: themeOptions.palette?.background?.default,
           width: '100%',
           borderRadius: DEFAULT_BORDER_RADIUS,
-          minHeight: '60px',
           '&:before': {
             display: 'none',
           },

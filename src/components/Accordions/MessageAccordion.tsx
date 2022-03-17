@@ -7,7 +7,6 @@ import {
   Grid,
   Typography,
 } from '@mui/material';
-import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -17,6 +16,7 @@ import {
   MsgStateColorMap,
 } from '../../interfaces';
 import { DEFAULT_BORDER_RADIUS, themeOptions } from '../../theme';
+import { getFFTime } from '../../utils';
 import { HashPopover } from '../Popovers/HashPopover';
 
 interface Props {
@@ -44,7 +44,7 @@ export const MessageAccordion: React.FC<Props> = ({
       header: t('created'),
       data: (
         <Typography variant="body2">
-          {dayjs(message.header.created).format('MM/DD/YYYY h:mm A')}
+          {getFFTime(message.header.created, true)}
         </Typography>
       ),
     },
@@ -60,7 +60,6 @@ export const MessageAccordion: React.FC<Props> = ({
           backgroundColor: themeOptions.palette?.background?.default,
           width: '100%',
           borderRadius: DEFAULT_BORDER_RADIUS,
-          minHeight: '60px',
           '&:before': {
             display: 'none',
           },

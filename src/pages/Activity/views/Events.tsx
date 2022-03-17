@@ -46,6 +46,7 @@ import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import {
   fetchCatcher,
   getCreatedFilter,
+  getFFTime,
   makeEventHistogram,
 } from '../../../utils';
 import {
@@ -164,7 +165,7 @@ export const ActivityEvents: () => JSX.Element = () => {
             <HashPopover shortHash={true} address={event.tx}></HashPopover>
           ),
         },
-        { value: dayjs(event.created).format('MM/DD/YYYY h:mm A') },
+        { value: getFFTime(event.created) },
       ],
       onClick: () => setViewEvent(event),
       leftBorderColor: FF_EVENTS_CATEGORY_MAP[event.type].color,

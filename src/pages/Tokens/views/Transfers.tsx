@@ -46,7 +46,7 @@ import {
   TransferIconMap,
 } from '../../../interfaces/enums';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, getCreatedFilter } from '../../../utils';
+import { fetchCatcher, getCreatedFilter, getFFTime } from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -195,7 +195,7 @@ export const TokensTransfers: () => JSX.Element = () => {
             <HashPopover shortHash={true} address={transfer.key}></HashPopover>
           ),
         },
-        { value: dayjs(transfer.created).format('MM/DD/YYYY h:mm A') },
+        { value: getFFTime(transfer.created) },
       ],
       onClick: () => setViewTransfer(transfer),
       leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type].color,

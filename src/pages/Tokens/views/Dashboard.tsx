@@ -61,8 +61,9 @@ import {
 } from '../../../theme';
 import {
   fetchCatcher,
-  jsNumberForAddress,
   getCreatedFilter,
+  getFFTime,
+  jsNumberForAddress,
 } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -426,7 +427,7 @@ export const TokensDashboard: () => JSX.Element = () => {
             <HashPopover shortHash={true} address={transfer.key}></HashPopover>
           ),
         },
-        { value: dayjs(transfer.created).format('MM/DD/YYYY h:mm A') },
+        { value: getFFTime(transfer.created) },
       ],
       onClick: () => setViewTransfer(transfer),
       leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type].color,

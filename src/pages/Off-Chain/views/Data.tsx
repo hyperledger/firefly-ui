@@ -16,7 +16,6 @@
 
 import DownloadIcon from '@mui/icons-material/Download';
 import { Grid, IconButton, Typography } from '@mui/material';
-import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FilterButton } from '../../../components/Filters/FilterButton';
@@ -41,6 +40,7 @@ import {
   downloadBlobFile,
   fetchCatcher,
   getCreatedFilter,
+  getFFTime,
 } from '../../../utils';
 
 export const OffChainData: () => JSX.Element = () => {
@@ -119,7 +119,7 @@ export const OffChainData: () => JSX.Element = () => {
         value: d.blob && <Typography>{d.blob?.size}</Typography>,
       },
       {
-        value: dayjs(d.created).format('MM/DD/YYYY h:mm A'),
+        value: getFFTime(d.created, true),
       },
       {
         value: d.blob && (

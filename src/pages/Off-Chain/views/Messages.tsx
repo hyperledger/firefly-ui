@@ -55,6 +55,7 @@ import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import {
   fetchCatcher,
   getCreatedFilter,
+  getFFTime,
   isOppositeTimelineEvent,
   makeMsgHistogram,
 } from '../../../utils';
@@ -208,7 +209,7 @@ export const OffChainMessages: () => JSX.Element = () => {
           </Typography>
         ),
       },
-      { value: dayjs(msg?.confirmed).format('MM/DD/YYYY h:mm A') },
+      { value: msg?.confirmed && getFFTime(msg?.confirmed) },
       {
         value: (
           <Chip

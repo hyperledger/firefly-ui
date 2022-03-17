@@ -22,12 +22,7 @@ export const FFListItem: React.FC<Props> = ({ item }) => {
           {item.label}
         </Typography>
       </Grid>
-      <Grid
-        item
-        xs={8}
-        color="primary"
-        sx={{ fontSize: 12, fontWeight: 'bold' }}
-      >
+      <Grid item xs={8}>
         {item.value}
       </Grid>
       <Grid justifyContent="flex-end" container item xs={2}>

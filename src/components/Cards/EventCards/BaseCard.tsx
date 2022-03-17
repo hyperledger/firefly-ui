@@ -81,7 +81,7 @@ export const BaseCard: React.FC<Props> = ({
           p={1}
           onClick={onClick}
         >
-          <Grid container item alignItems="center" direction="row" pb={1}>
+          <Grid container item alignItems="center" direction="row">
             <Grid
               xs={6}
               container

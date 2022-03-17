@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { IBlockchainEvent } from '../../../interfaces';
@@ -6,6 +5,7 @@ import {
   BlockchainEventCategoryEnum,
   FF_BE_CATEGORY_MAP,
 } from '../../../interfaces/enums/blockchainEventTypes';
+import { getFFTime } from '../../../utils';
 import { HashPopover } from '../../Popovers/HashPopover';
 import { BaseCard } from './BaseCard';
 
@@ -26,7 +26,7 @@ export const BeCardWrapper = ({ be }: Props) => {
           FF_BE_CATEGORY_MAP[BlockchainEventCategoryEnum.BLOCKCHAINEVENT]
             .nicename
         )}
-        timestamp={dayjs(be.timestamp).format('MM/DD/YYYY h:mm A')}
+        timestamp={getFFTime(be.timestamp)}
         status={<HashPopover address={be.id} shortHash paper />}
         color={
           FF_BE_CATEGORY_MAP[BlockchainEventCategoryEnum.BLOCKCHAINEVENT].color

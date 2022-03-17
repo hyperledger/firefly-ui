@@ -1,5 +1,4 @@
 import { Chip } from '@mui/material';
-import dayjs from 'dayjs';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IMessage, MsgStateColorMap } from '../../interfaces';
@@ -8,6 +7,8 @@ import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
+import { FFListText } from './FFListText';
+import { FFListTimestamp } from './FFListTimestamp';
 
 interface Props {
   message?: IMessage;
@@ -22,36 +23,50 @@ export const MessageList: React.FC<Props> = ({ message }) => {
       setDataList([
         {
           label: t('id'),
-          value: message.header.id,
+          value: <FFListText color="primary" text={message.header.id} />,
           button: <FFCopyButton value={message.header.id} />,
         },
         {
           label: t('transactionType'),
-          value: t(
-            FF_TX_CATEGORY_MAP[message.header.txtype].nicename
-          ).toString(),
+          value: (
+            <FFListText
+              color="primary"
+              text={t(FF_TX_CATEGORY_MAP[message.header.txtype].nicename)}
+            />
+          ),
           button: <FFCopyButton value={message.header.txtype} />,
         },
         {
           label: t('author'),
-          value: message.header.author,
+          value: <FFListText color="primary" text={message.header.author} />,
           button: <FFCopyButton value={message.header.author} />,
         },
         {
           label: t('authorKey'),
-          value: message.header.key,
+          value: <FFListText color="primary" text={message.header.key} />,
           button: <FFCopyButton value={message.header.key} />,
         },
         {
           label: t('tag'),
-          value: message.header.tag ?? t('noTagInMessage'),
+          value: message.header.tag ? (
+            <FFListText color="primary" text={message.header.tag} />
+          ) : (
+            <FFListText color="secondary" text={t('noTagInMessage')} />
+          ),
           button: message.header.tag ? (
             <FFCopyButton value={message.header.tag} />
           ) : undefined,
         },
         {
           label: t('topics'),
-          value: message.header.topics?.toString() ?? t('noTopicInMessage'),
+          value: message.header.topics ? (
+            <FFListText
+              color="primary"
+              text={message.header.topics.toString()}
+            />
+          ) : (
+            <FFListText color="secondary" text={t('noTopicInMessage')} />
+          ),
         },
         {
           label: t('status'),
@@ -64,7 +79,7 @@ export const MessageList: React.FC<Props> = ({ message }) => {
         },
         {
           label: t('confirmed'),
-          value: dayjs(message.confirmed).format('MM/DD/YYYY h:mm A'),
+          value: <FFListTimestamp ts={message.confirmed} />,
         },
       ]);
     }

@@ -15,7 +15,6 @@
 // limitations under the License.
 
 import { Grid, Typography } from '@mui/material';
-import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
@@ -41,6 +40,7 @@ import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import {
   fetchCatcher,
   getCreatedFilter,
+  getFFTime,
   jsNumberForAddress,
 } from '../../../utils';
 
@@ -130,7 +130,7 @@ export const TokensPools: () => JSX.Element = () => {
         {
           value: <Typography>{pool.protocolId}</Typography>,
         },
-        { value: dayjs(pool.created).format('MM/DD/YYYY h:mm A') },
+        { value: getFFTime(pool.created) },
       ],
       onClick: () =>
         navigate(
