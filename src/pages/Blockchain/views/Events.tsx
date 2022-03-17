@@ -14,19 +14,23 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Button, Grid, Typography } from '@mui/material';
+import { Grid, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Histogram } from '../../../components/Charts/Histogram';
+import { FilterButton } from '../../../components/Filters/FilterButton';
+import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { FilterContext } from '../../../contexts/FilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
+  BlockchainEventFilters,
   BucketCollectionEnum,
   BucketCountEnum,
   FF_Paths,
@@ -49,6 +53,13 @@ import { makeBlockchainEventHistogram } from '../../../utils/histograms/blockcha
 export const BlockchainEvents: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
     useContext(ApplicationContext);
+  const {
+    filterAnchor,
+    setFilterAnchor,
+    activeFilters,
+    setActiveFilters,
+    filterString,
+  } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   // Blockchain Events
@@ -66,7 +77,7 @@ export const BlockchainEvents: () => JSX.Element = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
-  // Token pools
+  // Blockchain events
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
@@ -75,7 +86,7 @@ export const BlockchainEvents: () => JSX.Element = () => {
         FF_Paths.blockchainEvents
       }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
         createdFilterObject.filterString
-      }`
+      }${filterString !== undefined ? filterString : ''}`
     )
       .then((blockchainEvents: IPagedBlockchainEventResponse) => {
         setBlockchainEvents(blockchainEvents.items);
@@ -84,7 +95,15 @@ export const BlockchainEvents: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace]);
+  }, [
+    rowsPerPage,
+    currentPage,
+    selectedNamespace,
+    createdFilter,
+    lastEvent,
+    filterString,
+    reportFetchError,
+  ]);
 
   // Histogram
   useEffect(() => {
@@ -144,11 +163,13 @@ export const BlockchainEvents: () => JSX.Element = () => {
           <ChartTableHeader
             title={t('allBlockchainEvents')}
             filter={
-              <Button variant="outlined">
-                <Typography p={0.75} sx={{ fontSize: 12 }}>
-                  {t('filter')}
-                </Typography>
-              </Button>
+              <FilterButton
+                filters={activeFilters}
+                setFilters={setActiveFilters}
+                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                  setFilterAnchor(e.currentTarget)
+                }
+              />
             }
           />
           <Histogram
@@ -180,6 +201,18 @@ export const BlockchainEvents: () => JSX.Element = () => {
           />
         </Grid>
       </Grid>
+      {filterAnchor && (
+        <FilterModal
+          anchor={filterAnchor}
+          onClose={() => {
+            setFilterAnchor(null);
+          }}
+          fields={BlockchainEventFilters}
+          addFilter={(filter: string) =>
+            setActiveFilters((activeFilters) => [...activeFilters, filter])
+          }
+        />
+      )}
     </>
   );
 };

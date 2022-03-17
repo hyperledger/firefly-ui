@@ -1,9 +1,11 @@
 import { styled } from '@mui/material';
-import React, { useContext } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
 import { Navigation, NAV_WIDTH } from './Navigation/Navigation';
 import { NAMESPACES_PATH } from '../interfaces';
 import { ApplicationContext } from '../contexts/ApplicationContext';
+import { useQueryParam, withDefault, ArrayParam } from 'use-query-params';
+import { FilterContext } from '../contexts/FilterContext';
 
 const Main = styled('main')({
   display: 'flex',
@@ -23,6 +25,17 @@ const RootDiv = styled('div')({
 export const AppWrapper: React.FC = () => {
   const { pathname } = useLocation();
   const { selectedNamespace } = useContext(ApplicationContext);
+
+  const [filterAnchor, setFilterAnchor] = useState<HTMLButtonElement | null>(
+    null
+  );
+  const [activeFilters, setActiveFilters] = useState<string[]>([]);
+  const [filterString, setFilterString] = useState('');
+  const [filterQuery, setFilterQuery] = useQueryParam(
+    'filters',
+    withDefault(ArrayParam, [])
+  );
+
   if (pathname === '/') {
     return (
       <Navigate
@@ -32,14 +45,46 @@ export const AppWrapper: React.FC = () => {
     );
   }
 
+  // Filter
+  useEffect(() => {
+    // set filters if they are present in the URL
+    if (filterQuery.length !== 0) {
+      setActiveFilters(filterQuery as string[]);
+    }
+  }, [setActiveFilters, filterQuery]);
+
+  useEffect(() => {
+    //set query param state
+    setFilterQuery(activeFilters);
+    if (activeFilters.length === 0) {
+      setFilterString('');
+      return;
+    }
+
+    setFilterString(`&${activeFilters.join('&')}`);
+  }, [activeFilters, setFilterQuery]);
+
   return (
     <RootDiv>
-      <Main>
-        <Navigation />
-        <ContentDiv>
-          <Outlet />
-        </ContentDiv>
-      </Main>
+      <FilterContext.Provider
+        value={{
+          filterAnchor,
+          setFilterAnchor,
+          activeFilters,
+          setActiveFilters,
+          filterString,
+          setFilterString,
+          filterQuery,
+          setFilterQuery,
+        }}
+      >
+        <Main>
+          <Navigation />
+          <ContentDiv>
+            <Outlet />
+          </ContentDiv>
+        </Main>
+      </FilterContext.Provider>
     </RootDiv>
   );
 };

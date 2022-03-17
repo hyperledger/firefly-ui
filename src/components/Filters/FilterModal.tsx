@@ -28,7 +28,6 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import makeStyles from '@mui/styles/makeStyles';
 import CloseIcon from 'mdi-react/CloseIcon';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -46,7 +45,6 @@ export const FilterModal: React.FC<Props> = ({
   fields,
   addFilter,
 }) => {
-  const classes = useStyles();
   const { t } = useTranslation();
   const [open, setOpen] = useState(false);
   const [filterValue, setFilterValue] = useState('');
@@ -127,24 +125,26 @@ export const FilterModal: React.FC<Props> = ({
           vertical: -8,
           horizontal: 'right',
         }}
-        className={classes.root}
+        sx={{
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'center',
+        }}
       >
-        <Paper className={classes.paper}>
-          <Grid
-            className={classes.header}
-            container
-            justifyContent="space-between"
-          >
+        <Paper sx={{ outline: 'none', padding: 2 }}>
+          <Grid mr={1} container justifyContent="space-between">
             <Grid item>
-              <Typography className={classes.bold}>{t('addFilter')}</Typography>
+              <Typography sx={{ fontWeight: 'bold' }}>
+                {t('addFilter')}
+              </Typography>
             </Grid>
-            <Grid item>
-              <CloseIcon className={classes.closeButton} onClick={onClose} />
+            <Grid item sx={{ cursor: 'pointer', marginRight: 1 }}>
+              <CloseIcon onClick={onClose} />
             </Grid>
           </Grid>
           <form>
             <Grid container alignItems="flex-end">
-              <Grid item xs={12} sm className={classes.form}>
+              <Grid item xs={12} sm sx={{ padding: 1 }}>
                 <InputLabel id="field-filter-label">{t('field')}</InputLabel>
                 <Select
                   variant="outlined"
@@ -161,7 +161,7 @@ export const FilterModal: React.FC<Props> = ({
                   ))}
                 </Select>
               </Grid>
-              <Grid item xs={12} sm={4} className={classes.form}>
+              <Grid item xs={12} sm={4} sx={{ padding: 1 }}>
                 <InputLabel id="operator-filter-label">
                   {t('operator')}
                 </InputLabel>
@@ -179,7 +179,7 @@ export const FilterModal: React.FC<Props> = ({
                   ))}
                 </Select>
               </Grid>
-              <Grid item className={classes.form}>
+              <Grid item sx={{ padding: 1 }}>
                 <InputLabel id="field-rule-label">{t('rule')}</InputLabel>
                 <Select
                   variant="outlined"
@@ -193,7 +193,7 @@ export const FilterModal: React.FC<Props> = ({
                   <MenuItem value={'true'}>{t('notMatches')}</MenuItem>
                 </Select>
               </Grid>
-              <Grid item xs={12} sm={9} className={classes.form}>
+              <Grid item xs={12} sm={9} sx={{ padding: 1 }}>
                 <InputLabel id="value-filter-label">{t('value')}</InputLabel>
                 <TextField
                   fullWidth
@@ -202,7 +202,7 @@ export const FilterModal: React.FC<Props> = ({
                   size="small"
                 />
               </Grid>
-              <Grid item xs={3} className={classes.form}>
+              <Grid item xs={3} sx={{ padding: 1 }}>
                 <FormControlLabel
                   control={
                     <Checkbox
@@ -216,7 +216,7 @@ export const FilterModal: React.FC<Props> = ({
               </Grid>
             </Grid>
             <Grid
-              className={classes.buttonContainer}
+              sx={{ padding: 1 }}
               container
               justifyContent="flex-end"
               spacing={1}
@@ -236,35 +236,3 @@ export const FilterModal: React.FC<Props> = ({
     </>
   );
 };
-
-const useStyles = makeStyles((theme) => ({
-  root: {
-    display: 'flex',
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  paper: {
-    outline: 'none',
-    padding: theme.spacing(2),
-  },
-  close: {
-    position: 'absolute',
-    color: theme.palette.text.secondary,
-  },
-  closeButton: {
-    cursor: 'pointer',
-    marginRight: theme.spacing(1),
-  },
-  form: {
-    padding: theme.spacing(1),
-  },
-  buttonContainer: {
-    padding: theme.spacing(1),
-  },
-  header: {
-    margin: theme.spacing(1),
-  },
-  bold: {
-    fontWeight: 'bold',
-  },
-}));

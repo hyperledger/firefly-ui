@@ -20,3 +20,121 @@ export interface ICreatedFilter {
 }
 
 export type CreatedFilterOptions = '1hour' | '24hours' | '7days' | '30days';
+
+export const ApiFilters = ['id', 'name', 'interface'];
+
+export const BlockchainEventFilters = [
+  'id',
+  'source',
+  'name',
+  'protocolid',
+  'listener',
+  'tx.type',
+  'tx.id',
+  'timestamp',
+];
+
+export const DataFilters = [
+  'id',
+  'validator',
+  'datatype.name',
+  'datatype.version',
+  'hash',
+  'blob.hash',
+  'blob.public',
+  'blob.name',
+  'blob.size',
+  'created',
+  'value',
+];
+
+export const DatatypesFilters = [
+  'id',
+  'message',
+  'validator',
+  'name',
+  'version',
+  'created',
+];
+
+export const EventFilters = [
+  'id',
+  'type',
+  'reference',
+  'correlator',
+  'tx',
+  'sequence',
+  'created',
+];
+
+export const ListenerFilters = ['id', 'interface', 'protocolid', 'created'];
+
+export const MessageFilters = [
+  'id',
+  'cid',
+  'type',
+  'author',
+  'key',
+  'topics',
+  'tag',
+  'group',
+  'created',
+  'hash',
+  'pins',
+  'state',
+  'confirmed',
+  'sequence',
+  'txtype',
+  'batch',
+];
+
+export const OperationFilters = [
+  'id',
+  'tx',
+  'type',
+  'status',
+  'error',
+  'plugin',
+  'input',
+  'output',
+  'created',
+  'updated',
+  'retry',
+];
+
+export const PoolFilters = [
+  'id',
+  'type',
+  'name',
+  'standard',
+  'protocolid',
+  'symbol',
+  'message',
+  'state',
+  'created',
+  'connector',
+  'tx.type',
+  'tx.id',
+];
+
+export const TransactionFilters = ['id', 'type', 'created', 'blockchainids'];
+
+export const TransferFilters = [
+  'localid',
+  'pool',
+  'tokenindex',
+  'uri',
+  'connector',
+  'key',
+  'from',
+  'to',
+  'amount',
+  'protocolid',
+  'message',
+  'messagehash',
+  'created',
+  'tx.type',
+  'tx.id',
+  'blockchainevent',
+  'type',
+];

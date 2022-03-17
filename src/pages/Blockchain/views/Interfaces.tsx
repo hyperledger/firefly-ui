@@ -111,16 +111,7 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
       ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
-          <ChartTableHeader
-            title={t('allInterfaces')}
-            filter={
-              <Button variant="outlined">
-                <Typography p={0.75} sx={{ fontSize: 12 }}>
-                  {t('filter')}
-                </Typography>
-              </Button>
-            }
-          />
+          <ChartTableHeader title={t('allInterfaces')} />
           <DataTable
             onHandleCurrPageChange={(currentPage: number) =>
               setCurrentPage(currentPage)

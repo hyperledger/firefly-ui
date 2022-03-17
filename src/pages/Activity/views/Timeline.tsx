@@ -22,18 +22,23 @@ import { useTranslation } from 'react-i18next';
 import { useInfiniteQuery, useQueryClient } from 'react-query';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { Histogram } from '../../../components/Charts/Histogram';
+import { FilterButton } from '../../../components/Filters/FilterButton';
+import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
+import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { FFTimelineHeader } from '../../../components/Headers/TimelineHeader';
 import { EventSlide } from '../../../components/Slides/EventSlide';
 import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { FFTimeline } from '../../../components/Timeline/FFTimeline';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { FilterContext } from '../../../contexts/FilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import useIntersectionObserver from '../../../hooks/useIntersectionObserver';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
   EventCategoryEnum,
+  EventFilters,
   FF_NAV_PATHS,
   FF_Paths,
   ICreatedFilter,
@@ -57,6 +62,13 @@ const ROWS_PER_PAGE = 25;
 export const ActivityTimeline: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
     useContext(ApplicationContext);
+  const {
+    filterAnchor,
+    setFilterAnchor,
+    activeFilters,
+    setActiveFilters,
+    filterString,
+  } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const [eventHistData, setEventHistData] = useState<BarDatum[]>();
   const [events, setEvents] = useState<IEvent[]>();
@@ -95,7 +107,9 @@ export const ActivityTimeline: () => JSX.Element = () => {
     const qParams = `?limit=25&fetchreferences=true`;
 
     fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}`
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}${
+        filterString !== undefined ? filterString : ''
+      }`
     )
       .then((recentEvents) => {
         setEvents(recentEvents);
@@ -103,7 +117,13 @@ export const ActivityTimeline: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+  }, [
+    selectedNamespace,
+    createdFilter,
+    lastEvent,
+    filterString,
+    reportFetchError,
+  ]);
 
   const { data, isFetching, fetchNextPage, hasNextPage, refetch } =
     useInfiniteQuery(
@@ -177,6 +197,18 @@ export const ActivityTimeline: () => JSX.Element = () => {
       <Header title={t('timeline')} subtitle={t('activity')} />
       <Grid container px={DEFAULT_PADDING} direction="column" spacing={2}>
         <Grid item>
+          <ChartTableHeader
+            title={t('allEvents')}
+            filter={
+              <FilterButton
+                filters={activeFilters}
+                setFilters={setActiveFilters}
+                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                  setFilterAnchor(e.currentTarget)
+                }
+              />
+            }
+          />
           <Histogram
             colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
             data={eventHistData}
@@ -205,6 +237,18 @@ export const ActivityTimeline: () => JSX.Element = () => {
           />
         </Grid>
       </Grid>
+      {filterAnchor && (
+        <FilterModal
+          anchor={filterAnchor}
+          onClose={() => {
+            setFilterAnchor(null);
+          }}
+          fields={EventFilters}
+          addFilter={(filter: string) =>
+            setActiveFilters((activeFilters) => [...activeFilters, filter])
+          }
+        />
+      )}
       {viewEvent && (
         <EventSlide
           event={viewEvent}
