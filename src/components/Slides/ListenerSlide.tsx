@@ -53,7 +53,7 @@ export const ListenerSlide: React.FC<Props> = ({ listener, open, onClose }) => {
               <SlideSectionHeader title={t('eventParams')} />
               <Grid container item>
                 {listener.event.params?.map((param) => (
-                  <ListenerEventParamAccordion param={param} />
+                  <ListenerEventParamAccordion key={param.name} param={param} />
                 ))}
               </Grid>
             </>

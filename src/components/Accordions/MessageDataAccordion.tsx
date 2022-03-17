@@ -1,4 +1,5 @@
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
+import LaunchIcon from '@mui/icons-material/Launch';
 import VisibilityIcon from '@mui/icons-material/Visibility';
 import {
   Accordion,
@@ -11,9 +12,11 @@ import {
   Typography,
 } from '@mui/material';
 import dayjs from 'dayjs';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IData, IDataWithHeader } from '../../interfaces';
+import { useNavigate } from 'react-router-dom';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
+import { FF_NAV_PATHS, IData, IDataWithHeader } from '../../interfaces';
 import {
   DEFAULT_BORDER_RADIUS,
   DEFAULT_PADDING,
@@ -31,7 +34,9 @@ export const MessageDataAccordion: React.FC<Props> = ({
   data,
   isOpen = false,
 }) => {
+  const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
+  const navigate = useNavigate();
   const [expanded, setExpanded] = useState<boolean>(isOpen);
   const [openDataModal, setOpenDataModal] = useState(false);
 
@@ -89,6 +94,16 @@ export const MessageDataAccordion: React.FC<Props> = ({
                 }}
               >
                 <VisibilityIcon />
+              </IconButton>
+              <IconButton
+                onClick={(e) => {
+                  e.stopPropagation();
+                  navigate(
+                    FF_NAV_PATHS.offchainDataPath(selectedNamespace, data.id)
+                  );
+                }}
+              >
+                <LaunchIcon />
               </IconButton>
             </Grid>
           </Grid>

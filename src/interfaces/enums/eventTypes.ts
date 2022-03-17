@@ -17,12 +17,6 @@ export enum EventCategoryEnum {
   TOKENS = 'Tokens',
 }
 
-export const TxStatusColorMap: { [key: string]: string } = {
-  Succeeded: FFColors.Purple,
-  Sending: FFColors.Orange,
-  Failed: FFColors.Red,
-};
-
 export enum FF_EVENTS {
   // Blockchain Event
   BLOCKCHAIN_EVENT_RECEIVED = 'blockchain_event_received',

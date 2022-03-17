@@ -105,7 +105,10 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
           {msgTransaction && (
             <>
               <SlideSectionHeader
-                clickPath={FF_NAV_PATHS.activityTxPath(selectedNamespace)}
+                clickPath={FF_NAV_PATHS.activityTxDetailPath(
+                  selectedNamespace,
+                  msgTransaction.id
+                )}
                 title={t('messageTransaction')}
               />
               <Grid container item>

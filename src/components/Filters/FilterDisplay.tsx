@@ -14,9 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { Chip, Grid } from '@mui/material';
 import React from 'react';
-import { Grid, Typography, Chip } from '@mui/material';
-import { makeStyles } from '@mui/styles';
 import { useTranslation } from 'react-i18next';
 
 interface Props {
@@ -26,7 +25,6 @@ interface Props {
 
 export const FilterDisplay: React.FC<Props> = ({ filters, setFilters }) => {
   const { t } = useTranslation();
-  const classes = useStyles();
 
   const handleClear = () => {
     setFilters([]);
@@ -38,12 +36,7 @@ export const FilterDisplay: React.FC<Props> = ({ filters, setFilters }) => {
 
   return (
     <>
-      <Grid container alignItems="center" spacing={1}>
-        <Grid item>
-          <Typography className={classes.bold}>
-            {t('selectedFilters')}
-          </Typography>
-        </Grid>
+      <Grid container alignItems="center" justifyContent="flex-end" spacing={1}>
         {filters.map((filter, index) => (
           <Grid key={`${filter}${index}`} item>
             <Chip onDelete={() => handleRemoveFilter(filter)} label={filter} />
@@ -56,9 +49,3 @@ export const FilterDisplay: React.FC<Props> = ({ filters, setFilters }) => {
     </>
   );
 };
-
-const useStyles = makeStyles(() => ({
-  bold: {
-    fontWeight: 'bold',
-  },
-}));

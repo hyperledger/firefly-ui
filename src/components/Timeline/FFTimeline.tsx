@@ -63,14 +63,11 @@ export const FFTimeline: React.FC<Props> = ({
             }}
           >
             {elements.map((element, idx) => (
-              <>
-                <TimelineItemWrapper
-                  key={element.key}
-                  {...{ element }}
-                  opposite={element.opposite}
-                />
-                {idx === 20 && <div ref={observerRef}></div>}
-              </>
+              <TimelineItemWrapper
+                key={element.key}
+                {...{ element }}
+                opposite={element.opposite}
+              />
             ))}
             {/* TODO: USED FOR INFINITE SCROLL */}
             {isFetching && (
@@ -78,6 +75,7 @@ export const FFTimeline: React.FC<Props> = ({
                 <FFCircleLoader color="primary" />
               </Grid>
             )}
+            <div ref={observerRef}></div>
             <Grid item>{isFetching}</Grid>
           </Timeline>
         </>
