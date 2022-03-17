@@ -15,8 +15,7 @@
 // limitations under the License.
 
 import DownloadIcon from '@mui/icons-material/Download';
-import { Grid, IconButton, Typography } from '@mui/material';
-import dayjs from 'dayjs';
+import { Grid, IconButton } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FilterButton } from '../../../components/Filters/FilterButton';
@@ -24,6 +23,7 @@ import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { FilterContext } from '../../../contexts/FilterContext';
@@ -41,6 +41,7 @@ import {
   downloadBlobFile,
   fetchCatcher,
   getCreatedFilter,
+  getFFTime,
 } from '../../../utils';
 
 export const OffChainData: () => JSX.Element = () => {
@@ -105,7 +106,7 @@ export const OffChainData: () => JSX.Element = () => {
         value: <HashPopover shortHash address={d.id}></HashPopover>,
       },
       {
-        value: <Typography>{d.validator}</Typography>,
+        value: <FFTableText color="primary" text={d.validator} />,
       },
       {
         value: <HashPopover shortHash address={d.hash}></HashPopover>,
@@ -116,10 +117,14 @@ export const OffChainData: () => JSX.Element = () => {
         ),
       },
       {
-        value: d.blob && <Typography>{d.blob?.size}</Typography>,
+        value: d.blob && (
+          <FFTableText color="primary" text={d.blob.size.toString()} />
+        ),
       },
       {
-        value: dayjs(d.created).format('MM/DD/YYYY h:mm A'),
+        value: (
+          <FFTableText color="secondary" text={getFFTime(d.created, true)} />
+        ),
       },
       {
         value: d.blob && (

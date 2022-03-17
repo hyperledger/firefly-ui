@@ -15,19 +15,12 @@
 // limitations under the License.
 
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import {
-  Breadcrumbs,
-  Grid,
-  IconButton,
-  Link,
-  Paper,
-  Typography,
-} from '@mui/material';
-import dayjs from 'dayjs';
+import { Grid, IconButton, Paper, Typography } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
 import { useNavigate, useParams } from 'react-router-dom';
+import { FFBreadcrumb } from '../../../components/Breadcrumbs/FFBreadcrumb';
 import { FFCopyButton } from '../../../components/Buttons/CopyButton';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { Header } from '../../../components/Header';
@@ -37,6 +30,7 @@ import { EventSlide } from '../../../components/Slides/EventSlide';
 import { OperationSlide } from '../../../components/Slides/OperationSlide';
 import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { TransferSlide } from '../../../components/Slides/TransferSlide';
+import { FFTableText } from '../../../components/Tables/FFTableText';
 import { MediumCardTable } from '../../../components/Tables/MediumCardTable';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
@@ -48,6 +42,7 @@ import {
   ICreatedFilter,
   IDataTableRecord,
   IEvent,
+  IFFBreadcrumb,
   IOperation,
   IPagedTokenTransferResponse,
   ITokenBalance,
@@ -59,8 +54,9 @@ import {
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import {
   fetchCatcher,
-  getShortHash,
   getCreatedFilter,
+  getFFTime,
+  getShortHash,
   jsNumberForAddress,
 } from '../../../utils';
 
@@ -137,6 +133,21 @@ export const PoolDetails: () => JSX.Element = () => {
       });
   }, [rowsPerPage, currentPage, selectedNamespace, pool]);
 
+  const breadcrumbs: IFFBreadcrumb[] = [
+    {
+      link: FF_NAV_PATHS.tokensPoolsPath(selectedNamespace),
+      content: t('tokenPools'),
+    },
+    {
+      content: (
+        <>
+          {getShortHash(pool?.name ?? '')}
+          <FFCopyButton value={pool?.name ?? ''} />
+        </>
+      ),
+    },
+  ];
+
   const poolAccountsColHeaders = [t('key'), t('balance'), t('lastUpdated')];
   const poolAccountsRecords: IDataTableRecord[] | undefined = poolAccounts?.map(
     (account) => ({
@@ -146,10 +157,12 @@ export const PoolDetails: () => JSX.Element = () => {
           value: <HashPopover address={account.key} />,
         },
         {
-          value: <Typography>{account.balance}</Typography>,
+          value: <FFTableText color="primary" text={account.balance} />,
         },
         {
-          value: dayjs(account.updated).format('MM/DD/YYYY h:mm A'),
+          value: (
+            <FFTableText color="secondary" text={getFFTime(account.updated)} />
+          ),
         },
       ],
     })
@@ -182,23 +195,11 @@ export const PoolDetails: () => JSX.Element = () => {
       columns: [
         {
           value: (
-            <>
-              <Grid
-                direction="row"
-                justifyContent="flex-start"
-                alignItems="center"
-                container
-              >
-                <Grid container item justifyContent="flex-start" xs={2}>
-                  {TransferIconMap[transfer.type]}
-                </Grid>
-                <Grid container item justifyContent="flex-start" xs={10}>
-                  <Typography>
-                    {t(FF_TRANSFER_CATEGORY_MAP[transfer.type].nicename)}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </>
+            <FFTableText
+              color="primary"
+              text={t(FF_TRANSFER_CATEGORY_MAP[transfer.type].nicename)}
+              icon={TransferIconMap[transfer.type]}
+            />
           ),
         },
         {
@@ -218,7 +219,7 @@ export const PoolDetails: () => JSX.Element = () => {
           ),
         },
         {
-          value: <Typography>{transfer.amount}</Typography>,
+          value: <FFTableText color="primary" text={transfer.amount} />,
         },
         {
           value: (
@@ -233,7 +234,11 @@ export const PoolDetails: () => JSX.Element = () => {
             <HashPopover shortHash={true} address={transfer.key}></HashPopover>
           ),
         },
-        { value: dayjs(transfer.created).format('MM/DD/YYYY h:mm A') },
+        {
+          value: (
+            <FFTableText color="secondary" text={getFFTime(transfer.created)} />
+          ),
+        },
       ],
       onClick: () => setViewTransfer(transfer),
       leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type].color,
@@ -242,40 +247,7 @@ export const PoolDetails: () => JSX.Element = () => {
   return (
     <>
       <Header
-        title={
-          <Breadcrumbs>
-            <Link
-              underline="hover"
-              color="inherit"
-              sx={{ cursor: 'pointer' }}
-              onClick={() =>
-                navigate(FF_NAV_PATHS.tokensPoolsPath(selectedNamespace))
-              }
-            >
-              <Typography
-                variant="h5"
-                sx={{
-                  fontWeight: 'bold',
-                  fontSize: '14',
-                }}
-              >
-                {t('tokenPools')}
-              </Typography>
-            </Link>
-            <Link underline="none" color="text.primary">
-              <Typography
-                variant="h5"
-                sx={{
-                  fontWeight: 'bold',
-                  fontSize: '14',
-                }}
-              >
-                {getShortHash(pool?.name ?? '')}
-                <FFCopyButton value={pool?.name ?? ''} />
-              </Typography>
-            </Link>
-          </Breadcrumbs>
-        }
+        title={<FFBreadcrumb breadcrumbs={breadcrumbs} />}
         subtitle={t('activity')}
       ></Header>
       <Grid container px={DEFAULT_PADDING}>

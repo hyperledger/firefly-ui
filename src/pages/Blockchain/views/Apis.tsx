@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import LaunchIcon from '@mui/icons-material/Launch';
-import { Grid, IconButton, Link, Typography } from '@mui/material';
+import { Grid, IconButton, Link } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FilterButton } from '../../../components/Filters/FilterButton';
@@ -23,6 +23,7 @@ import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { FilterContext } from '../../../contexts/FilterContext';
@@ -100,7 +101,7 @@ export const BlockchainApis: () => JSX.Element = () => {
     key: api.id,
     columns: [
       {
-        value: <Typography>{api.name}</Typography>,
+        value: <FFTableText color="primary" text={api.name} />,
       },
       {
         value: <HashPopover shortHash={true} address={api.id}></HashPopover>,

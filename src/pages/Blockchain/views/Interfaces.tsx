@@ -14,13 +14,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid, Typography } from '@mui/material';
+import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { InterfaceSlide } from '../../../components/Slides/InterfaceSlide';
+import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
@@ -82,13 +83,13 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
       key: int.id,
       columns: [
         {
-          value: <Typography>{int.name}</Typography>,
+          value: <FFTableText color="primary" text={int.name} />,
         },
         {
           value: <HashPopover shortHash={true} address={int.id}></HashPopover>,
         },
         {
-          value: <Typography>{int.description}</Typography>,
+          value: <FFTableText color="primary" text={int.description} />,
         },
         {
           value: (
@@ -96,7 +97,7 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
           ),
         },
         {
-          value: <Typography>{int.version}</Typography>,
+          value: <FFTableText color="primary" text={int.version} />,
         },
       ],
       onClick: () => setViewInterface(int),

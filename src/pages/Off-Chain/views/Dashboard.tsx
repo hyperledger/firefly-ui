@@ -16,7 +16,7 @@
 
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import DownloadIcon from '@mui/icons-material/Download';
-import { Chip, Grid, IconButton, Typography } from '@mui/material';
+import { Chip, Grid, IconButton } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -28,6 +28,7 @@ import { Histogram } from '../../../components/Charts/Histogram';
 import { Header } from '../../../components/Header';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { MessageSlide } from '../../../components/Slides/MessageSlide';
+import { FFTableText } from '../../../components/Tables/FFTableText';
 import { MediumCardTable } from '../../../components/Tables/MediumCardTable';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
@@ -62,6 +63,7 @@ import {
   downloadBlobFile,
   fetchCatcher,
   getCreatedFilter,
+  getFFTime,
   makeMsgHistogram,
 } from '../../../utils';
 import {
@@ -177,7 +179,9 @@ export const OffChainDashboard: () => JSX.Element = () => {
           <HashPopover shortHash address={data.id} />
         ),
       },
-      { value: dayjs(data.created).format('MM/DD/YYYY h:mm A') },
+      {
+        value: <FFTableText color="secondary" text={getFFTime(data.created)} />,
+      },
       {
         value: data.blob && (
           <IconButton
@@ -199,8 +203,12 @@ export const OffChainDashboard: () => JSX.Element = () => {
     key: dt.id,
     columns: [
       { value: <HashPopover shortHash address={dt.id} /> },
-      { value: <Typography>{dt.version}</Typography> },
-      { value: dayjs(dt.created).format('MM/DD/YYYY h:mm A') },
+      {
+        value: <FFTableText color="primary" text={dt.version} />,
+      },
+      {
+        value: <FFTableText color="secondary" text={getFFTime(dt.created)} />,
+      },
     ],
     onClick: () => navigate(DATATYPES_PATH),
   }));
@@ -338,9 +346,10 @@ export const OffChainDashboard: () => JSX.Element = () => {
     columns: [
       {
         value: (
-          <Typography>
-            {t(FF_MESSAGES_CATEGORY_MAP[msg?.header.type].nicename)}
-          </Typography>
+          <FFTableText
+            color="primary"
+            text={t(FF_MESSAGES_CATEGORY_MAP[msg?.header.type].nicename)}
+          />
         ),
       },
       {
@@ -358,22 +367,32 @@ export const OffChainDashboard: () => JSX.Element = () => {
       },
       {
         value: (
-          <Typography>
-            {t(FF_TX_CATEGORY_MAP[msg?.header.txtype].nicename)}
-          </Typography>
+          <FFTableText
+            color="primary"
+            text={t(FF_TX_CATEGORY_MAP[msg?.header.txtype].nicename)}
+          />
         ),
       },
       {
-        value: <Typography>{msg.header.tag ? msg.header.tag : ''}</Typography>,
+        value: msg.header.tag ? (
+          <HashPopover address={msg.header.tag} />
+        ) : (
+          <FFTableText color="secondary" text={t('noTagInMessage')} />
+        ),
       },
       {
         value: (
-          <Typography>
-            {msg.header.topics ? msg.header.topics.toString() : ''}
-          </Typography>
+          <FFTableText
+            color="primary"
+            text={msg.header.topics ? msg.header.topics.toString() : ''}
+          />
         ),
       },
-      { value: dayjs(msg?.confirmed).format('MM/DD/YYYY h:mm A') },
+      {
+        value: (
+          <FFTableText color="secondary" text={getFFTime(msg.confirmed)} />
+        ),
+      },
       {
         value: (
           <Chip

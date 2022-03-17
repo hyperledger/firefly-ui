@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Grid, IconButton, Typography } from '@mui/material';
+import { Grid, IconButton } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -26,6 +26,7 @@ import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { Header } from '../../../components/Header';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { FFTableText } from '../../../components/Tables/FFTableText';
 import { MediumCardTable } from '../../../components/Tables/MediumCardTable';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
@@ -56,7 +57,7 @@ import {
   DEFAULT_SPACING,
   FFColors,
 } from '../../../theme';
-import { fetchCatcher, getCreatedFilter } from '../../../utils';
+import { fetchCatcher, getCreatedFilter, getFFTime } from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -186,10 +187,10 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       key: ci.id,
       columns: [
         {
-          value: <Typography>{ci.name}</Typography>,
+          value: <FFTableText color="primary" text={ci.name} />,
         },
         {
-          value: <Typography>{ci.version}</Typography>,
+          value: <FFTableText color="primary" text={ci.version} />,
         },
         {
           value: <HashPopover shortHash address={ci.id} />,
@@ -205,7 +206,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       key: cl.id,
       columns: [
         { value: <HashPopover shortHash address={cl.name} /> },
-        { value: <Typography>{cl.event.name}</Typography> },
+        { value: <FFTableText color="primary" text={cl.event.name} /> },
       ],
       onClick: () => navigate(LISTENERS_PATH),
     })
@@ -321,18 +322,22 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       key: be.id,
       columns: [
         {
-          value: <Typography>{be.name}</Typography>,
+          value: <FFTableText color="primary" text={be.name} />,
         },
         {
           value: <HashPopover shortHash={true} address={be.id}></HashPopover>,
         },
         {
-          value: <Typography>{be.protocolId}</Typography>,
+          value: <FFTableText color="primary" text={be.protocolId} />,
         },
         {
-          value: <Typography>{be.source}</Typography>,
+          value: <FFTableText color="primary" text={be.source} />,
         },
-        { value: dayjs(be.timestamp).format('MM/DD/YYYY h:mm A') },
+        {
+          value: (
+            <FFTableText color="secondary" text={getFFTime(be.timestamp)} />
+          ),
+        },
       ],
       leftBorderColor: FFColors.Yellow,
     })

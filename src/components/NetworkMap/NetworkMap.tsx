@@ -20,13 +20,12 @@ import {
   LabelProps,
   ResponsiveCirclePacking,
 } from '@nivo/circle-packing';
-import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useQuery } from 'react-query';
 import { INode, IOrganization } from '../../interfaces';
 import { FF_Paths } from '../../interfaces/constants';
-import { fetchCatcher } from '../../utils';
+import { fetchCatcher, getFFTime } from '../../utils';
 import { HashPopover } from '../Popovers/HashPopover';
 import { StyledTooltip } from '../Tooltips/StyledTooltip';
 import { DATUM, HARDCODED_DATA, IDENTITY_VALUE, NODE_VALUE } from './constants';
@@ -150,7 +149,7 @@ export const NetworkMap: () => JSX.Element = () => {
             makeTooltipDataRow(
               t('created'),
               <Typography variant="body2">
-                {dayjs(node?.created).format('MM/DD/YYYY h:mm A')}
+                {getFFTime(node?.created ?? '', true)}
               </Typography>
             )}
         </Grid>
@@ -175,7 +174,7 @@ export const NetworkMap: () => JSX.Element = () => {
       >
         <defs>
           <radialGradient id="containerGradient">
-            <stop offset="100%" stopColor="#1E242A" />
+            <stop offset="100%" stopColor="transparent" />
           </radialGradient>
           <radialGradient id="orgGradient">
             <stop offset="52%" stopColor="#252C32" />

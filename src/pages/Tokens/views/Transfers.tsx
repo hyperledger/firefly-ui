@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid, Typography } from '@mui/material';
+import { Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -26,6 +26,7 @@ import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { TransferSlide } from '../../../components/Slides/TransferSlide';
+import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { FilterContext } from '../../../contexts/FilterContext';
@@ -46,7 +47,7 @@ import {
   TransferIconMap,
 } from '../../../interfaces/enums';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, getCreatedFilter } from '../../../utils';
+import { fetchCatcher, getCreatedFilter, getFFTime } from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -144,23 +145,11 @@ export const TokensTransfers: () => JSX.Element = () => {
       columns: [
         {
           value: (
-            <>
-              <Grid
-                direction="row"
-                justifyContent="flex-start"
-                alignItems="center"
-                container
-              >
-                <Grid container item justifyContent="flex-start" xs={2}>
-                  {TransferIconMap[transfer.type]}
-                </Grid>
-                <Grid container item justifyContent="flex-start" xs={10}>
-                  <Typography>
-                    {t(FF_TRANSFER_CATEGORY_MAP[transfer.type].nicename)}
-                  </Typography>
-                </Grid>
-              </Grid>
-            </>
+            <FFTableText
+              color="primary"
+              text={t(FF_TRANSFER_CATEGORY_MAP[transfer.type].nicename)}
+              icon={TransferIconMap[transfer.type]}
+            />
           ),
         },
         {
@@ -180,7 +169,7 @@ export const TokensTransfers: () => JSX.Element = () => {
           ),
         },
         {
-          value: <Typography>{transfer.amount}</Typography>,
+          value: <FFTableText color="primary" text={transfer.amount} />,
         },
         {
           value: (
@@ -195,7 +184,11 @@ export const TokensTransfers: () => JSX.Element = () => {
             <HashPopover shortHash={true} address={transfer.key}></HashPopover>
           ),
         },
-        { value: dayjs(transfer.created).format('MM/DD/YYYY h:mm A') },
+        {
+          value: (
+            <FFTableText color="secondary" text={getFFTime(transfer.created)} />
+          ),
+        },
       ],
       onClick: () => setViewTransfer(transfer),
       leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type].color,

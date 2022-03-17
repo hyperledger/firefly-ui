@@ -51,6 +51,7 @@ export const HashPopover: React.FC<Props> = ({
               ? theme.palette.text.secondary
               : undefined,
           borderRadius: DEFAULT_BORDER_RADIUS,
+          fontSize: '12px',
           backgroundColor: paper
             ? theme.palette.background.paper
             : theme.palette.background.default,

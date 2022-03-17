@@ -15,27 +15,38 @@
 // limitations under the License.
 
 import HiveIcon from '@mui/icons-material/Hive';
-import { Button, Chip, Grid, Typography } from '@mui/material';
-import dayjs from 'dayjs';
+import { Chip, Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FilterButton } from '../../../components/Filters/FilterButton';
+import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { FilterContext } from '../../../contexts/FilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   FF_Paths,
   IDataTableRecord,
+  IdentityFilters,
   IOrganization,
   IPagedOrganizationResponse,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher } from '../../../utils';
+import { fetchCatcher, getFFTime } from '../../../utils';
 
 export const NetworkOrganizations: () => JSX.Element = () => {
   const { orgName } = useContext(ApplicationContext);
+  const {
+    filterAnchor,
+    setFilterAnchor,
+    activeFilters,
+    setActiveFilters,
+    filterString,
+  } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
 
@@ -51,8 +62,8 @@ export const NetworkOrganizations: () => JSX.Element = () => {
     fetchCatcher(
       `${FF_Paths.apiPrefix}/${
         FF_Paths.networkOrgs
-      }?limit=${rowsPerPage}&count&skip=${
-        rowsPerPage * currentPage
+      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+        filterString !== undefined ? filterString : ''
       }&sort=created`
     )
       .then((orgRes: IPagedOrganizationResponse) => {
@@ -62,7 +73,7 @@ export const NetworkOrganizations: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [rowsPerPage, currentPage]);
+  }, [rowsPerPage, currentPage, filterString, reportFetchError]);
 
   const orgColHeaders = [
     t('name'),
@@ -79,12 +90,11 @@ export const NetworkOrganizations: () => JSX.Element = () => {
         {
           value: (
             <>
-              <Grid container justifyContent="flex-start" alignItems="center">
-                <HiveIcon sx={{ color: '#FFFFFF' }} />
-                <Typography pl={DEFAULT_PADDING} variant="body1">
-                  {org.name}
-                </Typography>
-              </Grid>
+              <FFTableText
+                color="primary"
+                text={org.name}
+                icon={<HiveIcon />}
+              />
             </>
           ),
         },
@@ -97,7 +107,14 @@ export const NetworkOrganizations: () => JSX.Element = () => {
         {
           value: <HashPopover shortHash={true} address={org.messages.claim} />,
         },
-        { value: dayjs(org.created).format('MM/DD/YYYY h:mm A') },
+        {
+          value: (
+            <FFTableText
+              color="secondary"
+              text={getFFTime(org.created, true)}
+            />
+          ),
+        },
         {
           value:
             orgName === org.name ? (
@@ -118,11 +135,13 @@ export const NetworkOrganizations: () => JSX.Element = () => {
           <ChartTableHeader
             title={t('allOrganizations')}
             filter={
-              <Button variant="outlined">
-                <Typography p={0.75} sx={{ fontSize: 12 }}>
-                  {t('filter')}
-                </Typography>
-              </Button>
+              <FilterButton
+                filters={activeFilters}
+                setFilters={setActiveFilters}
+                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                  setFilterAnchor(e.currentTarget)
+                }
+              />
             }
           />
           <DataTable
@@ -145,6 +164,18 @@ export const NetworkOrganizations: () => JSX.Element = () => {
           />
         </Grid>
       </Grid>
+      {filterAnchor && (
+        <FilterModal
+          anchor={filterAnchor}
+          onClose={() => {
+            setFilterAnchor(null);
+          }}
+          fields={IdentityFilters}
+          addFilter={(filter: string) =>
+            setActiveFilters((activeFilters) => [...activeFilters, filter])
+          }
+        />
+      )}
     </>
   );
 };

@@ -15,17 +15,11 @@
 // limitations under the License.
 
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import {
-  Breadcrumbs,
-  Grid,
-  IconButton,
-  Link,
-  Paper,
-  Typography,
-} from '@mui/material';
+import { Grid, IconButton, Paper, Typography } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { FFBreadcrumb } from '../../../components/Breadcrumbs/FFBreadcrumb';
 import { FFCopyButton } from '../../../components/Buttons/CopyButton';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { OpCardWrapper } from '../../../components/Cards/EventCards/OpCardWrapper';
@@ -42,6 +36,7 @@ import {
   FF_NAV_PATHS,
   FF_Paths,
   IEvent,
+  IFFBreadcrumb,
   IFireFlyCard,
   IOperation,
   ITransaction,
@@ -121,6 +116,21 @@ export const TransactionDetails: () => JSX.Element = () => {
     }
   }, [txID]);
 
+  const breadcrumbs: IFFBreadcrumb[] = [
+    {
+      link: FF_NAV_PATHS.activityTxPath(selectedNamespace),
+      content: t('transactions'),
+    },
+    {
+      content: (
+        <>
+          {getShortHash(txID ?? '')}
+          <FFCopyButton value={txID ?? ''} />
+        </>
+      ),
+    },
+  ];
+
   const operationsCard: IFireFlyCard = {
     headerText: t('blockchainOperations'),
     headerComponent: (
@@ -183,40 +193,7 @@ export const TransactionDetails: () => JSX.Element = () => {
   return (
     <>
       <Header
-        title={
-          <Breadcrumbs>
-            <Link
-              underline="hover"
-              color="inherit"
-              sx={{ cursor: 'pointer' }}
-              onClick={() =>
-                navigate(FF_NAV_PATHS.activityTxPath(selectedNamespace))
-              }
-            >
-              <Typography
-                variant="h5"
-                sx={{
-                  fontWeight: 'bold',
-                  fontSize: '14',
-                }}
-              >
-                {t('transactions')}
-              </Typography>
-            </Link>
-            <Link underline="none" color="text.primary">
-              <Typography
-                variant="h5"
-                sx={{
-                  fontWeight: 'bold',
-                  fontSize: '14',
-                }}
-              >
-                {getShortHash(txID ?? '')}
-                <FFCopyButton value={txID ?? ''} />
-              </Typography>
-            </Link>
-          </Breadcrumbs>
-        }
+        title={<FFBreadcrumb breadcrumbs={breadcrumbs} />}
         subtitle={t('activity')}
       ></Header>
       <Grid container px={DEFAULT_PADDING}>

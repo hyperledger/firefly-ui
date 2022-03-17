@@ -4,15 +4,15 @@ import {
   AccordionDetails,
   AccordionSummary,
   Grid,
-  Typography,
 } from '@mui/material';
-import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IDataWithHeader, ITransaction } from '../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../interfaces/enums/transactionTypes';
-import { DEFAULT_BORDER_RADIUS, themeOptions } from '../../theme';
+import { getFFTime } from '../../utils';
 import { HashPopover } from '../Popovers/HashPopover';
+import { FFAccordionHeader } from './FFAccordionHeader';
+import { FFAccordionText } from './FFAccordionText';
 
 interface Props {
   tx: ITransaction;
@@ -36,7 +36,7 @@ export const TransactionAccordion: React.FC<Props> = ({
               <HashPopover key={id} shortHash address={id} />
             ))
           ) : (
-            <Typography>{t('noBlockchainIds')} </Typography>
+            <FFAccordionText text={t('noBlockchainIds')} color="primary" />
           )}
         </>
       ),
@@ -44,7 +44,7 @@ export const TransactionAccordion: React.FC<Props> = ({
     {
       header: t('created'),
       data: (
-        <Typography>{dayjs(tx.created).format('MM/DD/YYYY h:mm A')}</Typography>
+        <FFAccordionText text={getFFTime(tx.created, true)} color="primary" />
       ),
     },
   ];
@@ -55,35 +55,28 @@ export const TransactionAccordion: React.FC<Props> = ({
         key={tx.id}
         expanded={expanded}
         onChange={() => setExpanded(!expanded)}
-        sx={{
-          backgroundColor: themeOptions.palette?.background?.default,
-          width: '100%',
-          borderRadius: DEFAULT_BORDER_RADIUS,
-          minHeight: '60px',
-          '&:before': {
-            display: 'none',
-          },
-        }}
       >
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Grid container direction="row" alignItems="center">
-            {/* ID */}
-            <Grid xs={6} item container justifyContent="flex-start">
-              <Typography>{t(FF_TX_CATEGORY_MAP[tx.type].nicename)}</Typography>
-            </Grid>
-            {/* View data */}
-            <Grid xs={6} item container justifyContent="flex-end">
-              <HashPopover shortHash address={tx.id} />
-            </Grid>
-          </Grid>
+          <FFAccordionHeader
+            leftContent={
+              <FFAccordionText
+                color="primary"
+                text={t(FF_TX_CATEGORY_MAP[tx.type].nicename)}
+                isHeader
+              />
+            }
+            rightContent={<HashPopover shortHash address={tx.id} />}
+          />
         </AccordionSummary>
         <AccordionDetails>
           <Grid container item direction="row">
             {accInfo.map((info, idx) => (
               <Grid key={idx} item xs={6} pb={1} justifyContent="flex-start">
-                <Typography pb={1} variant="body2">
-                  {info.header}
-                </Typography>
+                <FFAccordionText
+                  color="primary"
+                  text={info.header ?? ''}
+                  padding
+                />
                 {info.data}
               </Grid>
             ))}

@@ -1,5 +1,4 @@
 import { Chip } from '@mui/material';
-import dayjs from 'dayjs';
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
@@ -10,6 +9,8 @@ import { PoolButton } from '../Buttons/PoolButton';
 import { TxButton } from '../Buttons/TxButton';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
+import { FFListText } from './FFListText';
+import { FFListTimestamp } from './FFListTimestamp';
 
 interface Props {
   transfer?: ITokenTransfer;
@@ -33,12 +34,12 @@ export const TransferList: React.FC<Props> = ({
       setDataList([
         {
           label: t('localID'),
-          value: transfer.localId,
+          value: <FFListText color="primary" text={transfer.localId} />,
           button: <FFCopyButton value={transfer.localId} />,
         },
         {
           label: t('poolID'),
-          value: transfer.pool,
+          value: <FFListText color="primary" text={transfer.pool} />,
           button: (
             <>
               {showPoolLink && (
@@ -50,7 +51,7 @@ export const TransferList: React.FC<Props> = ({
         },
         {
           label: t('transactionID'),
-          value: transfer.tx.id,
+          value: <FFListText color="primary" text={transfer.tx.id} />,
           button: (
             <>
               {showTxLink && (
@@ -67,7 +68,11 @@ export const TransferList: React.FC<Props> = ({
         },
         {
           label: t('messageID'),
-          value: transfer.message ?? t('noMessageInTransfer'),
+          value: transfer.message ? (
+            <FFListText color="primary" text={transfer.message} />
+          ) : (
+            <FFListText color="secondary" text={t('noMessageInTransfer')} />
+          ),
           button: transfer.message ? (
             <FFCopyButton value={transfer.message} />
           ) : undefined,
@@ -83,7 +88,7 @@ export const TransferList: React.FC<Props> = ({
         },
         {
           label: t('created'),
-          value: dayjs(transfer.created).format('MM/DD/YYYY h:mm A'),
+          value: <FFListTimestamp ts={transfer.created} />,
         },
       ]);
     }

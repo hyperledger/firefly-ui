@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Chip, Grid, Typography } from '@mui/material';
+import { Chip, Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -26,6 +26,7 @@ import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { OperationSlide } from '../../../components/Slides/OperationSlide';
+import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { FilterContext } from '../../../contexts/FilterContext';
@@ -49,6 +50,7 @@ import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import {
   fetchCatcher,
   getCreatedFilter,
+  getFFTime,
   makeOperationHistogram,
 } from '../../../utils';
 import {
@@ -143,14 +145,17 @@ export const ActivityOperations: () => JSX.Element = () => {
     columns: [
       {
         value: (
-          <Typography>{t(FF_OP_CATEGORY_MAP[op.type].nicename)}</Typography>
+          <FFTableText
+            color="primary"
+            text={t(FF_OP_CATEGORY_MAP[op.type].nicename)}
+          />
         ),
       },
       {
         value: <HashPopover shortHash={true} address={op.id}></HashPopover>,
       },
       {
-        value: <Typography>{op.plugin}</Typography>,
+        value: <FFTableText color="primary" text={op.plugin} />,
       },
       {
         value: <HashPopover shortHash={true} address={op.tx}></HashPopover>,
@@ -163,7 +168,7 @@ export const ActivityOperations: () => JSX.Element = () => {
           ></Chip>
         ),
       },
-      { value: dayjs(op.updated).format('MM/DD/YYYY h:mm A') },
+      { value: <FFTableText color="secondary" text={getFFTime(op.created)} /> },
     ],
     onClick: () => setViewOp(op),
     leftBorderColor: FF_OP_CATEGORY_MAP[op.type].color,

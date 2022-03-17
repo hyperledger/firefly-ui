@@ -27,6 +27,7 @@
     "react-highlight": "^0.14.0",
     "react-i18next": "^11.15.4",
     "react-jazzicon": "^1.0.3",
+    "react-json-view": "^1.21.3",
     "react-query": "^3.34.14",
     "react-router-dom": "^6.2.1",
     "react-scripts": "^5.0.0",
