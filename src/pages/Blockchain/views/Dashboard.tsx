@@ -24,7 +24,6 @@ import { useNavigate } from 'react-router-dom';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
-import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { MediumCardTable } from '../../../components/Tables/MediumCardTable';
@@ -57,7 +56,7 @@ import {
   DEFAULT_SPACING,
   FFColors,
 } from '../../../theme';
-import { fetchCatcher } from '../../../utils';
+import { fetchCatcher, getCreatedFilter } from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -184,7 +183,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
   const ciColHeaders = [t('name'), t('version'), t('interfaceID')];
   const ciRecords: IDataTableRecord[] | undefined = contractInterfaces?.map(
     (ci) => ({
-      key: ci.name,
+      key: ci.id,
       columns: [
         {
           value: <Typography>{ci.name}</Typography>,
@@ -203,7 +202,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
   const clColHeaders = [t('name'), t('eventName')];
   const clRecords: IDataTableRecord[] | undefined = contractListeners?.map(
     (cl) => ({
-      key: cl.name,
+      key: cl.id,
       columns: [
         { value: <HashPopover shortHash address={cl.name} /> },
         { value: <Typography>{cl.event.name}</Typography> },

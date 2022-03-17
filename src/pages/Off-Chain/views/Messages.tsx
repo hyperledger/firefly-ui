@@ -14,20 +14,22 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Button, Chip, Grid, Typography } from '@mui/material';
+import { Chip, Grid, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { Histogram } from '../../../components/Charts/Histogram';
-import { getCreatedFilter } from '../../../components/Filters/utils';
+import { FilterButton } from '../../../components/Filters/FilterButton';
+import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { MessageSlide } from '../../../components/Slides/MessageSlide';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { FilterContext } from '../../../contexts/FilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
@@ -42,6 +44,7 @@ import {
   IPagedMessageResponse,
   ITimelineElement,
   ITransaction,
+  MessageFilters,
 } from '../../../interfaces';
 import {
   FF_MESSAGES_CATEGORY_MAP,
@@ -51,6 +54,7 @@ import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import {
   fetchCatcher,
+  getCreatedFilter,
   isOppositeTimelineEvent,
   makeMsgHistogram,
 } from '../../../utils';
@@ -63,6 +67,13 @@ import {
 export const OffChainMessages: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
     useContext(ApplicationContext);
+  const {
+    filterAnchor,
+    setFilterAnchor,
+    activeFilters,
+    setActiveFilters,
+    filterString,
+  } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [viewTx, setViewTx] = useState<ITransaction>();
@@ -106,7 +117,7 @@ export const OffChainMessages: () => JSX.Element = () => {
         FF_Paths.messages
       }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
         createdFilterObject.filterString
-      }`
+      }${filterString !== undefined ? filterString : ''}`
     )
       .then((msgRes: IPagedMessageResponse) => {
         setMessages(msgRes.items);
@@ -115,7 +126,15 @@ export const OffChainMessages: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace]);
+  }, [
+    rowsPerPage,
+    currentPage,
+    selectedNamespace,
+    createdFilter,
+    lastEvent,
+    filterString,
+    reportFetchError,
+  ]);
 
   // Histogram
   useEffect(() => {
@@ -227,11 +246,13 @@ export const OffChainMessages: () => JSX.Element = () => {
           <ChartTableHeader
             title={t('allMessages')}
             filter={
-              <Button variant="outlined">
-                <Typography p={0.75} sx={{ fontSize: 12 }}>
-                  {t('filter')}
-                </Typography>
-              </Button>
+              <FilterButton
+                filters={activeFilters}
+                setFilters={setActiveFilters}
+                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                  setFilterAnchor(e.currentTarget)
+                }
+              />
             }
           />
           <Grid item>
@@ -276,6 +297,18 @@ export const OffChainMessages: () => JSX.Element = () => {
           </Grid> */}
         </Grid>
       </Grid>
+      {filterAnchor && (
+        <FilterModal
+          anchor={filterAnchor}
+          onClose={() => {
+            setFilterAnchor(null);
+          }}
+          fields={MessageFilters}
+          addFilter={(filter: string) =>
+            setActiveFilters((activeFilters) => [...activeFilters, filter])
+          }
+        />
+      )}
       {viewMsg && (
         <MessageSlide
           message={viewMsg}

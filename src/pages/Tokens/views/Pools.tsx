@@ -14,17 +14,19 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Button, Grid, Typography } from '@mui/material';
+import { Grid, Typography } from '@mui/material';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
 import { useNavigate } from 'react-router-dom';
-import { getCreatedFilter } from '../../../components/Filters/utils';
+import { FilterButton } from '../../../components/Filters/FilterButton';
+import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { FilterContext } from '../../../contexts/FilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   FF_NAV_PATHS,
@@ -33,12 +35,25 @@ import {
   IDataTableRecord,
   IPagedTokenPoolResponse,
   ITokenPool,
+  PoolFilters,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, jsNumberForAddress } from '../../../utils';
+import {
+  fetchCatcher,
+  getCreatedFilter,
+  jsNumberForAddress,
+} from '../../../utils';
 
 export const TokensPools: () => JSX.Element = () => {
-  const { createdFilter, selectedNamespace } = useContext(ApplicationContext);
+  const { createdFilter, lastEvent, selectedNamespace } =
+    useContext(ApplicationContext);
+  const {
+    filterAnchor,
+    setFilterAnchor,
+    activeFilters,
+    setActiveFilters,
+    filterString,
+  } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -59,7 +74,7 @@ export const TokensPools: () => JSX.Element = () => {
         FF_Paths.tokenPools
       }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
         createdFilterObject.filterString
-      }`
+      }${filterString !== undefined ? filterString : ''}`
     )
       .then((tokenPoolsRes: IPagedTokenPoolResponse) => {
         setTokenPools(tokenPoolsRes.items);
@@ -68,7 +83,15 @@ export const TokensPools: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace]);
+  }, [
+    rowsPerPage,
+    currentPage,
+    selectedNamespace,
+    createdFilter,
+    lastEvent,
+    filterString,
+    reportFetchError,
+  ]);
 
   const tokenPoolColHeaders = [
     t('name'),
@@ -124,11 +147,13 @@ export const TokensPools: () => JSX.Element = () => {
           <ChartTableHeader
             title={t('allPools')}
             filter={
-              <Button variant="outlined">
-                <Typography p={0.75} sx={{ fontSize: 12 }}>
-                  {t('filter')}
-                </Typography>
-              </Button>
+              <FilterButton
+                filters={activeFilters}
+                setFilters={setActiveFilters}
+                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                  setFilterAnchor(e.currentTarget)
+                }
+              />
             }
           />
           <DataTable
@@ -151,6 +176,18 @@ export const TokensPools: () => JSX.Element = () => {
           />
         </Grid>
       </Grid>
+      {filterAnchor && (
+        <FilterModal
+          anchor={filterAnchor}
+          onClose={() => {
+            setFilterAnchor(null);
+          }}
+          fields={PoolFilters}
+          addFilter={(filter: string) =>
+            setActiveFilters((activeFilters) => [...activeFilters, filter])
+          }
+        />
+      )}
     </>
   );
 };

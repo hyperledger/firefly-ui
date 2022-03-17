@@ -98,7 +98,10 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
           {enrichedEvent['blockchainevent'] && (
             <>
               <SlideSectionHeader
-                clickPath={FF_NAV_PATHS.blockchainEventsPath(selectedNamespace)}
+                clickPath={FF_NAV_PATHS.blockchainEventsPath(
+                  selectedNamespace,
+                  event.tx
+                )}
                 title={t('blockchainEvent')}
               />
               <Grid container item>
@@ -110,7 +113,10 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
           {enrichedEvent['message'] && (
             <>
               <SlideSectionHeader
-                clickPath={FF_NAV_PATHS.offchainMessagesPath(selectedNamespace)}
+                clickPath={FF_NAV_PATHS.offchainMessagesPath(
+                  selectedNamespace,
+                  enrichedEvent.message.header.id
+                )}
                 title={t('message')}
               />
               <Grid container item>
@@ -118,13 +124,10 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
               </Grid>
             </>
           )}
-          {/* Message */}
+          {/* Message Data */}
           {messageData?.length && (
             <>
-              <SlideSectionHeader
-                clickPath={FF_NAV_PATHS.offchainMessagesPath(selectedNamespace)}
-                title={t('messageData')}
-              />
+              <SlideSectionHeader title={t('messageData')} />
               <Grid container item>
                 {messageData?.map((data, idx) => (
                   <MessageDataAccordion key={idx} data={data} />
@@ -136,7 +139,10 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
           {enrichedEvent['transaction'] && (
             <>
               <SlideSectionHeader
-                clickPath={FF_NAV_PATHS.activityTxPath(selectedNamespace)}
+                clickPath={FF_NAV_PATHS.activityTxDetailPath(
+                  selectedNamespace,
+                  enrichedEvent.transaction.id
+                )}
                 title={t('transaction')}
               />
               <Grid container item>

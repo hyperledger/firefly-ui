@@ -15,17 +15,20 @@
 // limitations under the License.
 
 import LaunchIcon from '@mui/icons-material/Launch';
-import { Button, Grid, IconButton, Link, Typography } from '@mui/material';
+import { Grid, IconButton, Link, Typography } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { getCreatedFilter } from '../../../components/Filters/utils';
+import { FilterButton } from '../../../components/Filters/FilterButton';
+import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { FilterContext } from '../../../contexts/FilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
+  ApiFilters,
   FF_Paths,
   ICreatedFilter,
   IDataTableRecord,
@@ -33,11 +36,18 @@ import {
   IPagedFireFlyApiResponse,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher } from '../../../utils';
+import { fetchCatcher, getCreatedFilter } from '../../../utils';
 
 export const BlockchainApis: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
     useContext(ApplicationContext);
+  const {
+    filterAnchor,
+    setFilterAnchor,
+    activeFilters,
+    setActiveFilters,
+    filterString,
+  } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   // APIs
@@ -48,7 +58,7 @@ export const BlockchainApis: () => JSX.Element = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
-  // Listeners
+  // APIs
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
@@ -57,7 +67,7 @@ export const BlockchainApis: () => JSX.Element = () => {
         FF_Paths.apis
       }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
         createdFilterObject.filterString
-      }`
+      }${filterString !== undefined ? filterString : ''}`
     )
       .then((apis: IPagedFireFlyApiResponse) => {
         setApis(apis.items);
@@ -66,7 +76,16 @@ export const BlockchainApis: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [rowsPerPage, currentPage, lastEvent, selectedNamespace]);
+  }, [
+    rowsPerPage,
+    currentPage,
+    lastEvent,
+    selectedNamespace,
+    createdFilter,
+    lastEvent,
+    filterString,
+    reportFetchError,
+  ]);
 
   const apiColHeaders = [
     t('name'),
@@ -131,11 +150,13 @@ export const BlockchainApis: () => JSX.Element = () => {
           <ChartTableHeader
             title={t('allApis')}
             filter={
-              <Button variant="outlined">
-                <Typography p={0.75} sx={{ fontSize: 12 }}>
-                  {t('filter')}
-                </Typography>
-              </Button>
+              <FilterButton
+                filters={activeFilters}
+                setFilters={setActiveFilters}
+                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                  setFilterAnchor(e.currentTarget)
+                }
+              />
             }
           />
           <DataTable
@@ -158,6 +179,18 @@ export const BlockchainApis: () => JSX.Element = () => {
           />
         </Grid>
       </Grid>
+      {filterAnchor && (
+        <FilterModal
+          anchor={filterAnchor}
+          onClose={() => {
+            setFilterAnchor(null);
+          }}
+          fields={ApiFilters}
+          addFilter={(filter: string) =>
+            setActiveFilters((activeFilters) => [...activeFilters, filter])
+          }
+        />
+      )}
     </>
   );
 };

@@ -8,6 +8,7 @@ import { BaseCard } from './BaseCard';
 interface Props {
   event: IEvent;
   link?: string;
+  linkState?: any;
   onHandleViewEvent: any;
   onHandleViewTx: any;
 }
@@ -17,6 +18,7 @@ export const EventCardWrapper = ({
   onHandleViewEvent,
   onHandleViewTx,
   link,
+  linkState,
 }: Props) => {
   const { t } = useTranslation();
 
@@ -34,6 +36,7 @@ export const EventCardWrapper = ({
         status={<HashPopover address={event.id} shortHash paper />}
         color={FF_EVENTS_CATEGORY_MAP[event.type].color}
         link={link}
+        linkState={linkState}
       />
     </>
   );

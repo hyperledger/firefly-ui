@@ -14,19 +14,21 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Button, Grid, Typography } from '@mui/material';
+import { Grid, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Histogram } from '../../../components/Charts/Histogram';
-import { getCreatedFilter } from '../../../components/Filters/utils';
+import { FilterButton } from '../../../components/Filters/FilterButton';
+import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { TransferSlide } from '../../../components/Slides/TransferSlide';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { FilterContext } from '../../../contexts/FilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
@@ -37,13 +39,14 @@ import {
   IMetric,
   IPagedTokenTransferResponse,
   ITokenTransfer,
+  TransferFilters,
 } from '../../../interfaces';
 import {
   FF_TRANSFER_CATEGORY_MAP,
   TransferIconMap,
 } from '../../../interfaces/enums';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher } from '../../../utils';
+import { fetchCatcher, getCreatedFilter } from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -54,6 +57,13 @@ import { makeTransferHistogram } from '../../../utils/histograms/transferHistogr
 export const TokensTransfers: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
     useContext(ApplicationContext);
+  const {
+    filterAnchor,
+    setFilterAnchor,
+    activeFilters,
+    setActiveFilters,
+    filterString,
+  } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   // Token transfers
@@ -78,7 +88,7 @@ export const TokensTransfers: () => JSX.Element = () => {
         FF_Paths.tokenTransfers
       }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
         createdFilterObject.filterString
-      }`
+      }${filterString !== undefined ? filterString : ''}`
     )
       .then((tokenTransferRes: IPagedTokenTransferResponse) => {
         setTokenTransfers(tokenTransferRes.items);
@@ -87,7 +97,15 @@ export const TokensTransfers: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace]);
+  }, [
+    rowsPerPage,
+    currentPage,
+    selectedNamespace,
+    createdFilter,
+    lastEvent,
+    filterString,
+    reportFetchError,
+  ]);
 
   useEffect(() => {
     const currentTime = dayjs().unix();
@@ -191,11 +209,13 @@ export const TokensTransfers: () => JSX.Element = () => {
           <ChartTableHeader
             title={t('allTransfers')}
             filter={
-              <Button variant="outlined">
-                <Typography p={0.75} sx={{ fontSize: 12 }}>
-                  Filter
-                </Typography>
-              </Button>
+              <FilterButton
+                filters={activeFilters}
+                setFilters={setActiveFilters}
+                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                  setFilterAnchor(e.currentTarget)
+                }
+              />
             }
           />
           <Histogram
@@ -227,6 +247,18 @@ export const TokensTransfers: () => JSX.Element = () => {
           />
         </Grid>
       </Grid>
+      {filterAnchor && (
+        <FilterModal
+          anchor={filterAnchor}
+          onClose={() => {
+            setFilterAnchor(null);
+          }}
+          fields={TransferFilters}
+          addFilter={(filter: string) =>
+            setActiveFilters((activeFilters) => [...activeFilters, filter])
+          }
+        />
+      )}
       {viewTransfer && (
         <TransferSlide
           transfer={viewTransfer}

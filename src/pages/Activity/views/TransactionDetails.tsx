@@ -25,7 +25,7 @@ import {
 } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useNavigate, useParams } from 'react-router-dom';
 import { FFCopyButton } from '../../../components/Buttons/CopyButton';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { OpCardWrapper } from '../../../components/Cards/EventCards/OpCardWrapper';
@@ -56,6 +56,7 @@ export const TransactionDetails: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const location = useLocation();
   const { txID } = useParams<{ txID: string }>();
   // Transactions
   const [tx, setTx] = useState<ITransaction>();
@@ -64,7 +65,9 @@ export const TransactionDetails: () => JSX.Element = () => {
   const [txOperations, setTxOperations] = useState<IOperation[]>([]);
   const [txStatus, setTxStatus] = useState<ITxStatus>();
   const [viewTx, setViewTx] = useState<ITransaction>();
-  const [viewEvent, setViewEvent] = useState<IEvent>();
+  const [viewEvent, setViewEvent] = useState<IEvent | undefined>(
+    location.state as IEvent
+  );
   const [viewOp, setViewOp] = useState<IOperation>();
 
   // Transaction details
@@ -76,7 +79,6 @@ export const TransactionDetails: () => JSX.Element = () => {
         )}`
       )
         .then((tx: ITransaction) => {
-          console.log(tx);
           setTx(tx);
         })
         .catch((err) => {

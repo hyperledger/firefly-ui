@@ -14,17 +14,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export * from './blockchainEventTypes';
-export * from './eventTypes';
-export * from './messageTypes';
-export * from './operationTypes';
-export * from './transactionTypes';
-export * from './transferTypes';
-export * from './txStatusTypes';
+import { createContext, Dispatch, SetStateAction } from 'react';
 
-export interface IBlockchainCategory {
-  category: string;
-  color: string;
-  enrichedEventKey?: string;
-  nicename: string;
+export interface IFilterContext {
+  filterAnchor: HTMLButtonElement | null;
+  setFilterAnchor: Dispatch<SetStateAction<HTMLButtonElement | null>>;
+  activeFilters: string[];
+  setActiveFilters: Dispatch<SetStateAction<string[]>>;
+  filterString: string;
+  setFilterString: Dispatch<SetStateAction<string>>;
+  filterQuery: (string | null)[] | never[];
+  // TODO: Figure out type
+  setFilterQuery: any;
 }
+
+export const FilterContext = createContext({} as IFilterContext);

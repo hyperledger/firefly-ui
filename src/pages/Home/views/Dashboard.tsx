@@ -10,7 +10,6 @@ import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCard
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
-import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
 import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { NetworkMap } from '../../../components/NetworkMap/NetworkMap';
@@ -40,6 +39,7 @@ import { FF_Paths } from '../../../interfaces/constants';
 import { DEFAULT_PADDING, DEFAULT_SPACING } from '../../../theme';
 import {
   fetchCatcher,
+  getCreatedFilter,
   makeEventHistogram,
   makeMultipleQueryParams,
 } from '../../../utils';
@@ -354,7 +354,7 @@ export const HomeDashboard: () => JSX.Element = () => {
       headerComponent: (
         <IconButton
           onClick={() =>
-            navigate(FF_NAV_PATHS.activityTxPath(selectedNamespace))
+            navigate(FF_NAV_PATHS.activityTimelinePath(selectedNamespace))
           }
         >
           <ArrowForwardIcon />
@@ -391,7 +391,7 @@ export const HomeDashboard: () => JSX.Element = () => {
       headerComponent: (
         <IconButton
           onClick={() =>
-            navigate(FF_NAV_PATHS.activityEventsPath(selectedNamespace))
+            navigate(FF_NAV_PATHS.activityTimelinePath(selectedNamespace))
           }
         >
           <ArrowForwardIcon />
@@ -413,6 +413,7 @@ export const HomeDashboard: () => JSX.Element = () => {
                     selectedNamespace,
                     event.tx
                   )}
+                  linkState={{ state: event }}
                   {...{ event }}
                 />
                 <Grid sx={{ padding: '1px' }} />

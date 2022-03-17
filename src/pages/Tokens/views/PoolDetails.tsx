@@ -30,7 +30,6 @@ import Jazzicon from 'react-jazzicon';
 import { useNavigate, useParams } from 'react-router-dom';
 import { FFCopyButton } from '../../../components/Buttons/CopyButton';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
-import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
 import { PoolList } from '../../../components/Lists/PoolList';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
@@ -58,7 +57,12 @@ import {
   TransferIconMap,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, getShortHash, jsNumberForAddress } from '../../../utils';
+import {
+  fetchCatcher,
+  getShortHash,
+  getCreatedFilter,
+  jsNumberForAddress,
+} from '../../../utils';
 
 export const PoolDetails: () => JSX.Element = () => {
   const { createdFilter, selectedNamespace } = useContext(ApplicationContext);
@@ -245,7 +249,7 @@ export const PoolDetails: () => JSX.Element = () => {
               color="inherit"
               sx={{ cursor: 'pointer' }}
               onClick={() =>
-                navigate(FF_NAV_PATHS.activityTxPath(selectedNamespace))
+                navigate(FF_NAV_PATHS.tokensPoolsPath(selectedNamespace))
               }
             >
               <Typography

@@ -19,7 +19,6 @@ export * from './cards';
 export * from './charts';
 export * from './constants';
 export * from './enums';
-export * from './enums/eventTypes';
 export * from './filters';
 export * from './navigation';
 export * from './table';

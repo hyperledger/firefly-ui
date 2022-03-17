@@ -29,7 +29,9 @@ export const InterfaceList: React.FC<Props> = ({ cInterface }) => {
     },
     {
       label: t('description'),
-      value: cInterface?.description,
+      value: cInterface?.description.length
+        ? cInterface.description
+        : t('noDescriptionForInterface').toString(),
     },
   ];
 

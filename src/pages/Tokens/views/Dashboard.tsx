@@ -25,7 +25,6 @@ import { useNavigate } from 'react-router-dom';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
-import { getCreatedFilter } from '../../../components/Filters/utils';
 import { Header } from '../../../components/Header';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { TransferSlide } from '../../../components/Slides/TransferSlide';
@@ -60,7 +59,11 @@ import {
   DEFAULT_PAGE_LIMITS,
   DEFAULT_SPACING,
 } from '../../../theme';
-import { fetchCatcher, jsNumberForAddress } from '../../../utils';
+import {
+  fetchCatcher,
+  jsNumberForAddress,
+  getCreatedFilter,
+} from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -208,8 +211,8 @@ export const TokensDashboard: () => JSX.Element = () => {
 
   const tokenAccountsColHeaders = [t('key'), t('poolID'), t('balance')];
   const tokenAccountRecords: IDataTableRecord[] | undefined =
-    tokenBalances?.map((acct) => ({
-      key: acct.key,
+    tokenBalances?.map((acct, idx) => ({
+      key: idx.toString(),
       columns: [
         {
           value: <HashPopover address={acct.key} />,
@@ -241,7 +244,11 @@ export const TokensDashboard: () => JSX.Element = () => {
                 <Jazzicon diameter={20} seed={jsNumberForAddress(pool.name)} />
               </Grid>
               <Grid container item justifyContent="flex-start" xs={10}>
-                <Typography flexWrap="wrap">{pool.name}</Typography>
+                {pool.name.length > 10 ? (
+                  <HashPopover shortHash address={pool.name} />
+                ) : (
+                  <Typography flexWrap="nowrap">{pool.name}</Typography>
+                )}
               </Grid>
             </Grid>
           ),

@@ -57,25 +57,39 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}`,
   activityTxDetailPath: (ns: string, txID: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}/${txID}`,
-  activityOpPath: (ns: string) =>
-    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}`,
+  activityOpPath: (ns: string, txID?: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}${
+      txID ? `?filters=tx==${txID}` : ''
+    }`,
   // Blockchain
   blockchainPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}`,
-  blockchainEventsPath: (ns: string) =>
-    `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${EVENTS_PATH}`,
-  blockchainApisPath: (ns: string) =>
-    `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${APIS_PATH}`,
-  blockchainInterfacesPath: (ns: string) =>
-    `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${INTERFACES_PATH}`,
-  blockchainListenersPath: (ns: string) =>
-    `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${LISTENERS_PATH}`,
+  blockchainEventsPath: (ns: string, txID?: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${EVENTS_PATH}${
+      txID ? `?filters=tx.id==${txID}` : ''
+    }`,
+  blockchainApisPath: (ns: string, interfaceID?: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${APIS_PATH}${
+      interfaceID ? `?filters=interface==${interfaceID}` : ''
+    }`,
+  blockchainInterfacesPath: (ns: string, interfaceID?: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${INTERFACES_PATH}${
+      interfaceID ? `?filters=id==${interfaceID}` : ''
+    }`,
+  blockchainListenersPath: (ns: string, interfaceID?: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${LISTENERS_PATH}${
+      interfaceID ? `?filters=interface==${interfaceID}` : ''
+    }`,
   // Off-Chain
   offchainPath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}`,
-  offchainMessagesPath: (ns: string) =>
-    `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${MESSAGES_PATH}`,
-  offchainDataPath: (ns: string) =>
-    `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${DATA_PATH}`,
+  offchainMessagesPath: (ns: string, msgID?: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${MESSAGES_PATH}${
+      msgID ? `?filters=id==${msgID}` : ''
+    }`,
+  offchainDataPath: (ns: string, dataID?: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${DATA_PATH}${
+      dataID ? `?filters=id==${dataID}` : ''
+    }`,
   offchainDatatypesPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${DATATYPES_PATH}`,
   // Tokens
