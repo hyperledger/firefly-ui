@@ -68,10 +68,6 @@ export const BlockchainEvents: () => JSX.Element = () => {
     useState<IBlockchainEvent[]>();
   // Blockchain Events total
   const [blockchainEventTotal, setBlockchainEventTotal] = useState(0);
-  // View blockchain event slide out
-  const [viewBlockchainEvent, setViewBlockchainEvent] = useState<
-    IBlockchainEvent | undefined
-  >();
 
   // Events histogram
   const [beHistData, setBeHistData] = useState<BarDatum[]>();

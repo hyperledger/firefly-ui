@@ -18,6 +18,7 @@ export * from './api';
 export * from './cards';
 export * from './charts';
 export * from './constants';
+export * from './breadcrumbs';
 export * from './enums';
 export * from './filters';
 export * from './navigation';

@@ -67,6 +67,21 @@ export const EventFilters = [
   'created',
 ];
 
+export const IdentityFilters = [
+  'id',
+  'did',
+  'parent',
+  'messages.claim',
+  'messages.verification',
+  'messages.update',
+  'type',
+  'name',
+  'description',
+  'profile',
+  'created',
+  'updated',
+];
+
 export const ListenerFilters = ['id', 'interface', 'protocolid', 'created'];
 
 export const MessageFilters = [

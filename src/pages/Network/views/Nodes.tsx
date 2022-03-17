@@ -15,18 +15,23 @@
 // limitations under the License.
 
 import HexagonIcon from '@mui/icons-material/Hexagon';
-import { Button, Chip, Grid, Typography } from '@mui/material';
+import { Chip, Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FilterButton } from '../../../components/Filters/FilterButton';
+import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { FilterContext } from '../../../contexts/FilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   FF_Paths,
   IDataTableRecord,
+  IdentityFilters,
   INode,
   IPagedNodeResponse,
 } from '../../../interfaces';
@@ -35,6 +40,13 @@ import { fetchCatcher, getFFTime } from '../../../utils';
 
 export const NetworkNodes: () => JSX.Element = () => {
   const { nodeName } = useContext(ApplicationContext);
+  const {
+    filterAnchor,
+    setFilterAnchor,
+    activeFilters,
+    setActiveFilters,
+    filterString,
+  } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
 
@@ -50,8 +62,8 @@ export const NetworkNodes: () => JSX.Element = () => {
     fetchCatcher(
       `${FF_Paths.apiPrefix}/${
         FF_Paths.networkNodes
-      }?limit=${rowsPerPage}&count&skip=${
-        rowsPerPage * currentPage
+      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+        filterString !== undefined ? filterString : ''
       }&sort=created`
     )
       .then((nodeRes: IPagedNodeResponse) => {
@@ -61,7 +73,7 @@ export const NetworkNodes: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [rowsPerPage, currentPage]);
+  }, [rowsPerPage, currentPage, filterString, reportFetchError]);
 
   const nodeColHeaders = [
     t('name'),
@@ -78,14 +90,11 @@ export const NetworkNodes: () => JSX.Element = () => {
       columns: [
         {
           value: (
-            <>
-              <Grid container justifyContent="flex-start" alignItems="center">
-                <HexagonIcon sx={{ color: '#FFFFFF' }} />
-                <Typography pl={DEFAULT_PADDING} variant="body1">
-                  {node.name}
-                </Typography>
-              </Grid>
-            </>
+            <FFTableText
+              color="primary"
+              text={node.name}
+              icon={<HexagonIcon />}
+            />
           ),
         },
         {
@@ -97,7 +106,14 @@ export const NetworkNodes: () => JSX.Element = () => {
         {
           value: <HashPopover shortHash={true} address={node.messages.claim} />,
         },
-        { value: getFFTime(node.created, true) },
+        {
+          value: (
+            <FFTableText
+              color="secondary"
+              text={getFFTime(node.created, true)}
+            />
+          ),
+        },
         {
           value:
             nodeName === node.name ? (
@@ -118,11 +134,13 @@ export const NetworkNodes: () => JSX.Element = () => {
           <ChartTableHeader
             title={t('allNodes')}
             filter={
-              <Button variant="outlined">
-                <Typography p={0.75} sx={{ fontSize: 12 }}>
-                  {t('filter')}
-                </Typography>
-              </Button>
+              <FilterButton
+                filters={activeFilters}
+                setFilters={setActiveFilters}
+                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                  setFilterAnchor(e.currentTarget)
+                }
+              />
             }
           />
           <DataTable
@@ -145,6 +163,18 @@ export const NetworkNodes: () => JSX.Element = () => {
           />
         </Grid>
       </Grid>
+      {filterAnchor && (
+        <FilterModal
+          anchor={filterAnchor}
+          onClose={() => {
+            setFilterAnchor(null);
+          }}
+          fields={IdentityFilters}
+          addFilter={(filter: string) =>
+            setActiveFilters((activeFilters) => [...activeFilters, filter])
+          }
+        />
+      )}
     </>
   );
 };
