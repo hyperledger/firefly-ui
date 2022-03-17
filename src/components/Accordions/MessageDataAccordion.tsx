@@ -9,21 +9,18 @@ import {
   IconButton,
   Modal,
   Paper,
-  Typography,
 } from '@mui/material';
-import dayjs from 'dayjs';
 import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { FF_NAV_PATHS, IData, IDataWithHeader } from '../../interfaces';
-import {
-  DEFAULT_BORDER_RADIUS,
-  DEFAULT_PADDING,
-  themeOptions,
-} from '../../theme';
-import { FFCopyButton } from '../Buttons/CopyButton';
+import { themeOptions } from '../../theme';
+import { getFFTime } from '../../utils';
 import { HashPopover } from '../Popovers/HashPopover';
+import { FFJsonViewer } from '../Viewers/FFJsonViewer';
+import { FFAccordionHeader } from './FFAccordionHeader';
+import { FFAccordionText } from './FFAccordionText';
 
 interface Props {
   data: IData;
@@ -42,12 +39,8 @@ export const MessageDataAccordion: React.FC<Props> = ({
 
   const accInfo: IDataWithHeader[] = [
     {
-      header: t('id'),
-      data: <HashPopover address={data.id} shortHash />,
-    },
-    {
       header: t('validator'),
-      data: <Typography variant="body2">{data.validator}</Typography>,
+      data: <FFAccordionText text={data.validator} color="primary" />,
     },
     {
       header: t('hash'),
@@ -56,9 +49,7 @@ export const MessageDataAccordion: React.FC<Props> = ({
     {
       header: t('created'),
       data: (
-        <Typography variant="body2">
-          {dayjs(data.created).format('MM/DD/YYYY h:mm A')}
-        </Typography>
+        <FFAccordionText text={getFFTime(data.created, true)} color="primary" />
       ),
     },
   ];
@@ -69,52 +60,43 @@ export const MessageDataAccordion: React.FC<Props> = ({
         key={data.id}
         expanded={expanded}
         onChange={() => setExpanded(!expanded)}
-        sx={{
-          backgroundColor: themeOptions.palette?.background?.default,
-          width: '100%',
-          borderRadius: DEFAULT_BORDER_RADIUS,
-          minHeight: '60px',
-          '&:before': {
-            display: 'none',
-          },
-        }}
       >
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Grid container direction="row" alignItems="center">
-            {/* ID */}
-            <Grid xs={6} item container justifyContent="flex-start">
-              <Typography>{data.id}</Typography>
-            </Grid>
-            {/* View data */}
-            <Grid xs={6} item container justifyContent="flex-end">
-              <IconButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  setOpenDataModal(true);
-                }}
-              >
-                <VisibilityIcon />
-              </IconButton>
-              <IconButton
-                onClick={(e) => {
-                  e.stopPropagation();
-                  navigate(
-                    FF_NAV_PATHS.offchainDataPath(selectedNamespace, data.id)
-                  );
-                }}
-              >
-                <LaunchIcon />
-              </IconButton>
-            </Grid>
-          </Grid>
+          <FFAccordionHeader
+            leftContent={<HashPopover address={data.id} />}
+            rightContent={
+              <>
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    setOpenDataModal(true);
+                  }}
+                >
+                  <VisibilityIcon />
+                </IconButton>
+                <IconButton
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(
+                      FF_NAV_PATHS.offchainDataPath(selectedNamespace, data.id)
+                    );
+                  }}
+                >
+                  <LaunchIcon />
+                </IconButton>
+              </>
+            }
+          />
         </AccordionSummary>
         <AccordionDetails>
           <Grid container item direction="row">
             {accInfo.map((info, idx) => (
-              <Grid key={idx} item xs={3} pb={1} justifyContent="flex-start">
-                <Typography pb={1} variant="body2">
-                  {info.header}
-                </Typography>
+              <Grid key={idx} item xs={4} pb={1} justifyContent="flex-start">
+                <FFAccordionText
+                  color="primary"
+                  text={info.header ?? ''}
+                  padding
+                />
                 {info.data}
               </Grid>
             ))}
@@ -126,14 +108,11 @@ export const MessageDataAccordion: React.FC<Props> = ({
         onClose={() => setOpenDataModal(false)}
         sx={{ wordWrap: 'break-word' }}
       >
-        <Paper sx={modalStyle}>
-          <pre>{JSON.stringify(data.value, null, 2)}</pre>
-          <Grid pt={DEFAULT_PADDING} container justifyContent="center">
-            <FFCopyButton
-              longForm
-              value={JSON.stringify(data.value, null, 2)}
-            />
-          </Grid>
+        <Paper sx={modalStyle} elevation={0}>
+          <FFJsonViewer
+            color={themeOptions.palette?.background?.paper}
+            json={data.value}
+          />
         </Paper>
       </Modal>
     </>

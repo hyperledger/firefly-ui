@@ -5,9 +5,7 @@ import {
   AccordionSummary,
   Chip,
   Grid,
-  Typography,
 } from '@mui/material';
-import dayjs from 'dayjs';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import {
@@ -16,8 +14,10 @@ import {
   IMessage,
   MsgStateColorMap,
 } from '../../interfaces';
-import { DEFAULT_BORDER_RADIUS, themeOptions } from '../../theme';
+import { getFFTime } from '../../utils';
 import { HashPopover } from '../Popovers/HashPopover';
+import { FFAccordionHeader } from './FFAccordionHeader';
+import { FFAccordionText } from './FFAccordionText';
 
 interface Props {
   isOpen?: boolean;
@@ -43,9 +43,10 @@ export const MessageAccordion: React.FC<Props> = ({
     {
       header: t('created'),
       data: (
-        <Typography variant="body2">
-          {dayjs(message.header.created).format('MM/DD/YYYY h:mm A')}
-        </Typography>
+        <FFAccordionText
+          text={getFFTime(message.header.created, true)}
+          color="primary"
+        />
       ),
     },
   ];
@@ -56,42 +57,33 @@ export const MessageAccordion: React.FC<Props> = ({
         key={message.header.id}
         expanded={expanded}
         onChange={() => setExpanded(!expanded)}
-        sx={{
-          backgroundColor: themeOptions.palette?.background?.default,
-          width: '100%',
-          borderRadius: DEFAULT_BORDER_RADIUS,
-          minHeight: '60px',
-          '&:before': {
-            display: 'none',
-          },
-        }}
       >
         <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-          <Grid container direction="row" alignItems="center">
-            {/* Type */}
-            <Grid xs={6} item container justifyContent="flex-start">
-              <Typography>
-                {t(FF_MESSAGES_CATEGORY_MAP[message.header.type].nicename)}
-              </Typography>
-            </Grid>
-            {/* State */}
-            <Grid xs={6} item container justifyContent="flex-end">
-              {message.state && (
-                <Chip
-                  label={message.state?.toLocaleUpperCase()}
-                  sx={{ backgroundColor: MsgStateColorMap[message.state] }}
-                ></Chip>
-              )}
-            </Grid>
-          </Grid>
+          <FFAccordionHeader
+            leftContent={
+              <FFAccordionText
+                color="primary"
+                text={t(FF_MESSAGES_CATEGORY_MAP[message.header.type].nicename)}
+                isHeader
+              />
+            }
+            rightContent={
+              <Chip
+                label={message.state?.toLocaleUpperCase()}
+                sx={{ backgroundColor: MsgStateColorMap[message.state] }}
+              ></Chip>
+            }
+          />
         </AccordionSummary>
         <AccordionDetails>
           <Grid container item direction="row">
             {accInfo.map((info, idx) => (
               <Grid key={idx} item xs={4} pb={1} justifyContent="flex-start">
-                <Typography pb={1} variant="body2">
-                  {info.header}
-                </Typography>
+                <FFAccordionText
+                  color="primary"
+                  text={info.header ?? ''}
+                  padding
+                />
                 {info.data}
               </Grid>
             ))}

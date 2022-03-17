@@ -148,6 +148,7 @@
   "nodeID": "Node ID",
   "nodeName": "Node Name",
   "nodes": "Nodes",
+  "noAddressForListener": "No Address for Listener",
   "noDescriptionForInterface": "No Description for Interface",
   "noDescriptionForListener": "No Description for Listener",
   "noEvents": "No Events",

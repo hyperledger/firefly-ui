@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid, Typography } from '@mui/material';
+import { Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -26,6 +26,7 @@ import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { EventSlide } from '../../../components/Slides/EventSlide';
+import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { FilterContext } from '../../../contexts/FilterContext';
@@ -46,6 +47,7 @@ import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import {
   fetchCatcher,
   getCreatedFilter,
+  getFFTime,
   makeEventHistogram,
 } from '../../../utils';
 import {
@@ -141,9 +143,10 @@ export const ActivityEvents: () => JSX.Element = () => {
       columns: [
         {
           value: (
-            <Typography>
-              {t(FF_EVENTS_CATEGORY_MAP[event.type].nicename)}
-            </Typography>
+            <FFTableText
+              color="primary"
+              text={t(FF_EVENTS_CATEGORY_MAP[event.type].nicename)}
+            />
           ),
         },
         {
@@ -164,7 +167,11 @@ export const ActivityEvents: () => JSX.Element = () => {
             <HashPopover shortHash={true} address={event.tx}></HashPopover>
           ),
         },
-        { value: dayjs(event.created).format('MM/DD/YYYY h:mm A') },
+        {
+          value: (
+            <FFTableText color="secondary" text={getFFTime(event.created)} />
+          ),
+        },
       ],
       onClick: () => setViewEvent(event),
       leftBorderColor: FF_EVENTS_CATEGORY_MAP[event.type].color,

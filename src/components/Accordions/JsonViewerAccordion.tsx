@@ -4,15 +4,15 @@ import {
   AccordionDetails,
   AccordionSummary,
   Grid,
-  Typography,
 } from '@mui/material';
 import { useState } from 'react';
-import { DEFAULT_BORDER_RADIUS, themeOptions } from '../../theme';
-import { FFCopyButton } from '../Buttons/CopyButton';
+import { FFJsonViewer } from '../Viewers/FFJsonViewer';
+import { FFAccordionHeader } from './FFAccordionHeader';
+import { FFAccordionText } from './FFAccordionText';
 
 interface Props {
   header: string;
-  json: string;
+  json: object;
   isOpen?: boolean;
 }
 
@@ -28,30 +28,19 @@ export const JsonViewAccordion: React.FC<Props> = ({
       key={header}
       expanded={expanded}
       onChange={() => setExpanded(!expanded)}
-      sx={{
-        backgroundColor: themeOptions.palette?.background?.default,
-        width: '100%',
-        borderRadius: DEFAULT_BORDER_RADIUS,
-        minHeight: '60px',
-        '&:before': {
-          display: 'none',
-        },
-      }}
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        {/* Name */}
-        <Grid item container justifyContent="flex-start">
-          <Typography>{header}</Typography>
-        </Grid>
+        <FFAccordionHeader
+          leftContent={
+            <FFAccordionText color="primary" text={header} isHeader />
+          }
+        />
       </AccordionSummary>
       <AccordionDetails>
         {/* Basic Data */}
         <Grid container item direction="row" alignItems="flex-end">
           <Grid item pb={1} xs={10} justifyContent="flex-start">
-            <pre>{json}</pre>
-          </Grid>
-          <Grid item xs={2} justifyContent="flex-start">
-            <FFCopyButton value={json}></FFCopyButton>
+            <FFJsonViewer json={json} />
           </Grid>
         </Grid>
       </AccordionDetails>

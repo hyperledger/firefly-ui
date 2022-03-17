@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Chip, Grid, Typography } from '@mui/material';
+import { Chip, Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -27,6 +27,7 @@ import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { MessageSlide } from '../../../components/Slides/MessageSlide';
+import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { FilterContext } from '../../../contexts/FilterContext';
@@ -55,6 +56,7 @@ import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import {
   fetchCatcher,
   getCreatedFilter,
+  getFFTime,
   isOppositeTimelineEvent,
   makeMsgHistogram,
 } from '../../../utils';
@@ -173,9 +175,10 @@ export const OffChainMessages: () => JSX.Element = () => {
     columns: [
       {
         value: (
-          <Typography>
-            {t(FF_MESSAGES_CATEGORY_MAP[msg?.header.type].nicename)}
-          </Typography>
+          <FFTableText
+            color="primary"
+            text={t(FF_MESSAGES_CATEGORY_MAP[msg?.header.type].nicename)}
+          />
         ),
       },
       {
@@ -193,22 +196,32 @@ export const OffChainMessages: () => JSX.Element = () => {
       },
       {
         value: (
-          <Typography>
-            {t(FF_TX_CATEGORY_MAP[msg?.header.txtype].nicename)}
-          </Typography>
+          <FFTableText
+            color="primary"
+            text={t(FF_TX_CATEGORY_MAP[msg?.header.txtype].nicename)}
+          />
         ),
       },
       {
-        value: <Typography>{msg.header.tag ? msg.header.tag : ''}</Typography>,
+        value: msg.header.tag ? (
+          <HashPopover address={msg.header.tag} />
+        ) : (
+          <FFTableText color="secondary" text={t('noTagInMessage')} />
+        ),
       },
       {
         value: (
-          <Typography>
-            {msg.header.topics ? msg.header.topics.toString() : ''}
-          </Typography>
+          <FFTableText
+            color="primary"
+            text={msg.header.topics ? msg.header.topics.toString() : ''}
+          />
         ),
       },
-      { value: dayjs(msg?.confirmed).format('MM/DD/YYYY h:mm A') },
+      {
+        value: (
+          <FFTableText color="secondary" text={getFFTime(msg.confirmed)} />
+        ),
+      },
       {
         value: (
           <Chip

@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid, Typography } from '@mui/material';
+import { Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -27,6 +27,7 @@ import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
+import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { FilterContext } from '../../../contexts/FilterContext';
@@ -44,7 +45,7 @@ import {
 } from '../../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, getCreatedFilter } from '../../../utils';
+import { fetchCatcher, getCreatedFilter, getFFTime } from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -138,14 +139,17 @@ export const ActivityTransactions: () => JSX.Element = () => {
     columns: [
       {
         value: (
-          <Typography>{t(FF_TX_CATEGORY_MAP[tx.type].nicename)}</Typography>
+          <FFTableText
+            color="primary"
+            text={t(FF_TX_CATEGORY_MAP[tx.type].nicename)}
+          />
         ),
       },
       {
         value: <HashPopover shortHash={true} address={tx.id}></HashPopover>,
       },
       {
-        value: 'TODO',
+        value: <FFTableText color="primary" text={'TODO'} />,
       },
       {
         value: (
@@ -160,7 +164,9 @@ export const ActivityTransactions: () => JSX.Element = () => {
           </>
         ),
       },
-      { value: dayjs(tx.created).format('MM/DD/YYYY h:mm A') },
+      {
+        value: <FFTableText color="secondary" text={getFFTime(tx.created)} />,
+      },
       { value: <TxButton ns={selectedNamespace} txID={tx.id} /> },
     ],
     onClick: () => setViewTx(tx),

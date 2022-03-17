@@ -14,8 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid, Typography } from '@mui/material';
-import dayjs from 'dayjs';
+import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FilterButton } from '../../../components/Filters/FilterButton';
@@ -24,6 +23,7 @@ import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { ListenerSlide } from '../../../components/Slides/ListenerSlide';
+import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { FilterContext } from '../../../contexts/FilterContext';
@@ -37,7 +37,7 @@ import {
   ListenerFilters,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, getCreatedFilter } from '../../../utils';
+import { fetchCatcher, getCreatedFilter, getFFTime } from '../../../utils';
 
 export const BlockchainListeners: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -104,7 +104,7 @@ export const BlockchainListeners: () => JSX.Element = () => {
       key: l.id,
       columns: [
         {
-          value: <Typography>{l.event.name}</Typography>,
+          value: <FFTableText color="primary" text={l.event.name} />,
         },
         {
           value: (
@@ -130,7 +130,9 @@ export const BlockchainListeners: () => JSX.Element = () => {
             ></HashPopover>
           ),
         },
-        { value: dayjs(l.created).format('MM/DD/YYYY h:mm A') },
+        {
+          value: <FFTableText color="secondary" text={getFFTime(l.created)} />,
+        },
       ],
       onClick: () => setViewListener(l),
     })

@@ -47,6 +47,20 @@ export const themeOptions: ThemeOptions = {
       disabled: '#51565a',
     },
   },
+  components: {
+    MuiAccordion: {
+      styleOverrides: {
+        root: {
+          backgroundColor: '#12171d',
+          width: '100%',
+          borderRadius: DEFAULT_BORDER_RADIUS,
+          '&:before': {
+            display: 'none',
+          },
+        },
+      },
+    },
+  },
 };
 
 export const FFBackgroundHover = '#252C32';

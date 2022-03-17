@@ -1,5 +1,4 @@
 import { Chip } from '@mui/material';
-import dayjs from 'dayjs';
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
@@ -9,6 +8,8 @@ import { FFCopyButton } from '../Buttons/CopyButton';
 import { TxButton } from '../Buttons/TxButton';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
+import { FFListText } from './FFListText';
+import { FFListTimestamp } from './FFListTimestamp';
 
 interface Props {
   op?: IOperation;
@@ -25,12 +26,12 @@ export const OperationList: React.FC<Props> = ({ op, showTxLink = true }) => {
       setDataList([
         {
           label: t('id'),
-          value: op.id,
+          value: <FFListText color="primary" text={op.id} />,
           button: <FFCopyButton value={op.id} />,
         },
         {
           label: t('transactionID'),
-          value: op.tx,
+          value: <FFListText color="primary" text={op.tx} />,
           button: (
             <>
               {showTxLink && (
@@ -42,20 +43,22 @@ export const OperationList: React.FC<Props> = ({ op, showTxLink = true }) => {
         },
         {
           label: t('plugin'),
-          value: op.plugin,
+          value: <FFListText color="primary" text={op.plugin} />,
         },
         {
           label: t('status'),
           value: op.status && (
             <Chip
               label={op.status?.toLocaleUpperCase()}
-              sx={{ backgroundColor: OpStatusColorMap[op.status] }}
+              sx={{
+                backgroundColor: OpStatusColorMap[op.status],
+              }}
             ></Chip>
           ),
         },
         {
           label: t('updated'),
-          value: dayjs(op.updated).format('MM/DD/YYYY h:mm A'),
+          value: <FFListTimestamp ts={op.updated} />,
         },
       ]);
     }

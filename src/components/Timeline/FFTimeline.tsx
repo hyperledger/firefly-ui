@@ -64,7 +64,7 @@ export const FFTimeline: React.FC<Props> = ({
           >
             {elements.map((element, idx) => (
               <TimelineItemWrapper
-                key={element.key}
+                key={idx}
                 {...{ element }}
                 opposite={element.opposite}
               />

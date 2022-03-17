@@ -1,5 +1,4 @@
 import { Chip } from '@mui/material';
-import dayjs from 'dayjs';
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
@@ -10,6 +9,8 @@ import { PoolButton } from '../Buttons/PoolButton';
 import { TxButton } from '../Buttons/TxButton';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
+import { FFListText } from './FFListText';
+import { FFListTimestamp } from './FFListTimestamp';
 
 interface Props {
   pool?: ITokenPool;
@@ -26,17 +27,17 @@ export const PoolList: React.FC<Props> = ({ pool, showPoolLink = true }) => {
       setDataList([
         {
           label: t('id'),
-          value: pool.id,
+          value: <FFListText color="primary" text={pool.id} />,
           button: <FFCopyButton value={pool.id} />,
         },
         {
           label: t('protocolID'),
-          value: pool.protocolId,
+          value: <FFListText color="primary" text={pool.protocolId} />,
           button: <FFCopyButton value={pool.protocolId} />,
         },
         {
           label: t('connector'),
-          value: pool.connector,
+          value: <FFListText color="primary" text={pool.connector} />,
           button: (
             <>
               {showPoolLink && (
@@ -48,7 +49,7 @@ export const PoolList: React.FC<Props> = ({ pool, showPoolLink = true }) => {
         },
         {
           label: t('transactionID'),
-          value: pool.tx.id,
+          value: <FFListText color="primary" text={pool.tx.id} />,
           button: (
             <>
               <TxButton ns={selectedNamespace} txID={pool.tx.id} />
@@ -58,7 +59,11 @@ export const PoolList: React.FC<Props> = ({ pool, showPoolLink = true }) => {
         },
         {
           label: t('messageID'),
-          value: pool.message ?? t('noMessageInTransfer'),
+          value: pool.message ? (
+            <FFListText color="primary" text={pool.message} />
+          ) : (
+            <FFListText color="secondary" text={t('noMessageInTransfer')} />
+          ),
           button: pool.message ? (
             <FFCopyButton value={pool.message} />
           ) : undefined,
@@ -74,7 +79,7 @@ export const PoolList: React.FC<Props> = ({ pool, showPoolLink = true }) => {
         },
         {
           label: t('created'),
-          value: dayjs(pool.created).format('MM/DD/YYYY h:mm A'),
+          value: <FFListTimestamp ts={pool.created} />,
         },
       ]);
     }

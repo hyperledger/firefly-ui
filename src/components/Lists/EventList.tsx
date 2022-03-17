@@ -1,4 +1,3 @@
-import dayjs from 'dayjs';
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
@@ -8,6 +7,8 @@ import { FFCopyButton } from '../Buttons/CopyButton';
 import { TxButton } from '../Buttons/TxButton';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
+import { FFListText } from './FFListText';
+import { FFListTimestamp } from './FFListTimestamp';
 
 interface Props {
   event?: IEvent;
@@ -24,12 +25,12 @@ export const EventList: React.FC<Props> = ({ event, showTxLink = true }) => {
       setDataList([
         {
           label: t('id'),
-          value: event.id,
+          value: <FFListText color="primary" text={event.id} />,
           button: <FFCopyButton value={event.id} />,
         },
         {
           label: t('transactionID'),
-          value: event.tx,
+          value: <FFListText color="primary" text={event.tx} />,
           button: (
             <>
               {showTxLink && (
@@ -41,12 +42,12 @@ export const EventList: React.FC<Props> = ({ event, showTxLink = true }) => {
         },
         {
           label: t('referenceID'),
-          value: event.reference,
+          value: <FFListText color="primary" text={event.reference} />,
           button: <FFCopyButton value={event.reference} />,
         },
         {
           label: t('created'),
-          value: dayjs(event.created).format('MM/DD/YYYY h:mm A'),
+          value: <FFListTimestamp ts={event.created} />,
         },
       ]);
     }

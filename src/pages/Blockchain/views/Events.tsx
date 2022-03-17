@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid, Typography } from '@mui/material';
+import { Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -25,6 +25,7 @@ import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { FilterContext } from '../../../contexts/FilterContext';
@@ -42,7 +43,7 @@ import {
 } from '../../../interfaces';
 import { FF_BE_CATEGORY_MAP } from '../../../interfaces/enums/blockchainEventTypes';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS, FFColors } from '../../../theme';
-import { fetchCatcher, getCreatedFilter } from '../../../utils';
+import { fetchCatcher, getCreatedFilter, getFFTime } from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -67,10 +68,6 @@ export const BlockchainEvents: () => JSX.Element = () => {
     useState<IBlockchainEvent[]>();
   // Blockchain Events total
   const [blockchainEventTotal, setBlockchainEventTotal] = useState(0);
-  // View blockchain event slide out
-  const [viewBlockchainEvent, setViewBlockchainEvent] = useState<
-    IBlockchainEvent | undefined
-  >();
 
   // Events histogram
   const [beHistData, setBeHistData] = useState<BarDatum[]>();
@@ -138,7 +135,7 @@ export const BlockchainEvents: () => JSX.Element = () => {
       key: be.id,
       columns: [
         {
-          value: <Typography>{be.name}</Typography>,
+          value: <FFTableText color="primary" text={be.name} />,
         },
         {
           value: <HashPopover shortHash={true} address={be.id}></HashPopover>,
@@ -149,7 +146,11 @@ export const BlockchainEvents: () => JSX.Element = () => {
         {
           value: <HashPopover address={be.source}></HashPopover>,
         },
-        { value: dayjs(be.timestamp).format('MM/DD/YYYY h:mm A') },
+        {
+          value: (
+            <FFTableText color="secondary" text={getFFTime(be.timestamp)} />
+          ),
+        },
       ],
       leftBorderColor: FFColors.Yellow,
     })

@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Chip, Grid, IconButton, Typography } from '@mui/material';
+import { Chip, Grid, IconButton } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -28,6 +28,7 @@ import { Histogram } from '../../../components/Charts/Histogram';
 import { Header } from '../../../components/Header';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { TransferSlide } from '../../../components/Slides/TransferSlide';
+import { FFTableText } from '../../../components/Tables/FFTableText';
 import { MediumCardTable } from '../../../components/Tables/MediumCardTable';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
@@ -61,8 +62,9 @@ import {
 } from '../../../theme';
 import {
   fetchCatcher,
-  jsNumberForAddress,
   getCreatedFilter,
+  getFFTime,
+  jsNumberForAddress,
 } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -221,7 +223,7 @@ export const TokensDashboard: () => JSX.Element = () => {
           value: <HashPopover shortHash address={acct.pool} />,
         },
         {
-          value: <Typography>{acct.balance}</Typography>,
+          value: <FFTableText color="primary" text={acct.balance} />,
         },
       ],
       onClick: () => navigate(POOLS_PATH),
@@ -234,26 +236,22 @@ export const TokensDashboard: () => JSX.Element = () => {
       columns: [
         {
           value: (
-            <Grid
-              direction="row"
-              justifyContent="flex-start"
-              alignItems="center"
-              container
-            >
-              <Grid container item justifyContent="flex-start" xs={2}>
-                <Jazzicon diameter={20} seed={jsNumberForAddress(pool.name)} />
-              </Grid>
-              <Grid container item justifyContent="flex-start" xs={10}>
-                {pool.name.length > 10 ? (
+            <FFTableText
+              color="primary"
+              text={
+                pool.name.length > 10 ? (
                   <HashPopover shortHash address={pool.name} />
                 ) : (
-                  <Typography flexWrap="nowrap">{pool.name}</Typography>
-                )}
-              </Grid>
-            </Grid>
+                  pool.name
+                )
+              }
+              icon={
+                <Jazzicon diameter={20} seed={jsNumberForAddress(pool.name)} />
+              }
+            />
           ),
         },
-        { value: <Typography>{pool.standard}</Typography> },
+        { value: <FFTableText color="primary" text={pool.standard} /> },
         {
           value: pool.state && (
             <Chip
@@ -380,21 +378,11 @@ export const TokensDashboard: () => JSX.Element = () => {
       columns: [
         {
           value: (
-            <Grid
-              direction="row"
-              justifyContent="flex-start"
-              alignItems="center"
-              container
-            >
-              <Grid container item justifyContent="flex-start" xs={2}>
-                {TransferIconMap[transfer.type]}
-              </Grid>
-              <Grid container item justifyContent="flex-start" xs={10}>
-                <Typography pl={DEFAULT_PADDING}>
-                  {t(FF_TRANSFER_CATEGORY_MAP[transfer.type].nicename)}
-                </Typography>
-              </Grid>
-            </Grid>
+            <FFTableText
+              color="primary"
+              text={t(FF_TRANSFER_CATEGORY_MAP[transfer.type].nicename)}
+              icon={TransferIconMap[transfer.type]}
+            />
           ),
         },
         {
@@ -426,7 +414,11 @@ export const TokensDashboard: () => JSX.Element = () => {
             <HashPopover shortHash={true} address={transfer.key}></HashPopover>
           ),
         },
-        { value: dayjs(transfer.created).format('MM/DD/YYYY h:mm A') },
+        {
+          value: (
+            <FFTableText color="secondary" text={getFFTime(transfer.created)} />
+          ),
+        },
       ],
       onClick: () => setViewTransfer(transfer),
       leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type].color,

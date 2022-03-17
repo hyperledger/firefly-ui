@@ -1,5 +1,4 @@
-import { Chip, Typography } from '@mui/material';
-import dayjs from 'dayjs';
+import { Chip } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
@@ -14,6 +13,8 @@ import { TxButton } from '../Buttons/TxButton';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { HashPopover } from '../Popovers/HashPopover';
 import { FFListItem } from './FFListItem';
+import { FFListText } from './FFListText';
+import { FFListTimestamp } from './FFListTimestamp';
 
 interface Props {
   tx?: ITransaction;
@@ -35,7 +36,7 @@ export const TxList: React.FC<Props> = ({
       setDataList([
         {
           label: t('id'),
-          value: tx.id,
+          value: <FFListText color="primary" text={tx.id} />,
           button: (
             <>
               {showTxLink && <TxButton ns={selectedNamespace} txID={tx.id} />}
@@ -52,10 +53,10 @@ export const TxList: React.FC<Props> = ({
             <>
               {tx.blockchainIds ? (
                 tx.blockchainIds.map((id) => (
-                  <HashPopover key={id} shortHash address={id} />
+                  <HashPopover paper key={id} shortHash address={id} />
                 ))
               ) : (
-                <Typography>{t('noBlockchainIds')} </Typography>
+                <FFListText color="secondary" text={t('noBlockchainIds')} />
               )}
             </>
           ),
@@ -71,7 +72,7 @@ export const TxList: React.FC<Props> = ({
         },
         {
           label: t('created'),
-          value: dayjs(tx.created).format('MM/DD/YYYY h:mm A'),
+          value: <FFListTimestamp ts={tx.created} />,
         },
       ]);
     }
@@ -85,7 +86,7 @@ export const TxList: React.FC<Props> = ({
       ) {
         return {
           label: t(FF_TX_STATUS_CATEGORY_MAP[type.type].nicename),
-          value: type.id,
+          value: <FFListText color="primary" text={type.id} />,
           button: (
             <>
               <FFCopyButton value={type.id} />
