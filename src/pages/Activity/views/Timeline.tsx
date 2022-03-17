@@ -183,6 +183,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
           onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
           link={FF_NAV_PATHS.activityTxDetailPath(selectedNamespace, event.tx)}
           {...{ event }}
+          linkState={{ state: event }}
         />
       ),
       opposite: isOppositeTimelineEvent(event.type),
