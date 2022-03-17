@@ -120,7 +120,10 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
           {txOperations.length && (
             <>
               <SlideSectionHeader
-                clickPath={FF_NAV_PATHS.activityOpPath(selectedNamespace)}
+                clickPath={FF_NAV_PATHS.activityOpPath(
+                  selectedNamespace,
+                  transfer.tx.id
+                )}
                 title={t('operations')}
               />
               <Grid container item>
@@ -134,7 +137,10 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
           {txBlockchainEvents.length && (
             <>
               <SlideSectionHeader
-                clickPath={FF_NAV_PATHS.blockchainEventsPath(selectedNamespace)}
+                clickPath={FF_NAV_PATHS.blockchainEventsPath(
+                  selectedNamespace,
+                  transfer.tx.id
+                )}
                 title={t('blockchainEvents')}
               />
               <Grid container item>

@@ -413,6 +413,7 @@ export const HomeDashboard: () => JSX.Element = () => {
                     selectedNamespace,
                     event.tx
                   )}
+                  linkState={{ state: event }}
                   {...{ event }}
                 />
                 <Grid sx={{ padding: '1px' }} />

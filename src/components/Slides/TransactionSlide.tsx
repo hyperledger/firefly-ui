@@ -117,7 +117,10 @@ export const TransactionSlide: React.FC<Props> = ({
           {txOperations?.length > 0 && (
             <>
               <SlideSectionHeader
-                clickPath={FF_NAV_PATHS.activityOpPath(selectedNamespace)}
+                clickPath={`${FF_NAV_PATHS.activityOpPath(
+                  selectedNamespace,
+                  transaction.id
+                )}`}
                 title={t('recentOperations')}
               />
               <Grid container item>
@@ -131,7 +134,10 @@ export const TransactionSlide: React.FC<Props> = ({
           {txBlockchainEvents?.length > 0 && (
             <>
               <SlideSectionHeader
-                clickPath={FF_NAV_PATHS.blockchainEventsPath(selectedNamespace)}
+                clickPath={FF_NAV_PATHS.blockchainEventsPath(
+                  selectedNamespace,
+                  transaction.id
+                )}
                 title={t('recentBlockchainEvents')}
               />
               <Grid container item>

@@ -48,9 +48,7 @@ export const JsonViewAccordion: React.FC<Props> = ({
         {/* Basic Data */}
         <Grid container item direction="row" alignItems="flex-end">
           <Grid item pb={1} xs={10} justifyContent="flex-start">
-            <Typography sx={{ fontSize: '12px', padding: '0px' }}>
-              <pre>{json}</pre>
-            </Typography>
+            <pre>{json}</pre>
           </Grid>
           <Grid item xs={2} justifyContent="flex-start">
             <FFCopyButton value={json}></FFCopyButton>

@@ -57,7 +57,7 @@ export const EventList: React.FC<Props> = ({ event, showTxLink = true }) => {
       {!event ? (
         <FFCircleLoader color="warning" />
       ) : (
-        dataList.map((d) => <FFListItem item={d} />)
+        dataList.map((d) => <FFListItem key={d.label} item={d} />)
       )}
     </>
   );

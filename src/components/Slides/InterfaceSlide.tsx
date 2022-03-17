@@ -97,7 +97,10 @@ export const InterfaceSlide: React.FC<Props> = ({
           {interfaceApis?.length > 0 && (
             <>
               <SlideSectionHeader
-                clickPath={FF_NAV_PATHS.blockchainApisPath(selectedNamespace)}
+                clickPath={FF_NAV_PATHS.blockchainApisPath(
+                  selectedNamespace,
+                  cInterface.id
+                )}
                 title={t('apis')}
               />
               <Grid container item>
@@ -112,13 +115,14 @@ export const InterfaceSlide: React.FC<Props> = ({
             <>
               <SlideSectionHeader
                 clickPath={FF_NAV_PATHS.blockchainListenersPath(
-                  selectedNamespace
+                  selectedNamespace,
+                  cInterface.id
                 )}
                 title={t('listeners')}
               />
               <Grid container item>
                 {interfaceListeners?.map((listener) => (
-                  <ListenerAccordion listener={listener} />
+                  <ListenerAccordion key={listener.id} listener={listener} />
                 ))}
               </Grid>
             </>

@@ -1,11 +1,11 @@
 import { styled } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { Navigate, Outlet, useLocation } from 'react-router-dom';
-import { Navigation, NAV_WIDTH } from './Navigation/Navigation';
-import { NAMESPACES_PATH } from '../interfaces';
+import { ArrayParam, useQueryParam, withDefault } from 'use-query-params';
 import { ApplicationContext } from '../contexts/ApplicationContext';
-import { useQueryParam, withDefault, ArrayParam } from 'use-query-params';
 import { FilterContext } from '../contexts/FilterContext';
+import { NAMESPACES_PATH } from '../interfaces';
+import { Navigation, NAV_WIDTH } from './Navigation/Navigation';
 
 const Main = styled('main')({
   display: 'flex',
@@ -25,7 +25,7 @@ const RootDiv = styled('div')({
 export const AppWrapper: React.FC = () => {
   const { pathname } = useLocation();
   const { selectedNamespace } = useContext(ApplicationContext);
-
+  const location = useLocation();
   const [filterAnchor, setFilterAnchor] = useState<HTMLButtonElement | null>(
     null
   );
@@ -63,6 +63,11 @@ export const AppWrapper: React.FC = () => {
 
     setFilterString(`&${activeFilters.join('&')}`);
   }, [activeFilters, setFilterQuery]);
+
+  useEffect(() => {
+    setFilterString('');
+    setActiveFilters([] as string[]);
+  }, [location]);
 
   return (
     <RootDiv>

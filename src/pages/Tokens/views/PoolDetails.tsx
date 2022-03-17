@@ -249,7 +249,7 @@ export const PoolDetails: () => JSX.Element = () => {
               color="inherit"
               sx={{ cursor: 'pointer' }}
               onClick={() =>
-                navigate(FF_NAV_PATHS.activityTxPath(selectedNamespace))
+                navigate(FF_NAV_PATHS.tokensPoolsPath(selectedNamespace))
               }
             >
               <Typography

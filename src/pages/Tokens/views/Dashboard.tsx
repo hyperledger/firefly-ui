@@ -211,8 +211,8 @@ export const TokensDashboard: () => JSX.Element = () => {
 
   const tokenAccountsColHeaders = [t('key'), t('poolID'), t('balance')];
   const tokenAccountRecords: IDataTableRecord[] | undefined =
-    tokenBalances?.map((acct) => ({
-      key: acct.key,
+    tokenBalances?.map((acct, idx) => ({
+      key: idx.toString(),
       columns: [
         {
           value: <HashPopover address={acct.key} />,
@@ -244,7 +244,11 @@ export const TokensDashboard: () => JSX.Element = () => {
                 <Jazzicon diameter={20} seed={jsNumberForAddress(pool.name)} />
               </Grid>
               <Grid container item justifyContent="flex-start" xs={10}>
-                <Typography flexWrap="wrap">{pool.name}</Typography>
+                {pool.name.length > 10 ? (
+                  <HashPopover shortHash address={pool.name} />
+                ) : (
+                  <Typography flexWrap="nowrap">{pool.name}</Typography>
+                )}
               </Grid>
             </Grid>
           ),

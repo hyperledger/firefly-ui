@@ -58,7 +58,13 @@ export const ApiAccordion: React.FC<Props> = ({ api, isOpen = false }) => {
             <Typography>{api.name}</Typography>
           </Grid>
           {/* ID */}
-          <Grid xs={6} item container justifyContent="flex-end">
+          <Grid
+            xs={6}
+            item
+            container
+            justifyContent="flex-end"
+            alignItems="center"
+          >
             <HashPopover shortHash address={api.id} />
           </Grid>
         </Grid>

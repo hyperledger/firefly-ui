@@ -129,8 +129,6 @@ export const ActivityTimeline: () => JSX.Element = () => {
     useInfiniteQuery(
       'transactions',
       async ({ pageParam = 0 }) => {
-        console.log(pageParam);
-        console.log('YYYER');
         const createdFilterObject: ICreatedFilter =
           getCreatedFilter(createdFilter);
 

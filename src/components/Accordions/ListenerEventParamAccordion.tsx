@@ -47,9 +47,7 @@ export const ListenerEventParamAccordion: React.FC<Props> = ({
         {/* Basic Data */}
         <Grid container pb={1} item direction="row" alignItems="flex-end">
           <Grid item pb={1} xs={10} justifyContent="flex-start">
-            <Typography sx={{ fontSize: '12px' }}>
-              <pre>{JSON.stringify(param.schema, null, 2)}</pre>
-            </Typography>
+            <pre>{JSON.stringify(param.schema, null, 2)}</pre>
           </Grid>
           <Grid item pb={1} xs={2} justifyContent="flex-start">
             <FFCopyButton value={JSON.stringify(param.schema)}></FFCopyButton>
