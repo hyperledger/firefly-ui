@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid, Typography } from '@mui/material';
+import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
@@ -23,6 +23,8 @@ import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
+import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { FilterContext } from '../../../contexts/FilterContext';
@@ -106,31 +108,35 @@ export const TokensPools: () => JSX.Element = () => {
       columns: [
         {
           value: (
-            <Grid
-              direction="row"
-              justifyContent="flex-start"
-              alignItems="center"
-              container
-            >
-              <Grid container item justifyContent="flex-start" xs={4}>
-                <Jazzicon diameter={34} seed={jsNumberForAddress(pool.id)} />
-              </Grid>
-              <Grid container item justifyContent="flex-start" xs={8}>
-                <Typography>{pool.name}</Typography>
-              </Grid>
-            </Grid>
+            <FFTableText
+              color="primary"
+              text={
+                pool.name.length > 10 ? (
+                  <HashPopover shortHash address={pool.name} />
+                ) : (
+                  pool.name
+                )
+              }
+              icon={
+                <Jazzicon diameter={30} seed={jsNumberForAddress(pool.name)} />
+              }
+            />
           ),
         },
         {
-          value: <Typography>{pool.type}</Typography>,
+          value: <FFTableText color="primary" text={pool.type} />,
         },
         {
-          value: <Typography>{pool.standard}</Typography>,
+          value: <FFTableText color="primary" text={pool.standard} />,
         },
         {
-          value: <Typography>{pool.protocolId}</Typography>,
+          value: <FFTableText color="primary" text={pool.protocolId} />,
         },
-        { value: getFFTime(pool.created) },
+        {
+          value: (
+            <FFTableText color="secondary" text={getFFTime(pool.created)} />
+          ),
+        },
       ],
       onClick: () =>
         navigate(
