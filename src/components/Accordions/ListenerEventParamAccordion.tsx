@@ -4,12 +4,12 @@ import {
   AccordionDetails,
   AccordionSummary,
   Grid,
-  Typography,
 } from '@mui/material';
 import { useState } from 'react';
 import { IFireFlyParam } from '../../interfaces';
-import { DEFAULT_BORDER_RADIUS, themeOptions } from '../../theme';
 import { FFCopyButton } from '../Buttons/CopyButton';
+import { FFAccordionHeader } from './FFAccordionHeader';
+import { FFAccordionText } from './FFAccordionText';
 
 interface Props {
   param: IFireFlyParam;
@@ -27,20 +27,13 @@ export const ListenerEventParamAccordion: React.FC<Props> = ({
       key={param.name}
       expanded={expanded}
       onChange={() => setExpanded(!expanded)}
-      sx={{
-        backgroundColor: themeOptions.palette?.background?.default,
-        width: '100%',
-        borderRadius: DEFAULT_BORDER_RADIUS,
-        '&:before': {
-          display: 'none',
-        },
-      }}
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        {/* Name */}
-        <Grid item container justifyContent="flex-start">
-          <Typography>{param.name}</Typography>
-        </Grid>
+        <FFAccordionHeader
+          leftContent={
+            <FFAccordionText color="primary" text={param.name} isHeader />
+          }
+        />
       </AccordionSummary>
       <AccordionDetails>
         {/* Basic Data */}

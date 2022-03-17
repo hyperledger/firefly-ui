@@ -4,11 +4,11 @@ import {
   AccordionDetails,
   AccordionSummary,
   Grid,
-  Typography,
 } from '@mui/material';
 import { useState } from 'react';
-import { DEFAULT_BORDER_RADIUS, themeOptions } from '../../theme';
 import { FFCopyButton } from '../Buttons/CopyButton';
+import { FFAccordionHeader } from './FFAccordionHeader';
+import { FFAccordionText } from './FFAccordionText';
 
 interface Props {
   header: string;
@@ -28,20 +28,13 @@ export const JsonViewAccordion: React.FC<Props> = ({
       key={header}
       expanded={expanded}
       onChange={() => setExpanded(!expanded)}
-      sx={{
-        backgroundColor: themeOptions.palette?.background?.default,
-        width: '100%',
-        borderRadius: DEFAULT_BORDER_RADIUS,
-        '&:before': {
-          display: 'none',
-        },
-      }}
     >
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
-        {/* Name */}
-        <Grid item container justifyContent="flex-start">
-          <Typography>{header}</Typography>
-        </Grid>
+        <FFAccordionHeader
+          leftContent={
+            <FFAccordionText color="primary" text={header} isHeader />
+          }
+        />
       </AccordionSummary>
       <AccordionDetails>
         {/* Basic Data */}
