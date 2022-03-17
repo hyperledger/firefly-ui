@@ -15,10 +15,10 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { FF_NAV_PATHS, IData, IDataWithHeader } from '../../interfaces';
-import { DEFAULT_PADDING } from '../../theme';
+import { themeOptions } from '../../theme';
 import { getFFTime } from '../../utils';
-import { FFCopyButton } from '../Buttons/CopyButton';
 import { HashPopover } from '../Popovers/HashPopover';
+import { FFJsonViewer } from '../Viewers/FFJsonViewer';
 import { FFAccordionHeader } from './FFAccordionHeader';
 import { FFAccordionText } from './FFAccordionText';
 
@@ -108,14 +108,11 @@ export const MessageDataAccordion: React.FC<Props> = ({
         onClose={() => setOpenDataModal(false)}
         sx={{ wordWrap: 'break-word' }}
       >
-        <Paper sx={modalStyle}>
-          <pre>{JSON.stringify(data.value, null, 2)}</pre>
-          <Grid pt={DEFAULT_PADDING} container justifyContent="center">
-            <FFCopyButton
-              longForm
-              value={JSON.stringify(data.value, null, 2)}
-            />
-          </Grid>
+        <Paper sx={modalStyle} elevation={0}>
+          <FFJsonViewer
+            color={themeOptions.palette?.background?.paper}
+            json={data.value}
+          />
         </Paper>
       </Modal>
     </>

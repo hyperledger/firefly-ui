@@ -56,18 +56,12 @@ export const OperationSlide: React.FC<Props> = ({ op, open, onClose }) => {
           )}
           {op.input && (
             <Grid container item pb={DEFAULT_PADDING}>
-              <JsonViewAccordion
-                header={t('input')}
-                json={JSON.stringify(op.input, null, 2)}
-              />
+              <JsonViewAccordion header={t('input')} json={op.input} />
             </Grid>
           )}
           {op.output && (
             <Grid container item>
-              <JsonViewAccordion
-                header={t('output')}
-                json={JSON.stringify(op.output, null, 2)}
-              />
+              <JsonViewAccordion header={t('output')} json={op.output} />
             </Grid>
           )}
         </Grid>

@@ -7,7 +7,7 @@ import {
 } from '@mui/material';
 import { useState } from 'react';
 import { IFireFlyParam } from '../../interfaces';
-import { FFCopyButton } from '../Buttons/CopyButton';
+import { FFJsonViewer } from '../Viewers/FFJsonViewer';
 import { FFAccordionHeader } from './FFAccordionHeader';
 import { FFAccordionText } from './FFAccordionText';
 
@@ -39,10 +39,7 @@ export const ListenerEventParamAccordion: React.FC<Props> = ({
         {/* Basic Data */}
         <Grid container pb={1} item direction="row" alignItems="flex-end">
           <Grid item pb={1} xs={10} justifyContent="flex-start">
-            <pre>{JSON.stringify(param.schema, null, 2)}</pre>
-          </Grid>
-          <Grid item pb={1} xs={2} justifyContent="flex-start">
-            <FFCopyButton value={JSON.stringify(param.schema)}></FFCopyButton>
+            <FFJsonViewer json={param.schema} />
           </Grid>
         </Grid>
       </AccordionDetails>

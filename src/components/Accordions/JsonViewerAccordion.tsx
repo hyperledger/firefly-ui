@@ -6,13 +6,13 @@ import {
   Grid,
 } from '@mui/material';
 import { useState } from 'react';
-import { FFCopyButton } from '../Buttons/CopyButton';
+import { FFJsonViewer } from '../Viewers/FFJsonViewer';
 import { FFAccordionHeader } from './FFAccordionHeader';
 import { FFAccordionText } from './FFAccordionText';
 
 interface Props {
   header: string;
-  json: string;
+  json: object;
   isOpen?: boolean;
 }
 
@@ -40,10 +40,7 @@ export const JsonViewAccordion: React.FC<Props> = ({
         {/* Basic Data */}
         <Grid container item direction="row" alignItems="flex-end">
           <Grid item pb={1} xs={10} justifyContent="flex-start">
-            <pre>{json}</pre>
-          </Grid>
-          <Grid item xs={2} justifyContent="flex-start">
-            <FFCopyButton value={json}></FFCopyButton>
+            <FFJsonViewer json={json} />
           </Grid>
         </Grid>
       </AccordionDetails>
