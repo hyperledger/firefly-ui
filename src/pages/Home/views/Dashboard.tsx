@@ -354,7 +354,7 @@ export const HomeDashboard: () => JSX.Element = () => {
       headerComponent: (
         <IconButton
           onClick={() =>
-            navigate(FF_NAV_PATHS.activityTxPath(selectedNamespace))
+            navigate(FF_NAV_PATHS.activityTimelinePath(selectedNamespace))
           }
         >
           <ArrowForwardIcon />
@@ -391,7 +391,7 @@ export const HomeDashboard: () => JSX.Element = () => {
       headerComponent: (
         <IconButton
           onClick={() =>
-            navigate(FF_NAV_PATHS.activityEventsPath(selectedNamespace))
+            navigate(FF_NAV_PATHS.activityTimelinePath(selectedNamespace))
           }
         >
           <ArrowForwardIcon />

@@ -25,7 +25,6 @@ const RootDiv = styled('div')({
 export const AppWrapper: React.FC = () => {
   const { pathname } = useLocation();
   const { selectedNamespace } = useContext(ApplicationContext);
-  const location = useLocation();
   const [filterAnchor, setFilterAnchor] = useState<HTMLButtonElement | null>(
     null
   );
@@ -45,6 +44,7 @@ export const AppWrapper: React.FC = () => {
     );
   }
 
+  // TODO: Figure out clearing query on page change
   // Filter
   useEffect(() => {
     // set filters if they are present in the URL
@@ -63,11 +63,6 @@ export const AppWrapper: React.FC = () => {
 
     setFilterString(`&${activeFilters.join('&')}`);
   }, [activeFilters, setFilterQuery]);
-
-  useEffect(() => {
-    setFilterString('');
-    setActiveFilters([] as string[]);
-  }, [location]);
 
   return (
     <RootDiv>
