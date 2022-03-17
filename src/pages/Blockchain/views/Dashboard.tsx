@@ -208,7 +208,13 @@ export const BlockchainDashboard: () => JSX.Element = () => {
         { value: <HashPopover shortHash address={cl.name} /> },
         { value: <FFTableText color="primary" text={cl.event.name} /> },
       ],
-      onClick: () => navigate(LISTENERS_PATH),
+      onClick: () =>
+        navigate(
+          FF_NAV_PATHS.blockchainListenersPath(
+            selectedNamespace,
+            cl.interface.id
+          )
+        ),
     })
   );
 

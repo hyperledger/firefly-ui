@@ -73,7 +73,11 @@ export const DatePicker: React.FC = () => {
         sx={{ pr: 2 }}
       >
         {createdQueryOptions.map((item) => (
-          <MenuItem key={item.value} value={item.value}>
+          <MenuItem
+            sx={{ fontSize: '16px' }}
+            key={item.value}
+            value={item.value}
+          >
             {item.label}
           </MenuItem>
         ))}

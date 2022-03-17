@@ -341,7 +341,12 @@ export const PoolDetails: () => JSX.Element = () => {
             headerBtn={
               <IconButton
                 onClick={() =>
-                  navigate(FF_NAV_PATHS.tokensTransfersPath(selectedNamespace))
+                  navigate(
+                    FF_NAV_PATHS.tokensTransfersPath(
+                      selectedNamespace,
+                      pool?.id
+                    )
+                  )
                 }
               >
                 <ArrowForwardIcon />

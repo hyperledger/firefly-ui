@@ -60,6 +60,14 @@ export const themeOptions: ThemeOptions = {
         },
       },
     },
+    MuiChip: {
+      styleOverrides: {
+        root: {
+          borderRadius: '16px',
+          fontSize: '12px',
+        },
+      },
+    },
   },
 };
 

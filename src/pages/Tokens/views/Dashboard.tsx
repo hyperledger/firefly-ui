@@ -36,6 +36,7 @@ import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
+  FF_NAV_PATHS,
   FF_Paths,
   ICreatedFilter,
   IDataTableRecord,
@@ -226,7 +227,10 @@ export const TokensDashboard: () => JSX.Element = () => {
           value: <FFTableText color="primary" text={acct.balance} />,
         },
       ],
-      onClick: () => navigate(POOLS_PATH),
+      onClick: () =>
+        navigate(
+          FF_NAV_PATHS.tokensPoolDetailsPath(selectedNamespace, acct.pool)
+        ),
     }));
 
   const tokenPoolColHeaders = [t('name'), t('standard'), t('state')];
@@ -261,7 +265,10 @@ export const TokensDashboard: () => JSX.Element = () => {
           ),
         },
       ],
-      onClick: () => navigate(POOLS_PATH),
+      onClick: () =>
+        navigate(
+          FF_NAV_PATHS.tokensPoolDetailsPath(selectedNamespace, pool.id)
+        ),
     })
   );
 
