@@ -28,6 +28,7 @@ export const AppWrapper: React.FC = () => {
   const [filterAnchor, setFilterAnchor] = useState<HTMLButtonElement | null>(
     null
   );
+  const location = useLocation();
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [filterString, setFilterString] = useState('');
   const [filterQuery, setFilterQuery] = useQueryParam(
@@ -63,6 +64,10 @@ export const AppWrapper: React.FC = () => {
 
     setFilterString(`&${activeFilters.join('&')}`);
   }, [activeFilters, setFilterQuery]);
+
+  useEffect(() => {
+    setActiveFilters(filterQuery as string[]);
+  }, [location]);
 
   return (
     <RootDiv>
