@@ -15,8 +15,10 @@
 // limitations under the License.
 
 import { Timeline } from '@mui/lab';
-import { Grid, Paper } from '@mui/material';
+import { Grid, Paper, Typography } from '@mui/material';
 import React from 'react';
+import { useTranslation } from 'react-i18next';
+import InfiniteScroll from 'react-infinite-scroll-component';
 import { ITimelineElement } from '../../interfaces';
 import { DEFAULT_TIMELINE_HEIGHT } from '../../theme';
 import { EmptyStateCard } from '../Cards/EmptyStateCard';
@@ -25,19 +27,21 @@ import { TimelineItemWrapper } from './TimelineItemWrapper';
 
 interface Props {
   elements: ITimelineElement[] | undefined;
-  observerRef?: React.MutableRefObject<HTMLDivElement | null>;
-  isFetching?: boolean;
   emptyText: string;
+  fetchMoreData: any;
+  hasMoreData: boolean | undefined;
   height?: string | number;
 }
 
 export const FFTimeline: React.FC<Props> = ({
   elements,
-  observerRef,
-  isFetching,
   emptyText,
+  fetchMoreData,
+  hasMoreData = false,
   height,
 }) => {
+  const { t } = useTranslation();
+
   return (
     <Paper
       sx={{
@@ -54,30 +58,44 @@ export const FFTimeline: React.FC<Props> = ({
         <EmptyStateCard text={emptyText}></EmptyStateCard>
       ) : (
         <>
-          <Timeline
-            sx={{
-              paddingLeft: '15%',
-              paddingRight: '15%',
-              marginTop: 0,
-              paddingTop: 0,
-            }}
-          >
-            {elements.map((element, idx) => (
-              <TimelineItemWrapper
-                key={idx}
-                {...{ element }}
-                opposite={element.opposite}
-              />
-            ))}
-            {/* TODO: USED FOR INFINITE SCROLL */}
-            {isFetching && (
-              <Grid item>
-                <FFCircleLoader color="primary" />
-              </Grid>
-            )}
-            <div ref={observerRef}></div>
-            <Grid item>{isFetching}</Grid>
-          </Timeline>
+          <div id="scrollableDiv" style={{ height: '100%', overflow: 'auto' }}>
+            <Timeline
+              sx={{
+                paddingLeft: '15%',
+                paddingRight: '15%',
+                marginTop: 0,
+                paddingTop: 0,
+              }}
+            >
+              {elements && (
+                <InfiniteScroll
+                  dataLength={elements.length}
+                  next={fetchMoreData}
+                  hasMore={hasMoreData}
+                  scrollableTarget="scrollableDiv"
+                  loader={<FFCircleLoader color="warning" />}
+                  endMessage={
+                    <Grid
+                      container
+                      pt={3}
+                      justifyContent="center"
+                      alignItems="center"
+                    >
+                      <Typography>{t('noMoreEvents')}</Typography>
+                    </Grid>
+                  }
+                >
+                  {elements.map((element, idx) => (
+                    <TimelineItemWrapper
+                      key={idx}
+                      {...{ element }}
+                      opposite={element.opposite}
+                    />
+                  ))}
+                </InfiniteScroll>
+              )}
+            </Timeline>
+          </div>
         </>
       )}
     </Paper>

@@ -26,6 +26,7 @@
     "react-dom": "^17.0.2",
     "react-highlight": "^0.14.0",
     "react-i18next": "^11.15.4",
+    "react-infinite-scroll-component": "^6.1.0",
     "react-jazzicon": "^1.0.3",
     "react-json-view": "^1.21.3",
     "react-query": "^3.34.14",

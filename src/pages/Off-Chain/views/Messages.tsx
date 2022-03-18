@@ -19,7 +19,6 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
@@ -35,16 +34,12 @@ import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
-  FF_NAV_PATHS,
   FF_Paths,
   ICreatedFilter,
   IDataTableRecord,
-  IEvent,
   IMessage,
   IMetric,
   IPagedMessageResponse,
-  ITimelineElement,
-  ITransaction,
   MessageFilters,
 } from '../../../interfaces';
 import {
@@ -57,7 +52,6 @@ import {
   fetchCatcher,
   getCreatedFilter,
   getFFTime,
-  isOppositeTimelineEvent,
   makeMsgHistogram,
 } from '../../../utils';
 import {
@@ -78,14 +72,9 @@ export const OffChainMessages: () => JSX.Element = () => {
   } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
-  const [viewTx, setViewTx] = useState<ITransaction>();
-  const [viewEvent, setViewEvent] = useState<IEvent>();
-  const [events, setEvents] = useState<IEvent[]>();
   // Messages
   const [messages, setMessages] = useState<IMessage[]>();
   const [messageTotal, setMessageTotal] = useState(0);
-  // Message totals
-  const [eventsTotal, setEventsTotal] = useState(0);
   // Messages histogram
   const [messageHistData, setMessageHistData] = useState<BarDatum[]>();
   // View message slide out
@@ -97,22 +86,6 @@ export const OffChainMessages: () => JSX.Element = () => {
   // Messages
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-
-    //   fetchCatcher(
-    //     `${FF_Paths.nsPrefix}/${selectedNamespace}${
-    //       FF_Paths.events
-    //     }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-    //       createdFilterObject.filterString
-    //     }`
-    //   )
-    //     .then((eventRes: IPagedEventResponse) => {
-    //       setEvents(eventRes.items);
-    //       setEventsTotal(eventRes.total);
-    //     })
-    //     .catch((err) => {
-    //       reportFetchError(err);
-    //     });
-    // }, [rowsPerPage, currentPage, selectedNamespace]);
 
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${
@@ -235,22 +208,6 @@ export const OffChainMessages: () => JSX.Element = () => {
     leftBorderColor: FF_MESSAGES_CATEGORY_MAP[msg.header.type].color,
   }));
 
-  const timelineElements: ITimelineElement[] | undefined = events?.map(
-    (event) => ({
-      key: event.id,
-      item: (
-        <EventCardWrapper
-          onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
-          onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
-          link={FF_NAV_PATHS.activityTxDetailPath(selectedNamespace, event.tx)}
-          {...{ event }}
-        />
-      ),
-      opposite: isOppositeTimelineEvent(event.type),
-      timestamp: event.created,
-    })
-  );
-
   return (
     <>
       <Header title={t('messages')} subtitle={t('offChain')}></Header>
@@ -297,17 +254,6 @@ export const OffChainMessages: () => JSX.Element = () => {
             currentPage={currentPage}
             rowsPerPage={rowsPerPage}
           />
-          {/* <Grid container justifyContent={'center'} direction="column" item>
-            <FFTimelineHeader
-              leftHeader={t('submittedByMe')}
-              rightHeader={t('receivedFromEveryone')}
-            />
-            <FFTimeline
-              elements={timelineElements}
-              emptyText={t('noTimelineEvents')}
-              height={'calc(100vh - 400px)'}
-            />
-          </Grid> */}
         </Grid>
       </Grid>
       {filterAnchor && (

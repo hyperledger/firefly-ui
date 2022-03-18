@@ -68,10 +68,12 @@ export const MessageAccordion: React.FC<Props> = ({
               />
             }
             rightContent={
-              <Chip
-                label={message.state?.toLocaleUpperCase()}
-                sx={{ backgroundColor: MsgStateColorMap[message.state] }}
-              ></Chip>
+              message.state && (
+                <Chip
+                  label={message.state?.toLocaleUpperCase()}
+                  sx={{ backgroundColor: MsgStateColorMap[message.state] }}
+                ></Chip>
+              )
             }
           />
         </AccordionSummary>

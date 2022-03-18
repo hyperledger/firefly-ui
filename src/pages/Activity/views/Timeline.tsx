@@ -17,9 +17,9 @@
 import { Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
-import React, { useContext, useEffect, useRef, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useInfiniteQuery, useQueryClient } from 'react-query';
+import { InfiniteData, useInfiniteQuery, useQueryClient } from 'react-query';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
@@ -33,7 +33,6 @@ import { FFTimeline } from '../../../components/Timeline/FFTimeline';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
-import useIntersectionObserver from '../../../hooks/useIntersectionObserver';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
@@ -44,7 +43,6 @@ import {
   ICreatedFilter,
   IEvent,
   IPagedEventResponse,
-  ITimelineElement,
   ITransaction,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, FFColors } from '../../../theme';
@@ -71,15 +69,42 @@ export const ActivityTimeline: () => JSX.Element = () => {
   } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const [eventHistData, setEventHistData] = useState<BarDatum[]>();
-  const [events, setEvents] = useState<IEvent[]>();
   const { t } = useTranslation();
   const [viewTx, setViewTx] = useState<ITransaction>();
   const [viewEvent, setViewEvent] = useState<IEvent>();
-
-  const loadingRef = useRef<HTMLDivElement | null>(null);
-  const observer = useIntersectionObserver(loadingRef, {});
-  const isVisible = !!observer?.isIntersecting;
   const queryClient = useQueryClient();
+  const [isVisible, setIsVisible] = useState(0);
+
+  const { data, fetchNextPage, hasNextPage, refetch } = useInfiniteQuery(
+    'events',
+    async ({ pageParam = 0 }) => {
+      const createdFilterObject: ICreatedFilter =
+        getCreatedFilter(createdFilter);
+      const res = await fetchWithCredentials(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.events
+        }?count&limit=${ROWS_PER_PAGE}&skip=${ROWS_PER_PAGE * pageParam}${
+          createdFilterObject.filterString
+        }${filterString !== undefined ? filterString : ''}`
+      );
+      if (res.ok) {
+        const data = await res.json();
+        return {
+          pageParam,
+          ...data,
+        };
+      } else {
+        reportFetchError(res.statusText);
+      }
+    },
+    {
+      getNextPageParam: (lastPage: IPagedEventResponse) => {
+        return lastPage.count === ROWS_PER_PAGE
+          ? lastPage.pageParam + 1
+          : undefined;
+      },
+    }
+  );
 
   // Events Histogram
   useEffect(() => {
@@ -102,94 +127,46 @@ export const ActivityTimeline: () => JSX.Element = () => {
       });
   }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
 
-  // Timeline useEffect
   useEffect(() => {
-    const qParams = `?limit=25&fetchreferences=true`;
-
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}${
-        filterString !== undefined ? filterString : ''
-      }`
-    )
-      .then((recentEvents) => {
-        setEvents(recentEvents);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [
-    selectedNamespace,
-    createdFilter,
-    lastEvent,
-    filterString,
-    reportFetchError,
-  ]);
-
-  const { data, isFetching, fetchNextPage, hasNextPage, refetch } =
-    useInfiniteQuery(
-      'transactions',
-      async ({ pageParam = 0 }) => {
-        const createdFilterObject: ICreatedFilter =
-          getCreatedFilter(createdFilter);
-
-        const res = await fetchWithCredentials(
-          `/api/v1/namespaces/${selectedNamespace}/events?count&limit=${ROWS_PER_PAGE}&skip=${
-            ROWS_PER_PAGE * pageParam
-          }${createdFilterObject.filterString}${
-            ''
-            // filterString !== undefined ? filterString : ''
-          }`
-        );
-        if (res.ok) {
-          const data = await res.json();
-          return {
-            pageParam,
-            ...data,
-          };
-        }
-      },
-      {
-        getNextPageParam: (lastPage: IPagedEventResponse) => {
-          return lastPage.count === ROWS_PER_PAGE
-            ? lastPage.pageParam + 1
-            : undefined;
-        },
-      }
-    );
-
-  useEffect(() => {
-    console.log('1');
     if (isVisible && hasNextPage) {
       fetchNextPage();
     }
   }, [isVisible, hasNextPage, fetchNextPage]);
 
   useEffect(() => {
-    console.log('2');
     refetch();
-  }, [createdFilter, queryClient, refetch]);
+  }, [createdFilter, queryClient, refetch, filterString]);
 
   useEffect(() => {
-    console.log('3');
     refetch({ refetchPage: (_page, index) => index === 0 });
   }, [lastEvent, refetch]);
 
-  const timelineElements: ITimelineElement[] | undefined = events?.map(
-    (event) => ({
-      key: event.id,
-      item: (
-        <EventCardWrapper
-          onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
-          onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
-          link={FF_NAV_PATHS.activityTxDetailPath(selectedNamespace, event.tx)}
-          {...{ event }}
-          linkState={{ state: event }}
-        />
-      ),
-      opposite: isOppositeTimelineEvent(event.type),
-      timestamp: event.created,
-    })
-  );
+  const buildTimelineElements = (
+    data: InfiniteData<IPagedEventResponse> | undefined
+  ) => {
+    if (data) {
+      const pages = data.pages.map((page) => page.items);
+      return pages.flat().map((event: IEvent, idx) => ({
+        key: idx,
+        item: (
+          <EventCardWrapper
+            onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
+            onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
+            link={FF_NAV_PATHS.activityTxDetailPath(
+              selectedNamespace,
+              event.tx
+            )}
+            {...{ event }}
+            linkState={{ state: event }}
+          />
+        ),
+        opposite: isOppositeTimelineEvent(event.type),
+        timestamp: event.created,
+      }));
+    } else {
+      return [];
+    }
+  };
 
   return (
     <>
@@ -228,11 +205,11 @@ export const ActivityTimeline: () => JSX.Element = () => {
             rightHeader={t('receivedFromEveryone')}
           />
           <FFTimeline
-            elements={timelineElements}
+            elements={buildTimelineElements(data)}
             emptyText={t('noTimelineEvents')}
-            height={'calc(100vh - 400px)'}
-            observerRef={loadingRef}
-            {...{ isFetching }}
+            height={'calc(100vh - 425px)'}
+            fetchMoreData={() => setIsVisible(isVisible + 1)}
+            hasMoreData={hasNextPage}
           />
         </Grid>
       </Grid>
