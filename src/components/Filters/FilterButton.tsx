@@ -60,12 +60,7 @@ export const FilterButton: React.FC<Props> = ({
           justifyContent="flex-end"
           my={DEFAULT_PADDING}
         >
-          <Grid
-            container
-            alignItems="center"
-            justifyContent="flex-end"
-            spacing={1}
-          >
+          <Grid container alignItems="center" justifyContent="flex-end">
             {filters.map((filter, index) => (
               <Grid key={`${filter}${index}`} item>
                 <Chip
@@ -97,7 +92,7 @@ export const FilterButton: React.FC<Props> = ({
           variant="outlined"
           onClick={handleOpenFilter}
         >
-          <Typography sx={{ fontSize: '14px' }}>{t('filter')}</Typography>
+          <Typography sx={{ fontSize: '12px' }}>{t('filter')}</Typography>
         </Button>
       </Grid>
     </Grid>

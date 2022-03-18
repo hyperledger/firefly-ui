@@ -28,6 +28,7 @@ export const AppWrapper: React.FC = () => {
   const [filterAnchor, setFilterAnchor] = useState<HTMLButtonElement | null>(
     null
   );
+  const location = useLocation();
   const [activeFilters, setActiveFilters] = useState<string[]>([]);
   const [filterString, setFilterString] = useState('');
   const [filterQuery, setFilterQuery] = useQueryParam(
@@ -44,7 +45,6 @@ export const AppWrapper: React.FC = () => {
     );
   }
 
-  // TODO: Figure out clearing query on page change
   // Filter
   useEffect(() => {
     // set filters if they are present in the URL
@@ -63,6 +63,10 @@ export const AppWrapper: React.FC = () => {
 
     setFilterString(`&${activeFilters.join('&')}`);
   }, [activeFilters, setFilterQuery]);
+
+  useEffect(() => {
+    setActiveFilters(filterQuery as string[]);
+  }, [location]);
 
   return (
     <RootDiv>

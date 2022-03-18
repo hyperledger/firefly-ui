@@ -39,6 +39,7 @@ import {
   DATATYPES_PATH,
   DATA_PATH,
   FF_MESSAGES_CATEGORY_MAP,
+  FF_NAV_PATHS,
   FF_Paths,
   ICreatedFilter,
   IData,
@@ -195,7 +196,8 @@ export const OffChainDashboard: () => JSX.Element = () => {
         ),
       },
     ],
-    onClick: () => navigate(DATA_PATH),
+    onClick: () =>
+      navigate(FF_NAV_PATHS.offchainDataPath(selectedNamespace, data.id)),
   }));
 
   const dtHeaders = [t('id'), t('version'), t('created')];
@@ -210,7 +212,8 @@ export const OffChainDashboard: () => JSX.Element = () => {
         value: <FFTableText color="secondary" text={getFFTime(dt.created)} />,
       },
     ],
-    onClick: () => navigate(DATATYPES_PATH),
+    onClick: () =>
+      navigate(FF_NAV_PATHS.offchainDatatypesPath(selectedNamespace, dt.id)),
   }));
 
   const mediumCards: IFireFlyCard[] = [

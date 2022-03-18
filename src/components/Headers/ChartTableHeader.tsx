@@ -7,12 +7,7 @@ type Props = {
 
 export const ChartTableHeader: React.FC<Props> = ({ filter, title }) => {
   return (
-    <Grid
-      container
-      alignItems="center"
-      direction="row"
-      sx={{ paddingBottom: 1 }}
-    >
+    <Grid container alignItems="center" direction="row">
       <Grid xs={4} item alignItems="center">
         <Typography fontWeight="bold">{title}</Typography>
       </Grid>

@@ -90,12 +90,16 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${DATA_PATH}${
       dataID ? `?filters=id==${dataID}` : ''
     }`,
-  offchainDatatypesPath: (ns: string) =>
-    `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${DATATYPES_PATH}`,
+  offchainDatatypesPath: (ns: string, datatypeID?: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${DATATYPES_PATH}${
+      datatypeID ? `?filters=id==${datatypeID}` : ''
+    }`,
   // Tokens
   tokensPath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}`,
-  tokensTransfersPath: (ns: string) =>
-    `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${TRANSFERS_PATH}`,
+  tokensTransfersPath: (ns: string, poolID?: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${TRANSFERS_PATH}${
+      poolID ? `?filters=pool==${poolID}` : ''
+    }`,
   tokensPoolsPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${POOLS_PATH}`,
   tokensPoolDetailsPath: (ns: string, poolID: string) =>

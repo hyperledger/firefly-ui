@@ -15,7 +15,7 @@
 // limitations under the License.
 
 export interface ITimelineElement {
-  key: string;
+  key: number;
   item: JSX.Element;
   opposite?: boolean;
   timestamp: string;
