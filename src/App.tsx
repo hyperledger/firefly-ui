@@ -21,8 +21,7 @@ import {
   Theme,
   ThemeProvider,
 } from '@mui/material';
-import { useEffect, useMemo, useRef, useState } from 'react';
-import ReconnectingWebSocket from 'reconnecting-websocket';
+import { useEffect, useMemo, useState } from 'react';
 import { Router } from './components/Router';
 import {
   MessageSnackbar,
@@ -52,7 +51,6 @@ const App: React.FC = () => {
   const [initError, setInitError] = useState<string | undefined>();
   const [namespaces, setNamespaces] = useState<INamespace[]>([]);
   const [selectedNamespace, setSelectedNamespace] = useState('');
-  const ws = useRef<ReconnectingWebSocket | null>(null);
   const [identity, setIdentity] = useState('');
   const [lastEvent, setLastEvent] = useState<any>();
   const [message, setMessage] = useState('');
@@ -63,7 +61,6 @@ const App: React.FC = () => {
   const [nodeName, setNodeName] = useState('');
   const [createdFilter, setCreatedFilter] =
     useState<CreatedFilterOptions>('24hours');
-  const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 
   const { pathname: currentPath } = useMemo(() => {
     return window.location;
