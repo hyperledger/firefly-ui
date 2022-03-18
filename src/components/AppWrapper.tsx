@@ -45,7 +45,6 @@ export const AppWrapper: React.FC = () => {
     );
   }
 
-  // TODO: Figure out clearing query on page change
   // Filter
   useEffect(() => {
     // set filters if they are present in the URL
