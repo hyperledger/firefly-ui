@@ -54,7 +54,7 @@ const App: React.FC = () => {
   const [selectedNamespace, setSelectedNamespace] = useState('');
   const ws = useRef<ReconnectingWebSocket | null>(null);
   const [identity, setIdentity] = useState('');
-  const [lastEvent, setLastEvent] = useState<any>();
+  const [lastEvent, setLastEvent] = useState<MessageEvent>();
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<SnackbarMessageType>('error');
   const [orgID, setOrgID] = useState('');
@@ -115,22 +115,23 @@ const App: React.FC = () => {
       });
   }, [routerNamespace]);
 
-  // useEffect(() => {
-  //   if (selectedNamespace) {
-  //     ws.current = new ReconnectingWebSocket(
-  //       `${protocol}://${window.location.hostname}:${window.location.port}/ws?namespace=${selectedNamespace}&ephemeral&autoack`
-  //     );
-  //     ws.current.onmessage = (event: any) => {
-  //       setLastEvent(event);
-  //     };
+  useEffect(() => {
+    if (selectedNamespace) {
+      ws.current = new ReconnectingWebSocket(
+        `${protocol}://${window.location.hostname}:${window.location.port}/ws?namespace=${selectedNamespace}&ephemeral&autoack`
+      );
+      ws.current.onmessage = (event: any) => {
+        const eventData = JSON.parse(event.data);
+        setLastEvent(eventData);
+      };
 
-  //     return () => {
-  //       if (ws.current) {
-  //         ws.current.close();
-  //       }
-  //     };
-  //   }
-  // }, [selectedNamespace]);
+      return () => {
+        if (ws.current) {
+          ws.current.close();
+        }
+      };
+    }
+  }, [selectedNamespace]);
 
   const reportFetchError = (err: any) => {
     summarizeFetchError(err).then((message: string) => {

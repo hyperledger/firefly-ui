@@ -38,6 +38,7 @@ import {
   BucketCountEnum,
   DATATYPES_PATH,
   DATA_PATH,
+  FF_EVENTS,
   FF_MESSAGES_CATEGORY_MAP,
   FF_NAV_PATHS,
   FF_Paths,
@@ -72,6 +73,7 @@ import {
   makeColorArray,
   makeKeyArray,
 } from '../../../utils/charts';
+import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const OffChainDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
@@ -104,6 +106,22 @@ export const OffChainDashboard: () => JSX.Element = () => {
   const [viewMsg, setViewMsg] = useState<IMessage | undefined>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[0]);
+  // Last event tracking
+  const [numNewEvents, setNumNewEvents] = useState(0);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
+
+  useEffect(() => {
+    (isEventType(lastEvent, WsEventTypes.MESSAGE) ||
+      isEventType(lastEvent, FF_EVENTS.DATATYPE_CONFIRMED)) &&
+      setNumNewEvents(numNewEvents + 1);
+  }, [lastEvent]);
+
+  const refreshData = () => {
+    setNumNewEvents(0);
+    setLastRefresh(new Date().toString());
+  };
 
   const smallCards: ISmallCard[] = [
     {
@@ -167,7 +185,8 @@ export const OffChainDashboard: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+    numNewEvents !== 0 && setNumNewEvents(0);
+  }, [selectedNamespace, createdFilter, createdFilter, lastRefreshTime]);
 
   const dataHeaders = [t('nameOrID'), t('created'), t('download')];
   const dataRecords: IDataTableRecord[] | undefined = data?.map((data) => ({
@@ -311,7 +330,8 @@ export const OffChainDashboard: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+    numNewEvents !== 0 && setNumNewEvents(0);
+  }, [selectedNamespace, createdFilter, lastRefreshTime, createdFilter]);
 
   // Messages
   useEffect(() => {
@@ -331,7 +351,8 @@ export const OffChainDashboard: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace]);
+    numNewEvents !== 0 && setNumNewEvents(0);
+  }, [rowsPerPage, currentPage, lastRefreshTime, selectedNamespace]);
 
   const msgColumnHeaders = [
     t('type'),
@@ -411,7 +432,12 @@ export const OffChainDashboard: () => JSX.Element = () => {
 
   return (
     <>
-      <Header title={t('dashboard')} subtitle={t('offChain')}></Header>
+      <Header
+        title={t('dashboard')}
+        subtitle={t('offChain')}
+        onRefresh={refreshData}
+        numNewEvents={numNewEvents}
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           {/* Small Cards */}

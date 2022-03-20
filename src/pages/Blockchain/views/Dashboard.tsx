@@ -64,6 +64,7 @@ import {
   makeKeyArray,
 } from '../../../utils/charts';
 import { makeBlockchainEventHistogram } from '../../../utils/histograms/blockchainEventHistogram';
+import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const BlockchainDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
@@ -101,6 +102,21 @@ export const BlockchainDashboard: () => JSX.Element = () => {
 
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[0]);
+  // Last event tracking
+  const [numNewEvents, setNumNewEvents] = useState(0);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
+
+  useEffect(() => {
+    isEventType(lastEvent, WsEventTypes.BLOCKCHAIN_EVENT) &&
+      setNumNewEvents(numNewEvents + 1);
+  }, [lastEvent]);
+
+  const refreshData = () => {
+    setNumNewEvents(0);
+    setLastRefresh(new Date().toString());
+  };
 
   const smallCards: ISmallCard[] = [
     {
@@ -179,7 +195,8 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+    numNewEvents !== 0 && setNumNewEvents(0);
+  }, [selectedNamespace, createdFilter, lastRefreshTime, createdFilter]);
 
   const ciColHeaders = [t('name'), t('version'), t('interfaceID')];
   const ciRecords: IDataTableRecord[] | undefined = contractInterfaces?.map(
@@ -293,7 +310,8 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+    numNewEvents !== 0 && setNumNewEvents(0);
+  }, [selectedNamespace, createdFilter, lastRefreshTime, createdFilter]);
 
   // Histogram
   useEffect(() => {
@@ -314,7 +332,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+  }, [selectedNamespace, createdFilter, lastRefreshTime, createdFilter]);
 
   const beColHeaders = [
     t('name'),
@@ -367,11 +385,17 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace]);
+    numNewEvents !== 0 && setNumNewEvents(0);
+  }, [rowsPerPage, currentPage, lastRefreshTime, selectedNamespace]);
 
   return (
     <>
-      <Header title={t('dashboard')} subtitle={t('blockchain')}></Header>
+      <Header
+        title={t('dashboard')}
+        subtitle={t('blockchain')}
+        onRefresh={refreshData}
+        numNewEvents={numNewEvents}
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           {/* Small Cards */}

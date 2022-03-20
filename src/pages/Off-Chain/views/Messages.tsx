@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Chip, Grid } from '@mui/material';
+import { Box, Chip, Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -47,7 +47,11 @@ import {
   MsgStateColorMap,
 } from '../../../interfaces/enums';
 import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
-import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
+import {
+  DEFAULT_HIST_HEIGHT,
+  DEFAULT_PADDING,
+  DEFAULT_PAGE_LIMITS,
+} from '../../../theme';
 import {
   fetchCatcher,
   getCreatedFilter,
@@ -59,6 +63,7 @@ import {
   makeColorArray,
   makeKeyArray,
 } from '../../../utils/charts';
+import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const OffChainMessages: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -83,6 +88,22 @@ export const OffChainMessages: () => JSX.Element = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
+  // Last event tracking
+  const [numNewEvents, setNumNewEvents] = useState(0);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
+
+  useEffect(() => {
+    isEventType(lastEvent, WsEventTypes.MESSAGE) &&
+      setNumNewEvents(numNewEvents + 1);
+  }, [lastEvent]);
+
+  const refreshData = () => {
+    setNumNewEvents(0);
+    setLastRefresh(new Date().toString());
+  };
+
   // Messages
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
@@ -101,14 +122,14 @@ export const OffChainMessages: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
+    numNewEvents !== 0 && setNumNewEvents(0);
   }, [
     rowsPerPage,
     currentPage,
     selectedNamespace,
     createdFilter,
-    lastEvent,
     filterString,
-    reportFetchError,
+    lastRefreshTime,
   ]);
 
   // Histogram
@@ -130,7 +151,7 @@ export const OffChainMessages: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+  }, [selectedNamespace, createdFilter, createdFilter, lastRefreshTime]);
 
   const msgColumnHeaders = [
     t('type'),
@@ -210,9 +231,14 @@ export const OffChainMessages: () => JSX.Element = () => {
 
   return (
     <>
-      <Header title={t('messages')} subtitle={t('offChain')}></Header>
+      <Header
+        title={t('messages')}
+        subtitle={t('offChain')}
+        onRefresh={refreshData}
+        numNewEvents={numNewEvents}
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
-        <Grid container item wrap="nowrap" direction="column" spacing={2}>
+        <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
             title={t('allMessages')}
             filter={
@@ -225,7 +251,7 @@ export const OffChainMessages: () => JSX.Element = () => {
               />
             }
           />
-          <Grid item>
+          <Box height={DEFAULT_HIST_HEIGHT}>
             <Histogram
               colors={makeColorArray(FF_MESSAGES_CATEGORY_MAP)}
               data={messageHistData}
@@ -235,7 +261,7 @@ export const OffChainMessages: () => JSX.Element = () => {
               emptyText={t('noMessages')}
               isEmpty={isHistogramEmpty(messageHistData ?? [])}
             />
-          </Grid>
+          </Box>
           <DataTable
             onHandleCurrPageChange={(currentPage: number) =>
               setCurrentPage(currentPage)

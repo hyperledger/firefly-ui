@@ -15,6 +15,7 @@
 // limitations under the License.
 
 import { Grid } from '@mui/material';
+import { Box } from '@mui/system';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -45,7 +46,7 @@ import {
   IPagedEventResponse,
   ITransaction,
 } from '../../../interfaces';
-import { DEFAULT_PADDING, FFColors } from '../../../theme';
+import { DEFAULT_HIST_HEIGHT, DEFAULT_PADDING, FFColors } from '../../../theme';
 import {
   fetchCatcher,
   fetchWithCredentials,
@@ -54,6 +55,7 @@ import {
 } from '../../../utils';
 import { isHistogramEmpty } from '../../../utils/charts';
 import { isOppositeTimelineEvent } from '../../../utils/timeline';
+import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 const ROWS_PER_PAGE = 25;
 
@@ -74,6 +76,21 @@ export const ActivityTimeline: () => JSX.Element = () => {
   const [viewEvent, setViewEvent] = useState<IEvent>();
   const queryClient = useQueryClient();
   const [isVisible, setIsVisible] = useState(0);
+  // Last event tracking
+  const [numNewEvents, setNumNewEvents] = useState(0);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
+
+  useEffect(() => {
+    isEventType(lastEvent, WsEventTypes.EVENT) &&
+      setNumNewEvents(numNewEvents + 1);
+  }, [lastEvent]);
+
+  const refreshData = () => {
+    setNumNewEvents(0);
+    setLastRefresh(new Date().toString());
+  };
 
   const { data, fetchNextPage, hasNextPage, refetch } = useInfiniteQuery(
     'events',
@@ -125,7 +142,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+  }, [selectedNamespace, createdFilter, createdFilter, lastRefreshTime]);
 
   useEffect(() => {
     if (isVisible && hasNextPage) {
@@ -139,7 +156,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
 
   useEffect(() => {
     refetch({ refetchPage: (_page, index) => index === 0 });
-  }, [lastEvent, refetch]);
+  }, [refetch, lastRefreshTime]);
 
   const buildTimelineElements = (
     data: InfiniteData<IPagedEventResponse> | undefined
@@ -164,7 +181,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
         timestamp: event.created,
       }));
     } else {
-      return [];
+      return undefined;
     }
   };
 
@@ -185,19 +202,21 @@ export const ActivityTimeline: () => JSX.Element = () => {
               />
             }
           />
-          <Histogram
-            colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
-            data={eventHistData}
-            indexBy="timestamp"
-            keys={[
-              EventCategoryEnum.BLOCKCHAIN,
-              EventCategoryEnum.MESSAGES,
-              EventCategoryEnum.TOKENS,
-            ]}
-            includeLegend={true}
-            isEmpty={isHistogramEmpty(eventHistData ?? [])}
-            emptyText={t('noActivity')}
-          />
+          <Box height={DEFAULT_HIST_HEIGHT}>
+            <Histogram
+              colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+              data={eventHistData}
+              indexBy="timestamp"
+              keys={[
+                EventCategoryEnum.BLOCKCHAIN,
+                EventCategoryEnum.MESSAGES,
+                EventCategoryEnum.TOKENS,
+              ]}
+              includeLegend={true}
+              isEmpty={isHistogramEmpty(eventHistData ?? [])}
+              emptyText={t('noActivity')}
+            />
+          </Box>
         </Grid>
         <Grid container justifyContent={'center'} direction="column" item>
           <FFTimelineHeader
@@ -207,9 +226,11 @@ export const ActivityTimeline: () => JSX.Element = () => {
           <FFTimeline
             elements={buildTimelineElements(data)}
             emptyText={t('noTimelineEvents')}
-            height={'calc(100vh - 425px)'}
+            height={'calc(100vh - 475px)'}
             fetchMoreData={() => setIsVisible(isVisible + 1)}
             hasMoreData={hasNextPage}
+            numNewEvents={numNewEvents}
+            fetchNewData={() => refreshData()}
           />
         </Grid>
       </Grid>

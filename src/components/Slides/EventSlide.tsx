@@ -125,7 +125,7 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
             </>
           )}
           {/* Message Data */}
-          {messageData?.length && (
+          {messageData && messageData.length > 0 && (
             <>
               <SlideSectionHeader title={t('messageData')} />
               <Grid container item>

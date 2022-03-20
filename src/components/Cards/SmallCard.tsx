@@ -12,6 +12,7 @@ type Props = {
 export const SmallCard: React.FC<Props> = ({ card }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
+
   return (
     <Box
       key={card.header}
@@ -47,10 +48,18 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
         {card.numErrors && card.numErrors > 0 ? (
           <Grid item>
             <Chip
+              onClick={(e) => {
+                e.stopPropagation();
+                card.errorLink ? navigate(card.errorLink) : undefined;
+              }}
               label={`${card.numErrors} ${t('failed')}`}
               color="error"
               size="small"
-              sx={{ fontSize: 10, fontWeight: 'bold' }}
+              sx={{
+                fontSize: 10,
+                fontWeight: 'bold',
+                cursor: 'pointer',
+              }}
             />
           </Grid>
         ) : (

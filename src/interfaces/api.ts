@@ -365,6 +365,7 @@ export interface ITokenPool {
   namespace: string;
   name: string;
   standard: string;
+  symbol?: string;
   protocolId: string;
   connector: string;
   message: string;

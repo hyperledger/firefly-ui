@@ -26,6 +26,7 @@ import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
+  FF_EVENTS,
   FF_Paths,
   IContractInterface,
   ICreatedFilter,
@@ -34,9 +35,11 @@ import {
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getCreatedFilter } from '../../../utils';
+import { isEventType } from '../../../utils/wsEvents';
 
 export const BlockchainInterfaces: () => JSX.Element = () => {
-  const { createdFilter, selectedNamespace } = useContext(ApplicationContext);
+  const { createdFilter, lastEvent, selectedNamespace } =
+    useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   // Interfaces
@@ -49,6 +52,21 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
   >();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
+  // Last event tracking
+  const [numNewEvents, setNumNewEvents] = useState(0);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
+
+  useEffect(() => {
+    isEventType(lastEvent, FF_EVENTS.CONTRACT_INTERFACE_CONFIRMED) &&
+      setNumNewEvents(numNewEvents + 1);
+  }, [lastEvent]);
+
+  const refreshData = () => {
+    setNumNewEvents(0);
+    setLastRefresh(new Date().toString());
+  };
 
   // Interfaces
   useEffect(() => {
@@ -68,7 +86,8 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace]);
+    numNewEvents !== 0 && setNumNewEvents(0);
+  }, [rowsPerPage, currentPage, selectedNamespace, lastRefreshTime]);
 
   const interfaceColHeaders = [
     t('name'),
@@ -109,6 +128,8 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
       <Header
         title={t('contractInterfaces')}
         subtitle={t('blockchain')}
+        onRefresh={refreshData}
+        numNewEvents={numNewEvents}
       ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">

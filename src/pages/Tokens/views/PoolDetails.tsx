@@ -262,15 +262,16 @@ export const PoolDetails: () => JSX.Element = () => {
           pr={DEFAULT_PADDING}
         >
           {/* Pool Card */}
-          {pool && (
-            <Paper
-              elevation={0}
-              sx={{
-                width: '100%',
-                backgroundColor: 'background.paper',
-                padding: DEFAULT_PADDING,
-              }}
-            >
+          <Paper
+            elevation={0}
+            sx={{
+              width: '100%',
+              height: '100%',
+              backgroundColor: 'background.paper',
+              padding: DEFAULT_PADDING,
+            }}
+          >
+            {pool && (
               <Grid
                 direction="row"
                 justifyContent="flex-start"
@@ -294,8 +295,8 @@ export const PoolDetails: () => JSX.Element = () => {
                 </Grid>
                 <PoolList pool={pool} showPoolLink={false} />
               </Grid>
-            </Paper>
-          )}
+            )}
+          </Paper>
         </Grid>
         {/* Right hand side */}
         <Grid

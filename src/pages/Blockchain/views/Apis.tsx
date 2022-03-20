@@ -30,6 +30,7 @@ import { FilterContext } from '../../../contexts/FilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   ApiFilters,
+  FF_EVENTS,
   FF_Paths,
   ICreatedFilter,
   IDataTableRecord,
@@ -38,6 +39,7 @@ import {
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getCreatedFilter } from '../../../utils';
+import { isEventType } from '../../../utils/wsEvents';
 
 export const BlockchainApis: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -58,6 +60,21 @@ export const BlockchainApis: () => JSX.Element = () => {
 
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
+  // Last event tracking
+  const [numNewEvents, setNumNewEvents] = useState(0);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
+
+  useEffect(() => {
+    isEventType(lastEvent, FF_EVENTS.CONTRACT_API_CONFIRMED) &&
+      setNumNewEvents(numNewEvents + 1);
+  }, [lastEvent]);
+
+  const refreshData = () => {
+    setNumNewEvents(0);
+    setLastRefresh(new Date().toString());
+  };
 
   // APIs
   useEffect(() => {
@@ -77,15 +94,14 @@ export const BlockchainApis: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
+    numNewEvents !== 0 && setNumNewEvents(0);
   }, [
     rowsPerPage,
     currentPage,
-    lastEvent,
     selectedNamespace,
     createdFilter,
-    lastEvent,
     filterString,
-    reportFetchError,
+    lastRefreshTime,
   ]);
 
   const apiColHeaders = [
@@ -145,7 +161,12 @@ export const BlockchainApis: () => JSX.Element = () => {
 
   return (
     <>
-      <Header title={t('apis')} subtitle={t('blockchain')}></Header>
+      <Header
+        title={t('apis')}
+        subtitle={t('blockchain')}
+        onRefresh={refreshData}
+        numNewEvents={numNewEvents}
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader

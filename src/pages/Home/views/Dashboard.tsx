@@ -48,6 +48,7 @@ import {
   makeColorArray,
   makeKeyArray,
 } from '../../../utils/charts';
+import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const HomeDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
@@ -92,6 +93,21 @@ export const HomeDashboard: () => JSX.Element = () => {
   // Table cards
   const [recentEventTxs, setRecentEventTxs] = useState<IEvent[]>();
   const [recentEvents, setRecentEvents] = useState<IEvent[]>();
+  // Last event tracking
+  const [numNewEvents, setNumNewEvents] = useState(0);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
+
+  useEffect(() => {
+    isEventType(lastEvent, WsEventTypes.EVENT) &&
+      setNumNewEvents(numNewEvents + 1);
+  }, [lastEvent]);
+
+  const refreshData = () => {
+    setNumNewEvents(0);
+    setLastRefresh(new Date().toString());
+  };
 
   const smallCards: ISmallCard[] = [
     {
@@ -122,6 +138,7 @@ export const HomeDashboard: () => JSX.Element = () => {
     {
       header: t('operations'),
       numErrors: operationsErrorCount,
+      errorLink: FF_NAV_PATHS.activityOpErrorPath(selectedNamespace),
       data: [
         { header: t('blockchain'), data: blockchainOperationsCount },
         { header: t('messages'), data: messageOperationsCount },
@@ -130,6 +147,7 @@ export const HomeDashboard: () => JSX.Element = () => {
       clickPath: FF_NAV_PATHS.activityOpPath(selectedNamespace),
     },
   ];
+
   // Small Card UseEffect
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
@@ -226,7 +244,8 @@ export const HomeDashboard: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+    numNewEvents !== 0 && setNumNewEvents(0);
+  }, [selectedNamespace, createdFilter, lastRefreshTime, createdFilter]);
 
   const myNodeDetailsList: IDataWithHeader[] = [
     {
@@ -345,7 +364,13 @@ export const HomeDashboard: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter, nodeID]);
+  }, [
+    selectedNamespace,
+    createdFilter,
+    lastRefreshTime,
+    createdFilter,
+    nodeID,
+  ]);
 
   const tableCards: IFireFlyCard[] = [
     // Recently submitted Transactions
@@ -404,21 +429,35 @@ export const HomeDashboard: () => JSX.Element = () => {
           ) : recentEvents.length === 0 ? (
             <EmptyStateCard text={t('noRecentNetworkEvents')} />
           ) : (
-            recentEvents.map((event, idx) => (
-              <React.Fragment key={idx}>
-                <EventCardWrapper
-                  onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
-                  onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
-                  link={FF_NAV_PATHS.activityTxDetailPath(
-                    selectedNamespace,
-                    event.tx
-                  )}
-                  linkState={{ state: event }}
-                  {...{ event }}
-                />
-                <Grid sx={{ padding: '1px' }} />
-              </React.Fragment>
-            ))
+            <Grid
+              container
+              direction="column"
+              item
+              alignItems="flex-start"
+              justifyContent="flex-start"
+            >
+              {recentEvents.map((event, idx) => (
+                <Grid
+                  item
+                  container
+                  alignItems="flex-start"
+                  justifyContent="flex-start"
+                  key={idx}
+                >
+                  <EventCardWrapper
+                    onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
+                    onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
+                    link={FF_NAV_PATHS.activityTxDetailPath(
+                      selectedNamespace,
+                      event.tx
+                    )}
+                    linkState={{ state: event }}
+                    {...{ event }}
+                  />
+                  <Grid sx={{ padding: '1px' }} />
+                </Grid>
+              ))}
+            </Grid>
           )}
         </>
       ),
@@ -444,11 +483,16 @@ export const HomeDashboard: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+  }, [selectedNamespace, lastRefreshTime, , createdFilter]);
 
   return (
     <>
-      <Header title={'Dashboard'} subtitle={'Home'}></Header>
+      <Header
+        title={'Dashboard'}
+        subtitle={'Home'}
+        onRefresh={refreshData}
+        numNewEvents={numNewEvents}
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           {/* Small Cards */}
@@ -519,7 +563,7 @@ export const HomeDashboard: () => JSX.Element = () => {
                   item
                   xs={6}
                 >
-                  <FireFlyCard key={idx} card={card} />
+                  <FireFlyCard position="flex-start" key={idx} card={card} />
                 </Grid>
               );
             })}

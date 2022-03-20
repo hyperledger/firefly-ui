@@ -30,6 +30,7 @@ import { FilterContext } from '../../../contexts/FilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   DataFilters,
+  FF_EVENTS,
   FF_Paths,
   ICreatedFilter,
   IData,
@@ -43,6 +44,7 @@ import {
   getCreatedFilter,
   getFFTime,
 } from '../../../utils';
+import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const OffChainData: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -62,6 +64,22 @@ export const OffChainData: () => JSX.Element = () => {
   const [dataTotal, setDataTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
+  // Last event tracking
+  const [numNewEvents, setNumNewEvents] = useState(0);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
+
+  useEffect(() => {
+    (isEventType(lastEvent, WsEventTypes.MESSAGE) ||
+      isEventType(lastEvent, FF_EVENTS.DATATYPE_CONFIRMED)) &&
+      setNumNewEvents(numNewEvents + 1);
+  }, [lastEvent]);
+
+  const refreshData = () => {
+    setNumNewEvents(0);
+    setLastRefresh(new Date().toString());
+  };
 
   // Data
   useEffect(() => {
@@ -80,14 +98,14 @@ export const OffChainData: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
+    numNewEvents !== 0 && setNumNewEvents(0);
   }, [
     rowsPerPage,
     currentPage,
     selectedNamespace,
     createdFilter,
-    lastEvent,
     filterString,
-    reportFetchError,
+    lastRefreshTime,
   ]);
 
   const dataColHeaders = [
@@ -112,13 +130,17 @@ export const OffChainData: () => JSX.Element = () => {
         value: <HashPopover shortHash address={d.hash}></HashPopover>,
       },
       {
-        value: d.blob?.name && (
-          <HashPopover address={d.blob.name}></HashPopover>
+        value: d.blob?.name ? (
+          <HashPopover address={d.blob.name} />
+        ) : (
+          <FFTableText color="secondary" text={t('noBlobName')} />
         ),
       },
       {
-        value: d.blob && (
+        value: d.blob?.size ? (
           <FFTableText color="primary" text={d.blob.size.toString()} />
+        ) : (
+          <FFTableText color="secondary" text={t('---')} />
         ),
       },
       {
@@ -143,7 +165,12 @@ export const OffChainData: () => JSX.Element = () => {
 
   return (
     <>
-      <Header title={t('data')} subtitle={t('offChain')}></Header>
+      <Header
+        title={t('data')}
+        subtitle={t('offChain')}
+        onRefresh={refreshData}
+        numNewEvents={numNewEvents}
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader

@@ -11,6 +11,7 @@ import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
 import { FFListTimestamp } from './FFListTimestamp';
+import { FFSkeletonList } from './FFSkeletonList';
 
 interface Props {
   transfer?: ITokenTransfer;
@@ -27,7 +28,7 @@ export const TransferList: React.FC<Props> = ({
 }) => {
   const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
-  const [dataList, setDataList] = useState<IDataListItem[]>([]);
+  const [dataList, setDataList] = useState<IDataListItem[]>(FFSkeletonList);
 
   useEffect(() => {
     if (transfer && txStatus) {
@@ -36,18 +37,6 @@ export const TransferList: React.FC<Props> = ({
           label: t('localID'),
           value: <FFListText color="primary" text={transfer.localId} />,
           button: <FFCopyButton value={transfer.localId} />,
-        },
-        {
-          label: t('poolID'),
-          value: <FFListText color="primary" text={transfer.pool} />,
-          button: (
-            <>
-              {showPoolLink && (
-                <PoolButton ns={selectedNamespace} poolID={transfer.pool} />
-              )}
-              <FFCopyButton value={transfer.pool} />
-            </>
-          ),
         },
         {
           label: t('transactionID'),
@@ -62,9 +51,36 @@ export const TransferList: React.FC<Props> = ({
           ),
         },
         {
-          label: t('authorKey'),
-          value: transfer.key,
+          label: t('author'),
+          value: <FFListText color="primary" text={transfer.key} />,
           button: <FFCopyButton value={transfer.key} />,
+        },
+        {
+          label: t('from'),
+          value: transfer.from ? (
+            <FFListText color="primary" text={transfer.from} />
+          ) : (
+            <FFListText color="secondary" text={t('nullAddress')} />
+          ),
+          button: transfer.from ? (
+            <FFCopyButton value={transfer.from} />
+          ) : undefined,
+        },
+        {
+          label: t('to'),
+          value: transfer.to ? (
+            <FFListText color="primary" text={transfer.to} />
+          ) : (
+            <FFListText color="secondary" text={t('nullAddress')} />
+          ),
+          button: transfer.to ? (
+            <FFCopyButton value={transfer.to} />
+          ) : undefined,
+        },
+        {
+          label: t('amount'),
+          value: <FFListText color="primary" text={transfer.amount} />,
+          button: <FFCopyButton value={transfer.amount} />,
         },
         {
           label: t('messageID'),
@@ -76,6 +92,18 @@ export const TransferList: React.FC<Props> = ({
           button: transfer.message ? (
             <FFCopyButton value={transfer.message} />
           ) : undefined,
+        },
+        {
+          label: t('poolID'),
+          value: <FFListText color="primary" text={transfer.pool} />,
+          button: (
+            <>
+              {showPoolLink && (
+                <PoolButton ns={selectedNamespace} poolID={transfer.pool} />
+              )}
+              <FFCopyButton value={transfer.pool} />
+            </>
+          ),
         },
         {
           label: t('status'),
@@ -100,8 +128,8 @@ export const TransferList: React.FC<Props> = ({
         <FFCircleLoader color="warning" />
       ) : (
         <>
-          {dataList.map((d) => (
-            <FFListItem key={d.label} item={d} />
+          {dataList.map((d, idx) => (
+            <FFListItem key={idx} item={d} />
           ))}
         </>
       )}

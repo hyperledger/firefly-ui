@@ -29,6 +29,7 @@ import { FilterContext } from '../../../contexts/FilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   DatatypesFilters,
+  FF_EVENTS,
   FF_Paths,
   ICreatedFilter,
   IDataTableRecord,
@@ -37,6 +38,7 @@ import {
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getCreatedFilter, getFFTime } from '../../../utils';
+import { isEventType } from '../../../utils/wsEvents';
 
 export const OffChainDataTypes: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -56,6 +58,21 @@ export const OffChainDataTypes: () => JSX.Element = () => {
   const [datatypeTotal, setDatatypeTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
+  // Last event tracking
+  const [numNewEvents, setNumNewEvents] = useState(0);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
+
+  useEffect(() => {
+    isEventType(lastEvent, FF_EVENTS.DATATYPE_CONFIRMED) &&
+      setNumNewEvents(numNewEvents + 1);
+  }, [lastEvent]);
+
+  const refreshData = () => {
+    setNumNewEvents(0);
+    setLastRefresh(new Date().toString());
+  };
 
   // Data type
   useEffect(() => {
@@ -75,14 +92,14 @@ export const OffChainDataTypes: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
+    numNewEvents !== 0 && setNumNewEvents(0);
   }, [
     rowsPerPage,
     currentPage,
     selectedNamespace,
     createdFilter,
-    lastEvent,
     filterString,
-    reportFetchError,
+    lastRefreshTime,
   ]);
 
   const datatypeColHeaders = [
@@ -128,7 +145,12 @@ export const OffChainDataTypes: () => JSX.Element = () => {
 
   return (
     <>
-      <Header title={t('datatypes')} subtitle={t('offChain')}></Header>
+      <Header
+        title={t('datatypes')}
+        subtitle={t('offChain')}
+        onRefresh={refreshData}
+        numNewEvents={numNewEvents}
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader

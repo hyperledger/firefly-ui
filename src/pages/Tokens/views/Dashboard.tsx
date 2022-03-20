@@ -52,6 +52,7 @@ import {
   TRANSFERS_PATH,
 } from '../../../interfaces';
 import {
+  FF_EVENTS,
   FF_TRANSFER_CATEGORY_MAP,
   PoolStateColorMap,
   TransferIconMap,
@@ -73,6 +74,7 @@ import {
   makeKeyArray,
 } from '../../../utils/charts';
 import { makeTransferHistogram } from '../../../utils/histograms/transferHistogram';
+import { isEventType } from '../../../utils/wsEvents';
 
 export const TokensDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
@@ -112,6 +114,23 @@ export const TokensDashboard: () => JSX.Element = () => {
   >();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[0]);
+  // Last event tracking
+  const [numNewEvents, setNumNewEvents] = useState(0);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
+
+  useEffect(() => {
+    (isEventType(lastEvent, FF_EVENTS.TOKEN_POOL_CONFIRMED) ||
+      isEventType(lastEvent, FF_EVENTS.TOKEN_TRANSFER_CONFIRMED) ||
+      isEventType(lastEvent, FF_EVENTS.TOKEN_TRANSFER_FAILED)) &&
+      setNumNewEvents(numNewEvents + 1);
+  }, [lastEvent]);
+
+  const refreshData = () => {
+    setNumNewEvents(0);
+    setLastRefresh(new Date().toString());
+  };
 
   const smallCards: ISmallCard[] = [
     {
@@ -210,7 +229,8 @@ export const TokensDashboard: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+    numNewEvents !== 0 && setNumNewEvents(0);
+  }, [selectedNamespace, createdFilter, createdFilter, lastRefreshTime]);
 
   const tokenAccountsColHeaders = [t('key'), t('poolID'), t('balance')];
   const tokenAccountRecords: IDataTableRecord[] | undefined =
@@ -233,14 +253,20 @@ export const TokensDashboard: () => JSX.Element = () => {
         ),
     }));
 
-  const tokenPoolColHeaders = [t('name'), t('standard'), t('state')];
+  const tokenPoolColHeaders = [t(''), t('name'), t('standard'), t('state')];
   const tokenPoolRecords: IDataTableRecord[] | undefined = tokenPools?.map(
     (pool) => ({
       key: pool.id,
       columns: [
         {
           value: (
+            <Jazzicon diameter={20} seed={jsNumberForAddress(pool.name)} />
+          ),
+        },
+        {
+          value: (
             <FFTableText
+              isComponent
               color="primary"
               text={
                 pool.name.length > 10 ? (
@@ -248,9 +274,6 @@ export const TokensDashboard: () => JSX.Element = () => {
                 ) : (
                   pool.name
                 )
-              }
-              icon={
-                <Jazzicon diameter={20} seed={jsNumberForAddress(pool.name)} />
               }
             />
           ),
@@ -329,28 +352,6 @@ export const TokensDashboard: () => JSX.Element = () => {
 
   // Medium Card UseEffect
   useEffect(() => {
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenPools}`
-    )
-      .then((pools: ITokenPool[]) => {
-        setTokenPools(pools);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenBalances}`
-    )
-      .then((balances: ITokenBalance[]) => {
-        setTokenBalances(balances);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
-
-  // Histogram
-  useEffect(() => {
     const currentTime = dayjs().unix();
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
@@ -369,12 +370,32 @@ export const TokensDashboard: () => JSX.Element = () => {
         setTransferHistData([]);
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+    fetchCatcher(
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenPools}`
+    )
+      .then((pools: ITokenPool[]) => {
+        setTokenPools(pools);
+      })
+      .catch((err) => {
+        reportFetchError(err);
+      });
+    fetchCatcher(
+      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenBalances}`
+    )
+      .then((balances: ITokenBalance[]) => {
+        setTokenBalances(balances);
+      })
+      .catch((err) => {
+        reportFetchError(err);
+      });
+    numNewEvents !== 0 && setNumNewEvents(0);
+  }, [selectedNamespace, lastRefreshTime, createdFilter]);
 
   const tokenTransferColHeaders = [
-    t('activity'),
+    t('type'),
     t('from'),
     t('to'),
+    t('amount'),
     t('blockchainEvent'),
     t('author'),
     t('timestamp'),
@@ -407,6 +428,9 @@ export const TokensDashboard: () => JSX.Element = () => {
               address={transfer.to ?? t('nullAddress')}
             ></HashPopover>
           ),
+        },
+        {
+          value: <FFTableText color="primary" text={transfer.amount} />,
         },
         {
           value: (
@@ -449,11 +473,22 @@ export const TokensDashboard: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [rowsPerPage, currentPage, selectedNamespace]);
+  }, [
+    rowsPerPage,
+    currentPage,
+    lastRefreshTime,
+    selectedNamespace,
+    createdFilter,
+  ]);
 
   return (
     <>
-      <Header title={t('dashboard')} subtitle={t('tokens')}></Header>
+      <Header
+        title={t('dashboard')}
+        subtitle={t('tokens')}
+        onRefresh={refreshData}
+        numNewEvents={numNewEvents}
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           {/* Small Cards */}
