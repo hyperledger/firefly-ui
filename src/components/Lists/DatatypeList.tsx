@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IData, IDatatype } from '../../interfaces';
+import { IDatatype } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';

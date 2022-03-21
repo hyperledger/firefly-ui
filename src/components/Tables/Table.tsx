@@ -136,27 +136,22 @@ export const DataTable: React.FC<Props> = ({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {
-                    records ? (
-                      records.map((record) => (
+                  {records
+                    ? records.map((record) => (
                         <DataTableRow
                           key={record.key}
                           leftBorderColor={record.leftBorderColor}
                           {...{ record }}
                         />
                       ))
-                    ) : (
-                      <FFCircleLoader color="warning" />
-                    )
-                    // Array.from(Array(NUM_SKELETON_ROWS)).map((_, idx) => {
-                    //     return (
-                    //       <TableRowSkeleton
-                    //         key={idx}
-                    //         numColumns={columnHeaders?.length ?? 1}
-                    //       />
-                    //     );
-                    // })
-                  }
+                    : Array.from(Array(NUM_SKELETON_ROWS)).map((_, idx) => {
+                        return (
+                          <TableRowSkeleton
+                            key={idx}
+                            numColumns={columnHeaders?.length ?? 1}
+                          />
+                        );
+                      })}
                 </TableBody>
               </Table>
             </TableContainer>

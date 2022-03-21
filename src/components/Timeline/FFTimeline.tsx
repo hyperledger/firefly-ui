@@ -117,7 +117,9 @@ export const FFTimeline: React.FC<Props> = ({
                       justifyContent="center"
                       alignItems="center"
                     >
-                      <Typography>{t('noMoreEvents')}</Typography>
+                      <Typography sx={{ fontSize: '14px' }}>
+                        {t('noMoreEvents')}
+                      </Typography>
                     </Grid>
                   }
                 >
