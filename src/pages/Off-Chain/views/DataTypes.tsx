@@ -22,6 +22,7 @@ import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { DatatypeSlide } from '../../../components/Slides/DatatypeSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
@@ -56,6 +57,7 @@ export const OffChainDataTypes: () => JSX.Element = () => {
   const [datatypes, setDatatypes] = useState<IDatatype[]>();
   // Data total
   const [datatypeTotal, setDatatypeTotal] = useState(0);
+  const [viewDatatype, setViewDatatype] = useState<IDatatype | undefined>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
   // Last event tracking
@@ -140,6 +142,7 @@ export const OffChainDataTypes: () => JSX.Element = () => {
           ),
         },
       ],
+      onClick: () => setViewDatatype(d),
     })
   );
 
@@ -195,6 +198,15 @@ export const OffChainDataTypes: () => JSX.Element = () => {
           addFilter={(filter: string) =>
             setActiveFilters((activeFilters) => [...activeFilters, filter])
           }
+        />
+      )}
+      {viewDatatype && (
+        <DatatypeSlide
+          dt={viewDatatype}
+          open={!!viewDatatype}
+          onClose={() => {
+            setViewDatatype(undefined);
+          }}
         />
       )}
     </>
