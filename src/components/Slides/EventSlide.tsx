@@ -48,15 +48,15 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
   const { t } = useTranslation();
   const { selectedNamespace } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
-  const [enrichedEvent, setEnrichedEvent] = useState<IEvent>(event);
+  const [enrichedEvent, setEnrichedEvent] = useState<IEvent>();
   const [messageData, setMessageData] = useState<IData[]>();
   const { txID } = useParams<{ txID: string }>();
 
   useEffect(() => {
     // Enriched event
-    FF_EVENTS_CATEGORY_MAP[event.type].enrichedEventKey &&
+    FF_EVENTS_CATEGORY_MAP[event.type]?.enrichedEventKey &&
       fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?reference=${event.reference}&fetchreferences=true&limit=25`
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?reference=${event.reference}&fetchreferences=true&limit=1`
       )
         .then((events: IEvent[]) => {
           setEnrichedEvent(events[0]);
@@ -67,18 +67,20 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
   }, [event]);
 
   useEffect(() => {
-    enrichedEvent['message'] &&
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messageDataById(
-          enrichedEvent['message'].header.id
-        )}?limit=25`
-      )
-        .then((data: IData[]) => {
-          setMessageData(data);
-        })
-        .catch((err) => {
-          reportFetchError(err);
-        });
+    if (enrichedEvent) {
+      enrichedEvent['message'] &&
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messageDataById(
+            enrichedEvent['message']?.header.id
+          )}?limit=25`
+        )
+          .then((data: IData[]) => {
+            setMessageData(data);
+          })
+          .catch((err) => {
+            reportFetchError(err);
+          });
+    }
   }, [enrichedEvent]);
 
   return (
@@ -88,14 +90,14 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
           {/* Title */}
           <SlideHeader
             subtitle={t('event')}
-            title={t(FF_EVENTS_CATEGORY_MAP[event.type].nicename)}
+            title={t(FF_EVENTS_CATEGORY_MAP[event.type]?.nicename)}
           />
           {/* Data list */}
           <Grid container item>
             <EventList event={event} showTxLink={txID !== event.tx} />
           </Grid>
           {/* Blockchain event */}
-          {enrichedEvent['blockchainevent'] && (
+          {enrichedEvent && enrichedEvent['blockchainevent'] && (
             <>
               <SlideSectionHeader
                 clickPath={FF_NAV_PATHS.blockchainEventsPath(
@@ -110,7 +112,7 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
             </>
           )}
           {/* Message */}
-          {enrichedEvent['message'] && (
+          {enrichedEvent && enrichedEvent['message'] && (
             <>
               <SlideSectionHeader
                 clickPath={FF_NAV_PATHS.offchainMessagesPath(
@@ -125,7 +127,7 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
             </>
           )}
           {/* Message Data */}
-          {messageData?.length && (
+          {messageData && messageData.length > 0 && (
             <>
               <SlideSectionHeader title={t('messageData')} />
               <Grid container item>
@@ -136,7 +138,7 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
             </>
           )}
           {/* Transaction */}
-          {enrichedEvent['transaction'] && (
+          {enrichedEvent && enrichedEvent['transaction'] && (
             <>
               <SlideSectionHeader
                 clickPath={FF_NAV_PATHS.activityTxDetailPath(

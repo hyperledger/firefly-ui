@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -42,7 +42,12 @@ import {
   IPagedBlockchainEventResponse,
 } from '../../../interfaces';
 import { FF_BE_CATEGORY_MAP } from '../../../interfaces/enums/blockchainEventTypes';
-import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS, FFColors } from '../../../theme';
+import {
+  DEFAULT_HIST_HEIGHT,
+  DEFAULT_PADDING,
+  DEFAULT_PAGE_LIMITS,
+  FFColors,
+} from '../../../theme';
 import { fetchCatcher, getCreatedFilter, getFFTime } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -50,6 +55,7 @@ import {
   makeKeyArray,
 } from '../../../utils/charts';
 import { makeBlockchainEventHistogram } from '../../../utils/histograms/blockchainEventHistogram';
+import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const BlockchainEvents: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -61,6 +67,7 @@ export const BlockchainEvents: () => JSX.Element = () => {
     setActiveFilters,
     filterString,
   } = useContext(FilterContext);
+  const [isMounted, setIsMounted] = useState(false);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   // Blockchain Events
@@ -68,38 +75,65 @@ export const BlockchainEvents: () => JSX.Element = () => {
     useState<IBlockchainEvent[]>();
   // Blockchain Events total
   const [blockchainEventTotal, setBlockchainEventTotal] = useState(0);
-
   // Events histogram
   const [beHistData, setBeHistData] = useState<BarDatum[]>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
+  // Last event tracking
+  const [numNewEvents, setNumNewEvents] = useState(0);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
+
+  useEffect(() => {
+    isMounted &&
+      isEventType(lastEvent, WsEventTypes.BLOCKCHAIN_EVENT) &&
+      setNumNewEvents(numNewEvents + 1);
+  }, [lastEvent]);
+
+  const refreshData = () => {
+    setNumNewEvents(0);
+    setLastRefresh(new Date().toString());
+  };
+
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
 
   // Blockchain events
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.blockchainEvents
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }${filterString !== undefined ? filterString : ''}`
-    )
-      .then((blockchainEvents: IPagedBlockchainEventResponse) => {
-        setBlockchainEvents(blockchainEvents.items);
-        setBlockchainEventTotal(blockchainEvents.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.blockchainEvents
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }${filterString !== undefined ? filterString : ''}`
+      )
+        .then((blockchainEvents: IPagedBlockchainEventResponse) => {
+          if (isMounted) {
+            setBlockchainEvents(blockchainEvents.items);
+            setBlockchainEventTotal(blockchainEvents.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        })
+        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
   }, [
     rowsPerPage,
     currentPage,
     selectedNamespace,
     createdFilter,
-    lastEvent,
     filterString,
-    reportFetchError,
+    lastRefreshTime,
+    isMounted,
   ]);
 
   // Histogram
@@ -107,21 +141,22 @@ export const BlockchainEvents: () => JSX.Element = () => {
     const currentTime = dayjs().unix();
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.BlockchainEvents,
-        createdFilterObject.filterTime,
-        currentTime,
-        BucketCountEnum.Large
-      )}`
-    )
-      .then((histTypes: IMetric[]) => {
-        setBeHistData(makeBlockchainEventHistogram(histTypes));
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+          BucketCollectionEnum.BlockchainEvents,
+          createdFilterObject.filterTime,
+          currentTime,
+          BucketCountEnum.Large
+        )}`
+      )
+        .then((histTypes: IMetric[]) => {
+          isMounted && setBeHistData(makeBlockchainEventHistogram(histTypes));
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
 
   const beColHeaders = [
     t('name'),
@@ -158,7 +193,12 @@ export const BlockchainEvents: () => JSX.Element = () => {
 
   return (
     <>
-      <Header title={t('blockchainEvents')} subtitle={t('blockchain')}></Header>
+      <Header
+        title={t('blockchainEvents')}
+        subtitle={t('blockchain')}
+        onRefresh={refreshData}
+        numNewEvents={numNewEvents}
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
@@ -173,15 +213,17 @@ export const BlockchainEvents: () => JSX.Element = () => {
               />
             }
           />
-          <Histogram
-            colors={makeColorArray(FF_BE_CATEGORY_MAP)}
-            data={beHistData}
-            indexBy="timestamp"
-            keys={makeKeyArray(FF_BE_CATEGORY_MAP)}
-            includeLegend={true}
-            emptyText={t('noBlockchainEvents')}
-            isEmpty={isHistogramEmpty(beHistData ?? [])}
-          />
+          <Box height={DEFAULT_HIST_HEIGHT}>
+            <Histogram
+              colors={makeColorArray(FF_BE_CATEGORY_MAP)}
+              data={beHistData}
+              indexBy="timestamp"
+              keys={makeKeyArray(FF_BE_CATEGORY_MAP)}
+              includeLegend={true}
+              emptyText={t('noBlockchainEvents')}
+              isEmpty={isHistogramEmpty(beHistData ?? [])}
+            />
+          </Box>
           <DataTable
             onHandleCurrPageChange={(currentPage: number) =>
               setCurrentPage(currentPage)

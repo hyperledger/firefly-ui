@@ -46,6 +46,7 @@ export const TxStatusColorMap: { [key: string]: string } = {
 };
 
 export enum FF_TX {
+  NONE = 'none',
   // Blockchain Event
   CONTRACT_INVOKE = 'contract_invoke',
   //Message/Definitions
@@ -57,12 +58,17 @@ export enum FF_TX {
   TOKEN_TRANSFER = 'token_transfer',
 }
 
-export const FF_TX_CATEGORY_MAP: { [key: string]: IBlockchainCategory } = {
+export const FF_TX_CATEGORY_MAP: { [key in FF_TX]: IBlockchainCategory } = {
   // Blockchain Events
   [FF_TX.CONTRACT_INVOKE]: {
     category: TxCategoryEnum.BLOCKCHAIN,
     color: FFColors.Yellow,
     nicename: 'contractInvoke',
+  },
+  [FF_TX.NONE]: {
+    category: TxCategoryEnum.BLOCKCHAIN,
+    color: FFColors.Yellow,
+    nicename: 'none',
   },
   // Message Events
   [FF_TX.BATCH_PIN]: {

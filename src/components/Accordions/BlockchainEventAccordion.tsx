@@ -51,7 +51,11 @@ export const BlockchainEventAccordion: React.FC<Props> = ({
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <FFAccordionHeader
           leftContent={
-            <FFAccordionText color="primary" text={be.protocolId} isHeader />
+            <FFAccordionText
+              color="primary"
+              text={be.protocolId ?? be.name}
+              isHeader
+            />
           }
           rightContent={
             <FFAccordionText color="primary" text={getFFTime(be.timestamp)} />

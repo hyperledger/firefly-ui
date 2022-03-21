@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid } from '@mui/material';
+import { Chip, Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
@@ -30,6 +30,7 @@ import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
+  FF_EVENTS,
   FF_NAV_PATHS,
   FF_Paths,
   ICreatedFilter,
@@ -37,6 +38,7 @@ import {
   IPagedTokenPoolResponse,
   ITokenPool,
   PoolFilters,
+  PoolStateColorMap,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import {
@@ -45,6 +47,7 @@ import {
   getFFTime,
   jsNumberForAddress,
 } from '../../../utils';
+import { isEventType } from '../../../utils/wsEvents';
 
 export const TokensPools: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -59,6 +62,7 @@ export const TokensPools: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [isMounted, setIsMounted] = useState(false);
   // Token pools
   const [tokenPools, setTokenPools] = useState<ITokenPool[]>();
   // Token pools totals
@@ -66,40 +70,71 @@ export const TokensPools: () => JSX.Element = () => {
 
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
+  // Last event tracking
+  const [numNewEvents, setNumNewEvents] = useState(0);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
+
+  useEffect(() => {
+    isMounted &&
+      isEventType(lastEvent, FF_EVENTS.TOKEN_POOL_CONFIRMED) &&
+      setNumNewEvents(numNewEvents + 1);
+  }, [lastEvent]);
+
+  const refreshData = () => {
+    setNumNewEvents(0);
+    setLastRefresh(new Date().toString());
+  };
+
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
 
   // Token pools
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.tokenPools
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }${filterString !== undefined ? filterString : ''}`
-    )
-      .then((tokenPoolsRes: IPagedTokenPoolResponse) => {
-        setTokenPools(tokenPoolsRes.items);
-        setTokenPoolsTotal(tokenPoolsRes.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.tokenPools
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }${filterString !== undefined ? filterString : ''}`
+      )
+        .then((tokenPoolsRes: IPagedTokenPoolResponse) => {
+          setTokenPools(tokenPoolsRes.items);
+          setTokenPoolsTotal(tokenPoolsRes.total);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        })
+        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
+    numNewEvents !== 0 && setNumNewEvents(0);
   }, [
     rowsPerPage,
     currentPage,
     selectedNamespace,
     createdFilter,
-    lastEvent,
     filterString,
-    reportFetchError,
+    lastRefreshTime,
+    isMounted,
   ]);
 
   const tokenPoolColHeaders = [
+    t(''),
     t('name'),
+    t('symbol'),
     t('type'),
     t('standard'),
+    t('connector'),
     t('protocolID'),
+    t('state'),
     t('created'),
   ];
   const tokenPoolRecords: IDataTableRecord[] | undefined = tokenPools?.map(
@@ -108,19 +143,29 @@ export const TokensPools: () => JSX.Element = () => {
       columns: [
         {
           value: (
+            <Jazzicon diameter={34} seed={jsNumberForAddress(pool.name)} />
+          ),
+        },
+        {
+          value: (
             <FFTableText
+              isComponent
               color="primary"
               text={
-                pool.name.length > 10 ? (
-                  <HashPopover shortHash address={pool.name} />
+                pool.name.length > 20 ? (
+                  <HashPopover address={pool.name} />
                 ) : (
                   pool.name
                 )
               }
-              icon={
-                <Jazzicon diameter={30} seed={jsNumberForAddress(pool.name)} />
-              }
             />
+          ),
+        },
+        {
+          value: pool.symbol ? (
+            <FFTableText color="primary" text={pool.symbol} />
+          ) : (
+            <FFTableText color="secondary" text={t('noSymbolSpecified')} />
           ),
         },
         {
@@ -130,7 +175,18 @@ export const TokensPools: () => JSX.Element = () => {
           value: <FFTableText color="primary" text={pool.standard} />,
         },
         {
+          value: <FFTableText color="primary" text={pool.connector} />,
+        },
+        {
           value: <FFTableText color="primary" text={pool.protocolId} />,
+        },
+        {
+          value: (
+            <Chip
+              sx={{ backgroundColor: PoolStateColorMap[pool.state] }}
+              label={pool.state.toLocaleUpperCase()}
+            ></Chip>
+          ),
         },
         {
           value: (
@@ -147,7 +203,12 @@ export const TokensPools: () => JSX.Element = () => {
 
   return (
     <>
-      <Header title={t('pools')} subtitle={t('tokens')}></Header>
+      <Header
+        title={t('pools')}
+        subtitle={t('tokens')}
+        onRefresh={refreshData}
+        numNewEvents={numNewEvents}
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader

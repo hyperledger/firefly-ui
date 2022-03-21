@@ -17,11 +17,11 @@ export const OpCardWrapper = ({ op, onHandleViewOp }: Props) => {
     <>
       <BaseCard
         onClick={() => onHandleViewOp(op)}
-        title={t(FF_OP_CATEGORY_MAP[op.type].nicename)}
-        description={t(FF_OP_CATEGORY_MAP[op.type].nicename)}
+        title={t(FF_OP_CATEGORY_MAP[op.type]?.nicename)}
+        description={t(FF_OP_CATEGORY_MAP[op.type]?.nicename)}
         timestamp={getFFTime(op.created)}
         status={<HashPopover address={op.id} shortHash paper />}
-        color={FF_OP_CATEGORY_MAP[op.type].color}
+        color={FF_OP_CATEGORY_MAP[op.type]?.color}
       />
     </>
   );

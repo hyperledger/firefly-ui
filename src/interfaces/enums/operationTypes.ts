@@ -47,12 +47,15 @@ export const OpStatusColorMap: { [key: string]: string } = {
 
 export enum FF_OPS {
   // Blockchain Event
-  BLOCKCHAIN_BATCH_PIN = 'blockchain_batch_pin',
+  BLOCKCHAIN_PIN_BATCH = 'blockchain_pin_batch',
   BLOCKCHAIN_INVOKE = 'blockchain_invoke',
   //Message/Definitions
-  SHAREDSTORAGE_BATCH_BROADCAST = 'sharedstorage_batch_broadcast',
-  DATAEXCHANGE_BATCH_SEND = 'dataexchange_batch_send',
-  DATAEXCHANGE_BLOB_SEND = 'dataexchange_blob_send',
+  SHAREDSTORAGE_UPLOAD_BATCH = 'sharedstorage_upload_batch',
+  SHAREDSTORAGE_UPLOAD_BLOB = 'sharedstorage_upload_blob',
+  SHAREDSTORAGE_DOWNLOAD_BATCH = 'sharedstorage_download_batch',
+  SHAREDSTORAGE_DOWNLOAD_BLOB = 'sharedstorage_download_blob',
+  DATAEXCHANGE_SEND_BATCH = 'dataexchange_send_batch',
+  DATAEXCHANGE_SEND_BLOB = 'dataexchange_send_blob',
   // Transfers
   TOKEN_CREATE_POOL = 'token_create_pool',
   TOKEN_ACTIVATE_POOL = 'token_activate_pool',
@@ -60,9 +63,9 @@ export enum FF_OPS {
   TOKEN_APPROVAL = 'token_approval',
 }
 
-export const FF_OP_CATEGORY_MAP: { [key: string]: IBlockchainCategory } = {
+export const FF_OP_CATEGORY_MAP: { [key in FF_OPS]: IBlockchainCategory } = {
   // Blockchain Events
-  [FF_OPS.BLOCKCHAIN_BATCH_PIN]: {
+  [FF_OPS.BLOCKCHAIN_PIN_BATCH]: {
     category: OpCategoryEnum.BLOCKCHAIN,
     color: FFColors.Yellow,
     nicename: 'blockchainBatchPin',
@@ -73,20 +76,35 @@ export const FF_OP_CATEGORY_MAP: { [key: string]: IBlockchainCategory } = {
     nicename: 'blockchainInvoke',
   },
   // Message Events
-  [FF_OPS.SHAREDSTORAGE_BATCH_BROADCAST]: {
+  [FF_OPS.SHAREDSTORAGE_UPLOAD_BATCH]: {
     category: OpCategoryEnum.MESSAGES,
     color: FFColors.Orange,
-    nicename: 'sharedStorageBatchBroadcast',
+    nicename: 'sharedStorageUploadBatch',
   },
-  [FF_OPS.DATAEXCHANGE_BATCH_SEND]: {
+  [FF_OPS.SHAREDSTORAGE_UPLOAD_BLOB]: {
     category: OpCategoryEnum.MESSAGES,
     color: FFColors.Orange,
-    nicename: 'dataExchangeBatchSend',
+    nicename: 'sharedStorageUploadBlob',
   },
-  [FF_OPS.DATAEXCHANGE_BLOB_SEND]: {
+  [FF_OPS.SHAREDSTORAGE_DOWNLOAD_BATCH]: {
     category: OpCategoryEnum.MESSAGES,
     color: FFColors.Orange,
-    nicename: 'dataExchangeBlobSend',
+    nicename: 'sharedStorageDownloadBatch',
+  },
+  [FF_OPS.SHAREDSTORAGE_DOWNLOAD_BLOB]: {
+    category: OpCategoryEnum.MESSAGES,
+    color: FFColors.Orange,
+    nicename: 'sharedStorageDownloadBlob',
+  },
+  [FF_OPS.DATAEXCHANGE_SEND_BATCH]: {
+    category: OpCategoryEnum.MESSAGES,
+    color: FFColors.Orange,
+    nicename: 'dataExchangeSendBatch',
+  },
+  [FF_OPS.DATAEXCHANGE_SEND_BLOB]: {
+    category: OpCategoryEnum.MESSAGES,
+    color: FFColors.Orange,
+    nicename: 'dataExchangeSendBlob',
   },
   // Token Events
   [FF_OPS.TOKEN_CREATE_POOL]: {

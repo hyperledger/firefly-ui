@@ -49,6 +49,7 @@ export const NetworkOrganizations: () => JSX.Element = () => {
   } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
 
   // Organizations
   const [orgs, setOrgs] = useState<IOrganization[]>();
@@ -57,23 +58,33 @@ export const NetworkOrganizations: () => JSX.Element = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   // Organizations
   useEffect(() => {
-    fetchCatcher(
-      `${FF_Paths.apiPrefix}/${
-        FF_Paths.networkOrgs
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        filterString !== undefined ? filterString : ''
-      }&sort=created`
-    )
-      .then((orgRes: IPagedOrganizationResponse) => {
-        setOrgs(orgRes.items);
-        setOrgTotal(orgRes.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [rowsPerPage, currentPage, filterString, reportFetchError]);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.apiPrefix}/${
+          FF_Paths.networkOrgs
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          filterString !== undefined ? filterString : ''
+        }&sort=created`
+      )
+        .then((orgRes: IPagedOrganizationResponse) => {
+          if (isMounted) {
+            setOrgs(orgRes.items);
+            setOrgTotal(orgRes.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [rowsPerPage, currentPage, filterString, reportFetchError, isMounted]);
 
   const orgColHeaders = [
     t('name'),
@@ -129,7 +140,12 @@ export const NetworkOrganizations: () => JSX.Element = () => {
 
   return (
     <>
-      <Header title={t('organizations')} subtitle={t('network')}></Header>
+      <Header
+        title={t('organizations')}
+        subtitle={t('network')}
+        noDateFilter
+        noNsFilter
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader

@@ -5,19 +5,29 @@ interface Props {
   color: string;
   icon?: any;
   text: string | JSX.Element;
+  isComponent?: boolean;
 }
 
-export const FFTableText: React.FC<Props> = ({ color, icon, text }) => {
+export const FFTableText: React.FC<Props> = ({
+  color,
+  icon,
+  isComponent = false,
+  text,
+}) => {
   return (
     <Grid container justifyContent="flex-start" alignItems="center">
       {icon}
-      <Typography
-        sx={{ fontSize: '14px', fontWeight: '500', marginLeft: icon ? 1 : 0 }}
-        color={color}
-        variant="body1"
-      >
-        {text}
-      </Typography>
+      {isComponent ? (
+        <Grid item>{text}</Grid>
+      ) : (
+        <Typography
+          sx={{ fontSize: '14px', fontWeight: '500', marginLeft: icon ? 1 : 0 }}
+          color={color}
+          variant="body1"
+        >
+          {text}
+        </Typography>
+      )}
     </Grid>
   );
 };

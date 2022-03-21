@@ -13,4 +13,10 @@ npm i
 npm run start
 ```
 
+### Dashboard
+
 ![FireFly Explorer Dashboard](./images/firefly_explorer.png)
+
+### Events Timeline
+
+![FireFly Explorer Timeline](./images/firefly_timeline.png)

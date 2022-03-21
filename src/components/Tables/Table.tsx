@@ -31,6 +31,7 @@ import { DEFAULT_PAGE_LIMITS, themeOptions } from '../../theme';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { DataTableEmptyState } from './TableEmptyState';
 import { DataTableRow } from './TableRow';
+import { TableRowSkeleton } from './TableRowSkeleton';
 
 interface Props {
   records?: IDataTableRecord[];
@@ -48,6 +49,8 @@ interface Props {
   rowsPerPage?: number;
   dataTotal?: number;
 }
+
+const NUM_SKELETON_ROWS = 10;
 
 export const DataTable: React.FC<Props> = ({
   records,
@@ -102,9 +105,7 @@ export const DataTable: React.FC<Props> = ({
           </Grid>
         )}
 
-        {!records ? (
-          <FFCircleLoader color="warning"></FFCircleLoader>
-        ) : records.length ? (
+        {records === undefined || records.length > 0 ? (
           <>
             <TableContainer
               style={{ maxHeight, minHeight }}
@@ -135,13 +136,22 @@ export const DataTable: React.FC<Props> = ({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {records?.map((record) => (
-                    <DataTableRow
-                      key={record.key}
-                      leftBorderColor={record.leftBorderColor}
-                      {...{ record }}
-                    />
-                  ))}
+                  {records
+                    ? records.map((record) => (
+                        <DataTableRow
+                          key={record.key}
+                          leftBorderColor={record.leftBorderColor}
+                          {...{ record }}
+                        />
+                      ))
+                    : Array.from(Array(NUM_SKELETON_ROWS)).map((_, idx) => {
+                        return (
+                          <TableRowSkeleton
+                            key={idx}
+                            numColumns={columnHeaders?.length ?? 1}
+                          />
+                        );
+                      })}
                 </TableBody>
               </Table>
             </TableContainer>

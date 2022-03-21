@@ -52,7 +52,7 @@ export const OperationAccordion: React.FC<Props> = ({ op, isOpen = false }) => {
           leftContent={
             <FFAccordionText
               color="primary"
-              text={t(FF_OP_CATEGORY_MAP[op.type].nicename)}
+              text={t(FF_OP_CATEGORY_MAP[op.type]?.nicename)}
               isHeader
             />
           }

@@ -22,6 +22,7 @@ export interface IDataWithHeader {
 export interface ISmallCard {
   header: string;
   numErrors?: number;
+  errorLink?: string;
   data: IDataWithHeader[];
   clickPath?: string;
 }

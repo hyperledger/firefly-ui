@@ -84,7 +84,7 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
           {/* Header */}
           <SlideHeader
             subtitle={t('message')}
-            title={t(FF_MESSAGES_CATEGORY_MAP[message.header.type].nicename)}
+            title={t(FF_MESSAGES_CATEGORY_MAP[message.header.type]?.nicename)}
           />
           {/* Data list */}
           <Grid container item>
