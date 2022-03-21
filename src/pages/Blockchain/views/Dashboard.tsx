@@ -225,7 +225,10 @@ export const BlockchainDashboard: () => JSX.Element = () => {
           value: <HashPopover shortHash address={ci.id} />,
         },
       ],
-      onClick: () => navigate(INTERFACES_PATH),
+      onClick: () =>
+        navigate(
+          FF_NAV_PATHS.blockchainInterfacesPath(selectedNamespace, ci.id)
+        ),
     })
   );
 
@@ -239,10 +242,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       ],
       onClick: () =>
         navigate(
-          FF_NAV_PATHS.blockchainListenersPath(
-            selectedNamespace,
-            cl.interface.id
-          )
+          FF_NAV_PATHS.blockchainListenersSinglePath(selectedNamespace, cl.id)
         ),
     })
   );

@@ -139,7 +139,7 @@ export const NetworkMap: () => JSX.Element = () => {
           )}
           {isNode &&
             makeTooltipDataRow(
-              t('nodeId'),
+              t('nodeID'),
               <HashPopover
                 textColor="secondary"
                 address={node?.id || p.node.id || ''}

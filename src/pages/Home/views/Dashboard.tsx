@@ -151,7 +151,7 @@ export const HomeDashboard: () => JSX.Element = () => {
         { header: t('tx'), data: messagesTxCount },
         { header: t('events'), data: messagesEventCount },
       ],
-      clickPath: FF_NAV_PATHS.offchainMessagesPath(selectedNamespace),
+      clickPath: FF_NAV_PATHS.offchainPath(selectedNamespace),
     },
     {
       header: t('tokens'),
@@ -160,7 +160,7 @@ export const HomeDashboard: () => JSX.Element = () => {
         { header: t('mint'), data: tokenMintCount },
         { header: t('burn'), data: tokenBurnCount },
       ],
-      clickPath: FF_NAV_PATHS.tokensTransfersPath(selectedNamespace),
+      clickPath: FF_NAV_PATHS.tokensPath(selectedNamespace),
     },
     {
       header: t('operations'),
@@ -309,7 +309,7 @@ export const HomeDashboard: () => JSX.Element = () => {
       headerComponent: (
         <IconButton
           onClick={() =>
-            navigate(FF_NAV_PATHS.activityEventsPath(selectedNamespace))
+            navigate(FF_NAV_PATHS.activityTimelinePath(selectedNamespace))
           }
         >
           <ArrowForwardIcon />
