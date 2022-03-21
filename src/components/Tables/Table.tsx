@@ -28,7 +28,6 @@ import {
 import React from 'react';
 import { IDataTableRecord } from '../../interfaces/table';
 import { DEFAULT_PAGE_LIMITS, themeOptions } from '../../theme';
-import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { DataTableEmptyState } from './TableEmptyState';
 import { DataTableRow } from './TableRow';
 import { TableRowSkeleton } from './TableRowSkeleton';
