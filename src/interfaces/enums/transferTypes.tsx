@@ -48,24 +48,25 @@ export enum FF_TRANSFERS {
   TRANSFER = 'transfer',
 }
 
-export const FF_TRANSFER_CATEGORY_MAP: { [key: string]: IBlockchainCategory } =
-  {
-    [FF_TRANSFERS.MINT]: {
-      category: TransferCategoryEnum.MINT,
-      color: FFColors.Pink,
-      nicename: 'mint',
-    },
-    [FF_TRANSFERS.TRANSFER]: {
-      category: TransferCategoryEnum.TRANSFER,
-      color: FFColors.Yellow,
-      nicename: 'transfer',
-    },
-    [FF_TRANSFERS.BURN]: {
-      category: TransferCategoryEnum.BURN,
-      color: FFColors.Orange,
-      nicename: 'burn',
-    },
-  };
+export const FF_TRANSFER_CATEGORY_MAP: {
+  [key in FF_TRANSFERS]: IBlockchainCategory;
+} = {
+  [FF_TRANSFERS.MINT]: {
+    category: TransferCategoryEnum.MINT,
+    color: FFColors.Pink,
+    nicename: 'mint',
+  },
+  [FF_TRANSFERS.TRANSFER]: {
+    category: TransferCategoryEnum.TRANSFER,
+    color: FFColors.Yellow,
+    nicename: 'transfer',
+  },
+  [FF_TRANSFERS.BURN]: {
+    category: TransferCategoryEnum.BURN,
+    color: FFColors.Orange,
+    nicename: 'burn',
+  },
+};
 
 export const TransferIconMap = {
   [TransferCategoryEnum.BURN.toLowerCase()]: <LocalFireDepartmentIcon />,

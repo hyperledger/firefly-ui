@@ -34,15 +34,15 @@ export const EventCardWrapper = ({
             ? () => onHandleViewTx(event.transaction)
             : () => onHandleViewEvent(event)
         }
-        title={t(FF_EVENTS_CATEGORY_MAP[event.type].nicename)}
+        title={t(FF_EVENTS_CATEGORY_MAP[event.type]?.nicename)}
         description={
           event.transaction
-            ? t(FF_TX_CATEGORY_MAP[event.transaction?.type].nicename)
+            ? t(FF_TX_CATEGORY_MAP[event.transaction?.type]?.nicename)
             : t('event')
         }
         timestamp={getFFTime(event.created)}
         status={<HashPopover address={event.id} shortHash paper />}
-        color={FF_EVENTS_CATEGORY_MAP[event.type].color}
+        color={FF_EVENTS_CATEGORY_MAP[event.type]?.color}
         link={link}
         linkState={linkState}
       />

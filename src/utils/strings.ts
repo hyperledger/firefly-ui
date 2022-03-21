@@ -18,7 +18,7 @@ export const makeMultipleQueryParams = (
   queryKey: string
 ) => {
   const str = Object.keys(map)
-    .filter((k) => map[k].category === key)
+    .filter((k) => map[k]?.category === key)
     .toString();
   return `&${queryKey}=${str.replaceAll(',', `&${queryKey}=`)}`;
 };

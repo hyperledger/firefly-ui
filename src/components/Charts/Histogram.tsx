@@ -2,7 +2,7 @@ import { Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { BarDatum, ResponsiveBar } from '@nivo/bar';
 import dayjs from 'dayjs';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   DEFAULT_BORDER_RADIUS,
   DEFAULT_HIST_HEIGHT,
@@ -33,6 +33,15 @@ export const Histogram: React.FC<Props> = ({
   isEmpty,
   keys,
 }) => {
+  const [xAxisValues, setXAxisValues] = useState<(string | number)[]>([]);
+
+  useEffect(() => {
+    if (data) {
+      // Show x axis every other tick
+      setXAxisValues(data.map((d, i) => (i % 2 === 0 ? '' : d.timestamp)));
+    }
+  }, [data]);
+
   return (
     <Box
       borderRadius={DEFAULT_BORDER_RADIUS}
@@ -62,7 +71,10 @@ export const Histogram: React.FC<Props> = ({
             tickSize: 5,
             tickPadding: 5,
             tickRotation: 0,
-            format: (date) => dayjs(date).format('h:mm'),
+            format: (v) =>
+              xAxisValues?.find((vts) => vts === v)
+                ? dayjs(v).format('h:mm')
+                : '',
           }}
           axisLeft={{
             tickSize: 5,
@@ -92,6 +104,7 @@ export const Histogram: React.FC<Props> = ({
                 ]
               : undefined
           }
+          motionConfig="stiff"
           enableLabel={false}
           role="application"
           theme={{
@@ -112,32 +125,34 @@ export const Histogram: React.FC<Props> = ({
               },
             },
           }}
-          tooltip={({ data }) => (
-            <div
-              key={data.timestamp}
-              style={{
-                padding: 12,
-                color: themeOptions.palette?.text?.primary,
-                background: themeOptions.palette?.background?.paper,
-              }}
-            >
-              {keys.map((key, idx) => {
-                return (
-                  <React.Fragment key={idx}>
-                    <Typography key={idx} sx={{ color: colors[idx] }}>
-                      {`${key.toUpperCase()}: ${data[key] ?? 0}`}
-                    </Typography>
-                  </React.Fragment>
-                );
-              })}
-              <Typography variant="subtitle1" color="secondary">
-                {getFFTime(data.timestamp.toString())}
-              </Typography>
-              <Typography variant="subtitle2" color="secondary">
-                {getFFTime(data.timestamp.toString(), true)}
-              </Typography>
-            </div>
-          )}
+          tooltip={({ data }) => {
+            return (
+              <div
+                key={data.timestamp}
+                style={{
+                  padding: 12,
+                  color: themeOptions.palette?.text?.primary,
+                  background: themeOptions.palette?.background?.paper,
+                }}
+              >
+                {keys.map((key, idx) => {
+                  return (
+                    <React.Fragment key={idx}>
+                      <Typography key={idx} sx={{ color: colors[idx] }}>
+                        {`${key.toUpperCase()}: ${data[key] ?? 0}`}
+                      </Typography>
+                    </React.Fragment>
+                  );
+                })}
+                <Typography variant="subtitle1" color="secondary">
+                  {getFFTime(data.timestamp.toString())}
+                </Typography>
+                <Typography variant="subtitle2" color="secondary">
+                  {getFFTime(data.timestamp.toString(), true)}
+                </Typography>
+              </div>
+            );
+          }}
         />
       )}
     </Box>

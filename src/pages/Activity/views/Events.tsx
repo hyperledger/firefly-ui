@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -43,7 +43,11 @@ import {
   IMetric,
   IPagedEventResponse,
 } from '../../../interfaces';
-import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
+import {
+  DEFAULT_HIST_HEIGHT,
+  DEFAULT_PADDING,
+  DEFAULT_PAGE_LIMITS,
+} from '../../../theme';
 import {
   fetchCatcher,
   getCreatedFilter,
@@ -55,6 +59,7 @@ import {
   makeColorArray,
   makeKeyArray,
 } from '../../../utils/charts';
+import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const ActivityEvents: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -68,6 +73,7 @@ export const ActivityEvents: () => JSX.Element = () => {
   } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
   // Events
   const [events, setEvents] = useState<IEvent[]>();
   // Event totals
@@ -78,33 +84,61 @@ export const ActivityEvents: () => JSX.Element = () => {
   const [viewEvent, setViewEvent] = useState<IEvent | undefined>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
+  // Last event tracking
+  const [numNewEvents, setNumNewEvents] = useState(0);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
+
+  useEffect(() => {
+    isMounted &&
+      isEventType(lastEvent, WsEventTypes.EVENT) &&
+      setNumNewEvents(numNewEvents + 1);
+  }, [lastEvent]);
+
+  const refreshData = () => {
+    setNumNewEvents(0);
+    setLastRefresh(new Date().toISOString());
+  };
+
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
 
   // Events list
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.events
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }${filterString !== undefined ? filterString : ''}`
-    )
-      .then((eventRes: IPagedEventResponse) => {
-        setEvents(eventRes.items);
-        setEventTotal(eventRes.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.events
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }${filterString !== undefined ? filterString : ''}`
+      )
+        .then((eventRes: IPagedEventResponse) => {
+          if (isMounted) {
+            setEvents(eventRes.items);
+            setEventTotal(eventRes.total);
+            numNewEvents !== 0 && setNumNewEvents(0);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
   }, [
     rowsPerPage,
     currentPage,
     selectedNamespace,
     createdFilter,
-    lastEvent,
     filterString,
-    reportFetchError,
+    lastRefreshTime,
+    isMounted,
   ]);
 
   // Histogram
@@ -112,22 +146,23 @@ export const ActivityEvents: () => JSX.Element = () => {
     const currentTime = dayjs().unix();
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.Events,
-        createdFilterObject.filterTime,
-        currentTime,
-        BucketCountEnum.Large
-      )}`
-    )
-      .then((histTypes: IMetric[]) => {
-        setEventHistData(makeEventHistogram(histTypes));
-      })
-      .catch((err) => {
-        setEventHistData([]);
-        reportFetchError(err);
-      });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+          BucketCollectionEnum.Events,
+          createdFilterObject.filterTime,
+          currentTime,
+          BucketCountEnum.Large
+        )}`
+      )
+        .then((histTypes: IMetric[]) => {
+          isMounted && setEventHistData(makeEventHistogram(histTypes));
+        })
+        .catch((err) => {
+          setEventHistData([]);
+          reportFetchError(err);
+        });
+  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
 
   const eventsColumnHeaders = [
     t('type'),
@@ -145,7 +180,7 @@ export const ActivityEvents: () => JSX.Element = () => {
           value: (
             <FFTableText
               color="primary"
-              text={t(FF_EVENTS_CATEGORY_MAP[event.type].nicename)}
+              text={t(FF_EVENTS_CATEGORY_MAP[event.type]?.nicename)}
             />
           ),
         },
@@ -174,13 +209,18 @@ export const ActivityEvents: () => JSX.Element = () => {
         },
       ],
       onClick: () => setViewEvent(event),
-      leftBorderColor: FF_EVENTS_CATEGORY_MAP[event.type].color,
+      leftBorderColor: FF_EVENTS_CATEGORY_MAP[event.type]?.color,
     })
   );
 
   return (
     <>
-      <Header title={t('events')} subtitle={t('activity')}></Header>
+      <Header
+        title={t('events')}
+        subtitle={t('activity')}
+        onRefresh={refreshData}
+        numNewEvents={numNewEvents}
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
@@ -195,15 +235,17 @@ export const ActivityEvents: () => JSX.Element = () => {
               />
             }
           />
-          <Histogram
-            colors={makeColorArray(FF_EVENTS_CATEGORY_MAP)}
-            data={eventHistData}
-            indexBy="timestamp"
-            keys={makeKeyArray(FF_EVENTS_CATEGORY_MAP)}
-            includeLegend={true}
-            emptyText={t('noEvents')}
-            isEmpty={isHistogramEmpty(eventHistData ?? [])}
-          />
+          <Box height={DEFAULT_HIST_HEIGHT}>
+            <Histogram
+              colors={makeColorArray(FF_EVENTS_CATEGORY_MAP)}
+              data={eventHistData}
+              indexBy="timestamp"
+              keys={makeKeyArray(FF_EVENTS_CATEGORY_MAP)}
+              includeLegend={true}
+              emptyText={t('noEvents')}
+              isEmpty={isHistogramEmpty(eventHistData ?? [])}
+            />
+          </Box>
           <DataTable
             onHandleCurrPageChange={(currentPage: number) =>
               setCurrentPage(currentPage)

@@ -37,6 +37,7 @@ export const Navigation: React.FC = () => {
         icon={<ViewDashboardOutlineIcon />}
         action={() => navigate(FF_NAV_PATHS.homePath(selectedNamespace))}
         itemIsActive={pathname === FF_NAV_PATHS.homePath(selectedNamespace)}
+        isRoot
       />
       <ActivityNav />
       <BlockchainNav />
@@ -48,6 +49,7 @@ export const Navigation: React.FC = () => {
         icon={<HexagonIcon />}
         action={() => navigate(FF_NAV_PATHS.myNodePath(selectedNamespace))}
         itemIsActive={pathname === FF_NAV_PATHS.myNodePath(selectedNamespace)}
+        isRoot
       />
       <NavItem
         name={t('docs')}
@@ -55,6 +57,7 @@ export const Navigation: React.FC = () => {
         action={() => window.open(FF_NAV_PATHS.docsPath, '_blank')}
         itemIsActive={false}
         rightIcon={<LaunchIcon />}
+        isRoot
       />
     </>
   );

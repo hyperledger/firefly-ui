@@ -15,6 +15,7 @@ import { HashPopover } from '../Popovers/HashPopover';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
 import { FFListTimestamp } from './FFListTimestamp';
+import { FFSkeletonList } from './FFSkeletonList';
 
 interface Props {
   tx?: ITransaction;
@@ -29,7 +30,7 @@ export const TxList: React.FC<Props> = ({
 }) => {
   const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
-  const [dataList, setDataList] = useState<IDataListItem[]>([]);
+  const [dataList, setDataList] = useState<IDataListItem[]>(FFSkeletonList);
 
   useEffect(() => {
     if (tx && txStatus) {
@@ -85,7 +86,7 @@ export const TxList: React.FC<Props> = ({
         type.type !== FF_TX_STATUS.OPERATION
       ) {
         return {
-          label: t(FF_TX_STATUS_CATEGORY_MAP[type.type].nicename),
+          label: t(FF_TX_STATUS_CATEGORY_MAP[type.type]?.nicename),
           value: <FFListText color="primary" text={type.id} />,
           button: (
             <>
@@ -103,8 +104,8 @@ export const TxList: React.FC<Props> = ({
         <FFCircleLoader color="warning" />
       ) : (
         <>
-          {dataList.map((d) => (
-            <FFListItem key={d.label} item={d} />
+          {dataList.map((d, idx) => (
+            <FFListItem key={idx} item={d} />
           ))}
           {txDetails?.map(
             (d) => d !== undefined && <FFListItem key={d.label} item={d} />

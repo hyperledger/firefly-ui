@@ -24,7 +24,6 @@ export enum BucketCollectionEnum {
 }
 
 export enum BucketCountEnum {
-  Small = 12,
-  Medium = 25,
-  Large = 40,
+  Small = 15,
+  Large = 60,
 }

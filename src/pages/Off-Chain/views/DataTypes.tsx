@@ -22,6 +22,7 @@ import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { DatatypeSlide } from '../../../components/Slides/DatatypeSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
@@ -29,6 +30,7 @@ import { FilterContext } from '../../../contexts/FilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   DatatypesFilters,
+  FF_EVENTS,
   FF_Paths,
   ICreatedFilter,
   IDataTableRecord,
@@ -37,6 +39,7 @@ import {
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getCreatedFilter, getFFTime } from '../../../utils';
+import { isEventType } from '../../../utils/wsEvents';
 
 export const OffChainDataTypes: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -50,39 +53,69 @@ export const OffChainDataTypes: () => JSX.Element = () => {
   } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
   // Datatype
   const [datatypes, setDatatypes] = useState<IDatatype[]>();
   // Data total
   const [datatypeTotal, setDatatypeTotal] = useState(0);
+  const [viewDatatype, setViewDatatype] = useState<IDatatype | undefined>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
+  // Last event tracking
+  const [numNewEvents, setNumNewEvents] = useState(0);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
 
-  // Data type
+  useEffect(() => {
+    isMounted &&
+      isEventType(lastEvent, FF_EVENTS.DATATYPE_CONFIRMED) &&
+      setNumNewEvents(numNewEvents + 1);
+  }, [lastEvent]);
+
+  const refreshData = () => {
+    setNumNewEvents(0);
+    setLastRefresh(new Date().toString());
+  };
+
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
+  // Datatype
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.datatypes
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }${filterString !== undefined ? filterString : ''}`
-    )
-      .then((datatypeRes: IPagedDatatypeResponse) => {
-        setDatatypes(datatypeRes.items);
-        setDatatypeTotal(datatypeRes.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.datatypes
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }${filterString !== undefined ? filterString : ''}`
+      )
+        .then((datatypeRes: IPagedDatatypeResponse) => {
+          if (isMounted) {
+            setDatatypes(datatypeRes.items);
+            setDatatypeTotal(datatypeRes.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        })
+        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
   }, [
     rowsPerPage,
     currentPage,
     selectedNamespace,
     createdFilter,
-    lastEvent,
     filterString,
-    reportFetchError,
+    lastRefreshTime,
+    isMounted,
   ]);
 
   const datatypeColHeaders = [
@@ -123,12 +156,18 @@ export const OffChainDataTypes: () => JSX.Element = () => {
           ),
         },
       ],
+      onClick: () => setViewDatatype(d),
     })
   );
 
   return (
     <>
-      <Header title={t('datatypes')} subtitle={t('offChain')}></Header>
+      <Header
+        title={t('datatypes')}
+        subtitle={t('offChain')}
+        onRefresh={refreshData}
+        numNewEvents={numNewEvents}
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
@@ -173,6 +212,15 @@ export const OffChainDataTypes: () => JSX.Element = () => {
           addFilter={(filter: string) =>
             setActiveFilters((activeFilters) => [...activeFilters, filter])
           }
+        />
+      )}
+      {viewDatatype && (
+        <DatatypeSlide
+          dt={viewDatatype}
+          open={!!viewDatatype}
+          onClose={() => {
+            setViewDatatype(undefined);
+          }}
         />
       )}
     </>

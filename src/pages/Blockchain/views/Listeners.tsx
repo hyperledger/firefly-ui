@@ -51,6 +51,7 @@ export const BlockchainListeners: () => JSX.Element = () => {
   } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
   // Listeners
   const [listeners, setListeners] = useState<IContractListener[]>();
   // Listener totals
@@ -62,24 +63,34 @@ export const BlockchainListeners: () => JSX.Element = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   // Listeners
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.contractListeners
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }${filterString !== undefined ? filterString : ''}`
-    )
-      .then((listeners: IPagedContractListenerResponse) => {
-        setListeners(listeners.items);
-        setListenerTotal(listeners.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.contractListeners
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }${filterString !== undefined ? filterString : ''}`
+      )
+        .then((listeners: IPagedContractListenerResponse) => {
+          if (isMounted) {
+            setListeners(listeners.items);
+            setListenerTotal(listeners.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
   }, [
     rowsPerPage,
     currentPage,
@@ -88,6 +99,7 @@ export const BlockchainListeners: () => JSX.Element = () => {
     lastEvent,
     filterString,
     reportFetchError,
+    isMounted,
   ]);
 
   const listenerColHeaders = [

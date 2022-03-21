@@ -13,7 +13,9 @@ export enum BlockchainEventCategoryEnum {
   BLOCKCHAINEVENT = 'Blockchain Event',
 }
 
-export const FF_BE_CATEGORY_MAP: { [key: string]: IBlockchainCategory } = {
+export const FF_BE_CATEGORY_MAP: {
+  [key in BlockchainEventCategoryEnum]: IBlockchainCategory;
+} = {
   [BlockchainEventCategoryEnum.BLOCKCHAINEVENT]: {
     category: BlockchainEventCategoryEnum.BLOCKCHAINEVENT,
     color: FFColors.Yellow,

@@ -64,6 +64,7 @@ import {
   makeKeyArray,
 } from '../../../utils/charts';
 import { makeBlockchainEventHistogram } from '../../../utils/histograms/blockchainEventHistogram';
+import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const BlockchainDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
@@ -71,7 +72,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
     useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const navigate = useNavigate();
-
+  const [isMounted, setIsMounted] = useState(false);
   // Small cards
   // Blockchain Operations
   const [blockchainOpCount, setBlockchainOpCount] = useState<number>();
@@ -101,6 +102,30 @@ export const BlockchainDashboard: () => JSX.Element = () => {
 
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[0]);
+  // Last event tracking
+  const [numNewEvents, setNumNewEvents] = useState(0);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
+
+  useEffect(() => {
+    isMounted &&
+      isEventType(lastEvent, WsEventTypes.BLOCKCHAIN_EVENT) &&
+      setNumNewEvents(numNewEvents + 1);
+  }, [lastEvent]);
+
+  const refreshData = () => {
+    setNumNewEvents(0);
+    setLastRefresh(new Date().toString());
+  };
+
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
 
   const smallCards: ISmallCard[] = [
     {
@@ -132,54 +157,58 @@ export const BlockchainDashboard: () => JSX.Element = () => {
     const qParams = `?count=true&limit=1${createdFilterObject.filterString}`;
     const qParamsNoRange = `?count=true&limit=1`;
 
-    Promise.all([
-      // Blockchain Operations
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&error=!`
-      ),
-      // Blockchain Transactions
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactions}${qParams}`
-      ),
-      // Blockchain Events
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.blockchainEvents}${qParams}`
-      ),
-      // Contract interfaces
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.contractInterfaces}${qParamsNoRange}`
-      ),
-    ])
-      .then(
-        ([
-          // Blockchain Operations
-          ops,
-          opsErr,
-          // Blockchain Transactions
-          txs,
-          // Blockchain Events
-          events,
-          // Contract interfaces
-          interfaces,
-        ]: IGenericPagedResponse[] | any[]) => {
-          // Operations
-          setBlockchainOpCount(ops.total);
-          setBlockchainOpErrorCount(opsErr.total);
-          // Transactions
-          setBlockchainTxCount(txs.total);
-          // Events
-          setBlockchainEventCount(events.total);
-          // Interfaces
-          setContractInterfacesCount(interfaces.total);
-        }
-      )
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+    isMounted &&
+      Promise.all([
+        // Blockchain Operations
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}`
+        ),
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&error=!`
+        ),
+        // Blockchain Transactions
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactions}${qParams}`
+        ),
+        // Blockchain Events
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.blockchainEvents}${qParams}`
+        ),
+        // Contract interfaces
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.contractInterfaces}${qParamsNoRange}`
+        ),
+      ])
+        .then(
+          ([
+            // Blockchain Operations
+            ops,
+            opsErr,
+            // Blockchain Transactions
+            txs,
+            // Blockchain Events
+            events,
+            // Contract interfaces
+            interfaces,
+          ]: IGenericPagedResponse[] | any[]) => {
+            if (isMounted) {
+              // Operations
+              setBlockchainOpCount(ops.total);
+              setBlockchainOpErrorCount(opsErr.total);
+              // Transactions
+              setBlockchainTxCount(txs.total);
+              // Events
+              setBlockchainEventCount(events.total);
+              // Interfaces
+              setContractInterfacesCount(interfaces.total);
+            }
+          }
+        )
+        .catch((err) => {
+          reportFetchError(err);
+        })
+        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
+  }, [selectedNamespace, lastRefreshTime, createdFilter, isMounted]);
 
   const ciColHeaders = [t('name'), t('version'), t('interfaceID')];
   const ciRecords: IDataTableRecord[] | undefined = contractInterfaces?.map(
@@ -275,46 +304,49 @@ export const BlockchainDashboard: () => JSX.Element = () => {
 
   // Medium Card UseEffect
   useEffect(() => {
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.contractInterfaces}?limit=5`
-    )
-      .then((interfaces: IContractInterface[]) => {
-        setContractInterfaces(interfaces);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.contractListeners}?limit=5`
-    )
-      .then((listeners: IContractListener[]) => {
-        setContractListeners(listeners);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+    if (isMounted) {
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.contractInterfaces}?limit=25`
+      )
+        .then((interfaces: IContractInterface[]) => {
+          isMounted && setContractInterfaces(interfaces);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.contractListeners}?limit=25`
+      )
+        .then((listeners: IContractListener[]) => {
+          isMounted && setContractListeners(listeners);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+    }
+  }, [selectedNamespace, lastRefreshTime, createdFilter, isMounted]);
 
   // Histogram
   useEffect(() => {
     const currentTime = dayjs().unix();
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.BlockchainEvents,
-        createdFilterObject.filterTime,
-        currentTime,
-        BucketCountEnum.Small
-      )}`
-    )
-      .then((histTypes: IMetric[]) => {
-        setBeHistData(makeBlockchainEventHistogram(histTypes));
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+          BucketCollectionEnum.BlockchainEvents,
+          createdFilterObject.filterTime,
+          currentTime,
+          BucketCountEnum.Small
+        )}`
+      )
+        .then((histTypes: IMetric[]) => {
+          isMounted && setBeHistData(makeBlockchainEventHistogram(histTypes));
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [selectedNamespace, lastRefreshTime, createdFilter, isMounted]);
 
   const beColHeaders = [
     t('name'),
@@ -353,25 +385,33 @@ export const BlockchainDashboard: () => JSX.Element = () => {
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.blockchainEvents
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }`
-    )
-      .then((blockchainEvents: IPagedBlockchainEventResponse) => {
-        setBlockchainEvents(blockchainEvents.items);
-        setBlockchainEventsTotal(blockchainEvents.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [rowsPerPage, currentPage, selectedNamespace]);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.blockchainEvents
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }`
+      )
+        .then((blockchainEvents: IPagedBlockchainEventResponse) => {
+          if (isMounted) {
+            setBlockchainEvents(blockchainEvents.items);
+            setBlockchainEventsTotal(blockchainEvents.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [rowsPerPage, currentPage, lastRefreshTime, selectedNamespace, isMounted]);
 
   return (
     <>
-      <Header title={t('dashboard')} subtitle={t('blockchain')}></Header>
+      <Header
+        title={t('dashboard')}
+        subtitle={t('blockchain')}
+        onRefresh={refreshData}
+        numNewEvents={numNewEvents}
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           {/* Small Cards */}
@@ -432,7 +472,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
             }
             stickyHeader={true}
             minHeight="300px"
-            maxHeight="calc(100vh - 340px)"
+            maxHeight="calc(100vh - 800px)"
             records={beRecords}
             columnHeaders={beColHeaders}
             paginate={true}

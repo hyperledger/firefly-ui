@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid } from '@mui/material';
+import { Button, Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Header } from '../../../components/Header';
@@ -26,6 +26,7 @@ import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
+  FF_EVENTS,
   FF_Paths,
   IContractInterface,
   ICreatedFilter,
@@ -34,11 +35,14 @@ import {
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getCreatedFilter } from '../../../utils';
+import { isEventType } from '../../../utils/wsEvents';
 
 export const BlockchainInterfaces: () => JSX.Element = () => {
-  const { createdFilter, selectedNamespace } = useContext(ApplicationContext);
+  const { createdFilter, lastEvent, selectedNamespace } =
+    useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
   // Interfaces
   const [interfaces, setInterfaces] = useState<IContractInterface[]>();
   // Interface totals
@@ -49,26 +53,54 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
   >();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
+  // Last event tracking
+  const [numNewEvents, setNumNewEvents] = useState(0);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
+
+  useEffect(() => {
+    isMounted &&
+      isEventType(lastEvent, FF_EVENTS.CONTRACT_INTERFACE_CONFIRMED) &&
+      setNumNewEvents(numNewEvents + 1);
+  }, [lastEvent]);
+
+  const refreshData = () => {
+    setNumNewEvents(0);
+    setLastRefresh(new Date().toString());
+  };
+
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
 
   // Interfaces
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.contractInterfaces
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }`
-    )
-      .then((interfaceRes: IPagedContractInterfaceResponse) => {
-        setInterfaces(interfaceRes.items);
-        setInterfaceTotal(interfaceRes.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [rowsPerPage, currentPage, selectedNamespace]);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.contractInterfaces
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }`
+      )
+        .then((interfaceRes: IPagedContractInterfaceResponse) => {
+          if (isMounted) {
+            setInterfaces(interfaceRes.items);
+            setInterfaceTotal(interfaceRes.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        })
+        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
+  }, [rowsPerPage, currentPage, selectedNamespace, lastRefreshTime, isMounted]);
 
   const interfaceColHeaders = [
     t('name'),
@@ -109,10 +141,19 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
       <Header
         title={t('contractInterfaces')}
         subtitle={t('blockchain')}
+        onRefresh={refreshData}
+        numNewEvents={numNewEvents}
       ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
-          <ChartTableHeader title={t('allInterfaces')} />
+          <ChartTableHeader
+            title={t('allInterfaces')}
+            filter={
+              <Grid my={DEFAULT_PADDING}>
+                <Button variant="outlined">Filter</Button>
+              </Grid>
+            }
+          />
           <DataTable
             onHandleCurrPageChange={(currentPage: number) =>
               setCurrentPage(currentPage)

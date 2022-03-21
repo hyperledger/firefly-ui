@@ -43,7 +43,7 @@ import {
   ITxStatus,
 } from '../../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
-import { DEFAULT_PADDING } from '../../../theme';
+import { DEFAULT_BORDER_RADIUS, DEFAULT_PADDING } from '../../../theme';
 import { fetchCatcher, getShortHash } from '../../../utils';
 
 export const TransactionDetails: () => JSX.Element = () => {
@@ -52,6 +52,7 @@ export const TransactionDetails: () => JSX.Element = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isMounted, setIsMounted] = useState(false);
   const { txID } = useParams<{ txID: string }>();
   // Transactions
   const [tx, setTx] = useState<ITransaction>();
@@ -65,16 +66,23 @@ export const TransactionDetails: () => JSX.Element = () => {
   );
   const [viewOp, setViewOp] = useState<IOperation>();
 
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   // Transaction details
   useEffect(() => {
-    if (txID) {
+    if (txID && isMounted) {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactionById(
           txID
         )}`
       )
         .then((tx: ITransaction) => {
-          setTx(tx);
+          isMounted && setTx(tx);
         })
         .catch((err) => {
           reportFetchError(err);
@@ -86,7 +94,7 @@ export const TransactionDetails: () => JSX.Element = () => {
         }/${selectedNamespace}${FF_Paths.transactionByIdStatus(txID)}`
       )
         .then((txStatus: ITxStatus) => {
-          setTxStatus(txStatus);
+          isMounted && setTxStatus(txStatus);
         })
         .catch((err) => {
           reportFetchError(err);
@@ -98,7 +106,7 @@ export const TransactionDetails: () => JSX.Element = () => {
         }/${selectedNamespace}${FF_Paths.transactionByIdOperations(txID)}`
       )
         .then((txOperations: IOperation[]) => {
-          setTxOperations(txOperations);
+          isMounted && setTxOperations(txOperations);
         })
         .catch((err) => {
           reportFetchError(err);
@@ -108,13 +116,13 @@ export const TransactionDetails: () => JSX.Element = () => {
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?tx=${txID}`
       )
         .then((events: IEvent[]) => {
-          setTxEvents(events);
+          isMounted && setTxEvents(events);
         })
         .catch((err) => {
           reportFetchError(err);
         });
     }
-  }, [txID]);
+  }, [txID, isMounted]);
 
   const breadcrumbs: IFFBreadcrumb[] = [
     {
@@ -135,7 +143,9 @@ export const TransactionDetails: () => JSX.Element = () => {
     headerText: t('blockchainOperations'),
     headerComponent: (
       <IconButton
-        onClick={() => navigate(FF_NAV_PATHS.activityOpPath(selectedNamespace))}
+        onClick={() =>
+          navigate(FF_NAV_PATHS.activityOpPath(selectedNamespace, tx?.id))
+        }
       >
         <ArrowForwardIcon />
       </IconButton>
@@ -164,7 +174,7 @@ export const TransactionDetails: () => JSX.Element = () => {
     headerComponent: (
       <IconButton
         onClick={() =>
-          navigate(FF_NAV_PATHS.activityEventsPath(selectedNamespace))
+          navigate(FF_NAV_PATHS.activityEventsPath(selectedNamespace, tx?.id))
         }
       >
         <ArrowForwardIcon />
@@ -215,6 +225,7 @@ export const TransactionDetails: () => JSX.Element = () => {
                 width: '100%',
                 backgroundColor: 'background.paper',
                 padding: DEFAULT_PADDING,
+                borderRadius: DEFAULT_BORDER_RADIUS,
               }}
             >
               <Typography
@@ -225,7 +236,7 @@ export const TransactionDetails: () => JSX.Element = () => {
                 }}
                 pb={1}
               >
-                {t(FF_TX_CATEGORY_MAP[tx.type].nicename)}
+                {t(FF_TX_CATEGORY_MAP[tx.type]?.nicename)}
               </Typography>
               <TxList tx={tx} txStatus={txStatus} showTxLink={false} />
             </Paper>
@@ -237,6 +248,7 @@ export const TransactionDetails: () => JSX.Element = () => {
             justifyContent="flex-center"
             alignItems="flex-start"
             pt={DEFAULT_PADDING}
+            overflow={'auto'}
             height="100%"
           >
             {/* Operations */}
@@ -261,6 +273,8 @@ export const TransactionDetails: () => JSX.Element = () => {
           justifyContent="flex-center"
           alignItems="flex-start"
           xs={6}
+          overflow={'auto'}
+          height="calc(100vh - 250px)"
         >
           {/* Events */}
           <Grid
@@ -269,7 +283,6 @@ export const TransactionDetails: () => JSX.Element = () => {
             justifyContent="center"
             container
             item
-            height="100%"
           >
             <FireFlyCard height="100%" card={networkEventsCard} />
           </Grid>

@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Chip, Grid } from '@mui/material';
+import { Box, Chip, Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -47,7 +47,11 @@ import {
   MsgStateColorMap,
 } from '../../../interfaces/enums';
 import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
-import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
+import {
+  DEFAULT_HIST_HEIGHT,
+  DEFAULT_PADDING,
+  DEFAULT_PAGE_LIMITS,
+} from '../../../theme';
 import {
   fetchCatcher,
   getCreatedFilter,
@@ -59,6 +63,7 @@ import {
   makeColorArray,
   makeKeyArray,
 } from '../../../utils/charts';
+import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const OffChainMessages: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -72,6 +77,7 @@ export const OffChainMessages: () => JSX.Element = () => {
   } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
   // Messages
   const [messages, setMessages] = useState<IMessage[]>();
   const [messageTotal, setMessageTotal] = useState(0);
@@ -83,32 +89,61 @@ export const OffChainMessages: () => JSX.Element = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
+  // Last event tracking
+  const [numNewEvents, setNumNewEvents] = useState(0);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
+
+  useEffect(() => {
+    isMounted &&
+      isEventType(lastEvent, WsEventTypes.MESSAGE) &&
+      setNumNewEvents(numNewEvents + 1);
+  }, [lastEvent]);
+
+  const refreshData = () => {
+    setNumNewEvents(0);
+    setLastRefresh(new Date().toString());
+  };
+
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   // Messages
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.messages
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }${filterString !== undefined ? filterString : ''}`
-    )
-      .then((msgRes: IPagedMessageResponse) => {
-        setMessages(msgRes.items);
-        setMessageTotal(msgRes.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.messages
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }${filterString !== undefined ? filterString : ''}`
+      )
+        .then((msgRes: IPagedMessageResponse) => {
+          if (isMounted) {
+            setMessages(msgRes.items);
+            setMessageTotal(msgRes.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        })
+        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
   }, [
     rowsPerPage,
     currentPage,
     selectedNamespace,
     createdFilter,
-    lastEvent,
     filterString,
-    reportFetchError,
+    lastRefreshTime,
+    isMounted,
   ]);
 
   // Histogram
@@ -116,21 +151,22 @@ export const OffChainMessages: () => JSX.Element = () => {
     const currentTime = dayjs().unix();
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.Messages,
-        createdFilterObject.filterTime,
-        currentTime,
-        BucketCountEnum.Large
-      )}`
-    )
-      .then((histTypes: IMetric[]) => {
-        setMessageHistData(makeMsgHistogram(histTypes));
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+          BucketCollectionEnum.Messages,
+          createdFilterObject.filterTime,
+          currentTime,
+          BucketCountEnum.Large
+        )}`
+      )
+        .then((histTypes: IMetric[]) => {
+          isMounted && setMessageHistData(makeMsgHistogram(histTypes));
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
 
   const msgColumnHeaders = [
     t('type'),
@@ -150,7 +186,7 @@ export const OffChainMessages: () => JSX.Element = () => {
         value: (
           <FFTableText
             color="primary"
-            text={t(FF_MESSAGES_CATEGORY_MAP[msg?.header.type].nicename)}
+            text={t(FF_MESSAGES_CATEGORY_MAP[msg?.header.type]?.nicename)}
           />
         ),
       },
@@ -171,7 +207,7 @@ export const OffChainMessages: () => JSX.Element = () => {
         value: (
           <FFTableText
             color="primary"
-            text={t(FF_TX_CATEGORY_MAP[msg?.header.txtype].nicename)}
+            text={t(FF_TX_CATEGORY_MAP[msg?.header.txtype]?.nicename)}
           />
         ),
       },
@@ -205,14 +241,19 @@ export const OffChainMessages: () => JSX.Element = () => {
       },
     ],
     onClick: () => setViewMsg(msg),
-    leftBorderColor: FF_MESSAGES_CATEGORY_MAP[msg.header.type].color,
+    leftBorderColor: FF_MESSAGES_CATEGORY_MAP[msg.header.type]?.color,
   }));
 
   return (
     <>
-      <Header title={t('messages')} subtitle={t('offChain')}></Header>
+      <Header
+        title={t('messages')}
+        subtitle={t('offChain')}
+        onRefresh={refreshData}
+        numNewEvents={numNewEvents}
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
-        <Grid container item wrap="nowrap" direction="column" spacing={2}>
+        <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
             title={t('allMessages')}
             filter={
@@ -225,7 +266,7 @@ export const OffChainMessages: () => JSX.Element = () => {
               />
             }
           />
-          <Grid item>
+          <Box height={DEFAULT_HIST_HEIGHT}>
             <Histogram
               colors={makeColorArray(FF_MESSAGES_CATEGORY_MAP)}
               data={messageHistData}
@@ -235,7 +276,7 @@ export const OffChainMessages: () => JSX.Element = () => {
               emptyText={t('noMessages')}
               isEmpty={isHistogramEmpty(messageHistData ?? [])}
             />
-          </Grid>
+          </Box>
           <DataTable
             onHandleCurrPageChange={(currentPage: number) =>
               setCurrentPage(currentPage)
