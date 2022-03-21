@@ -53,6 +53,7 @@ export const OffChainDataTypes: () => JSX.Element = () => {
   } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
   // Datatype
   const [datatypes, setDatatypes] = useState<IDatatype[]>();
   // Data total
@@ -67,7 +68,8 @@ export const OffChainDataTypes: () => JSX.Element = () => {
   );
 
   useEffect(() => {
-    isEventType(lastEvent, FF_EVENTS.DATATYPE_CONFIRMED) &&
+    isMounted &&
+      isEventType(lastEvent, FF_EVENTS.DATATYPE_CONFIRMED) &&
       setNumNewEvents(numNewEvents + 1);
   }, [lastEvent]);
 
@@ -76,25 +78,36 @@ export const OffChainDataTypes: () => JSX.Element = () => {
     setLastRefresh(new Date().toString());
   };
 
-  // Data type
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
+  // Datatype
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.datatypes
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }${filterString !== undefined ? filterString : ''}`
-    )
-      .then((datatypeRes: IPagedDatatypeResponse) => {
-        setDatatypes(datatypeRes.items);
-        setDatatypeTotal(datatypeRes.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    numNewEvents !== 0 && setNumNewEvents(0);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.datatypes
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }${filterString !== undefined ? filterString : ''}`
+      )
+        .then((datatypeRes: IPagedDatatypeResponse) => {
+          if (isMounted) {
+            setDatatypes(datatypeRes.items);
+            setDatatypeTotal(datatypeRes.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        })
+        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
   }, [
     rowsPerPage,
     currentPage,
@@ -102,6 +115,7 @@ export const OffChainDataTypes: () => JSX.Element = () => {
     createdFilter,
     filterString,
     lastRefreshTime,
+    isMounted,
   ]);
 
   const datatypeColHeaders = [

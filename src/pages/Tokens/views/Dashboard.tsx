@@ -82,7 +82,7 @@ export const TokensDashboard: () => JSX.Element = () => {
     useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const navigate = useNavigate();
-
+  const [isMounted, setIsMounted] = useState(false);
   // Small cards
   // Tokens
   const [tokenTransfersCount, setTokenTransfersCount] = useState<number>();
@@ -121,9 +121,10 @@ export const TokensDashboard: () => JSX.Element = () => {
   );
 
   useEffect(() => {
-    (isEventType(lastEvent, FF_EVENTS.TOKEN_POOL_CONFIRMED) ||
-      isEventType(lastEvent, FF_EVENTS.TOKEN_TRANSFER_CONFIRMED) ||
-      isEventType(lastEvent, FF_EVENTS.TOKEN_TRANSFER_FAILED)) &&
+    isMounted &&
+      (isEventType(lastEvent, FF_EVENTS.TOKEN_POOL_CONFIRMED) ||
+        isEventType(lastEvent, FF_EVENTS.TOKEN_TRANSFER_CONFIRMED) ||
+        isEventType(lastEvent, FF_EVENTS.TOKEN_TRANSFER_FAILED)) &&
       setNumNewEvents(numNewEvents + 1);
   }, [lastEvent]);
 
@@ -131,6 +132,14 @@ export const TokensDashboard: () => JSX.Element = () => {
     setNumNewEvents(0);
     setLastRefresh(new Date().toString());
   };
+
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
 
   const smallCards: ISmallCard[] = [
     {
@@ -167,70 +176,73 @@ export const TokensDashboard: () => JSX.Element = () => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
     const qParams = `?count=true&limit=1${createdFilterObject.filterString}`;
 
-    Promise.all([
-      // Tokens
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}${qParams}&type=transfer`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}${qParams}&type=mint`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}${qParams}&type=burn`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&type=token_create_pool&type=token_activate_pool&type=token_transfer&status=Failed`
-      ),
-      // Accounts
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenAccounts}${qParams}`
-      ),
-      // Pools
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenPools}?count=true&limit=1`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&type=token_create_pool&type=token_activate_pool&status=Failed`
-      ),
-      // Connectors
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenConnectors}?count=true&limit=1`
-      ),
-    ])
-      .then(
-        ([
-          // Transfers
-          tokensTransfer,
-          tokensMint,
-          tokensBurn,
-          tokenErrors,
-          // Accounts
-          tokenAccounts,
-          // Pools
-          tokenPools,
-          tokenPoolErrors,
-          // Connectors
-          tokenConnectors,
-        ]: IGenericPagedResponse[] | any[]) => {
-          // Transfers
-          setTokenTransfersCount(tokensTransfer.total);
-          setTokenMintcount(tokensMint.total);
-          setTokenBurnCount(tokensBurn.total);
-          setTokenErrorCount(tokenErrors.total);
-          // Accounts
-          setTokenAccountsCount(tokenAccounts.total);
-          // Pools
-          setTokenPoolCount(tokenPools.total);
-          setTokenPoolErrorCount(tokenPoolErrors.total);
-          // Connectors
-          setTokenConnectorCount(tokenConnectors.length);
-        }
-      )
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    numNewEvents !== 0 && setNumNewEvents(0);
-  }, [selectedNamespace, createdFilter, lastRefreshTime]);
+    isMounted &&
+      Promise.all([
+        // Tokens
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}${qParams}&type=transfer`
+        ),
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}${qParams}&type=mint`
+        ),
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}${qParams}&type=burn`
+        ),
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&type=token_create_pool&type=token_activate_pool&type=token_transfer&status=Failed`
+        ),
+        // Accounts
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenAccounts}${qParams}`
+        ),
+        // Pools
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenPools}?count=true&limit=1`
+        ),
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&type=token_create_pool&type=token_activate_pool&status=Failed`
+        ),
+        // Connectors
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenConnectors}?count=true&limit=1`
+        ),
+      ])
+        .then(
+          ([
+            // Transfers
+            tokensTransfer,
+            tokensMint,
+            tokensBurn,
+            tokenErrors,
+            // Accounts
+            tokenAccounts,
+            // Pools
+            tokenPools,
+            tokenPoolErrors,
+            // Connectors
+            tokenConnectors,
+          ]: IGenericPagedResponse[] | any[]) => {
+            if (isMounted) {
+              // Transfers
+              setTokenTransfersCount(tokensTransfer.total);
+              setTokenMintcount(tokensMint.total);
+              setTokenBurnCount(tokensBurn.total);
+              setTokenErrorCount(tokenErrors.total);
+              // Accounts
+              setTokenAccountsCount(tokenAccounts.total);
+              // Pools
+              setTokenPoolCount(tokenPools.total);
+              setTokenPoolErrorCount(tokenPoolErrors.total);
+              // Connectors
+              setTokenConnectorCount(tokenConnectors.length);
+            }
+          }
+        )
+        .catch((err) => {
+          reportFetchError(err);
+        })
+        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
+  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
 
   const tokenAccountsColHeaders = [t('key'), t('poolID'), t('balance')];
   const tokenAccountRecords: IDataTableRecord[] | undefined =
@@ -354,42 +366,42 @@ export const TokensDashboard: () => JSX.Element = () => {
   useEffect(() => {
     const currentTime = dayjs().unix();
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.TokenTransfers,
-        createdFilterObject.filterTime,
-        currentTime,
-        BucketCountEnum.Small
-      )}`
-    )
-      .then((histTypes: IMetric[]) => {
-        setTransferHistData(makeTransferHistogram(histTypes));
-      })
-      .catch((err) => {
-        setTransferHistData([]);
-        reportFetchError(err);
-      });
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenPools}`
-    )
-      .then((pools: ITokenPool[]) => {
-        setTokenPools(pools);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenBalances}`
-    )
-      .then((balances: ITokenBalance[]) => {
-        setTokenBalances(balances);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    numNewEvents !== 0 && setNumNewEvents(0);
-  }, [selectedNamespace, lastRefreshTime, createdFilter]);
+    if (isMounted) {
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+          BucketCollectionEnum.TokenTransfers,
+          createdFilterObject.filterTime,
+          currentTime,
+          BucketCountEnum.Small
+        )}`
+      )
+        .then((histTypes: IMetric[]) => {
+          isMounted && setTransferHistData(makeTransferHistogram(histTypes));
+        })
+        .catch((err) => {
+          setTransferHistData([]);
+          reportFetchError(err);
+        });
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenPools}`
+      )
+        .then((pools: ITokenPool[]) => {
+          isMounted && setTokenPools(pools);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenBalances}`
+      )
+        .then((balances: ITokenBalance[]) => {
+          isMounted && setTokenBalances(balances);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+    }
+  }, [selectedNamespace, lastRefreshTime, createdFilter, isMounted]);
 
   const tokenTransferColHeaders = [
     t('type'),
@@ -459,26 +471,30 @@ export const TokensDashboard: () => JSX.Element = () => {
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.tokenTransfers
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }`
-    )
-      .then((tokenTransfers: IPagedTokenTransferResponse) => {
-        setTokenTransfers(tokenTransfers.items);
-        setTokenTransferTotal(tokenTransfers.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.tokenTransfers
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }`
+      )
+        .then((tokenTransfers: IPagedTokenTransferResponse) => {
+          if (isMounted) {
+            setTokenTransfers(tokenTransfers.items);
+            setTokenTransferTotal(tokenTransfers.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
   }, [
     rowsPerPage,
     currentPage,
     lastRefreshTime,
     selectedNamespace,
     createdFilter,
+    isMounted,
   ]);
 
   return (
@@ -554,7 +570,7 @@ export const TokensDashboard: () => JSX.Element = () => {
             }
             stickyHeader={true}
             minHeight="300px"
-            maxHeight="calc(100vh - 340px)"
+            maxHeight="calc(100vh - 800px)"
             records={tokenTransferRecords}
             columnHeaders={tokenTransferColHeaders}
             paginate={true}

@@ -76,6 +76,7 @@ export const ActivityOperations: () => JSX.Element = () => {
   } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
   // Operations
   const [ops, setOps] = useState<IOperation[]>();
   // Operation totals
@@ -94,7 +95,8 @@ export const ActivityOperations: () => JSX.Element = () => {
 
   useEffect(() => {
     // TODO: Figure out best type to filter by
-    isEventType(lastEvent, WsEventTypes.EVENT) &&
+    isMounted &&
+      isEventType(lastEvent, WsEventTypes.EVENT) &&
       setNumNewEvents(numNewEvents + 1);
   }, [lastEvent]);
 
@@ -103,25 +105,36 @@ export const ActivityOperations: () => JSX.Element = () => {
     setLastRefresh(new Date().toString());
   };
 
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   // Operations
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.operations
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }${filterString !== undefined ? filterString : ''}`
-    )
-      .then((opRes: IPagedOperationResponse) => {
-        setOps(opRes.items);
-        setOpTotal(opRes.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    numNewEvents !== 0 && setNumNewEvents(0);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.operations
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }${filterString !== undefined ? filterString : ''}`
+      )
+        .then((opRes: IPagedOperationResponse) => {
+          if (isMounted) {
+            setOps(opRes.items);
+            setOpTotal(opRes.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        })
+        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
   }, [
     rowsPerPage,
     currentPage,
@@ -129,6 +142,7 @@ export const ActivityOperations: () => JSX.Element = () => {
     createdFilter,
     filterString,
     lastRefreshTime,
+    isMounted,
   ]);
 
   // Histogram
@@ -136,21 +150,22 @@ export const ActivityOperations: () => JSX.Element = () => {
     const currentTime = dayjs().unix();
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.Operations,
-        createdFilterObject.filterTime,
-        currentTime,
-        BucketCountEnum.Large
-      )}`
-    )
-      .then((histTypes: IMetric[]) => {
-        setOpHistData(makeOperationHistogram(histTypes));
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [selectedNamespace, createdFilter, lastRefreshTime]);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+          BucketCollectionEnum.Operations,
+          createdFilterObject.filterTime,
+          currentTime,
+          BucketCountEnum.Large
+        )}`
+      )
+        .then((histTypes: IMetric[]) => {
+          isMounted && setOpHistData(makeOperationHistogram(histTypes));
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
 
   const opsColumnHeaders = [
     t('type'),

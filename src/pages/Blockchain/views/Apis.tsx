@@ -53,6 +53,7 @@ export const BlockchainApis: () => JSX.Element = () => {
   } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
   // APIs
   const [apis, setApis] = useState<IFireflyApi[]>();
   // API Totals
@@ -67,7 +68,8 @@ export const BlockchainApis: () => JSX.Element = () => {
   );
 
   useEffect(() => {
-    isEventType(lastEvent, FF_EVENTS.CONTRACT_API_CONFIRMED) &&
+    isMounted &&
+      isEventType(lastEvent, FF_EVENTS.CONTRACT_API_CONFIRMED) &&
       setNumNewEvents(numNewEvents + 1);
   }, [lastEvent]);
 
@@ -76,25 +78,36 @@ export const BlockchainApis: () => JSX.Element = () => {
     setLastRefresh(new Date().toString());
   };
 
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   // APIs
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.apis
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }${filterString !== undefined ? filterString : ''}`
-    )
-      .then((apis: IPagedFireFlyApiResponse) => {
-        setApis(apis.items);
-        setApiTotal(apis.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    numNewEvents !== 0 && setNumNewEvents(0);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.apis
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }${filterString !== undefined ? filterString : ''}`
+      )
+        .then((apis: IPagedFireFlyApiResponse) => {
+          if (isMounted) {
+            setApis(apis.items);
+            setApiTotal(apis.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        })
+        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
   }, [
     rowsPerPage,
     currentPage,
@@ -102,6 +115,7 @@ export const BlockchainApis: () => JSX.Element = () => {
     createdFilter,
     filterString,
     lastRefreshTime,
+    isMounted,
   ]);
 
   const apiColHeaders = [

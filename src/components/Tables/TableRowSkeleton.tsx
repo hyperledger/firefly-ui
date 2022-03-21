@@ -34,7 +34,7 @@ export const TableRowSkeleton: React.FC<Props> = ({ numColumns }) => {
           <TableCell
             key={index}
             sx={{
-              height: '50px',
+              height: '49px',
               borderTopLeftRadius:
                 index == 0 ? DEFAULT_BORDER_RADIUS : undefined,
               borderBottomLeftRadius:

@@ -62,6 +62,7 @@ export const TokensPools: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const navigate = useNavigate();
+  const [isMounted, setIsMounted] = useState(false);
   // Token pools
   const [tokenPools, setTokenPools] = useState<ITokenPool[]>();
   // Token pools totals
@@ -76,7 +77,8 @@ export const TokensPools: () => JSX.Element = () => {
   );
 
   useEffect(() => {
-    isEventType(lastEvent, FF_EVENTS.TOKEN_POOL_CONFIRMED) &&
+    isMounted &&
+      isEventType(lastEvent, FF_EVENTS.TOKEN_POOL_CONFIRMED) &&
       setNumNewEvents(numNewEvents + 1);
   }, [lastEvent]);
 
@@ -85,24 +87,34 @@ export const TokensPools: () => JSX.Element = () => {
     setLastRefresh(new Date().toString());
   };
 
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   // Token pools
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.tokenPools
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }${filterString !== undefined ? filterString : ''}`
-    )
-      .then((tokenPoolsRes: IPagedTokenPoolResponse) => {
-        setTokenPools(tokenPoolsRes.items);
-        setTokenPoolsTotal(tokenPoolsRes.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.tokenPools
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }${filterString !== undefined ? filterString : ''}`
+      )
+        .then((tokenPoolsRes: IPagedTokenPoolResponse) => {
+          setTokenPools(tokenPoolsRes.items);
+          setTokenPoolsTotal(tokenPoolsRes.total);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        })
+        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
     numNewEvents !== 0 && setNumNewEvents(0);
   }, [
     rowsPerPage,
@@ -111,6 +123,7 @@ export const TokensPools: () => JSX.Element = () => {
     createdFilter,
     filterString,
     lastRefreshTime,
+    isMounted,
   ]);
 
   const tokenPoolColHeaders = [

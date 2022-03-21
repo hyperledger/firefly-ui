@@ -70,6 +70,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
     filterString,
   } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
+  const [isMounted, setIsMounted] = useState(false);
   const [eventHistData, setEventHistData] = useState<BarDatum[]>();
   const { t } = useTranslation();
   const [viewTx, setViewTx] = useState<ITransaction>();
@@ -83,7 +84,8 @@ export const ActivityTimeline: () => JSX.Element = () => {
   );
 
   useEffect(() => {
-    isEventType(lastEvent, WsEventTypes.EVENT) &&
+    isMounted &&
+      isEventType(lastEvent, WsEventTypes.EVENT) &&
       setNumNewEvents(numNewEvents + 1);
   }, [lastEvent]);
 
@@ -91,6 +93,14 @@ export const ActivityTimeline: () => JSX.Element = () => {
     setNumNewEvents(0);
     setLastRefresh(new Date().toString());
   };
+
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
 
   const { data, fetchNextPage, hasNextPage, refetch } = useInfiniteQuery(
     'events',
@@ -128,47 +138,52 @@ export const ActivityTimeline: () => JSX.Element = () => {
     const currentTime = dayjs().unix();
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.Events,
-        createdFilterObject.filterTime,
-        currentTime,
-        BucketCountEnum.Large
-      )}`
-    )
-      .then((histEvents) => {
-        setEventHistData(makeEventHistogram(histEvents));
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [selectedNamespace, createdFilter, lastRefreshTime]);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+          BucketCollectionEnum.Events,
+          createdFilterObject.filterTime,
+          currentTime,
+          BucketCountEnum.Large
+        )}`
+      )
+        .then((histEvents) => {
+          isMounted && setEventHistData(makeEventHistogram(histEvents));
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
 
   useEffect(() => {
-    if (isVisible && hasNextPage) {
+    if (isVisible && hasNextPage && isMounted) {
       fetchNextPage();
     }
-  }, [isVisible, hasNextPage, fetchNextPage]);
+  }, [isVisible, hasNextPage, fetchNextPage, isMounted]);
 
   useEffect(() => {
-    refetch();
-  }, [createdFilter, queryClient, refetch, filterString]);
+    isMounted && refetch();
+  }, [createdFilter, queryClient, refetch, filterString, isMounted]);
 
   useEffect(() => {
-    refetch({ refetchPage: (_page, index) => index === 0 });
-  }, [refetch, lastRefreshTime]);
+    if (isMounted) {
+      refetch({ refetchPage: (_page, index) => index === 0 });
+    }
+  }, [refetch, lastRefreshTime, isMounted]);
 
   const buildTimelineElements = (
     data: InfiniteData<IPagedEventResponse> | undefined
   ) => {
-    if (data) {
+    if (isMounted && data) {
       const pages = data.pages.map((page) => page.items);
       return pages.flat().map((event: IEvent, idx) => ({
         key: idx,
         item: (
           <EventCardWrapper
-            onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
-            onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
+            onHandleViewEvent={(event: IEvent) =>
+              isMounted && setViewEvent(event)
+            }
+            onHandleViewTx={(tx: ITransaction) => isMounted && setViewTx(tx)}
             link={FF_NAV_PATHS.activityTxDetailPath(
               selectedNamespace,
               event.tx

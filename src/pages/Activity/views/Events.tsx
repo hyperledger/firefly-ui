@@ -73,6 +73,7 @@ export const ActivityEvents: () => JSX.Element = () => {
   } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
   // Events
   const [events, setEvents] = useState<IEvent[]>();
   // Event totals
@@ -90,7 +91,8 @@ export const ActivityEvents: () => JSX.Element = () => {
   );
 
   useEffect(() => {
-    isEventType(lastEvent, WsEventTypes.EVENT) &&
+    isMounted &&
+      isEventType(lastEvent, WsEventTypes.EVENT) &&
       setNumNewEvents(numNewEvents + 1);
   }, [lastEvent]);
 
@@ -99,25 +101,36 @@ export const ActivityEvents: () => JSX.Element = () => {
     setLastRefresh(new Date().toISOString());
   };
 
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   // Events list
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.events
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }${filterString !== undefined ? filterString : ''}`
-    )
-      .then((eventRes: IPagedEventResponse) => {
-        setEvents(eventRes.items);
-        setEventTotal(eventRes.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    numNewEvents !== 0 && setNumNewEvents(0);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.events
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }${filterString !== undefined ? filterString : ''}`
+      )
+        .then((eventRes: IPagedEventResponse) => {
+          if (isMounted) {
+            setEvents(eventRes.items);
+            setEventTotal(eventRes.total);
+            numNewEvents !== 0 && setNumNewEvents(0);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
   }, [
     rowsPerPage,
     currentPage,
@@ -125,6 +138,7 @@ export const ActivityEvents: () => JSX.Element = () => {
     createdFilter,
     filterString,
     lastRefreshTime,
+    isMounted,
   ]);
 
   // Histogram
@@ -132,22 +146,23 @@ export const ActivityEvents: () => JSX.Element = () => {
     const currentTime = dayjs().unix();
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.Events,
-        createdFilterObject.filterTime,
-        currentTime,
-        BucketCountEnum.Large
-      )}`
-    )
-      .then((histTypes: IMetric[]) => {
-        setEventHistData(makeEventHistogram(histTypes));
-      })
-      .catch((err) => {
-        setEventHistData([]);
-        reportFetchError(err);
-      });
-  }, [selectedNamespace, createdFilter, lastRefreshTime]);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+          BucketCollectionEnum.Events,
+          createdFilterObject.filterTime,
+          currentTime,
+          BucketCountEnum.Large
+        )}`
+      )
+        .then((histTypes: IMetric[]) => {
+          isMounted && setEventHistData(makeEventHistogram(histTypes));
+        })
+        .catch((err) => {
+          setEventHistData([]);
+          reportFetchError(err);
+        });
+  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
 
   const eventsColumnHeaders = [
     t('type'),

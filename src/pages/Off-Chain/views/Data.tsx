@@ -59,6 +59,7 @@ export const OffChainData: () => JSX.Element = () => {
   } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
   // Data
   const [data, setData] = useState<IData[]>();
   // Data total
@@ -73,8 +74,9 @@ export const OffChainData: () => JSX.Element = () => {
   );
 
   useEffect(() => {
-    (isEventType(lastEvent, WsEventTypes.MESSAGE) ||
-      isEventType(lastEvent, FF_EVENTS.DATATYPE_CONFIRMED)) &&
+    isMounted &&
+      (isEventType(lastEvent, WsEventTypes.MESSAGE) ||
+        isEventType(lastEvent, FF_EVENTS.DATATYPE_CONFIRMED)) &&
       setNumNewEvents(numNewEvents + 1);
   }, [lastEvent]);
 
@@ -83,24 +85,35 @@ export const OffChainData: () => JSX.Element = () => {
     setLastRefresh(new Date().toString());
   };
 
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   // Data
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.data
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }${filterString !== undefined ? filterString : ''}`
-    )
-      .then((dataRes: IPagedDataResponse) => {
-        setData(dataRes.items);
-        setDataTotal(dataRes.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    numNewEvents !== 0 && setNumNewEvents(0);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.data
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }${filterString !== undefined ? filterString : ''}`
+      )
+        .then((dataRes: IPagedDataResponse) => {
+          if (isMounted) {
+            setData(dataRes.items);
+            setDataTotal(dataRes.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        })
+        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
   }, [
     rowsPerPage,
     currentPage,
@@ -108,6 +121,7 @@ export const OffChainData: () => JSX.Element = () => {
     createdFilter,
     filterString,
     lastRefreshTime,
+    isMounted,
   ]);
 
   const dataColHeaders = [

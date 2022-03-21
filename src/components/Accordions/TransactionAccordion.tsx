@@ -36,7 +36,7 @@ export const TransactionAccordion: React.FC<Props> = ({
               <HashPopover key={id} shortHash address={id} />
             ))
           ) : (
-            <FFAccordionText text={t('noBlockchainIds')} color="primary" />
+            <FFAccordionText text={t('noBlockchainIds')} color="secondary" />
           )}
         </>
       ),

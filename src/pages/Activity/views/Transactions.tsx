@@ -70,6 +70,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
   } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
   // Transactions
   const [txs, setTxs] = useState<ITransaction[]>();
   // Transaction totals
@@ -88,7 +89,8 @@ export const ActivityTransactions: () => JSX.Element = () => {
   );
 
   useEffect(() => {
-    isEventType(lastEvent, WsEventTypes.TRANSACTION) &&
+    isMounted &&
+      isEventType(lastEvent, WsEventTypes.TRANSACTION) &&
       setNumNewEvents(numNewEvents + 1);
   }, [lastEvent]);
 
@@ -97,25 +99,36 @@ export const ActivityTransactions: () => JSX.Element = () => {
     setLastRefresh(new Date().toString());
   };
 
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   // Transactions
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.transactions
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }${filterString !== undefined ? filterString : ''}`
-    )
-      .then((txRes: IPagedTransactionResponse) => {
-        setTxs(txRes.items);
-        setTxTotal(txRes.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    numNewEvents !== 0 && setNumNewEvents(0);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.transactions
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }${filterString !== undefined ? filterString : ''}`
+      )
+        .then((txRes: IPagedTransactionResponse) => {
+          if (isMounted) {
+            setTxs(txRes.items);
+            setTxTotal(txRes.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        })
+        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
   }, [
     rowsPerPage,
     currentPage,
@@ -123,9 +136,10 @@ export const ActivityTransactions: () => JSX.Element = () => {
     createdFilter,
     filterString,
     lastRefreshTime,
+    isMounted,
   ]);
 
-  // Histogram
+  // Histogram;
   useEffect(() => {
     const currentTime = dayjs().unix();
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
@@ -139,17 +153,17 @@ export const ActivityTransactions: () => JSX.Element = () => {
       )}`
     )
       .then((histTypes: IMetric[]) => {
-        setTxHistData(makeTxHistogram(histTypes));
+        isMounted && setTxHistData(makeTxHistogram(histTypes));
       })
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, lastRefreshTime]);
+  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
 
   const txColumnHeaders = [
     t('type'),
     t('id'),
-    t('details'),
+    // t('details'),
     t('blockchainIds'),
     t('created'),
     t(''),
@@ -169,9 +183,10 @@ export const ActivityTransactions: () => JSX.Element = () => {
       {
         value: <HashPopover shortHash={true} address={tx.id}></HashPopover>,
       },
-      {
-        value: <FFTableText color="primary" text={'TODO'} />,
-      },
+      // TODO: Enrich content
+      // {
+      //   value: <FFTableText color="primary" text={'TODO'} />,
+      // },
       {
         value: (
           <>

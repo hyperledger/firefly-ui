@@ -30,29 +30,38 @@ export const MyNodeDashboard: () => JSX.Element = () => {
   const { nodeID, orgID } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
-
+  const [isMounted, setIsMounted] = useState(false);
   // Node
   const [node, setNode] = useState<INode>();
   // Org
   const [org, setOrg] = useState<IOrganization>();
 
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   // Nodes and Orgs
   useEffect(() => {
-    fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.networkNodeById(nodeID)}`)
-      .then((nodeRes: INode) => {
-        setNode(nodeRes);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.networkOrgById(orgID)}`)
-      .then((orgRes: IOrganization) => {
-        setOrg(orgRes);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [nodeID, orgID]);
+    if (isMounted) {
+      fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.networkNodeById(nodeID)}`)
+        .then((nodeRes: INode) => {
+          isMounted && setNode(nodeRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+      fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.networkOrgById(orgID)}`)
+        .then((orgRes: IOrganization) => {
+          isMounted && setOrg(orgRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+    }
+  }, [nodeID, orgID, isMounted]);
 
   const nodeInputs = [
     {
@@ -101,7 +110,12 @@ export const MyNodeDashboard: () => JSX.Element = () => {
 
   return (
     <>
-      <Header title={t('dashboard')} subtitle={t('myNode')}></Header>
+      <Header
+        title={t('dashboard')}
+        subtitle={t('myNode')}
+        noDateFilter
+        noNsFilter
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid
           container

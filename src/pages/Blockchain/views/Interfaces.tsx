@@ -42,6 +42,7 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
     useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
   // Interfaces
   const [interfaces, setInterfaces] = useState<IContractInterface[]>();
   // Interface totals
@@ -59,7 +60,8 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
   );
 
   useEffect(() => {
-    isEventType(lastEvent, FF_EVENTS.CONTRACT_INTERFACE_CONFIRMED) &&
+    isMounted &&
+      isEventType(lastEvent, FF_EVENTS.CONTRACT_INTERFACE_CONFIRMED) &&
       setNumNewEvents(numNewEvents + 1);
   }, [lastEvent]);
 
@@ -68,26 +70,37 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
     setLastRefresh(new Date().toString());
   };
 
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   // Interfaces
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.contractInterfaces
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }`
-    )
-      .then((interfaceRes: IPagedContractInterfaceResponse) => {
-        setInterfaces(interfaceRes.items);
-        setInterfaceTotal(interfaceRes.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    numNewEvents !== 0 && setNumNewEvents(0);
-  }, [rowsPerPage, currentPage, selectedNamespace, lastRefreshTime]);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.contractInterfaces
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }`
+      )
+        .then((interfaceRes: IPagedContractInterfaceResponse) => {
+          if (isMounted) {
+            setInterfaces(interfaceRes.items);
+            setInterfaceTotal(interfaceRes.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        })
+        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
+  }, [rowsPerPage, currentPage, selectedNamespace, lastRefreshTime, isMounted]);
 
   const interfaceColHeaders = [
     t('name'),

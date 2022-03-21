@@ -81,7 +81,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
     useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const navigate = useNavigate();
-
+  const [isMounted, setIsMounted] = useState(false);
   // Small cards
   // Message count
   const [msgCount, setMsgCount] = useState<number>();
@@ -113,15 +113,24 @@ export const OffChainDashboard: () => JSX.Element = () => {
   );
 
   useEffect(() => {
-    (isEventType(lastEvent, WsEventTypes.MESSAGE) ||
-      isEventType(lastEvent, FF_EVENTS.DATATYPE_CONFIRMED)) &&
+    isMounted &&
+      (isEventType(lastEvent, WsEventTypes.MESSAGE) ||
+        isEventType(lastEvent, FF_EVENTS.DATATYPE_CONFIRMED)) &&
       setNumNewEvents(numNewEvents + 1);
   }, [lastEvent]);
 
   const refreshData = () => {
     setNumNewEvents(0);
-    setLastRefresh(new Date().toString());
+    setLastRefresh(new Date().toISOString());
   };
+
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
 
   const smallCards: ISmallCard[] = [
     {
@@ -151,42 +160,45 @@ export const OffChainDashboard: () => JSX.Element = () => {
     const qParams = `?count=true&limit=1${createdFilterObject.filterString}`;
     const qParamsNoRange = `?count=true&limit=1`;
 
-    Promise.all([
-      // Messages
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messages}${qParams}`
-      ),
-      // Data
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.data}${qParams}`
-      ),
-      // Datatypes
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.datatypes}${qParamsNoRange}`
-      ),
-    ])
-      .then(
-        ([
-          // Msgs
-          msgs,
-          // Data
-          data,
-          // Datatypes
-          datatypes,
-        ]: IGenericPagedResponse[] | any[]) => {
-          // Data
-          setMsgCount(msgs.total);
-          // Data Count
-          setDataCount(data.total);
-          // Datatypes
-          setDatatypesCount(datatypes.total);
-        }
-      )
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    numNewEvents !== 0 && setNumNewEvents(0);
-  }, [selectedNamespace, createdFilter, lastRefreshTime]);
+    isMounted &&
+      Promise.all([
+        // Messages
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messages}${qParams}`
+        ),
+        // Data
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.data}${qParams}`
+        ),
+        // Datatypes
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.datatypes}${qParamsNoRange}`
+        ),
+      ])
+        .then(
+          ([
+            // Msgs
+            msgs,
+            // Data
+            data,
+            // Datatypes
+            datatypes,
+          ]: IGenericPagedResponse[] | any[]) => {
+            if (isMounted) {
+              // Data
+              setMsgCount(msgs.total);
+              // Data Count
+              setDataCount(data.total);
+              // Datatypes
+              setDatatypesCount(datatypes.total);
+            }
+          }
+        )
+        .catch((err) => {
+          reportFetchError(err);
+        })
+        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
+  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
 
   const dataHeaders = [t('nameOrID'), t('created'), t('download')];
   const dataRecords: IDataTableRecord[] | undefined = data?.map((data) => ({
@@ -294,65 +306,68 @@ export const OffChainDashboard: () => JSX.Element = () => {
   useEffect(() => {
     const currentTime = dayjs().unix();
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-    const qParams = `?limit=4${createdFilterObject.filterString}`;
-    const qParamsNoRange = `?limit=4`;
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.Messages,
-        createdFilterObject.filterTime,
-        currentTime,
-        BucketCountEnum.Small
-      )}`
-    )
-      .then((histTypes: IMetric[]) => {
-        setMessageHistData(makeMsgHistogram(histTypes));
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    // Data
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.data}${qParams}`
-    )
-      .then((data: IData[]) => {
-        setData(data);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    // Datatypes
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.datatypes}${qParamsNoRange}`
-    )
-      .then((datatypes: IDatatype[]) => {
-        setDatatypes(datatypes);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    numNewEvents !== 0 && setNumNewEvents(0);
-  }, [selectedNamespace, createdFilter, lastRefreshTime]);
+    const qParams = `?limit=25${createdFilterObject.filterString}`;
+    const qParamsNoRange = `?limit=25`;
+    if (isMounted) {
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+          BucketCollectionEnum.Messages,
+          createdFilterObject.filterTime,
+          currentTime,
+          BucketCountEnum.Small
+        )}`
+      )
+        .then((histTypes: IMetric[]) => {
+          isMounted && setMessageHistData(makeMsgHistogram(histTypes));
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+      // Data
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.data}${qParams}`
+      )
+        .then((data: IData[]) => {
+          isMounted && setData(data);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+      // Datatypes
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.datatypes}${qParamsNoRange}`
+      )
+        .then((datatypes: IDatatype[]) => {
+          isMounted && setDatatypes(datatypes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+    }
+  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
 
   // Messages
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.messages
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }`
-    )
-      .then((msgRes: IPagedMessageResponse) => {
-        setMessages(msgRes.items);
-        setMessageTotal(msgRes.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    numNewEvents !== 0 && setNumNewEvents(0);
-  }, [rowsPerPage, currentPage, lastRefreshTime, selectedNamespace]);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.messages
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }`
+      )
+        .then((msgRes: IPagedMessageResponse) => {
+          if (isMounted) {
+            setMessages(msgRes.items);
+            setMessageTotal(msgRes.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [rowsPerPage, currentPage, lastRefreshTime, selectedNamespace, isMounted]);
 
   const msgColumnHeaders = [
     t('type'),
@@ -498,7 +513,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
             }
             stickyHeader={true}
             minHeight="300px"
-            maxHeight="calc(100vh - 340px)"
+            maxHeight="calc(100vh - 800px)"
             records={msgRecords}
             columnHeaders={msgColumnHeaders}
             paginate={true}

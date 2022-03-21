@@ -51,8 +51,10 @@ export const FF_NAV_PATHS = {
   // Activity
   activityTimelinePath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}`,
-  activityEventsPath: (ns: string) =>
-    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${EVENTS_PATH}`,
+  activityEventsPath: (ns: string, txID?: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${EVENTS_PATH}${
+      txID ? `?filters=tx==${txID}` : ''
+    }`,
   activityTxPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}`,
   activityTxDetailPath: (ns: string, txID: string) =>

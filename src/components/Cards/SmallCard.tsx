@@ -41,6 +41,7 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
             sx={{
               fontWeight: 'bold',
             }}
+            noWrap
           >
             {card.header}
           </Typography>
@@ -76,6 +77,7 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
           return (
             <Grid key={idx} item>
               <Typography
+                noWrap
                 sx={{ fontSize: 12, textTransform: 'uppercase' }}
                 variant="subtitle2"
               >
@@ -84,6 +86,7 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
 
               {data.data !== undefined ? (
                 <Typography
+                  noWrap
                   sx={{ fontSize: 24, fontWeight: 'bold' }}
                   variant="subtitle1"
                 >

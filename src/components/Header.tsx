@@ -35,6 +35,8 @@ interface Props {
   onRefresh?: any;
   numNewEvents?: number;
   showNumNewEvents?: boolean;
+  noDateFilter?: boolean;
+  noNsFilter?: boolean;
 }
 
 export const Header: React.FC<Props> = ({
@@ -43,6 +45,8 @@ export const Header: React.FC<Props> = ({
   onRefresh,
   numNewEvents = 0,
   showNumNewEvents = true,
+  noDateFilter = false,
+  noNsFilter = false,
 }) => {
   const { t } = useTranslation();
 
@@ -91,7 +95,7 @@ export const Header: React.FC<Props> = ({
                     color="info"
                     sx={{ borderRadius: '16px' }}
                   >
-                    <Typography sx={{ fontSize: '12px' }}>
+                    <Typography sx={{ fontSize: '14px' }}>
                       {`${t('refresh')}${
                         showNumNewEvents ? ` (${numNewEvents})` : ''
                       }`}
@@ -99,12 +103,8 @@ export const Header: React.FC<Props> = ({
                   </Button>
                 )}
               </Grid>
-              <Grid item>
-                <DatePicker />
-              </Grid>
-              <Grid item>
-                <NamespacePicker />
-              </Grid>
+              <Grid item>{!noDateFilter && <DatePicker />}</Grid>
+              <Grid item>{!noNsFilter && <NamespacePicker />}</Grid>
             </Grid>
           </Grid>
         </Toolbar>

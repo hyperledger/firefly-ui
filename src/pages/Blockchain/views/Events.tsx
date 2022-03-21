@@ -67,6 +67,7 @@ export const BlockchainEvents: () => JSX.Element = () => {
     setActiveFilters,
     filterString,
   } = useContext(FilterContext);
+  const [isMounted, setIsMounted] = useState(false);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   // Blockchain Events
@@ -74,7 +75,6 @@ export const BlockchainEvents: () => JSX.Element = () => {
     useState<IBlockchainEvent[]>();
   // Blockchain Events total
   const [blockchainEventTotal, setBlockchainEventTotal] = useState(0);
-
   // Events histogram
   const [beHistData, setBeHistData] = useState<BarDatum[]>();
   const [currentPage, setCurrentPage] = useState(0);
@@ -86,7 +86,8 @@ export const BlockchainEvents: () => JSX.Element = () => {
   );
 
   useEffect(() => {
-    isEventType(lastEvent, WsEventTypes.BLOCKCHAIN_EVENT) &&
+    isMounted &&
+      isEventType(lastEvent, WsEventTypes.BLOCKCHAIN_EVENT) &&
       setNumNewEvents(numNewEvents + 1);
   }, [lastEvent]);
 
@@ -95,25 +96,36 @@ export const BlockchainEvents: () => JSX.Element = () => {
     setLastRefresh(new Date().toString());
   };
 
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   // Blockchain events
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.blockchainEvents
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }${filterString !== undefined ? filterString : ''}`
-    )
-      .then((blockchainEvents: IPagedBlockchainEventResponse) => {
-        setBlockchainEvents(blockchainEvents.items);
-        setBlockchainEventTotal(blockchainEvents.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    numNewEvents !== 0 && setNumNewEvents(0);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.blockchainEvents
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }${filterString !== undefined ? filterString : ''}`
+      )
+        .then((blockchainEvents: IPagedBlockchainEventResponse) => {
+          if (isMounted) {
+            setBlockchainEvents(blockchainEvents.items);
+            setBlockchainEventTotal(blockchainEvents.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        })
+        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
   }, [
     rowsPerPage,
     currentPage,
@@ -121,6 +133,7 @@ export const BlockchainEvents: () => JSX.Element = () => {
     createdFilter,
     filterString,
     lastRefreshTime,
+    isMounted,
   ]);
 
   // Histogram
@@ -128,21 +141,22 @@ export const BlockchainEvents: () => JSX.Element = () => {
     const currentTime = dayjs().unix();
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.BlockchainEvents,
-        createdFilterObject.filterTime,
-        currentTime,
-        BucketCountEnum.Large
-      )}`
-    )
-      .then((histTypes: IMetric[]) => {
-        setBeHistData(makeBlockchainEventHistogram(histTypes));
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [selectedNamespace, createdFilter, lastRefreshTime]);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+          BucketCollectionEnum.BlockchainEvents,
+          createdFilterObject.filterTime,
+          currentTime,
+          BucketCountEnum.Large
+        )}`
+      )
+        .then((histTypes: IMetric[]) => {
+          isMounted && setBeHistData(makeBlockchainEventHistogram(histTypes));
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
 
   const beColHeaders = [
     t('name'),

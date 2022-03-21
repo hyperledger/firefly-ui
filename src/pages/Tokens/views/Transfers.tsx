@@ -74,6 +74,7 @@ export const TokensTransfers: () => JSX.Element = () => {
   } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
   // Token transfers
   const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>();
   // Token Transfer totals
@@ -93,8 +94,9 @@ export const TokensTransfers: () => JSX.Element = () => {
   );
 
   useEffect(() => {
-    (isEventType(lastEvent, FF_EVENTS.TOKEN_TRANSFER_CONFIRMED) ||
-      isEventType(lastEvent, FF_EVENTS.TOKEN_TRANSFER_FAILED)) &&
+    isMounted &&
+      (isEventType(lastEvent, FF_EVENTS.TOKEN_TRANSFER_CONFIRMED) ||
+        isEventType(lastEvent, FF_EVENTS.TOKEN_TRANSFER_FAILED)) &&
       setNumNewEvents(numNewEvents + 1);
   }, [lastEvent]);
 
@@ -103,24 +105,35 @@ export const TokensTransfers: () => JSX.Element = () => {
     setLastRefresh(new Date().toString());
   };
 
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   // Token transfers
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.tokenTransfers
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }${filterString !== undefined ? filterString : ''}`
-    )
-      .then((tokenTransferRes: IPagedTokenTransferResponse) => {
-        setTokenTransfers(tokenTransferRes.items);
-        setTokenTransferTotal(tokenTransferRes.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.tokenTransfers
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }${filterString !== undefined ? filterString : ''}`
+      )
+        .then((tokenTransferRes: IPagedTokenTransferResponse) => {
+          if (isMounted) {
+            setTokenTransfers(tokenTransferRes.items);
+            setTokenTransferTotal(tokenTransferRes.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
     numNewEvents !== 0 && setNumNewEvents(0);
   }, [
     rowsPerPage,
@@ -129,6 +142,7 @@ export const TokensTransfers: () => JSX.Element = () => {
     createdFilter,
     filterString,
     lastRefreshTime,
+    isMounted,
   ]);
 
   // Histogram
@@ -136,22 +150,22 @@ export const TokensTransfers: () => JSX.Element = () => {
     const currentTime = dayjs().unix();
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.TokenTransfers,
-        createdFilterObject.filterTime,
-        currentTime,
-        BucketCountEnum.Large
-      )}`
-    )
-      .then((histTypes: IMetric[]) => {
-        setTransferHistData(makeTransferHistogram(histTypes));
-      })
-      .catch((err) => {
-        setTransferHistData([]);
-        reportFetchError(err);
-      });
-  }, [selectedNamespace, createdFilter, lastRefreshTime]);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+          BucketCollectionEnum.TokenTransfers,
+          createdFilterObject.filterTime,
+          currentTime,
+          BucketCountEnum.Large
+        )}`
+      )
+        .then((histTypes: IMetric[]) => {
+          isMounted && setTransferHistData(makeTransferHistogram(histTypes));
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
 
   const tokenTransferColHeaders = [
     t('activity'),
