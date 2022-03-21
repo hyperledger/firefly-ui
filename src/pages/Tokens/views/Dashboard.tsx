@@ -22,6 +22,7 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
 import { useNavigate } from 'react-router-dom';
+import { useQueryParam, StringParam } from 'use-query-params';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
@@ -66,6 +67,7 @@ import {
   fetchCatcher,
   getCreatedFilter,
   getFFTime,
+  isValidUUID,
   jsNumberForAddress,
 } from '../../../utils';
 import {
@@ -83,6 +85,7 @@ export const TokensDashboard: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const navigate = useNavigate();
   const [isMounted, setIsMounted] = useState(false);
+  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Small cards
   // Tokens
   const [tokenTransfersCount, setTokenTransfersCount] = useState<number>();
@@ -140,6 +143,23 @@ export const TokensDashboard: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
+
+  useEffect(() => {
+    isMounted &&
+      slideQuery &&
+      isValidUUID(slideQuery) &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransferById(
+          slideQuery
+        )}`
+      )
+        .then((transferRes: ITokenTransfer) => {
+          setViewTransfer(transferRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [slideQuery, isMounted]);
 
   const smallCards: ISmallCard[] = [
     {
@@ -463,7 +483,10 @@ export const TokensDashboard: () => JSX.Element = () => {
           ),
         },
       ],
-      onClick: () => setViewTransfer(transfer),
+      onClick: () => {
+        setViewTransfer(transfer);
+        setSlideQuery(transfer.localId);
+      },
       leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type]?.color,
     }));
 
@@ -587,6 +610,7 @@ export const TokensDashboard: () => JSX.Element = () => {
           open={!!viewTransfer}
           onClose={() => {
             setViewTransfer(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}

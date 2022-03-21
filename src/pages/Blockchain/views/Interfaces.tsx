@@ -17,6 +17,7 @@
 import { Button, Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { StringParam, useQueryParam } from 'use-query-params';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
@@ -34,7 +35,7 @@ import {
   IPagedContractInterfaceResponse,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, getCreatedFilter } from '../../../utils';
+import { fetchCatcher, getCreatedFilter, isValidUUID } from '../../../utils';
 import { isEventType } from '../../../utils/wsEvents';
 
 export const BlockchainInterfaces: () => JSX.Element = () => {
@@ -43,6 +44,7 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
+  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Interfaces
   const [interfaces, setInterfaces] = useState<IContractInterface[]>();
   // Interface totals
@@ -77,6 +79,23 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
+
+  useEffect(() => {
+    isMounted &&
+      slideQuery &&
+      isValidUUID(slideQuery) &&
+      fetchCatcher(
+        `${
+          FF_Paths.nsPrefix
+        }/${selectedNamespace}${FF_Paths.contractInterfacesById(slideQuery)}`
+      )
+        .then((contractRes: IContractInterface) => {
+          setViewInterface(contractRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [slideQuery, isMounted]);
 
   // Interfaces
   useEffect(() => {
@@ -121,7 +140,15 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
           value: <HashPopover shortHash={true} address={int.id}></HashPopover>,
         },
         {
-          value: <FFTableText color="primary" text={int.description} />,
+          value:
+            int?.description.length > 0 ? (
+              <FFTableText color="primary" text={int.description} />
+            ) : (
+              <FFTableText
+                color="secondary"
+                text={t('noDescriptionForInterface')}
+              />
+            ),
         },
         {
           value: (
@@ -132,7 +159,10 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
           value: <FFTableText color="primary" text={int.version} />,
         },
       ],
-      onClick: () => setViewInterface(int),
+      onClick: () => {
+        setViewInterface(int);
+        setSlideQuery(int.id);
+      },
     })
   );
 
@@ -180,6 +210,7 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
           open={!!viewInterface}
           onClose={() => {
             setViewInterface(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}

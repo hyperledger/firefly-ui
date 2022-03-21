@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useQueryParam, StringParam } from 'use-query-params';
 import { EmptyStateCard } from '../../../components/Cards/EmptyStateCard';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
@@ -40,6 +41,7 @@ import { DEFAULT_PADDING, DEFAULT_SPACING } from '../../../theme';
 import {
   fetchCatcher,
   getCreatedFilter,
+  isValidUUID,
   makeEventHistogram,
   makeMultipleQueryParams,
 } from '../../../utils';
@@ -66,7 +68,7 @@ export const HomeDashboard: () => JSX.Element = () => {
   const [isMounted, setIsMounted] = useState(false);
   const [viewTx, setViewTx] = useState<ITransaction>();
   const [viewEvent, setViewEvent] = useState<IEvent>();
-
+  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Small cards
   // Blockchain
   const [blockchainTxCount, setBlockchainTxCount] = useState<number>();
@@ -118,6 +120,21 @@ export const HomeDashboard: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
+
+  useEffect(() => {
+    if (isMounted && slideQuery && isValidUUID(slideQuery)) {
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?id=${slideQuery}`
+      ).then((eventRes: IEvent[]) => {
+        isMounted && eventRes.length > 0 && setViewEvent(eventRes[0]);
+      });
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactions}?id=${slideQuery}`
+      ).then((txRes: ITransaction[]) => {
+        isMounted && txRes.length > 0 && setViewTx(txRes[0]);
+      });
+    }
+  }, [slideQuery, isMounted]);
 
   const smallCards: ISmallCard[] = [
     {
@@ -424,8 +441,14 @@ export const HomeDashboard: () => JSX.Element = () => {
                   key={idx}
                 >
                   <EventCardWrapper
-                    onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
-                    onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
+                    onHandleViewEvent={(event: IEvent) => {
+                      setViewEvent(event);
+                      setSlideQuery(event.id);
+                    }}
+                    onHandleViewTx={(tx: ITransaction) => {
+                      setViewTx(tx);
+                      setSlideQuery(tx.id);
+                    }}
                     link={FF_NAV_PATHS.activityTxDetailPath(
                       selectedNamespace,
                       event.tx
@@ -475,8 +498,14 @@ export const HomeDashboard: () => JSX.Element = () => {
                   key={idx}
                 >
                   <EventCardWrapper
-                    onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
-                    onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
+                    onHandleViewEvent={(event: IEvent) => {
+                      setViewEvent(event);
+                      setSlideQuery(event.id);
+                    }}
+                    onHandleViewTx={(tx: ITransaction) => {
+                      setViewTx(tx);
+                      setSlideQuery(tx.id);
+                    }}
                     link={FF_NAV_PATHS.activityTxDetailPath(
                       selectedNamespace,
                       event.tx
@@ -609,6 +638,7 @@ export const HomeDashboard: () => JSX.Element = () => {
           open={!!viewTx}
           onClose={() => {
             setViewTx(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}
@@ -618,6 +648,7 @@ export const HomeDashboard: () => JSX.Element = () => {
           open={!!viewEvent}
           onClose={() => {
             setViewEvent(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}

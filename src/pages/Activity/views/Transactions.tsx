@@ -19,6 +19,7 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { StringParam, useQueryParam } from 'use-query-params';
 import { TxButton } from '../../../components/Buttons/TxButton';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
@@ -49,7 +50,12 @@ import {
   DEFAULT_PADDING,
   DEFAULT_PAGE_LIMITS,
 } from '../../../theme';
-import { fetchCatcher, getCreatedFilter, getFFTime } from '../../../utils';
+import {
+  fetchCatcher,
+  getCreatedFilter,
+  getFFTime,
+  isValidUUID,
+} from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -71,6 +77,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
+  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Transactions
   const [txs, setTxs] = useState<ITransaction[]>();
   // Transaction totals
@@ -106,6 +113,23 @@ export const ActivityTransactions: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
+
+  useEffect(() => {
+    isMounted &&
+      slideQuery &&
+      isValidUUID(slideQuery) &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactionById(
+          slideQuery
+        )}`
+      )
+        .then((txRes: ITransaction) => {
+          setViewTx(txRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [slideQuery, isMounted]);
 
   // Transactions
   useEffect(() => {
@@ -205,7 +229,10 @@ export const ActivityTransactions: () => JSX.Element = () => {
       },
       { value: <TxButton ns={selectedNamespace} txID={tx.id} small /> },
     ],
-    onClick: () => setViewTx(tx),
+    onClick: () => {
+      setViewTx(tx);
+      setSlideQuery(tx.id);
+    },
     leftBorderColor: FF_TX_CATEGORY_MAP[tx.type]?.color,
   }));
 
@@ -280,6 +307,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
           open={!!viewTx}
           onClose={() => {
             setViewTx(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}

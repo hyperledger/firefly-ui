@@ -14,7 +14,7 @@ interface Props {
   link?: string;
   linkState?: any;
   onHandleViewEvent: any;
-  onHandleViewTx: any;
+  onHandleViewTx?: any;
 }
 
 export const EventCardWrapper = ({

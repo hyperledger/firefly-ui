@@ -21,6 +21,7 @@ import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { InfiniteData, useInfiniteQuery, useQueryClient } from 'react-query';
+import { useQueryParam, StringParam } from 'use-query-params';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
@@ -51,6 +52,7 @@ import {
   fetchCatcher,
   fetchWithCredentials,
   getCreatedFilter,
+  isValidUUID,
   makeEventHistogram,
 } from '../../../utils';
 import { isHistogramEmpty } from '../../../utils/charts';
@@ -71,6 +73,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
   } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const [isMounted, setIsMounted] = useState(false);
+  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   const [eventHistData, setEventHistData] = useState<BarDatum[]>();
   const { t } = useTranslation();
   const [viewTx, setViewTx] = useState<ITransaction>();
@@ -101,6 +104,21 @@ export const ActivityTimeline: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
+
+  useEffect(() => {
+    if (isMounted && slideQuery && isValidUUID(slideQuery)) {
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?id=${slideQuery}`
+      ).then((eventRes: IEvent[]) => {
+        isMounted && eventRes.length > 0 && setViewEvent(eventRes[0]);
+      });
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactions}?id=${slideQuery}`
+      ).then((txRes: ITransaction[]) => {
+        isMounted && txRes.length > 0 && setViewTx(txRes[0]);
+      });
+    }
+  }, [slideQuery, isMounted]);
 
   const { data, fetchNextPage, hasNextPage, refetch } = useInfiniteQuery(
     'events',
@@ -180,10 +198,14 @@ export const ActivityTimeline: () => JSX.Element = () => {
         key: idx,
         item: (
           <EventCardWrapper
-            onHandleViewEvent={(event: IEvent) =>
-              isMounted && setViewEvent(event)
-            }
-            onHandleViewTx={(tx: ITransaction) => isMounted && setViewTx(tx)}
+            onHandleViewEvent={(event: IEvent) => {
+              setViewEvent(event);
+              setSlideQuery(event.id);
+            }}
+            onHandleViewTx={(tx: ITransaction) => {
+              setViewTx(tx);
+              setSlideQuery(tx.id);
+            }}
             link={FF_NAV_PATHS.activityTxDetailPath(
               selectedNamespace,
               event.tx
@@ -267,6 +289,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
           open={!!viewEvent}
           onClose={() => {
             setViewEvent(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}
@@ -276,6 +299,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
           open={!!viewTx}
           onClose={() => {
             setViewTx(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}

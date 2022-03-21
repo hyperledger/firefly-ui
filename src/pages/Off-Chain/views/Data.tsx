@@ -18,6 +18,7 @@ import DownloadIcon from '@mui/icons-material/Download';
 import { Grid, IconButton } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { StringParam, useQueryParam } from 'use-query-params';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
@@ -44,6 +45,7 @@ import {
   fetchCatcher,
   getCreatedFilter,
   getFFTime,
+  isValidUUID,
 } from '../../../utils';
 import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
@@ -60,6 +62,8 @@ export const OffChainData: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
+  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
+
   // Data
   const [data, setData] = useState<IData[]>();
   // Data total
@@ -92,6 +96,23 @@ export const OffChainData: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
+
+  useEffect(() => {
+    isMounted &&
+      slideQuery &&
+      isValidUUID(slideQuery) &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.dataById(
+          slideQuery
+        )}`
+      )
+        .then((dataRes: IData) => {
+          setViewData(dataRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [slideQuery, isMounted]);
 
   // Data
   useEffect(() => {
@@ -177,7 +198,10 @@ export const OffChainData: () => JSX.Element = () => {
         ),
       },
     ],
-    onClick: () => setViewData(d),
+    onClick: () => {
+      setViewData(d);
+      setSlideQuery(d.id);
+    },
   }));
 
   return (
@@ -240,6 +264,7 @@ export const OffChainData: () => JSX.Element = () => {
           open={!!viewData}
           onClose={() => {
             setViewData(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}
