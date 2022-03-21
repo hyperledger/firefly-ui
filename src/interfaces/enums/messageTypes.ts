@@ -63,39 +63,40 @@ export enum FF_MESSAGES {
   GROUP_INIT = 'groupinit',
 }
 
-export const FF_MESSAGES_CATEGORY_MAP: { [key: string]: IBlockchainCategory } =
-  {
-    // Definition
-    [FF_MESSAGES.DEFINITON]: {
-      category: MsgCategoryEnum.DEFINITON,
-      color: FFColors.Yellow,
-      nicename: 'definition',
-    },
-    // Broadcast
-    [FF_MESSAGES.BROADCAST]: {
-      category: MsgCategoryEnum.BROADCAST,
-      color: FFColors.Orange,
-      nicename: 'broadcast',
-    },
-    [FF_MESSAGES.TRANSFER_BROADCAST]: {
-      category: MsgCategoryEnum.BROADCAST,
-      color: FFColors.Orange,
-      nicename: 'transferBroadcast',
-    },
-    // Private
-    [FF_MESSAGES.PRIVATE]: {
-      category: MsgCategoryEnum.PRIVATE,
-      color: FFColors.Pink,
-      nicename: 'private',
-    },
-    [FF_MESSAGES.TRANSFER_PRIVATE]: {
-      category: MsgCategoryEnum.PRIVATE,
-      color: FFColors.Pink,
-      nicename: 'transferPrivate',
-    },
-    [FF_MESSAGES.GROUP_INIT]: {
-      category: MsgCategoryEnum.PRIVATE,
-      color: FFColors.Pink,
-      nicename: 'groupInit',
-    },
-  };
+export const FF_MESSAGES_CATEGORY_MAP: {
+  [key in FF_MESSAGES]: IBlockchainCategory;
+} = {
+  // Definition
+  [FF_MESSAGES.DEFINITON]: {
+    category: MsgCategoryEnum.DEFINITON,
+    color: FFColors.Yellow,
+    nicename: 'definition',
+  },
+  // Broadcast
+  [FF_MESSAGES.BROADCAST]: {
+    category: MsgCategoryEnum.BROADCAST,
+    color: FFColors.Orange,
+    nicename: 'broadcast',
+  },
+  [FF_MESSAGES.TRANSFER_BROADCAST]: {
+    category: MsgCategoryEnum.BROADCAST,
+    color: FFColors.Orange,
+    nicename: 'transferBroadcast',
+  },
+  // Private
+  [FF_MESSAGES.PRIVATE]: {
+    category: MsgCategoryEnum.PRIVATE,
+    color: FFColors.Pink,
+    nicename: 'private',
+  },
+  [FF_MESSAGES.TRANSFER_PRIVATE]: {
+    category: MsgCategoryEnum.PRIVATE,
+    color: FFColors.Pink,
+    nicename: 'transferPrivate',
+  },
+  [FF_MESSAGES.GROUP_INIT]: {
+    category: MsgCategoryEnum.PRIVATE,
+    color: FFColors.Pink,
+    nicename: 'groupInit',
+  },
+};

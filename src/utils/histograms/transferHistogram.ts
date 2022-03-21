@@ -1,6 +1,7 @@
 import { BarDatum } from '@nivo/bar';
 import { IMetric } from '../../interfaces';
 import {
+  FF_TRANSFERS,
   FF_TRANSFER_CATEGORY_MAP,
   IHistTransferTimeMap,
   TransferCategoryEnum,
@@ -15,7 +16,7 @@ export const makeTransferHistogram = (histList: IMetric[]): BarDatum[] => {
       [TransferCategoryEnum.TRANSFER]: 0,
     };
     hist.types.map((type) => {
-      switch (FF_TRANSFER_CATEGORY_MAP[type.type].category) {
+      switch (FF_TRANSFER_CATEGORY_MAP[type.type as FF_TRANSFERS]?.category) {
         // Mint
         case TransferCategoryEnum.MINT:
           timeMap[hist.timestamp][TransferCategoryEnum.MINT] =

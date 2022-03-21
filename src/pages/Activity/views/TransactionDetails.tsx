@@ -19,6 +19,7 @@ import { Grid, IconButton, Paper, Typography } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { StringParam, useQueryParam } from 'use-query-params';
 import { FFBreadcrumb } from '../../../components/Breadcrumbs/FFBreadcrumb';
 import { FFCopyButton } from '../../../components/Buttons/CopyButton';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
@@ -29,7 +30,6 @@ import { TxList } from '../../../components/Lists/TxList';
 import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { EventSlide } from '../../../components/Slides/EventSlide';
 import { OperationSlide } from '../../../components/Slides/OperationSlide';
-import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
@@ -43,8 +43,8 @@ import {
   ITxStatus,
 } from '../../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
-import { DEFAULT_PADDING } from '../../../theme';
-import { fetchCatcher, getShortHash } from '../../../utils';
+import { DEFAULT_BORDER_RADIUS, DEFAULT_PADDING } from '../../../theme';
+import { fetchCatcher, getShortHash, isValidUUID } from '../../../utils';
 
 export const TransactionDetails: () => JSX.Element = () => {
   const { selectedNamespace } = useContext(ApplicationContext);
@@ -52,6 +52,8 @@ export const TransactionDetails: () => JSX.Element = () => {
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
+  const [isMounted, setIsMounted] = useState(false);
+  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   const { txID } = useParams<{ txID: string }>();
   // Transactions
   const [tx, setTx] = useState<ITransaction>();
@@ -59,22 +61,43 @@ export const TransactionDetails: () => JSX.Element = () => {
   const [txEvents, setTxEvents] = useState<IEvent[]>([]);
   const [txOperations, setTxOperations] = useState<IOperation[]>([]);
   const [txStatus, setTxStatus] = useState<ITxStatus>();
-  const [viewTx, setViewTx] = useState<ITransaction>();
   const [viewEvent, setViewEvent] = useState<IEvent | undefined>(
     location.state as IEvent
   );
   const [viewOp, setViewOp] = useState<IOperation>();
 
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isMounted && slideQuery && isValidUUID(slideQuery)) {
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?id=${slideQuery}`
+      ).then((eventRes: IEvent[]) => {
+        isMounted && eventRes.length > 0 && setViewEvent(eventRes[0]);
+      });
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}?id=${slideQuery}`
+      ).then((opRes: IOperation[]) => {
+        isMounted && opRes.length > 0 && setViewOp(opRes[0]);
+      });
+    }
+  }, [slideQuery, isMounted]);
+
   // Transaction details
   useEffect(() => {
-    if (txID) {
+    if (txID && isMounted) {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactionById(
           txID
         )}`
       )
         .then((tx: ITransaction) => {
-          setTx(tx);
+          isMounted && setTx(tx);
         })
         .catch((err) => {
           reportFetchError(err);
@@ -86,7 +109,7 @@ export const TransactionDetails: () => JSX.Element = () => {
         }/${selectedNamespace}${FF_Paths.transactionByIdStatus(txID)}`
       )
         .then((txStatus: ITxStatus) => {
-          setTxStatus(txStatus);
+          isMounted && setTxStatus(txStatus);
         })
         .catch((err) => {
           reportFetchError(err);
@@ -98,7 +121,7 @@ export const TransactionDetails: () => JSX.Element = () => {
         }/${selectedNamespace}${FF_Paths.transactionByIdOperations(txID)}`
       )
         .then((txOperations: IOperation[]) => {
-          setTxOperations(txOperations);
+          isMounted && setTxOperations(txOperations);
         })
         .catch((err) => {
           reportFetchError(err);
@@ -108,13 +131,13 @@ export const TransactionDetails: () => JSX.Element = () => {
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?tx=${txID}`
       )
         .then((events: IEvent[]) => {
-          setTxEvents(events);
+          isMounted && setTxEvents(events);
         })
         .catch((err) => {
           reportFetchError(err);
         });
     }
-  }, [txID]);
+  }, [txID, isMounted]);
 
   const breadcrumbs: IFFBreadcrumb[] = [
     {
@@ -135,7 +158,9 @@ export const TransactionDetails: () => JSX.Element = () => {
     headerText: t('blockchainOperations'),
     headerComponent: (
       <IconButton
-        onClick={() => navigate(FF_NAV_PATHS.activityOpPath(selectedNamespace))}
+        onClick={() =>
+          navigate(FF_NAV_PATHS.activityOpPath(selectedNamespace, tx?.id))
+        }
       >
         <ArrowForwardIcon />
       </IconButton>
@@ -148,7 +173,10 @@ export const TransactionDetails: () => JSX.Element = () => {
           txOperations.map((op, idx) => (
             <React.Fragment key={idx}>
               <OpCardWrapper
-                onHandleViewOp={(op: IOperation) => setViewOp(op)}
+                onHandleViewOp={(op: IOperation) => {
+                  setViewOp(op);
+                  setSlideQuery(op.id);
+                }}
                 {...{ op }}
               />
               <Grid sx={{ padding: '6px' }} />
@@ -164,7 +192,7 @@ export const TransactionDetails: () => JSX.Element = () => {
     headerComponent: (
       <IconButton
         onClick={() =>
-          navigate(FF_NAV_PATHS.activityEventsPath(selectedNamespace))
+          navigate(FF_NAV_PATHS.activityEventsPath(selectedNamespace, tx?.id))
         }
       >
         <ArrowForwardIcon />
@@ -178,8 +206,10 @@ export const TransactionDetails: () => JSX.Element = () => {
           txEvents.map((event, idx) => (
             <React.Fragment key={idx}>
               <EventCardWrapper
-                onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
-                onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
+                onHandleViewEvent={(event: IEvent) => {
+                  setViewEvent(event);
+                  setSlideQuery(event.id);
+                }}
                 {...{ event }}
               />
               <Grid sx={{ padding: '6px' }} />
@@ -215,6 +245,7 @@ export const TransactionDetails: () => JSX.Element = () => {
                 width: '100%',
                 backgroundColor: 'background.paper',
                 padding: DEFAULT_PADDING,
+                borderRadius: DEFAULT_BORDER_RADIUS,
               }}
             >
               <Typography
@@ -225,7 +256,7 @@ export const TransactionDetails: () => JSX.Element = () => {
                 }}
                 pb={1}
               >
-                {t(FF_TX_CATEGORY_MAP[tx.type].nicename)}
+                {t(FF_TX_CATEGORY_MAP[tx.type]?.nicename)}
               </Typography>
               <TxList tx={tx} txStatus={txStatus} showTxLink={false} />
             </Paper>
@@ -237,6 +268,7 @@ export const TransactionDetails: () => JSX.Element = () => {
             justifyContent="flex-center"
             alignItems="flex-start"
             pt={DEFAULT_PADDING}
+            overflow={'auto'}
             height="100%"
           >
             {/* Operations */}
@@ -261,6 +293,8 @@ export const TransactionDetails: () => JSX.Element = () => {
           justifyContent="flex-center"
           alignItems="flex-start"
           xs={6}
+          overflow={'auto'}
+          height="calc(100vh - 250px)"
         >
           {/* Events */}
           <Grid
@@ -269,27 +303,18 @@ export const TransactionDetails: () => JSX.Element = () => {
             justifyContent="center"
             container
             item
-            height="100%"
           >
             <FireFlyCard height="100%" card={networkEventsCard} />
           </Grid>
         </Grid>
       </Grid>
-      {viewTx && (
-        <TransactionSlide
-          transaction={viewTx}
-          open={!!viewTx}
-          onClose={() => {
-            setViewTx(undefined);
-          }}
-        />
-      )}
       {viewEvent && (
         <EventSlide
           event={viewEvent}
           open={!!viewEvent}
           onClose={() => {
             setViewEvent(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}
@@ -299,6 +324,7 @@ export const TransactionDetails: () => JSX.Element = () => {
           open={!!viewOp}
           onClose={() => {
             setViewOp(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}

@@ -16,9 +16,9 @@ export const isHistogramEmpty = (hist: BarDatum[]): boolean => {
 };
 
 export const makeColorArray = (map: { [key: string]: IBlockchainCategory }) => {
-  return Array.from(new Set(Object.keys(map).map((k) => map[k].color)));
+  return Array.from(new Set(Object.keys(map).map((k) => map[k]?.color)));
 };
 
 export const makeKeyArray = (map: { [key: string]: IBlockchainCategory }) => {
-  return Array.from(new Set(Object.keys(map).map((k) => map[k].category)));
+  return Array.from(new Set(Object.keys(map).map((k) => map[k]?.category)));
 };

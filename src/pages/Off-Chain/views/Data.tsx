@@ -18,11 +18,13 @@ import DownloadIcon from '@mui/icons-material/Download';
 import { Grid, IconButton } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { StringParam, useQueryParam } from 'use-query-params';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { DataSlide } from '../../../components/Slides/DataSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
@@ -30,6 +32,7 @@ import { FilterContext } from '../../../contexts/FilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   DataFilters,
+  FF_EVENTS,
   FF_Paths,
   ICreatedFilter,
   IData,
@@ -42,7 +45,9 @@ import {
   fetchCatcher,
   getCreatedFilter,
   getFFTime,
+  isValidUUID,
 } from '../../../utils';
+import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const OffChainData: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -56,38 +61,88 @@ export const OffChainData: () => JSX.Element = () => {
   } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
+  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
+
   // Data
   const [data, setData] = useState<IData[]>();
   // Data total
   const [dataTotal, setDataTotal] = useState(0);
+  const [viewData, setViewData] = useState<IData | undefined>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
+  // Last event tracking
+  const [numNewEvents, setNumNewEvents] = useState(0);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
+
+  useEffect(() => {
+    isMounted &&
+      (isEventType(lastEvent, WsEventTypes.MESSAGE) ||
+        isEventType(lastEvent, FF_EVENTS.DATATYPE_CONFIRMED)) &&
+      setNumNewEvents(numNewEvents + 1);
+  }, [lastEvent]);
+
+  const refreshData = () => {
+    setNumNewEvents(0);
+    setLastRefresh(new Date().toString());
+  };
+
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    isMounted &&
+      slideQuery &&
+      isValidUUID(slideQuery) &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.dataById(
+          slideQuery
+        )}`
+      )
+        .then((dataRes: IData) => {
+          setViewData(dataRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [slideQuery, isMounted]);
 
   // Data
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.data
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }${filterString !== undefined ? filterString : ''}`
-    )
-      .then((dataRes: IPagedDataResponse) => {
-        setData(dataRes.items);
-        setDataTotal(dataRes.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.data
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }${filterString !== undefined ? filterString : ''}`
+      )
+        .then((dataRes: IPagedDataResponse) => {
+          if (isMounted) {
+            setData(dataRes.items);
+            setDataTotal(dataRes.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        })
+        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
   }, [
     rowsPerPage,
     currentPage,
     selectedNamespace,
     createdFilter,
-    lastEvent,
     filterString,
-    reportFetchError,
+    lastRefreshTime,
+    isMounted,
   ]);
 
   const dataColHeaders = [
@@ -112,13 +167,17 @@ export const OffChainData: () => JSX.Element = () => {
         value: <HashPopover shortHash address={d.hash}></HashPopover>,
       },
       {
-        value: d.blob?.name && (
-          <HashPopover address={d.blob.name}></HashPopover>
+        value: d.blob?.name ? (
+          <HashPopover address={d.blob.name} />
+        ) : (
+          <FFTableText color="secondary" text={t('noBlobName')} />
         ),
       },
       {
-        value: d.blob && (
+        value: d.blob?.size ? (
           <FFTableText color="primary" text={d.blob.size.toString()} />
+        ) : (
+          <FFTableText color="secondary" text={t('---')} />
         ),
       },
       {
@@ -139,11 +198,20 @@ export const OffChainData: () => JSX.Element = () => {
         ),
       },
     ],
+    onClick: () => {
+      setViewData(d);
+      setSlideQuery(d.id);
+    },
   }));
 
   return (
     <>
-      <Header title={t('data')} subtitle={t('offChain')}></Header>
+      <Header
+        title={t('data')}
+        subtitle={t('offChain')}
+        onRefresh={refreshData}
+        numNewEvents={numNewEvents}
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
@@ -188,6 +256,16 @@ export const OffChainData: () => JSX.Element = () => {
           addFilter={(filter: string) =>
             setActiveFilters((activeFilters) => [...activeFilters, filter])
           }
+        />
+      )}
+      {viewData && (
+        <DataSlide
+          data={viewData}
+          open={!!viewData}
+          onClose={() => {
+            setViewData(undefined);
+            setSlideQuery(undefined);
+          }}
         />
       )}
     </>

@@ -18,7 +18,13 @@ export const makeMultipleQueryParams = (
   queryKey: string
 ) => {
   const str = Object.keys(map)
-    .filter((k) => map[k].category === key)
+    .filter((k) => map[k]?.category === key)
     .toString();
   return `&${queryKey}=${str.replaceAll(',', `&${queryKey}=`)}`;
+};
+
+export const isValidUUID = (str: string): boolean => {
+  return /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi.test(
+    str
+  );
 };

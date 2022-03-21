@@ -5,6 +5,7 @@ import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useQueryParam, StringParam } from 'use-query-params';
 import { EmptyStateCard } from '../../../components/Cards/EmptyStateCard';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
@@ -40,6 +41,7 @@ import { DEFAULT_PADDING, DEFAULT_SPACING } from '../../../theme';
 import {
   fetchCatcher,
   getCreatedFilter,
+  isValidUUID,
   makeEventHistogram,
   makeMultipleQueryParams,
 } from '../../../utils';
@@ -48,6 +50,7 @@ import {
   makeColorArray,
   makeKeyArray,
 } from '../../../utils/charts';
+import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const HomeDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
@@ -62,9 +65,10 @@ export const HomeDashboard: () => JSX.Element = () => {
   } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const navigate = useNavigate();
+  const [isMounted, setIsMounted] = useState(false);
   const [viewTx, setViewTx] = useState<ITransaction>();
   const [viewEvent, setViewEvent] = useState<IEvent>();
-
+  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Small cards
   // Blockchain
   const [blockchainTxCount, setBlockchainTxCount] = useState<number>();
@@ -92,6 +96,45 @@ export const HomeDashboard: () => JSX.Element = () => {
   // Table cards
   const [recentEventTxs, setRecentEventTxs] = useState<IEvent[]>();
   const [recentEvents, setRecentEvents] = useState<IEvent[]>();
+  // Last event tracking
+  const [numNewEvents, setNumNewEvents] = useState(0);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
+
+  useEffect(() => {
+    isMounted &&
+      isEventType(lastEvent, WsEventTypes.EVENT) &&
+      setNumNewEvents(numNewEvents + 1);
+  }, [lastEvent]);
+
+  const refreshData = () => {
+    setNumNewEvents(0);
+    setLastRefresh(new Date().toString());
+  };
+
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    if (isMounted && slideQuery && isValidUUID(slideQuery)) {
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?id=${slideQuery}`
+      ).then((eventRes: IEvent[]) => {
+        isMounted && eventRes.length > 0 && setViewEvent(eventRes[0]);
+      });
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactions}?id=${slideQuery}`
+      ).then((txRes: ITransaction[]) => {
+        isMounted && txRes.length > 0 && setViewTx(txRes[0]);
+      });
+    }
+  }, [slideQuery, isMounted]);
 
   const smallCards: ISmallCard[] = [
     {
@@ -108,7 +151,7 @@ export const HomeDashboard: () => JSX.Element = () => {
         { header: t('tx'), data: messagesTxCount },
         { header: t('events'), data: messagesEventCount },
       ],
-      clickPath: FF_NAV_PATHS.offchainMessagesPath(selectedNamespace),
+      clickPath: FF_NAV_PATHS.offchainPath(selectedNamespace),
     },
     {
       header: t('tokens'),
@@ -117,11 +160,12 @@ export const HomeDashboard: () => JSX.Element = () => {
         { header: t('mint'), data: tokenMintCount },
         { header: t('burn'), data: tokenBurnCount },
       ],
-      clickPath: FF_NAV_PATHS.tokensTransfersPath(selectedNamespace),
+      clickPath: FF_NAV_PATHS.tokensPath(selectedNamespace),
     },
     {
       header: t('operations'),
       numErrors: operationsErrorCount,
+      errorLink: FF_NAV_PATHS.activityOpErrorPath(selectedNamespace),
       data: [
         { header: t('blockchain'), data: blockchainOperationsCount },
         { header: t('messages'), data: messageOperationsCount },
@@ -130,103 +174,108 @@ export const HomeDashboard: () => JSX.Element = () => {
       clickPath: FF_NAV_PATHS.activityOpPath(selectedNamespace),
     },
   ];
+
   // Small Card UseEffect
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
     const qParams = `?count=true&limit=1${createdFilterObject.filterString}`;
 
-    Promise.all([
-      // Blockchain
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactions}${qParams}&blockchainids=!`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.blockchainEvents}${qParams}`
-      ),
-      // Messages
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messages}${qParams}&type=broadcast`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messages}${qParams}&type=private`
-      ),
-      // Tokens
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}${qParams}&type=transfer`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}${qParams}&type=mint`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}${qParams}&type=burn`
-      ),
-      // Operations
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${
-          FF_Paths.operations
-        }${qParams}${makeMultipleQueryParams(
-          FF_OP_CATEGORY_MAP,
-          OpCategoryEnum.BLOCKCHAIN,
-          'type'
-        )}`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${
-          FF_Paths.operations
-        }${qParams}${makeMultipleQueryParams(
-          FF_OP_CATEGORY_MAP,
-          OpCategoryEnum.MESSAGES,
-          'type'
-        )}`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${
-          FF_Paths.operations
-        }${qParams}${makeMultipleQueryParams(
-          FF_OP_CATEGORY_MAP,
-          OpCategoryEnum.TOKENS,
-          'type'
-        )}`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&error=!`
-      ),
-    ])
-      .then(
-        ([
-          blockchainTx,
-          blockchainEvents,
-          msgsTx,
-          msgsEvents,
-          tokensTransfer,
-          tokensMint,
-          tokensBurn,
-          opsBlockchain,
-          opsMessages,
-          opsTokens,
-          opsErrors,
-        ]: IGenericPagedResponse[]) => {
-          // Blockchain
-          setBlockchainTxCount(blockchainTx.total);
-          setBlockchainEventCount(blockchainEvents.total);
-          // Messages
-          setMessagesEventCount(msgsTx.total);
-          setMessagesTxCount(msgsEvents.total);
-          // Tokens
-          setTokenTransfersCount(tokensTransfer.total);
-          setTokenMintcount(tokensMint.total);
-          setTokenBurnCount(tokensBurn.total);
-          // Operations
-          setBlockchainOperationsCount(opsBlockchain.total);
-          setMessageOperationsCount(opsMessages.total);
-          setTokensOperationsCount(opsTokens.total);
-          setOperationsErrorCount(opsErrors.total);
-        }
-      )
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+    isMounted &&
+      Promise.all([
+        // Blockchain
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactions}${qParams}&blockchainids=!`
+        ),
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.blockchainEvents}${qParams}`
+        ),
+        // Messages
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messages}${qParams}&type=broadcast`
+        ),
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messages}${qParams}&type=private`
+        ),
+        // Tokens
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}${qParams}&type=transfer`
+        ),
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}${qParams}&type=mint`
+        ),
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransfers}${qParams}&type=burn`
+        ),
+        // Operations
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${
+            FF_Paths.operations
+          }${qParams}${makeMultipleQueryParams(
+            FF_OP_CATEGORY_MAP,
+            OpCategoryEnum.BLOCKCHAIN,
+            'type'
+          )}`
+        ),
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${
+            FF_Paths.operations
+          }${qParams}${makeMultipleQueryParams(
+            FF_OP_CATEGORY_MAP,
+            OpCategoryEnum.MESSAGES,
+            'type'
+          )}`
+        ),
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${
+            FF_Paths.operations
+          }${qParams}${makeMultipleQueryParams(
+            FF_OP_CATEGORY_MAP,
+            OpCategoryEnum.TOKENS,
+            'type'
+          )}`
+        ),
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&error=!`
+        ),
+      ])
+        .then(
+          ([
+            blockchainTx,
+            blockchainEvents,
+            msgsTx,
+            msgsEvents,
+            tokensTransfer,
+            tokensMint,
+            tokensBurn,
+            opsBlockchain,
+            opsMessages,
+            opsTokens,
+            opsErrors,
+          ]: IGenericPagedResponse[]) => {
+            if (isMounted) {
+              // Blockchain
+              setBlockchainTxCount(blockchainTx.total);
+              setBlockchainEventCount(blockchainEvents.total);
+              // Messages
+              setMessagesEventCount(msgsTx.total);
+              setMessagesTxCount(msgsEvents.total);
+              // Tokens
+              setTokenTransfersCount(tokensTransfer.total);
+              setTokenMintcount(tokensMint.total);
+              setTokenBurnCount(tokensBurn.total);
+              // Operations
+              setBlockchainOperationsCount(opsBlockchain.total);
+              setMessageOperationsCount(opsMessages.total);
+              setTokensOperationsCount(opsTokens.total);
+              setOperationsErrorCount(opsErrors.total);
+            }
+          }
+        )
+        .catch((err) => {
+          reportFetchError(err);
+        })
+        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
+  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
 
   const myNodeDetailsList: IDataWithHeader[] = [
     {
@@ -260,7 +309,7 @@ export const HomeDashboard: () => JSX.Element = () => {
       headerComponent: (
         <IconButton
           onClick={() =>
-            navigate(FF_NAV_PATHS.activityEventsPath(selectedNamespace))
+            navigate(FF_NAV_PATHS.activityTimelinePath(selectedNamespace))
           }
         >
           <ArrowForwardIcon />
@@ -322,30 +371,39 @@ export const HomeDashboard: () => JSX.Element = () => {
     const currentTime = dayjs().unix();
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.Events,
-        createdFilterObject.filterTime,
-        currentTime,
-        BucketCountEnum.Small
-      )}`
-    )
-      .then((histTypes: IMetric[]) => {
-        setEventHistData(makeEventHistogram(histTypes));
-      })
-      .catch((err) => {
-        setEventHistData([]);
-        reportFetchError(err);
-      });
+    if (isMounted) {
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+          BucketCollectionEnum.Events,
+          createdFilterObject.filterTime,
+          currentTime,
+          BucketCountEnum.Small
+        )}`
+      )
+        .then((histTypes: IMetric[]) => {
+          setEventHistData(makeEventHistogram(histTypes));
+        })
+        .catch((err) => {
+          setEventHistData([]);
+          reportFetchError(err);
+        });
 
-    fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.networkNodeById(nodeID)}`)
-      .then((nodeRes: INode) => {
-        setMyNode(nodeRes);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter, nodeID]);
+      fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.networkNodeById(nodeID)}`)
+        .then((nodeRes: INode) => {
+          setMyNode(nodeRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+    }
+  }, [
+    selectedNamespace,
+    createdFilter,
+    lastRefreshTime,
+    createdFilter,
+    nodeID,
+    isMounted,
+  ]);
 
   const tableCards: IFireFlyCard[] = [
     // Recently submitted Transactions
@@ -367,20 +425,40 @@ export const HomeDashboard: () => JSX.Element = () => {
           ) : recentEventTxs.length === 0 ? (
             <EmptyStateCard text={t('noRecentTransactions')} />
           ) : (
-            recentEventTxs.map((event, idx) => (
-              <React.Fragment key={idx}>
-                <EventCardWrapper
-                  onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
-                  onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
-                  link={FF_NAV_PATHS.activityTxDetailPath(
-                    selectedNamespace,
-                    event.tx
-                  )}
-                  {...{ event }}
-                />
-                <Grid sx={{ padding: '1px' }} />
-              </React.Fragment>
-            ))
+            <Grid
+              container
+              direction="column"
+              item
+              alignItems="flex-start"
+              justifyContent="flex-start"
+            >
+              {recentEventTxs.map((event, idx) => (
+                <Grid
+                  item
+                  container
+                  alignItems="flex-start"
+                  justifyContent="flex-start"
+                  key={idx}
+                >
+                  <EventCardWrapper
+                    onHandleViewEvent={(event: IEvent) => {
+                      setViewEvent(event);
+                      setSlideQuery(event.id);
+                    }}
+                    onHandleViewTx={(tx: ITransaction) => {
+                      setViewTx(tx);
+                      setSlideQuery(tx.id);
+                    }}
+                    link={FF_NAV_PATHS.activityTxDetailPath(
+                      selectedNamespace,
+                      event.tx
+                    )}
+                    {...{ event }}
+                  />
+                  <Grid sx={{ padding: '1px' }} />
+                </Grid>
+              ))}
+            </Grid>
           )}
         </>
       ),
@@ -404,21 +482,41 @@ export const HomeDashboard: () => JSX.Element = () => {
           ) : recentEvents.length === 0 ? (
             <EmptyStateCard text={t('noRecentNetworkEvents')} />
           ) : (
-            recentEvents.map((event, idx) => (
-              <React.Fragment key={idx}>
-                <EventCardWrapper
-                  onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
-                  onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
-                  link={FF_NAV_PATHS.activityTxDetailPath(
-                    selectedNamespace,
-                    event.tx
-                  )}
-                  linkState={{ state: event }}
-                  {...{ event }}
-                />
-                <Grid sx={{ padding: '1px' }} />
-              </React.Fragment>
-            ))
+            <Grid
+              container
+              direction="column"
+              item
+              alignItems="flex-start"
+              justifyContent="flex-start"
+            >
+              {recentEvents.map((event, idx) => (
+                <Grid
+                  item
+                  container
+                  alignItems="flex-start"
+                  justifyContent="flex-start"
+                  key={idx}
+                >
+                  <EventCardWrapper
+                    onHandleViewEvent={(event: IEvent) => {
+                      setViewEvent(event);
+                      setSlideQuery(event.id);
+                    }}
+                    onHandleViewTx={(tx: ITransaction) => {
+                      setViewTx(tx);
+                      setSlideQuery(tx.id);
+                    }}
+                    link={FF_NAV_PATHS.activityTxDetailPath(
+                      selectedNamespace,
+                      event.tx
+                    )}
+                    linkState={{ state: event }}
+                    {...{ event }}
+                  />
+                  <Grid sx={{ padding: '1px' }} />
+                </Grid>
+              ))}
+            </Grid>
           )}
         </>
       ),
@@ -429,26 +527,34 @@ export const HomeDashboard: () => JSX.Element = () => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
     const qParams = `?limit=25${createdFilterObject.filterString}`;
 
-    Promise.all([
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}&type=transaction_submitted&fetchreferences=true`
-      ),
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}&type=!transaction_submitted`
-      ),
-    ])
-      .then(([recentEventTxs, recentEvents]) => {
-        setRecentEventTxs(recentEventTxs);
-        setRecentEvents(recentEvents);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+    isMounted &&
+      Promise.all([
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}&type=transaction_submitted&fetchreferences=true`
+        ),
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}&type=!transaction_submitted`
+        ),
+      ])
+        .then(([recentEventTxs, recentEvents]) => {
+          if (isMounted) {
+            setRecentEventTxs(recentEventTxs);
+            setRecentEvents(recentEvents);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [selectedNamespace, lastRefreshTime, , createdFilter, isMounted]);
 
   return (
     <>
-      <Header title={'Dashboard'} subtitle={'Home'}></Header>
+      <Header
+        title={'Dashboard'}
+        subtitle={'Home'}
+        onRefresh={refreshData}
+        numNewEvents={numNewEvents}
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           {/* Small Cards */}
@@ -519,7 +625,7 @@ export const HomeDashboard: () => JSX.Element = () => {
                   item
                   xs={6}
                 >
-                  <FireFlyCard key={idx} card={card} />
+                  <FireFlyCard position="flex-start" key={idx} card={card} />
                 </Grid>
               );
             })}
@@ -532,6 +638,7 @@ export const HomeDashboard: () => JSX.Element = () => {
           open={!!viewTx}
           onClose={() => {
             setViewTx(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}
@@ -541,6 +648,7 @@ export const HomeDashboard: () => JSX.Element = () => {
           open={!!viewEvent}
           onClose={() => {
             setViewEvent(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}

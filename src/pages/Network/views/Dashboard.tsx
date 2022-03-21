@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import { Grid } from '@mui/material';
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Header } from '../../../components/Header';
 import { NetworkMap } from '../../../components/NetworkMap/NetworkMap';
@@ -23,10 +23,23 @@ import { DEFAULT_PADDING } from '../../../theme';
 
 export const NetworkMapDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
+
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
 
   return (
     <>
-      <Header title={t('networkMap')} subtitle={t('network')}></Header>
+      <Header
+        title={t('networkMap')}
+        subtitle={t('network')}
+        noDateFilter
+        noNsFilter
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid
           container
@@ -36,7 +49,7 @@ export const NetworkMapDashboard: () => JSX.Element = () => {
           alignItems="center"
           height="85vh"
         >
-          <NetworkMap />
+          {isMounted && <NetworkMap />}
         </Grid>
       </Grid>
     </>

@@ -17,23 +17,41 @@
 import {
   AppBar as MaterialAppBar,
   Box,
+  Button,
   CssBaseline,
   Grid,
   Toolbar,
   Typography,
 } from '@mui/material';
 import React from 'react';
-import { DatePicker } from './Pickers/DatePicker';
+import { useTranslation } from 'react-i18next';
 import { DEFAULT_PADDING, themeOptions } from '../theme';
+import { DatePicker } from './Pickers/DatePicker';
 import { NamespacePicker } from './Pickers/NamespacePicker';
+
 interface Props {
   title: string | JSX.Element;
   subtitle: string;
+  onRefresh?: any;
+  numNewEvents?: number;
+  showNumNewEvents?: boolean;
+  noDateFilter?: boolean;
+  noNsFilter?: boolean;
 }
 
-export const Header: React.FC<Props> = ({ title, subtitle }) => {
+export const Header: React.FC<Props> = ({
+  title,
+  subtitle,
+  onRefresh,
+  numNewEvents = 0,
+  showNumNewEvents = true,
+  noDateFilter = false,
+  noNsFilter = false,
+}) => {
+  const { t } = useTranslation();
+
   return (
-    <Box display="flex" p={DEFAULT_PADDING}>
+    <Box display="flex" px={DEFAULT_PADDING} pt={DEFAULT_PADDING}>
       <CssBaseline />
       <MaterialAppBar
         position="relative"
@@ -49,7 +67,7 @@ export const Header: React.FC<Props> = ({ title, subtitle }) => {
             justifyContent="space-between"
             alignItems="center"
           >
-            <Grid item>
+            <Grid direction="column" container xs={6} item>
               <Typography variant="subtitle1">{subtitle}</Typography>
               <Typography
                 variant="h5"
@@ -61,9 +79,32 @@ export const Header: React.FC<Props> = ({ title, subtitle }) => {
                 {title}
               </Typography>
             </Grid>
-            <Grid justifyContent="space-evenly" alignItems="center">
-              <DatePicker />
-              <NamespacePicker />
+            <Grid
+              xs={6}
+              container
+              item
+              direction="row"
+              justifyContent="flex-end"
+              alignItems="center"
+            >
+              <Grid item pr={1}>
+                {numNewEvents > 0 && (
+                  <Button
+                    onClick={onRefresh}
+                    variant="contained"
+                    color="info"
+                    sx={{ borderRadius: '16px' }}
+                  >
+                    <Typography sx={{ fontSize: '14px' }}>
+                      {`${t('refresh')}${
+                        showNumNewEvents ? ` (${numNewEvents})` : ''
+                      }`}
+                    </Typography>
+                  </Button>
+                )}
+              </Grid>
+              <Grid item>{!noDateFilter && <DatePicker />}</Grid>
+              <Grid item>{!noNsFilter && <NamespacePicker />}</Grid>
             </Grid>
           </Grid>
         </Toolbar>

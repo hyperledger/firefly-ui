@@ -20,15 +20,13 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
 import { useNavigate, useParams } from 'react-router-dom';
+import { StringParam, useQueryParam } from 'use-query-params';
 import { FFBreadcrumb } from '../../../components/Breadcrumbs/FFBreadcrumb';
 import { FFCopyButton } from '../../../components/Buttons/CopyButton';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { Header } from '../../../components/Header';
 import { PoolList } from '../../../components/Lists/PoolList';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
-import { EventSlide } from '../../../components/Slides/EventSlide';
-import { OperationSlide } from '../../../components/Slides/OperationSlide';
-import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { TransferSlide } from '../../../components/Slides/TransferSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { MediumCardTable } from '../../../components/Tables/MediumCardTable';
@@ -41,22 +39,24 @@ import {
   FF_TRANSFER_CATEGORY_MAP,
   ICreatedFilter,
   IDataTableRecord,
-  IEvent,
   IFFBreadcrumb,
-  IOperation,
   IPagedTokenTransferResponse,
   ITokenBalance,
   ITokenPool,
   ITokenTransfer,
-  ITransaction,
   TransferIconMap,
 } from '../../../interfaces';
-import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
+import {
+  DEFAULT_BORDER_RADIUS,
+  DEFAULT_PADDING,
+  DEFAULT_PAGE_LIMITS,
+} from '../../../theme';
 import {
   fetchCatcher,
   getCreatedFilter,
   getFFTime,
   getShortHash,
+  isValidUUID,
   jsNumberForAddress,
 } from '../../../utils';
 
@@ -68,11 +68,9 @@ export const PoolDetails: () => JSX.Element = () => {
   const { poolID } = useParams<{ poolID: string }>();
   // Pools
   const [pool, setPool] = useState<ITokenPool>();
-
-  const [viewTx, setViewTx] = useState<ITransaction>();
+  const [isMounted, setIsMounted] = useState(false);
+  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   const [viewTransfer, setViewTransfer] = useState<ITokenTransfer>();
-  const [viewEvent, setViewEvent] = useState<IEvent>();
-  const [viewOp, setViewOp] = useState<IOperation>();
 
   // Token transfers
   const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>();
@@ -84,54 +82,81 @@ export const PoolDetails: () => JSX.Element = () => {
   const [poolAccounts, setPoolAccounts] = useState<ITokenBalance[]>();
 
   useEffect(() => {
-    if (poolID) {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    isMounted &&
+      slideQuery &&
+      isValidUUID(slideQuery) &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransferById(
+          slideQuery
+        )}`
+      )
+        .then((transferRes: ITokenTransfer) => {
+          setViewTransfer(transferRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [slideQuery, isMounted]);
+
+  useEffect(() => {
+    if (poolID && isMounted) {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenPoolsById(
           poolID
         )}`
       )
         .then((pool: ITokenPool) => {
-          setPool(pool);
+          isMounted && setPool(pool);
         })
         .catch((err) => {
           reportFetchError(err);
         });
     }
-  }, [poolID]);
+  }, [poolID, isMounted]);
 
   // Pool balances
   useEffect(() => {
-    if (pool) {
+    if (pool && isMounted) {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenBalances}?pool=${pool?.id}`
       )
         .then((balances: ITokenBalance[]) => {
-          setPoolAccounts(balances);
+          isMounted && setPoolAccounts(balances);
         })
         .catch((err) => {
           reportFetchError(err);
         });
     }
-  }, [poolID, pool]);
+  }, [pool, isMounted]);
 
   // Token transfers and accounts
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.tokenTransfers
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }&pool=${pool?.id}`
-    )
-      .then((tokenTransferRes: IPagedTokenTransferResponse) => {
-        setTokenTransfers(tokenTransferRes.items);
-        setTokenTransferTotal(tokenTransferRes.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [rowsPerPage, currentPage, selectedNamespace, pool]);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.tokenTransfers
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }&pool=${pool?.id}`
+      )
+        .then((tokenTransferRes: IPagedTokenTransferResponse) => {
+          if (isMounted) {
+            setTokenTransfers(tokenTransferRes.items);
+            setTokenTransferTotal(tokenTransferRes.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [rowsPerPage, currentPage, selectedNamespace, pool, isMounted]);
 
   const breadcrumbs: IFFBreadcrumb[] = [
     {
@@ -150,8 +175,8 @@ export const PoolDetails: () => JSX.Element = () => {
 
   const poolAccountsColHeaders = [t('key'), t('balance'), t('lastUpdated')];
   const poolAccountsRecords: IDataTableRecord[] | undefined = poolAccounts?.map(
-    (account) => ({
-      key: account.key,
+    (account, idx) => ({
+      key: idx.toString(),
       columns: [
         {
           value: <HashPopover address={account.key} />,
@@ -197,7 +222,7 @@ export const PoolDetails: () => JSX.Element = () => {
           value: (
             <FFTableText
               color="primary"
-              text={t(FF_TRANSFER_CATEGORY_MAP[transfer.type].nicename)}
+              text={t(FF_TRANSFER_CATEGORY_MAP[transfer.type]?.nicename)}
               icon={TransferIconMap[transfer.type]}
             />
           ),
@@ -240,8 +265,11 @@ export const PoolDetails: () => JSX.Element = () => {
           ),
         },
       ],
-      onClick: () => setViewTransfer(transfer),
-      leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type].color,
+      onClick: () => {
+        setViewTransfer(transfer);
+        setSlideQuery(transfer.localId);
+      },
+      leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type]?.color,
     }));
 
   return (
@@ -262,15 +290,17 @@ export const PoolDetails: () => JSX.Element = () => {
           pr={DEFAULT_PADDING}
         >
           {/* Pool Card */}
-          {pool && (
-            <Paper
-              elevation={0}
-              sx={{
-                width: '100%',
-                backgroundColor: 'background.paper',
-                padding: DEFAULT_PADDING,
-              }}
-            >
+          <Paper
+            elevation={0}
+            sx={{
+              width: '100%',
+              height: '100%',
+              backgroundColor: 'background.paper',
+              padding: DEFAULT_PADDING,
+              borderRadius: DEFAULT_BORDER_RADIUS,
+            }}
+          >
+            {pool && (
               <Grid
                 direction="row"
                 justifyContent="flex-start"
@@ -294,8 +324,8 @@ export const PoolDetails: () => JSX.Element = () => {
                 </Grid>
                 <PoolList pool={pool} showPoolLink={false} />
               </Grid>
-            </Paper>
-          )}
+            )}
+          </Paper>
         </Grid>
         {/* Right hand side */}
         <Grid
@@ -307,7 +337,7 @@ export const PoolDetails: () => JSX.Element = () => {
           alignItems="flex-start"
           xs={6}
         >
-          {/* Events */}
+          {/* Transfers */}
           <Grid
             direction="column"
             alignItems="center"
@@ -330,7 +360,7 @@ export const PoolDetails: () => JSX.Element = () => {
             }
             stickyHeader={true}
             minHeight="300px"
-            maxHeight="calc(100vh - 340px)"
+            maxHeight="calc(100vh - 800px)"
             records={tokenTransferRecords}
             columnHeaders={tokenTransferColHeaders}
             paginate={true}
@@ -355,39 +385,13 @@ export const PoolDetails: () => JSX.Element = () => {
           />
         </Grid>
       </Grid>
-      {viewTx && (
-        <TransactionSlide
-          transaction={viewTx}
-          open={!!viewTx}
-          onClose={() => {
-            setViewTx(undefined);
-          }}
-        />
-      )}
-      {viewEvent && (
-        <EventSlide
-          event={viewEvent}
-          open={!!viewEvent}
-          onClose={() => {
-            setViewEvent(undefined);
-          }}
-        />
-      )}
-      {viewOp && (
-        <OperationSlide
-          op={viewOp}
-          open={!!viewOp}
-          onClose={() => {
-            setViewOp(undefined);
-          }}
-        />
-      )}
       {viewTransfer && (
         <TransferSlide
           transfer={viewTransfer}
           open={!!viewTransfer}
           onClose={() => {
             setViewTransfer(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}

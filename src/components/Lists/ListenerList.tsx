@@ -7,6 +7,7 @@ import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
 import { FFListTimestamp } from './FFListTimestamp';
+import { FFSkeletonList } from './FFSkeletonList';
 
 interface Props {
   listener: IContractListener;
@@ -14,7 +15,7 @@ interface Props {
 
 export const ListenerList: React.FC<Props> = ({ listener }) => {
   const { t } = useTranslation();
-  const [dataList, setDataList] = useState<IDataListItem[]>([]);
+  const [dataList, setDataList] = useState<IDataListItem[]>(FFSkeletonList);
 
   useEffect(() => {
     if (listener) {
@@ -70,8 +71,8 @@ export const ListenerList: React.FC<Props> = ({ listener }) => {
         <FFCircleLoader color="warning" />
       ) : (
         <>
-          {dataList.map((d) => (
-            <FFListItem key={d.label} item={d} />
+          {dataList.map((d, idx) => (
+            <FFListItem key={idx} item={d} />
           ))}
         </>
       )}

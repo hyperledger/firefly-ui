@@ -49,7 +49,7 @@ export const NetworkNodes: () => JSX.Element = () => {
   } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
-
+  const [isMounted, setIsMounted] = useState(false);
   // Nodes
   const [nodes, setNodes] = useState<INode[]>();
   // Node total
@@ -57,23 +57,33 @@ export const NetworkNodes: () => JSX.Element = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   // Nodes
   useEffect(() => {
-    fetchCatcher(
-      `${FF_Paths.apiPrefix}/${
-        FF_Paths.networkNodes
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        filterString !== undefined ? filterString : ''
-      }&sort=created`
-    )
-      .then((nodeRes: IPagedNodeResponse) => {
-        setNodes(nodeRes.items);
-        setNodeTotal(nodeRes.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-  }, [rowsPerPage, currentPage, filterString, reportFetchError]);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.apiPrefix}/${
+          FF_Paths.networkNodes
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          filterString !== undefined ? filterString : ''
+        }&sort=created`
+      )
+        .then((nodeRes: IPagedNodeResponse) => {
+          if (isMounted) {
+            setNodes(nodeRes.items);
+            setNodeTotal(nodeRes.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [rowsPerPage, currentPage, filterString, reportFetchError, isMounted]);
 
   const nodeColHeaders = [
     t('name'),
@@ -128,7 +138,12 @@ export const NetworkNodes: () => JSX.Element = () => {
 
   return (
     <>
-      <Header title={t('nodes')} subtitle={t('network')}></Header>
+      <Header
+        title={t('nodes')}
+        subtitle={t('network')}
+        noDateFilter
+        noNsFilter
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader

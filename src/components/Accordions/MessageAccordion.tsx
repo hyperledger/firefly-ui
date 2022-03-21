@@ -63,7 +63,9 @@ export const MessageAccordion: React.FC<Props> = ({
             leftContent={
               <FFAccordionText
                 color="primary"
-                text={t(FF_MESSAGES_CATEGORY_MAP[message.header.type].nicename)}
+                text={t(
+                  FF_MESSAGES_CATEGORY_MAP[message.header.type]?.nicename
+                )}
                 isHeader
               />
             }

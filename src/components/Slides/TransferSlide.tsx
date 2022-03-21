@@ -106,7 +106,7 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
           {/* Header */}
           <SlideHeader
             subtitle={t('tokenTransfer')}
-            title={t(FF_TRANSFER_CATEGORY_MAP[transfer.type].nicename)}
+            title={t(FF_TRANSFER_CATEGORY_MAP[transfer.type]?.nicename)}
           />
           {/* Data list */}
           <Grid container item>
@@ -117,7 +117,7 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
             />
           </Grid>
           {/* Operations */}
-          {txOperations.length && (
+          {txOperations.length > 0 && (
             <>
               <SlideSectionHeader
                 clickPath={FF_NAV_PATHS.activityOpPath(
@@ -134,7 +134,7 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
             </>
           )}
           {/* Blockchain Events */}
-          {txBlockchainEvents.length && (
+          {txBlockchainEvents.length > 0 && (
             <>
               <SlideSectionHeader
                 clickPath={FF_NAV_PATHS.blockchainEventsPath(

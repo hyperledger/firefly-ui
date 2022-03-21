@@ -18,14 +18,14 @@ export const FFListItem: React.FC<Props> = ({ item }) => {
       alignItems="center"
     >
       <Grid item xs={2}>
-        <Typography color="secondary" sx={{ fontSize: 12 }}>
+        <Typography noWrap color="secondary" sx={{ fontSize: 12 }}>
           {item.label}
         </Typography>
       </Grid>
       <Grid item xs={8}>
         {item.value}
       </Grid>
-      <Grid justifyContent="flex-end" container item xs={2}>
+      <Grid justifyContent="flex-end" direction="row" container item xs={2}>
         {item.button}
       </Grid>
     </Grid>

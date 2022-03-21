@@ -15,10 +15,12 @@
 // limitations under the License.
 
 import { Grid } from '@mui/material';
+import { Box } from '@mui/system';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useQueryParam, StringParam } from 'use-query-params';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
@@ -43,17 +45,28 @@ import {
   TransferFilters,
 } from '../../../interfaces';
 import {
+  FF_EVENTS,
   FF_TRANSFER_CATEGORY_MAP,
   TransferIconMap,
 } from '../../../interfaces/enums';
-import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, getCreatedFilter, getFFTime } from '../../../utils';
+import {
+  DEFAULT_HIST_HEIGHT,
+  DEFAULT_PADDING,
+  DEFAULT_PAGE_LIMITS,
+} from '../../../theme';
+import {
+  fetchCatcher,
+  getCreatedFilter,
+  getFFTime,
+  isValidUUID,
+} from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
   makeKeyArray,
 } from '../../../utils/charts';
 import { makeTransferHistogram } from '../../../utils/histograms/transferHistogram';
+import { isEventType } from '../../../utils/wsEvents';
 
 export const TokensTransfers: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -67,6 +80,8 @@ export const TokensTransfers: () => JSX.Element = () => {
   } = useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  const [isMounted, setIsMounted] = useState(false);
+  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Token transfers
   const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>();
   // Token Transfer totals
@@ -79,56 +94,102 @@ export const TokensTransfers: () => JSX.Element = () => {
   >();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
+  // Last event tracking
+  const [numNewEvents, setNumNewEvents] = useState(0);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
+
+  useEffect(() => {
+    isMounted &&
+      (isEventType(lastEvent, FF_EVENTS.TOKEN_TRANSFER_CONFIRMED) ||
+        isEventType(lastEvent, FF_EVENTS.TOKEN_TRANSFER_FAILED)) &&
+      setNumNewEvents(numNewEvents + 1);
+  }, [lastEvent]);
+
+  const refreshData = () => {
+    setNumNewEvents(0);
+    setLastRefresh(new Date().toString());
+  };
+
+  useEffect(() => {
+    setIsMounted(true);
+    setNumNewEvents(0);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    isMounted &&
+      slideQuery &&
+      isValidUUID(slideQuery) &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransferById(
+          slideQuery
+        )}`
+      )
+        .then((transferRes: ITokenTransfer) => {
+          setViewTransfer(transferRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [slideQuery, isMounted]);
 
   // Token transfers
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${
-        FF_Paths.tokenTransfers
-      }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-        createdFilterObject.filterString
-      }${filterString !== undefined ? filterString : ''}`
-    )
-      .then((tokenTransferRes: IPagedTokenTransferResponse) => {
-        setTokenTransfers(tokenTransferRes.items);
-        setTokenTransferTotal(tokenTransferRes.total);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.tokenTransfers
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
+          createdFilterObject.filterString
+        }${filterString !== undefined ? filterString : ''}`
+      )
+        .then((tokenTransferRes: IPagedTokenTransferResponse) => {
+          if (isMounted) {
+            setTokenTransfers(tokenTransferRes.items);
+            setTokenTransferTotal(tokenTransferRes.total);
+          }
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+    numNewEvents !== 0 && setNumNewEvents(0);
   }, [
     rowsPerPage,
     currentPage,
     selectedNamespace,
     createdFilter,
-    lastEvent,
     filterString,
-    reportFetchError,
+    lastRefreshTime,
+    isMounted,
   ]);
 
+  // Histogram
   useEffect(() => {
     const currentTime = dayjs().unix();
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
-    // Histogram
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.TokenTransfers,
-        createdFilterObject.filterTime,
-        currentTime,
-        BucketCountEnum.Large
-      )}`
-    )
-      .then((histTypes: IMetric[]) => {
-        setTransferHistData(makeTransferHistogram(histTypes));
-      })
-      .catch((err) => {
-        setTransferHistData([]);
-        reportFetchError(err);
-      });
-  }, [selectedNamespace, createdFilter, lastEvent, createdFilter]);
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+          BucketCollectionEnum.TokenTransfers,
+          createdFilterObject.filterTime,
+          currentTime,
+          BucketCountEnum.Large
+        )}`
+      )
+        .then((histTypes: IMetric[]) => {
+          isMounted && setTransferHistData(makeTransferHistogram(histTypes));
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
 
   const tokenTransferColHeaders = [
     t('activity'),
@@ -147,7 +208,7 @@ export const TokensTransfers: () => JSX.Element = () => {
           value: (
             <FFTableText
               color="primary"
-              text={t(FF_TRANSFER_CATEGORY_MAP[transfer.type].nicename)}
+              text={t(FF_TRANSFER_CATEGORY_MAP[transfer.type]?.nicename)}
               icon={TransferIconMap[transfer.type]}
             />
           ),
@@ -190,13 +251,21 @@ export const TokensTransfers: () => JSX.Element = () => {
           ),
         },
       ],
-      onClick: () => setViewTransfer(transfer),
-      leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type].color,
+      onClick: () => {
+        setViewTransfer(transfer);
+        setSlideQuery(transfer.localId);
+      },
+      leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type]?.color,
     }));
 
   return (
     <>
-      <Header title={t('transfers')} subtitle={t('tokens')}></Header>
+      <Header
+        title={t('transfers')}
+        subtitle={t('tokens')}
+        onRefresh={refreshData}
+        numNewEvents={numNewEvents}
+      ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
@@ -211,15 +280,17 @@ export const TokensTransfers: () => JSX.Element = () => {
               />
             }
           />
-          <Histogram
-            colors={makeColorArray(FF_TRANSFER_CATEGORY_MAP)}
-            data={transferHistData}
-            indexBy="timestamp"
-            keys={makeKeyArray(FF_TRANSFER_CATEGORY_MAP)}
-            includeLegend={true}
-            emptyText={t('noTransfers')}
-            isEmpty={isHistogramEmpty(transferHistData ?? [])}
-          />
+          <Box height={DEFAULT_HIST_HEIGHT}>
+            <Histogram
+              colors={makeColorArray(FF_TRANSFER_CATEGORY_MAP)}
+              data={transferHistData}
+              indexBy="timestamp"
+              keys={makeKeyArray(FF_TRANSFER_CATEGORY_MAP)}
+              includeLegend={true}
+              emptyText={t('noTransfers')}
+              isEmpty={isHistogramEmpty(transferHistData ?? [])}
+            />
+          </Box>
           <DataTable
             onHandleCurrPageChange={(currentPage: number) =>
               setCurrentPage(currentPage)
@@ -258,6 +329,7 @@ export const TokensTransfers: () => JSX.Element = () => {
           open={!!viewTransfer}
           onClose={() => {
             setViewTransfer(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}

@@ -14,9 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import ArrowCircleUpIcon from '@mui/icons-material/ArrowCircleUp';
 import { Timeline } from '@mui/lab';
-import { Grid, Paper, Typography } from '@mui/material';
-import React from 'react';
+import { Fab, Grid, Paper, Typography } from '@mui/material';
+import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { ITimelineElement } from '../../interfaces';
@@ -31,6 +32,8 @@ interface Props {
   fetchMoreData: any;
   hasMoreData: boolean | undefined;
   height?: string | number;
+  fetchNewData: any;
+  numNewEvents: number;
 }
 
 export const FFTimeline: React.FC<Props> = ({
@@ -39,8 +42,17 @@ export const FFTimeline: React.FC<Props> = ({
   fetchMoreData,
   hasMoreData = false,
   height,
+  fetchNewData,
+  numNewEvents,
 }) => {
   const { t } = useTranslation();
+  const myRef: any = useRef(null);
+
+  useEffect(() => {
+    if (numNewEvents === 0 && myRef?.current) {
+      myRef.current.scrollIntoView({ behavior: 'smooth' });
+    }
+  }, [numNewEvents]);
 
   return (
     <Paper
@@ -58,6 +70,30 @@ export const FFTimeline: React.FC<Props> = ({
         <EmptyStateCard text={emptyText}></EmptyStateCard>
       ) : (
         <>
+          <Grid
+            container
+            justifyContent="center"
+            style={{
+              backgroundColor: 'transparent',
+              boxShadow: 'none',
+              position: 'relative',
+            }}
+          >
+            {numNewEvents > 0 && (
+              <Grid item py={1} sx={{ position: 'absolute', zIndex: 1000 }}>
+                <Fab
+                  size="small"
+                  color="info"
+                  variant="extended"
+                  onClick={fetchNewData}
+                >
+                  <ArrowCircleUpIcon sx={{ mr: 1 }} />
+                  {`${t('see')} ${numNewEvents} ${t('newEvents')}`}
+                </Fab>
+              </Grid>
+            )}
+          </Grid>
+
           <div id="scrollableDiv" style={{ height: '100%', overflow: 'auto' }}>
             <Timeline
               sx={{
@@ -81,17 +117,28 @@ export const FFTimeline: React.FC<Props> = ({
                       justifyContent="center"
                       alignItems="center"
                     >
-                      <Typography>{t('noMoreEvents')}</Typography>
+                      <Typography sx={{ fontSize: '14px' }}>
+                        {t('noMoreEvents')}
+                      </Typography>
                     </Grid>
                   }
                 >
-                  {elements.map((element, idx) => (
-                    <TimelineItemWrapper
-                      key={idx}
-                      {...{ element }}
-                      opposite={element.opposite}
-                    />
-                  ))}
+                  {elements.map((element, idx) =>
+                    idx === 0 ? (
+                      <div key={idx} ref={myRef} className="scrollToHere">
+                        <TimelineItemWrapper
+                          {...{ element }}
+                          opposite={element.opposite}
+                        />
+                      </div>
+                    ) : (
+                      <TimelineItemWrapper
+                        key={idx}
+                        {...{ element }}
+                        opposite={element.opposite}
+                      />
+                    )
+                  )}
                 </InfiniteScroll>
               )}
             </Timeline>

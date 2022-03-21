@@ -29,6 +29,7 @@ interface Props {
   icon?: JSX.Element;
   itemIsActive: boolean;
   rightIcon?: JSX.Element;
+  isRoot?: boolean;
 }
 
 export const NavItem = ({
@@ -37,6 +38,7 @@ export const NavItem = ({
   icon,
   itemIsActive,
   rightIcon,
+  isRoot = false,
 }: Props) => {
   return (
     <ListItemButton
@@ -56,7 +58,9 @@ export const NavItem = ({
         {rightIcon ? (
           <Grid container direction="row">
             <Grid container item justifyContent="flex-start" xs={6}>
-              <Typography>{name}</Typography>
+              <Typography sx={{ fontSize: isRoot ? '16px' : '14px' }}>
+                {name}
+              </Typography>
             </Grid>
             <Grid
               container
@@ -69,7 +73,9 @@ export const NavItem = ({
             </Grid>
           </Grid>
         ) : (
-          <Typography>{name}</Typography>
+          <Typography sx={{ fontSize: isRoot ? '16px' : '14px' }}>
+            {name}
+          </Typography>
         )}
       </ListItemText>
     </ListItemButton>

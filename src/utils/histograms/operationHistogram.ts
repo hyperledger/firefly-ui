@@ -1,6 +1,7 @@
 import { BarDatum } from '@nivo/bar';
 import { IMetric } from '../../interfaces';
 import {
+  FF_OPS,
   FF_OP_CATEGORY_MAP,
   IHistOpTimeMap,
   OpCategoryEnum,
@@ -15,7 +16,7 @@ export const makeOperationHistogram = (histList: IMetric[]): BarDatum[] => {
       [OpCategoryEnum.TOKENS]: 0,
     };
     hist.types.map((type) => {
-      switch (FF_OP_CATEGORY_MAP[type.type].category) {
+      switch (FF_OP_CATEGORY_MAP[type.type as FF_OPS]?.category) {
         // Blockchain
         case OpCategoryEnum.BLOCKCHAIN:
           timeMap[hist.timestamp][OpCategoryEnum.BLOCKCHAIN] =

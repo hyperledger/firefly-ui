@@ -9,6 +9,7 @@ import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
 import { FFListTimestamp } from './FFListTimestamp';
+import { FFSkeletonList } from './FFSkeletonList';
 
 interface Props {
   message?: IMessage;
@@ -16,7 +17,7 @@ interface Props {
 
 export const MessageList: React.FC<Props> = ({ message }) => {
   const { t } = useTranslation();
-  const [dataList, setDataList] = useState<IDataListItem[]>([]);
+  const [dataList, setDataList] = useState<IDataListItem[]>(FFSkeletonList);
 
   useEffect(() => {
     if (message) {
@@ -31,7 +32,7 @@ export const MessageList: React.FC<Props> = ({ message }) => {
           value: (
             <FFListText
               color="primary"
-              text={t(FF_TX_CATEGORY_MAP[message.header.txtype].nicename)}
+              text={t(FF_TX_CATEGORY_MAP[message.header.txtype]?.nicename)}
             />
           ),
           button: <FFCopyButton value={message.header.txtype} />,
@@ -67,6 +68,9 @@ export const MessageList: React.FC<Props> = ({ message }) => {
           ) : (
             <FFListText color="secondary" text={t('noTopicInMessage')} />
           ),
+          button: message.header.topics ? (
+            <FFCopyButton value={message.header.topics.toString()} />
+          ) : undefined,
         },
         {
           label: t('status'),
@@ -91,8 +95,8 @@ export const MessageList: React.FC<Props> = ({ message }) => {
         <FFCircleLoader color="warning" />
       ) : (
         <>
-          {dataList.map((d) => (
-            <FFListItem key={d.label} item={d} />
+          {dataList.map((d, idx) => (
+            <FFListItem key={idx} item={d} />
           ))}
         </>
       )}

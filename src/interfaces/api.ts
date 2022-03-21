@@ -1,4 +1,12 @@
-import { FF_EVENTS, MessageStatus, OperationStatus } from './enums';
+import {
+  FF_EVENTS,
+  FF_MESSAGES,
+  FF_OPS,
+  FF_TX,
+  FF_TX_STATUS,
+  MessageStatus,
+  OperationStatus,
+} from './enums';
 
 export interface IBlockchainEvent {
   id: string;
@@ -119,8 +127,8 @@ export interface IGenericPagedResponse {
 export interface IMessage {
   header: {
     id: string;
-    type: string;
-    txtype: string;
+    type: FF_MESSAGES;
+    txtype: FF_TX;
     author: string;
     key: string;
     created: string;
@@ -199,7 +207,7 @@ export interface IOperation {
   id: string;
   namespace: string;
   tx: string;
-  type: string;
+  type: FF_OPS;
   status: OperationStatus;
   plugin: string;
   input?: any;
@@ -365,6 +373,7 @@ export interface ITokenPool {
   namespace: string;
   name: string;
   standard: string;
+  symbol?: string;
   protocolId: string;
   connector: string;
   message: string;
@@ -401,7 +410,7 @@ export interface ITokenTransfer {
 export interface ITransaction {
   id: string;
   namespace: string;
-  type: string;
+  type: FF_TX;
   created: string;
   blockchainIds?: string[];
 }
@@ -409,7 +418,7 @@ export interface ITransaction {
 export interface ITxStatus {
   status: string;
   details: {
-    type: string;
+    type: FF_TX_STATUS;
     subtype?: string;
     status: string;
     timestamp: string;

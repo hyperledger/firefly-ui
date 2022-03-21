@@ -51,8 +51,10 @@ export const FF_NAV_PATHS = {
   // Activity
   activityTimelinePath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}`,
-  activityEventsPath: (ns: string) =>
-    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${EVENTS_PATH}`,
+  activityEventsPath: (ns: string, txID?: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${EVENTS_PATH}${
+      txID ? `?filters=tx==${txID}` : ''
+    }`,
   activityTxPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}`,
   activityTxDetailPath: (ns: string, txID: string) =>
@@ -61,6 +63,8 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}${
       txID ? `?filters=tx==${txID}` : ''
     }`,
+  activityOpErrorPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}?filters=error=!=`,
   // Blockchain
   blockchainPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}`,
@@ -74,12 +78,14 @@ export const FF_NAV_PATHS = {
     }`,
   blockchainInterfacesPath: (ns: string, interfaceID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${INTERFACES_PATH}${
-      interfaceID ? `?filters=id==${interfaceID}` : ''
+      interfaceID ? `?slide=${interfaceID}` : ''
     }`,
   blockchainListenersPath: (ns: string, interfaceID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${LISTENERS_PATH}${
       interfaceID ? `?filters=interface==${interfaceID}` : ''
     }`,
+  blockchainListenersSinglePath: (ns: string, listenerID: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${LISTENERS_PATH}${`?slide=${listenerID}&filters=id==${listenerID}`}`,
   // Off-Chain
   offchainPath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}`,
   offchainMessagesPath: (ns: string, msgID?: string) =>
@@ -88,11 +94,11 @@ export const FF_NAV_PATHS = {
     }`,
   offchainDataPath: (ns: string, dataID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${DATA_PATH}${
-      dataID ? `?filters=id==${dataID}` : ''
+      dataID ? `?slide=${dataID}&filters=id=${dataID}` : ''
     }`,
   offchainDatatypesPath: (ns: string, datatypeID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${DATATYPES_PATH}${
-      datatypeID ? `?filters=id==${datatypeID}` : ''
+      datatypeID ? `?filters=id==${datatypeID}&slide=${datatypeID}` : ''
     }`,
   // Tokens
   tokensPath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}`,
