@@ -19,6 +19,7 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { StringParam, useQueryParam } from 'use-query-params';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
@@ -56,6 +57,7 @@ import {
   fetchCatcher,
   getCreatedFilter,
   getFFTime,
+  isValidUUID,
   makeMsgHistogram,
 } from '../../../utils';
 import {
@@ -78,6 +80,7 @@ export const OffChainMessages: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
+  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Messages
   const [messages, setMessages] = useState<IMessage[]>();
   const [messageTotal, setMessageTotal] = useState(0);
@@ -113,6 +116,23 @@ export const OffChainMessages: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
+
+  useEffect(() => {
+    isMounted &&
+      slideQuery &&
+      isValidUUID(slideQuery) &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messagesById(
+          slideQuery
+        )}`
+      )
+        .then((messageRes: IMessage) => {
+          setViewMsg(messageRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [slideQuery, isMounted]);
 
   // Messages
   useEffect(() => {
@@ -219,11 +239,10 @@ export const OffChainMessages: () => JSX.Element = () => {
         ),
       },
       {
-        value: (
-          <FFTableText
-            color="primary"
-            text={msg.header.topics ? msg.header.topics.toString() : ''}
-          />
+        value: msg.header.topics ? (
+          <HashPopover shortHash address={msg.header.topics.toString()} />
+        ) : (
+          <FFTableText color="secondary" text={t('noTopicsInMessage')} />
         ),
       },
       {
@@ -240,7 +259,10 @@ export const OffChainMessages: () => JSX.Element = () => {
         ),
       },
     ],
-    onClick: () => setViewMsg(msg),
+    onClick: () => {
+      setViewMsg(msg);
+      setSlideQuery(msg.header.id);
+    },
     leftBorderColor: FF_MESSAGES_CATEGORY_MAP[msg.header.type]?.color,
   }));
 
@@ -315,6 +337,7 @@ export const OffChainMessages: () => JSX.Element = () => {
           open={!!viewMsg}
           onClose={() => {
             setViewMsg(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}

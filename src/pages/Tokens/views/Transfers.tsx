@@ -20,6 +20,7 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { useQueryParam, StringParam } from 'use-query-params';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
@@ -53,7 +54,12 @@ import {
   DEFAULT_PADDING,
   DEFAULT_PAGE_LIMITS,
 } from '../../../theme';
-import { fetchCatcher, getCreatedFilter, getFFTime } from '../../../utils';
+import {
+  fetchCatcher,
+  getCreatedFilter,
+  getFFTime,
+  isValidUUID,
+} from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -75,6 +81,7 @@ export const TokensTransfers: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
+  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Token transfers
   const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>();
   // Token Transfer totals
@@ -112,6 +119,23 @@ export const TokensTransfers: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
+
+  useEffect(() => {
+    isMounted &&
+      slideQuery &&
+      isValidUUID(slideQuery) &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransferById(
+          slideQuery
+        )}`
+      )
+        .then((transferRes: ITokenTransfer) => {
+          setViewTransfer(transferRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [slideQuery, isMounted]);
 
   // Token transfers
   useEffect(() => {
@@ -227,7 +251,10 @@ export const TokensTransfers: () => JSX.Element = () => {
           ),
         },
       ],
-      onClick: () => setViewTransfer(transfer),
+      onClick: () => {
+        setViewTransfer(transfer);
+        setSlideQuery(transfer.localId);
+      },
       leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type]?.color,
     }));
 
@@ -302,6 +329,7 @@ export const TokensTransfers: () => JSX.Element = () => {
           open={!!viewTransfer}
           onClose={() => {
             setViewTransfer(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}

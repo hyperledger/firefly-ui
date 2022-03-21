@@ -17,6 +17,7 @@
 import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { StringParam, useQueryParam } from 'use-query-params';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
@@ -37,7 +38,12 @@ import {
   ListenerFilters,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, getCreatedFilter, getFFTime } from '../../../utils';
+import {
+  fetchCatcher,
+  getCreatedFilter,
+  getFFTime,
+  isValidUUID,
+} from '../../../utils';
 
 export const BlockchainListeners: () => JSX.Element = () => {
   const { createdFilter, lastEvent, selectedNamespace } =
@@ -52,6 +58,7 @@ export const BlockchainListeners: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
+  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Listeners
   const [listeners, setListeners] = useState<IContractListener[]>();
   // Listener totals
@@ -69,6 +76,23 @@ export const BlockchainListeners: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
+
+  useEffect(() => {
+    isMounted &&
+      slideQuery &&
+      isValidUUID(slideQuery) &&
+      fetchCatcher(
+        `${
+          FF_Paths.nsPrefix
+        }/${selectedNamespace}${FF_Paths.contractListenersByNameId(slideQuery)}`
+      )
+        .then((listenerRes: IContractListener) => {
+          setViewListener(listenerRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [slideQuery, isMounted]);
 
   // Listeners
   useEffect(() => {
@@ -146,7 +170,10 @@ export const BlockchainListeners: () => JSX.Element = () => {
           value: <FFTableText color="secondary" text={getFFTime(l.created)} />,
         },
       ],
-      onClick: () => setViewListener(l),
+      onClick: () => {
+        setViewListener(l);
+        setSlideQuery(l.id);
+      },
     })
   );
 
@@ -205,6 +232,7 @@ export const BlockchainListeners: () => JSX.Element = () => {
           open={!!viewListener}
           onClose={() => {
             setViewListener(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}

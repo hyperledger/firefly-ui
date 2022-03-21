@@ -68,6 +68,9 @@ export const MessageList: React.FC<Props> = ({ message }) => {
           ) : (
             <FFListText color="secondary" text={t('noTopicInMessage')} />
           ),
+          button: message.header.topics ? (
+            <FFCopyButton value={message.header.topics.toString()} />
+          ) : undefined,
         },
         {
           label: t('status'),

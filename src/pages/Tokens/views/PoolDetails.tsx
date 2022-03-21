@@ -20,15 +20,13 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
 import { useNavigate, useParams } from 'react-router-dom';
+import { StringParam, useQueryParam } from 'use-query-params';
 import { FFBreadcrumb } from '../../../components/Breadcrumbs/FFBreadcrumb';
 import { FFCopyButton } from '../../../components/Buttons/CopyButton';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { Header } from '../../../components/Header';
 import { PoolList } from '../../../components/Lists/PoolList';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
-import { EventSlide } from '../../../components/Slides/EventSlide';
-import { OperationSlide } from '../../../components/Slides/OperationSlide';
-import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { TransferSlide } from '../../../components/Slides/TransferSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { MediumCardTable } from '../../../components/Tables/MediumCardTable';
@@ -41,14 +39,11 @@ import {
   FF_TRANSFER_CATEGORY_MAP,
   ICreatedFilter,
   IDataTableRecord,
-  IEvent,
   IFFBreadcrumb,
-  IOperation,
   IPagedTokenTransferResponse,
   ITokenBalance,
   ITokenPool,
   ITokenTransfer,
-  ITransaction,
   TransferIconMap,
 } from '../../../interfaces';
 import {
@@ -61,6 +56,7 @@ import {
   getCreatedFilter,
   getFFTime,
   getShortHash,
+  isValidUUID,
   jsNumberForAddress,
 } from '../../../utils';
 
@@ -73,10 +69,8 @@ export const PoolDetails: () => JSX.Element = () => {
   // Pools
   const [pool, setPool] = useState<ITokenPool>();
   const [isMounted, setIsMounted] = useState(false);
-  const [viewTx, setViewTx] = useState<ITransaction>();
+  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   const [viewTransfer, setViewTransfer] = useState<ITokenTransfer>();
-  const [viewEvent, setViewEvent] = useState<IEvent>();
-  const [viewOp, setViewOp] = useState<IOperation>();
 
   // Token transfers
   const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>();
@@ -93,6 +87,23 @@ export const PoolDetails: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
+
+  useEffect(() => {
+    isMounted &&
+      slideQuery &&
+      isValidUUID(slideQuery) &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransferById(
+          slideQuery
+        )}`
+      )
+        .then((transferRes: ITokenTransfer) => {
+          setViewTransfer(transferRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [slideQuery, isMounted]);
 
   useEffect(() => {
     if (poolID && isMounted) {
@@ -254,7 +265,10 @@ export const PoolDetails: () => JSX.Element = () => {
           ),
         },
       ],
-      onClick: () => setViewTransfer(transfer),
+      onClick: () => {
+        setViewTransfer(transfer);
+        setSlideQuery(transfer.localId);
+      },
       leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type]?.color,
     }));
 
@@ -371,39 +385,13 @@ export const PoolDetails: () => JSX.Element = () => {
           />
         </Grid>
       </Grid>
-      {viewTx && (
-        <TransactionSlide
-          transaction={viewTx}
-          open={!!viewTx}
-          onClose={() => {
-            setViewTx(undefined);
-          }}
-        />
-      )}
-      {viewEvent && (
-        <EventSlide
-          event={viewEvent}
-          open={!!viewEvent}
-          onClose={() => {
-            setViewEvent(undefined);
-          }}
-        />
-      )}
-      {viewOp && (
-        <OperationSlide
-          op={viewOp}
-          open={!!viewOp}
-          onClose={() => {
-            setViewOp(undefined);
-          }}
-        />
-      )}
       {viewTransfer && (
         <TransferSlide
           transfer={viewTransfer}
           open={!!viewTransfer}
           onClose={() => {
             setViewTransfer(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}

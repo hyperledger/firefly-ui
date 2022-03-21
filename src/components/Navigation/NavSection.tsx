@@ -23,7 +23,8 @@ import {
 } from '@mui/material';
 import ExpandMore from 'mdi-react/ChevronDownIcon';
 import ExpandLess from 'mdi-react/ChevronUpIcon';
-import { useState } from 'react';
+import { useEffect, useState } from 'react';
+import { useLocation } from 'react-router-dom';
 import { INavItem } from '../../interfaces';
 import { themeOptions } from '../../theme';
 import { NavItem } from './NavItem';
@@ -38,6 +39,14 @@ export const NavSection = ({ icon, navItems, title }: Props) => {
   const [open, setOpen] = useState(
     navItems.every((item) => item.itemIsActive === false) ? false : true
   );
+  const { pathname } = useLocation();
+
+  useEffect(() => {
+    const isActive = navItems.every((item) => item.itemIsActive === false)
+      ? false
+      : true;
+    isActive && setOpen(true);
+  }, [pathname]);
 
   return (
     <>

@@ -19,6 +19,7 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { StringParam, useQueryParam } from 'use-query-params';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
@@ -52,6 +53,7 @@ import {
   fetchCatcher,
   getCreatedFilter,
   getFFTime,
+  isValidUUID,
   makeEventHistogram,
 } from '../../../utils';
 import {
@@ -74,6 +76,7 @@ export const ActivityEvents: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
+  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Events
   const [events, setEvents] = useState<IEvent[]>();
   // Event totals
@@ -108,6 +111,23 @@ export const ActivityEvents: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
+
+  useEffect(() => {
+    isMounted &&
+      slideQuery &&
+      isValidUUID(slideQuery) &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.eventsById(
+          slideQuery
+        )}`
+      )
+        .then((eventRes: IEvent) => {
+          setViewEvent(eventRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [slideQuery, isMounted]);
 
   // Events list
   useEffect(() => {
@@ -208,7 +228,10 @@ export const ActivityEvents: () => JSX.Element = () => {
           ),
         },
       ],
-      onClick: () => setViewEvent(event),
+      onClick: () => {
+        setViewEvent(event);
+        setSlideQuery(event.id);
+      },
       leftBorderColor: FF_EVENTS_CATEGORY_MAP[event.type]?.color,
     })
   );
@@ -284,6 +307,7 @@ export const ActivityEvents: () => JSX.Element = () => {
           open={!!viewEvent}
           onClose={() => {
             setViewEvent(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}

@@ -17,6 +17,7 @@
 import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { StringParam, useQueryParam } from 'use-query-params';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
@@ -38,7 +39,12 @@ import {
   IPagedDatatypeResponse,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, getCreatedFilter, getFFTime } from '../../../utils';
+import {
+  fetchCatcher,
+  getCreatedFilter,
+  getFFTime,
+  isValidUUID,
+} from '../../../utils';
 import { isEventType } from '../../../utils/wsEvents';
 
 export const OffChainDataTypes: () => JSX.Element = () => {
@@ -54,6 +60,7 @@ export const OffChainDataTypes: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
+  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Datatype
   const [datatypes, setDatatypes] = useState<IDatatype[]>();
   // Data total
@@ -85,6 +92,21 @@ export const OffChainDataTypes: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
+
+  useEffect(() => {
+    isMounted &&
+      slideQuery &&
+      isValidUUID(slideQuery) &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.datatypes}?id=${slideQuery}`
+      )
+        .then((dtRes: IDatatype[]) => {
+          dtRes.length && setViewDatatype(dtRes[0]);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [slideQuery, isMounted]);
 
   // Datatype
   useEffect(() => {
@@ -156,7 +178,10 @@ export const OffChainDataTypes: () => JSX.Element = () => {
           ),
         },
       ],
-      onClick: () => setViewDatatype(d),
+      onClick: () => {
+        setViewDatatype(d);
+        setSlideQuery(d.id);
+      },
     })
   );
 
@@ -220,6 +245,7 @@ export const OffChainDataTypes: () => JSX.Element = () => {
           open={!!viewDatatype}
           onClose={() => {
             setViewDatatype(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}

@@ -19,6 +19,7 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { StringParam, useQueryParam } from 'use-query-params';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
@@ -55,6 +56,7 @@ import {
   fetchCatcher,
   getCreatedFilter,
   getFFTime,
+  isValidUUID,
   makeOperationHistogram,
 } from '../../../utils';
 import {
@@ -77,6 +79,7 @@ export const ActivityOperations: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
+  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Operations
   const [ops, setOps] = useState<IOperation[]>();
   // Operation totals
@@ -112,6 +115,23 @@ export const ActivityOperations: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
+
+  useEffect(() => {
+    isMounted &&
+      slideQuery &&
+      isValidUUID(slideQuery) &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operationsById(
+          slideQuery
+        )}`
+      )
+        .then((opRes: IOperation) => {
+          setViewOp(opRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [slideQuery, isMounted]);
 
   // Operations
   useEffect(() => {
@@ -206,7 +226,10 @@ export const ActivityOperations: () => JSX.Element = () => {
       },
       { value: <FFTableText color="secondary" text={getFFTime(op.created)} /> },
     ],
-    onClick: () => setViewOp(op),
+    onClick: () => {
+      setViewOp(op);
+      setSlideQuery(op.id);
+    },
     leftBorderColor: FF_OP_CATEGORY_MAP[op.type]?.color,
   }));
 
@@ -282,6 +305,7 @@ export const ActivityOperations: () => JSX.Element = () => {
           open={!!viewOp}
           onClose={() => {
             setViewOp(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}

@@ -22,6 +22,7 @@ import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { useQueryParam, StringParam } from 'use-query-params';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
@@ -66,6 +67,7 @@ import {
   fetchCatcher,
   getCreatedFilter,
   getFFTime,
+  isValidUUID,
   makeMsgHistogram,
 } from '../../../utils';
 import {
@@ -82,6 +84,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const navigate = useNavigate();
   const [isMounted, setIsMounted] = useState(false);
+  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Small cards
   // Message count
   const [msgCount, setMsgCount] = useState<number>();
@@ -131,6 +134,23 @@ export const OffChainDashboard: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
+
+  useEffect(() => {
+    isMounted &&
+      slideQuery &&
+      isValidUUID(slideQuery) &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messagesById(
+          slideQuery
+        )}`
+      )
+        .then((messageRes: IMessage) => {
+          setViewMsg(messageRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [slideQuery, isMounted]);
 
   const smallCards: ISmallCard[] = [
     {
@@ -420,11 +440,10 @@ export const OffChainDashboard: () => JSX.Element = () => {
         ),
       },
       {
-        value: (
-          <FFTableText
-            color="primary"
-            text={msg.header.topics ? msg.header.topics.toString() : ''}
-          />
+        value: msg.header.topics ? (
+          <HashPopover shortHash address={msg.header.topics.toString()} />
+        ) : (
+          <FFTableText color="secondary" text={t('noTopicsInMessage')} />
         ),
       },
       {
@@ -441,7 +460,10 @@ export const OffChainDashboard: () => JSX.Element = () => {
         ),
       },
     ],
-    onClick: () => setViewMsg(msg),
+    onClick: () => {
+      setViewMsg(msg);
+      setSlideQuery(msg.header.id);
+    },
     leftBorderColor: FF_MESSAGES_CATEGORY_MAP[msg.header.type]?.color,
   }));
 
@@ -535,6 +557,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
           open={!!viewMsg}
           onClose={() => {
             setViewMsg(undefined);
+            setSlideQuery(undefined);
           }}
         />
       )}

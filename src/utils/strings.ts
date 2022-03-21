@@ -22,3 +22,9 @@ export const makeMultipleQueryParams = (
     .toString();
   return `&${queryKey}=${str.replaceAll(',', `&${queryKey}=`)}`;
 };
+
+export const isValidUUID = (str: string): boolean => {
+  return /^[0-9a-fA-F]{8}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{4}\b-[0-9a-fA-F]{12}$/gi.test(
+    str
+  );
+};
