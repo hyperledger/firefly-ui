@@ -230,7 +230,7 @@ export const TokensDashboard: () => JSX.Element = () => {
         reportFetchError(err);
       });
     numNewEvents !== 0 && setNumNewEvents(0);
-  }, [selectedNamespace, createdFilter, createdFilter, lastRefreshTime]);
+  }, [selectedNamespace, createdFilter, lastRefreshTime]);
 
   const tokenAccountsColHeaders = [t('key'), t('poolID'), t('balance')];
   const tokenAccountRecords: IDataTableRecord[] | undefined =
@@ -408,7 +408,7 @@ export const TokensDashboard: () => JSX.Element = () => {
           value: (
             <FFTableText
               color="primary"
-              text={t(FF_TRANSFER_CATEGORY_MAP[transfer.type].nicename)}
+              text={t(FF_TRANSFER_CATEGORY_MAP[transfer.type]?.nicename)}
               icon={TransferIconMap[transfer.type]}
             />
           ),
@@ -452,7 +452,7 @@ export const TokensDashboard: () => JSX.Element = () => {
         },
       ],
       onClick: () => setViewTransfer(transfer),
-      leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type].color,
+      leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type]?.color,
     }));
 
   // Recent token transfers

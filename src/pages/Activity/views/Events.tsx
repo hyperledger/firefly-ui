@@ -96,7 +96,7 @@ export const ActivityEvents: () => JSX.Element = () => {
 
   const refreshData = () => {
     setNumNewEvents(0);
-    setLastRefresh(new Date().toString());
+    setLastRefresh(new Date().toISOString());
   };
 
   // Events list
@@ -147,7 +147,7 @@ export const ActivityEvents: () => JSX.Element = () => {
         setEventHistData([]);
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, createdFilter, lastRefreshTime]);
+  }, [selectedNamespace, createdFilter, lastRefreshTime]);
 
   const eventsColumnHeaders = [
     t('type'),
@@ -165,7 +165,7 @@ export const ActivityEvents: () => JSX.Element = () => {
           value: (
             <FFTableText
               color="primary"
-              text={t(FF_EVENTS_CATEGORY_MAP[event.type].nicename)}
+              text={t(FF_EVENTS_CATEGORY_MAP[event.type]?.nicename)}
             />
           ),
         },
@@ -194,7 +194,7 @@ export const ActivityEvents: () => JSX.Element = () => {
         },
       ],
       onClick: () => setViewEvent(event),
-      leftBorderColor: FF_EVENTS_CATEGORY_MAP[event.type].color,
+      leftBorderColor: FF_EVENTS_CATEGORY_MAP[event.type]?.color,
     })
   );
 

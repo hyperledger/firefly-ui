@@ -28,6 +28,7 @@ import {
 import React from 'react';
 import { IDataTableRecord } from '../../interfaces/table';
 import { DEFAULT_PAGE_LIMITS, themeOptions } from '../../theme';
+import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { DataTableEmptyState } from './TableEmptyState';
 import { DataTableRow } from './TableRow';
 import { TableRowSkeleton } from './TableRowSkeleton';
@@ -135,22 +136,27 @@ export const DataTable: React.FC<Props> = ({
                   </TableRow>
                 </TableHead>
                 <TableBody>
-                  {records
-                    ? records.map((record) => (
+                  {
+                    records ? (
+                      records.map((record) => (
                         <DataTableRow
                           key={record.key}
                           leftBorderColor={record.leftBorderColor}
                           {...{ record }}
                         />
                       ))
-                    : Array.from(Array(NUM_SKELETON_ROWS)).map((_, idx) => {
-                        return (
-                          <TableRowSkeleton
-                            key={idx}
-                            numColumns={columnHeaders?.length ?? 1}
-                          />
-                        );
-                      })}
+                    ) : (
+                      <FFCircleLoader color="warning" />
+                    )
+                    // Array.from(Array(NUM_SKELETON_ROWS)).map((_, idx) => {
+                    //     return (
+                    //       <TableRowSkeleton
+                    //         key={idx}
+                    //         numColumns={columnHeaders?.length ?? 1}
+                    //       />
+                    //     );
+                    // })
+                  }
                 </TableBody>
               </Table>
             </TableContainer>

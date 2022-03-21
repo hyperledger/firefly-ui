@@ -245,7 +245,7 @@ export const HomeDashboard: () => JSX.Element = () => {
         reportFetchError(err);
       });
     numNewEvents !== 0 && setNumNewEvents(0);
-  }, [selectedNamespace, createdFilter, lastRefreshTime, createdFilter]);
+  }, [selectedNamespace, createdFilter, lastRefreshTime]);
 
   const myNodeDetailsList: IDataWithHeader[] = [
     {
@@ -392,20 +392,34 @@ export const HomeDashboard: () => JSX.Element = () => {
           ) : recentEventTxs.length === 0 ? (
             <EmptyStateCard text={t('noRecentTransactions')} />
           ) : (
-            recentEventTxs.map((event, idx) => (
-              <React.Fragment key={idx}>
-                <EventCardWrapper
-                  onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
-                  onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
-                  link={FF_NAV_PATHS.activityTxDetailPath(
-                    selectedNamespace,
-                    event.tx
-                  )}
-                  {...{ event }}
-                />
-                <Grid sx={{ padding: '1px' }} />
-              </React.Fragment>
-            ))
+            <Grid
+              container
+              direction="column"
+              item
+              alignItems="flex-start"
+              justifyContent="flex-start"
+            >
+              {recentEventTxs.map((event, idx) => (
+                <Grid
+                  item
+                  container
+                  alignItems="flex-start"
+                  justifyContent="flex-start"
+                  key={idx}
+                >
+                  <EventCardWrapper
+                    onHandleViewEvent={(event: IEvent) => setViewEvent(event)}
+                    onHandleViewTx={(tx: ITransaction) => setViewTx(tx)}
+                    link={FF_NAV_PATHS.activityTxDetailPath(
+                      selectedNamespace,
+                      event.tx
+                    )}
+                    {...{ event }}
+                  />
+                  <Grid sx={{ padding: '1px' }} />
+                </Grid>
+              ))}
+            </Grid>
           )}
         </>
       ),

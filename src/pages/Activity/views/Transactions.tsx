@@ -144,7 +144,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, createdFilter, lastRefreshTime]);
+  }, [selectedNamespace, createdFilter, lastRefreshTime]);
 
   const txColumnHeaders = [
     t('type'),
@@ -162,7 +162,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
         value: (
           <FFTableText
             color="primary"
-            text={t(FF_TX_CATEGORY_MAP[tx.type].nicename)}
+            text={t(FF_TX_CATEGORY_MAP[tx.type]?.nicename)}
           />
         ),
       },
@@ -188,10 +188,10 @@ export const ActivityTransactions: () => JSX.Element = () => {
       {
         value: <FFTableText color="secondary" text={getFFTime(tx.created)} />,
       },
-      { value: <TxButton ns={selectedNamespace} txID={tx.id} /> },
+      { value: <TxButton ns={selectedNamespace} txID={tx.id} small /> },
     ],
     onClick: () => setViewTx(tx),
-    leftBorderColor: FF_TX_CATEGORY_MAP[tx.type].color,
+    leftBorderColor: FF_TX_CATEGORY_MAP[tx.type]?.color,
   }));
 
   return (

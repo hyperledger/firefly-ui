@@ -142,7 +142,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, createdFilter, lastRefreshTime]);
+  }, [selectedNamespace, createdFilter, lastRefreshTime]);
 
   useEffect(() => {
     if (isVisible && hasNextPage) {

@@ -86,7 +86,7 @@ export const TxList: React.FC<Props> = ({
         type.type !== FF_TX_STATUS.OPERATION
       ) {
         return {
-          label: t(FF_TX_STATUS_CATEGORY_MAP[type.type].nicename),
+          label: t(FF_TX_STATUS_CATEGORY_MAP[type.type]?.nicename),
           value: <FFListText color="primary" text={type.id} />,
           button: (
             <>

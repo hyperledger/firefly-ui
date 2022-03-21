@@ -196,7 +196,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
         reportFetchError(err);
       });
     numNewEvents !== 0 && setNumNewEvents(0);
-  }, [selectedNamespace, createdFilter, lastRefreshTime, createdFilter]);
+  }, [selectedNamespace, lastRefreshTime, createdFilter]);
 
   const ciColHeaders = [t('name'), t('version'), t('interfaceID')];
   const ciRecords: IDataTableRecord[] | undefined = contractInterfaces?.map(
@@ -311,7 +311,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
         reportFetchError(err);
       });
     numNewEvents !== 0 && setNumNewEvents(0);
-  }, [selectedNamespace, createdFilter, lastRefreshTime, createdFilter]);
+  }, [selectedNamespace, lastRefreshTime, createdFilter]);
 
   // Histogram
   useEffect(() => {
@@ -332,7 +332,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, lastRefreshTime, createdFilter]);
+  }, [selectedNamespace, lastRefreshTime, createdFilter]);
 
   const beColHeaders = [
     t('name'),

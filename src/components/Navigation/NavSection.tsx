@@ -35,7 +35,9 @@ interface Props {
 }
 
 export const NavSection = ({ icon, navItems, title }: Props) => {
-  const [open, setOpen] = useState(false);
+  const [open, setOpen] = useState(
+    navItems.every((item) => item.itemIsActive === false) ? false : true
+  );
 
   return (
     <>
@@ -49,7 +51,7 @@ export const NavSection = ({ icon, navItems, title }: Props) => {
       >
         <ListItemIcon>{icon}</ListItemIcon>
         <ListItemText>
-          <Typography>{title}</Typography>
+          <Typography sx={{ fontSize: '16px' }}>{title}</Typography>
         </ListItemText>
         {open ? <ExpandLess /> : <ExpandMore />}
       </ListItemButton>

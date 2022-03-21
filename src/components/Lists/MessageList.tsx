@@ -32,7 +32,7 @@ export const MessageList: React.FC<Props> = ({ message }) => {
           value: (
             <FFListText
               color="primary"
-              text={t(FF_TX_CATEGORY_MAP[message.header.txtype].nicename)}
+              text={t(FF_TX_CATEGORY_MAP[message.header.txtype]?.nicename)}
             />
           ),
           button: <FFCopyButton value={message.header.txtype} />,

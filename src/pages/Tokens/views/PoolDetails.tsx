@@ -197,7 +197,7 @@ export const PoolDetails: () => JSX.Element = () => {
           value: (
             <FFTableText
               color="primary"
-              text={t(FF_TRANSFER_CATEGORY_MAP[transfer.type].nicename)}
+              text={t(FF_TRANSFER_CATEGORY_MAP[transfer.type]?.nicename)}
               icon={TransferIconMap[transfer.type]}
             />
           ),
@@ -241,7 +241,7 @@ export const PoolDetails: () => JSX.Element = () => {
         },
       ],
       onClick: () => setViewTransfer(transfer),
-      leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type].color,
+      leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type]?.color,
     }));
 
   return (

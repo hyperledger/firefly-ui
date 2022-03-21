@@ -150,7 +150,7 @@ export const ActivityOperations: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, createdFilter, lastRefreshTime]);
+  }, [selectedNamespace, createdFilter, lastRefreshTime]);
 
   const opsColumnHeaders = [
     t('type'),
@@ -168,7 +168,7 @@ export const ActivityOperations: () => JSX.Element = () => {
         value: (
           <FFTableText
             color="primary"
-            text={t(FF_OP_CATEGORY_MAP[op.type].nicename)}
+            text={t(FF_OP_CATEGORY_MAP[op.type]?.nicename)}
           />
         ),
       },
@@ -192,7 +192,7 @@ export const ActivityOperations: () => JSX.Element = () => {
       { value: <FFTableText color="secondary" text={getFFTime(op.created)} /> },
     ],
     onClick: () => setViewOp(op),
-    leftBorderColor: FF_OP_CATEGORY_MAP[op.type].color,
+    leftBorderColor: FF_OP_CATEGORY_MAP[op.type]?.color,
   }));
 
   return (

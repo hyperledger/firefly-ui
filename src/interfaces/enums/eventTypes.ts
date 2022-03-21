@@ -23,7 +23,6 @@ export enum FF_EVENTS {
   CONTRACT_API_CONFIRMED = 'contract_api_confirmed',
   CONTRACT_INTERFACE_CONFIRMED = 'contract_interface_confirmed',
   DATATYPE_CONFIRMED = 'datatype_confirmed',
-  GROUP_CONFIRMED = 'group_confirmed',
   IDENTITY_CONFIRMED = 'identity_confirmed',
   IDENTITY_UPDATED = 'identity_updated',
   NS_CONFIRMED = 'namespace_confirmed',
@@ -34,12 +33,14 @@ export enum FF_EVENTS {
   // Transfers
   TOKEN_POOL_CONFIRMED = 'token_pool_confirmed',
   TOKEN_APPROVAL_CONFIRMED = 'token_approval_confirmed',
-  TOKEN_APPROVAL_FAILED = 'token_approval_confirmed',
+  TOKEN_APPROVAL_OP_FAILED = 'token_approval_op_failed',
   TOKEN_TRANSFER_CONFIRMED = 'token_transfer_confirmed',
   TOKEN_TRANSFER_FAILED = 'token_transfer_op_failed',
 }
 
-export const FF_EVENTS_CATEGORY_MAP: { [key: string]: IBlockchainCategory } = {
+export const FF_EVENTS_CATEGORY_MAP: {
+  [key in FF_EVENTS]: IBlockchainCategory;
+} = {
   // Blockchain Events
   [FF_EVENTS.BLOCKCHAIN_EVENT_RECEIVED]: {
     category: EventCategoryEnum.BLOCKCHAIN,
@@ -61,11 +62,6 @@ export const FF_EVENTS_CATEGORY_MAP: { [key: string]: IBlockchainCategory } = {
     category: EventCategoryEnum.BLOCKCHAIN,
     color: FFColors.Yellow,
     nicename: 'datatypeConfirmed',
-  },
-  [FF_EVENTS.GROUP_CONFIRMED]: {
-    category: EventCategoryEnum.BLOCKCHAIN,
-    color: FFColors.Yellow,
-    nicename: 'groupConfirmed',
   },
   [FF_EVENTS.IDENTITY_CONFIRMED]: {
     category: EventCategoryEnum.BLOCKCHAIN,
@@ -112,10 +108,10 @@ export const FF_EVENTS_CATEGORY_MAP: { [key: string]: IBlockchainCategory } = {
     color: FFColors.Pink,
     nicename: 'tokenApprovalConfirmed',
   },
-  [FF_EVENTS.TOKEN_APPROVAL_FAILED]: {
+  [FF_EVENTS.TOKEN_APPROVAL_OP_FAILED]: {
     category: EventCategoryEnum.TOKENS,
     color: FFColors.Pink,
-    nicename: 'tokenApprovalFailed',
+    nicename: 'tokenApprovalOpFailed',
   },
   [FF_EVENTS.TOKEN_TRANSFER_CONFIRMED]: {
     category: EventCategoryEnum.TOKENS,

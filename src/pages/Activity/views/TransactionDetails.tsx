@@ -225,7 +225,7 @@ export const TransactionDetails: () => JSX.Element = () => {
                 }}
                 pb={1}
               >
-                {t(FF_TX_CATEGORY_MAP[tx.type].nicename)}
+                {t(FF_TX_CATEGORY_MAP[tx.type]?.nicename)}
               </Typography>
               <TxList tx={tx} txStatus={txStatus} showTxLink={false} />
             </Paper>

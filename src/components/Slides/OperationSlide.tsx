@@ -44,7 +44,7 @@ export const OperationSlide: React.FC<Props> = ({ op, open, onClose }) => {
           {/* Header */}
           <SlideHeader
             subtitle={t('operation')}
-            title={t(FF_OP_CATEGORY_MAP[op.type].nicename)}
+            title={t(FF_OP_CATEGORY_MAP[op.type]?.nicename)}
           />
           {/* Data list */}
           <Grid container item pb={DEFAULT_PADDING}>

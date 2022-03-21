@@ -151,7 +151,7 @@ export const OffChainMessages: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, createdFilter, lastRefreshTime]);
+  }, [selectedNamespace, createdFilter, lastRefreshTime]);
 
   const msgColumnHeaders = [
     t('type'),
@@ -171,7 +171,7 @@ export const OffChainMessages: () => JSX.Element = () => {
         value: (
           <FFTableText
             color="primary"
-            text={t(FF_MESSAGES_CATEGORY_MAP[msg?.header.type].nicename)}
+            text={t(FF_MESSAGES_CATEGORY_MAP[msg?.header.type]?.nicename)}
           />
         ),
       },
@@ -192,7 +192,7 @@ export const OffChainMessages: () => JSX.Element = () => {
         value: (
           <FFTableText
             color="primary"
-            text={t(FF_TX_CATEGORY_MAP[msg?.header.txtype].nicename)}
+            text={t(FF_TX_CATEGORY_MAP[msg?.header.txtype]?.nicename)}
           />
         ),
       },
@@ -226,7 +226,7 @@ export const OffChainMessages: () => JSX.Element = () => {
       },
     ],
     onClick: () => setViewMsg(msg),
-    leftBorderColor: FF_MESSAGES_CATEGORY_MAP[msg.header.type].color,
+    leftBorderColor: FF_MESSAGES_CATEGORY_MAP[msg.header.type]?.color,
   }));
 
   return (

@@ -1,6 +1,7 @@
 import { BarDatum } from '@nivo/bar';
 import { IMetric } from '../../interfaces';
 import {
+  FF_TX,
   FF_TX_CATEGORY_MAP,
   IHistTxTimeMap,
   TxCategoryEnum,
@@ -15,7 +16,7 @@ export const makeTxHistogram = (histList: IMetric[]): BarDatum[] => {
       [TxCategoryEnum.TOKENS]: 0,
     };
     hist.types.map((type) => {
-      switch (FF_TX_CATEGORY_MAP[type.type].category) {
+      switch (FF_TX_CATEGORY_MAP[type.type as FF_TX]?.category) {
         // Blockchain
         case TxCategoryEnum.BLOCKCHAIN:
           timeMap[hist.timestamp][TxCategoryEnum.BLOCKCHAIN] =

@@ -7,12 +7,14 @@ import { FFColors } from '../../theme';
 interface Props {
   ns: string;
   txID: string;
+  small?: boolean;
 }
 
-export const TxButton: React.FC<Props> = ({ ns, txID }) => {
+export const TxButton: React.FC<Props> = ({ ns, txID, small = false }) => {
   const navigate = useNavigate();
   return (
     <IconButton
+      size={small ? 'small' : undefined}
       sx={{ backgroundColor: FFColors.Purple }}
       onClick={() => navigate(FF_NAV_PATHS.activityTxDetailPath(ns, txID))}
     >

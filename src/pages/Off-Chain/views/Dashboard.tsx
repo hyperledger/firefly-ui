@@ -186,7 +186,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
         reportFetchError(err);
       });
     numNewEvents !== 0 && setNumNewEvents(0);
-  }, [selectedNamespace, createdFilter, createdFilter, lastRefreshTime]);
+  }, [selectedNamespace, createdFilter, lastRefreshTime]);
 
   const dataHeaders = [t('nameOrID'), t('created'), t('download')];
   const dataRecords: IDataTableRecord[] | undefined = data?.map((data) => ({
@@ -331,7 +331,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
         reportFetchError(err);
       });
     numNewEvents !== 0 && setNumNewEvents(0);
-  }, [selectedNamespace, createdFilter, lastRefreshTime, createdFilter]);
+  }, [selectedNamespace, createdFilter, lastRefreshTime]);
 
   // Messages
   useEffect(() => {
@@ -372,7 +372,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
         value: (
           <FFTableText
             color="primary"
-            text={t(FF_MESSAGES_CATEGORY_MAP[msg?.header.type].nicename)}
+            text={t(FF_MESSAGES_CATEGORY_MAP[msg?.header.type]?.nicename)}
           />
         ),
       },
@@ -393,7 +393,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
         value: (
           <FFTableText
             color="primary"
-            text={t(FF_TX_CATEGORY_MAP[msg?.header.txtype].nicename)}
+            text={t(FF_TX_CATEGORY_MAP[msg?.header.txtype]?.nicename)}
           />
         ),
       },
@@ -427,7 +427,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
       },
     ],
     onClick: () => setViewMsg(msg),
-    leftBorderColor: FF_MESSAGES_CATEGORY_MAP[msg.header.type].color,
+    leftBorderColor: FF_MESSAGES_CATEGORY_MAP[msg.header.type]?.color,
   }));
 
   return (

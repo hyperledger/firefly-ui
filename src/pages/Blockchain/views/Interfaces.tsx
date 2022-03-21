@@ -14,9 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid } from '@mui/material';
+import { Button, Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FilterButton } from '../../../components/Filters/FilterButton';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
@@ -133,7 +134,14 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
       ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
-          <ChartTableHeader title={t('allInterfaces')} />
+          <ChartTableHeader
+            title={t('allInterfaces')}
+            filter={
+              <Grid my={DEFAULT_PADDING}>
+                <Button variant="outlined">Filter</Button>
+              </Grid>
+            }
+          />
           <DataTable
             onHandleCurrPageChange={(currentPage: number) =>
               setCurrentPage(currentPage)

@@ -26,36 +26,37 @@ export enum FF_TX_STATUS {
   TOKEN_APPROVAL = 'TokenApproval',
 }
 
-export const FF_TX_STATUS_CATEGORY_MAP: { [key: string]: IBlockchainCategory } =
-  {
-    [FF_TX_STATUS.OPERATION]: {
-      category: '',
-      color: FFColors.Yellow,
-      nicename: 'operation',
-    },
-    [FF_TX_STATUS.BLOCKCHAIN_EVENT]: {
-      category: '',
-      color: FFColors.Yellow,
-      nicename: 'blockchainEvent',
-    },
-    [FF_TX_STATUS.BATCH]: {
-      category: '',
-      color: FFColors.Yellow,
-      nicename: 'batch',
-    },
-    [FF_TX_STATUS.TOKEN_POOL]: {
-      category: '',
-      color: FFColors.Yellow,
-      nicename: 'tokenPool',
-    },
-    [FF_TX_STATUS.TOKEN_TRANSFER]: {
-      category: '',
-      color: FFColors.Yellow,
-      nicename: 'tokenTransfer',
-    },
-    [FF_TX_STATUS.TOKEN_APPROVAL]: {
-      category: '',
-      color: FFColors.Yellow,
-      nicename: 'tokenApproval',
-    },
-  };
+export const FF_TX_STATUS_CATEGORY_MAP: {
+  [key in FF_TX_STATUS]: IBlockchainCategory;
+} = {
+  [FF_TX_STATUS.OPERATION]: {
+    category: '',
+    color: FFColors.Yellow,
+    nicename: 'operation',
+  },
+  [FF_TX_STATUS.BLOCKCHAIN_EVENT]: {
+    category: '',
+    color: FFColors.Yellow,
+    nicename: 'blockchainEvent',
+  },
+  [FF_TX_STATUS.BATCH]: {
+    category: '',
+    color: FFColors.Yellow,
+    nicename: 'batch',
+  },
+  [FF_TX_STATUS.TOKEN_POOL]: {
+    category: '',
+    color: FFColors.Yellow,
+    nicename: 'tokenPool',
+  },
+  [FF_TX_STATUS.TOKEN_TRANSFER]: {
+    category: '',
+    color: FFColors.Yellow,
+    nicename: 'tokenTransfer',
+  },
+  [FF_TX_STATUS.TOKEN_APPROVAL]: {
+    category: '',
+    color: FFColors.Yellow,
+    nicename: 'tokenApproval',
+  },
+};

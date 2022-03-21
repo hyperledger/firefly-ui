@@ -1,6 +1,7 @@
 import { BarDatum } from '@nivo/bar';
 import { IMetric } from '../../interfaces';
 import {
+  FF_MESSAGES,
   FF_MESSAGES_CATEGORY_MAP,
   IHistMsgTimeMap,
   MsgCategoryEnum,
@@ -15,7 +16,7 @@ export const makeMsgHistogram = (histList: IMetric[]): BarDatum[] => {
       [MsgCategoryEnum.PRIVATE]: 0,
     };
     hist.types.map((type) => {
-      switch (FF_MESSAGES_CATEGORY_MAP[type.type].category) {
+      switch (FF_MESSAGES_CATEGORY_MAP[type.type as FF_MESSAGES]?.category) {
         // Blockchain
         case MsgCategoryEnum.BROADCAST:
           timeMap[hist.timestamp][MsgCategoryEnum.BROADCAST] =

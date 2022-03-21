@@ -1,6 +1,8 @@
 import {
   FF_EVENTS,
+  FF_MESSAGES,
   FF_MESSAGES_CATEGORY_MAP,
+  FF_TX,
   FF_TX_CATEGORY_MAP,
 } from '../interfaces';
 
@@ -32,7 +34,8 @@ export const isEventType = (
     case WsEventTypes.MESSAGE:
       return (
         event?.message?.header?.type &&
-        FF_MESSAGES_CATEGORY_MAP[event.message.header.type] !== undefined
+        FF_MESSAGES_CATEGORY_MAP[event.message.header.type as FF_MESSAGES] !==
+          undefined
       );
     case FF_EVENTS.TOKEN_POOL_CONFIRMED:
       return event.type === FF_EVENTS.TOKEN_POOL_CONFIRMED;
@@ -43,7 +46,7 @@ export const isEventType = (
     case WsEventTypes.TRANSACTION:
       return (
         event?.transaction?.type &&
-        FF_TX_CATEGORY_MAP[event.transaction.type] !== undefined
+        FF_TX_CATEGORY_MAP[event.transaction.type as FF_TX] !== undefined
       );
     case WsEventTypes.EVENT:
       return event?.type;
