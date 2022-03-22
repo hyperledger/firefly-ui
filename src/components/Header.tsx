@@ -44,7 +44,7 @@ export const Header: React.FC<Props> = ({
   subtitle,
   onRefresh,
   numNewEvents = 0,
-  showNumNewEvents = true,
+  showNumNewEvents = false,
   noDateFilter = false,
   noNsFilter = false,
 }) => {

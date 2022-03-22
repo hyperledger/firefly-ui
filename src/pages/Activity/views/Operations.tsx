@@ -240,7 +240,6 @@ export const ActivityOperations: () => JSX.Element = () => {
         subtitle={t('activity')}
         onRefresh={refreshData}
         numNewEvents={numNewEvents}
-        showNumNewEvents={false}
       ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
