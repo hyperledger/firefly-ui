@@ -601,6 +601,7 @@ export const TokensDashboard: () => JSX.Element = () => {
             dataTotal={tokenTransferTotal}
             currentPage={currentPage}
             rowsPerPage={rowsPerPage}
+            dashboardSize
           />
         </Grid>
       </Grid>

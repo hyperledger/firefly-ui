@@ -47,6 +47,7 @@ interface Props {
   currentPage?: number;
   rowsPerPage?: number;
   dataTotal?: number;
+  dashboardSize?: boolean;
 }
 
 const NUM_SKELETON_ROWS = 10;
@@ -66,6 +67,7 @@ export const DataTable: React.FC<Props> = ({
   currentPage,
   rowsPerPage,
   dataTotal,
+  dashboardSize = false,
 }) => {
   const handleChangePage = (_event: unknown, newPage: number) => {
     if (currentPage && rowsPerPage && dataTotal) {
@@ -174,7 +176,12 @@ export const DataTable: React.FC<Props> = ({
               )}
           </>
         ) : (
-          <DataTableEmptyState message={emptyStateText}></DataTableEmptyState>
+          <DataTableEmptyState
+            columnHeaders={columnHeaders ?? []}
+            message={emptyStateText}
+            stickyHeader={stickyHeader ?? false}
+            dashboardSize={dashboardSize}
+          ></DataTableEmptyState>
         )}
       </Grid>
     </>

@@ -49,7 +49,7 @@ export const TableRowSkeleton: React.FC<Props> = ({ numColumns }) => {
                 '1px solid ' + themeOptions.palette?.background?.default,
             }}
           >
-            <Skeleton width="70%" />
+            <Skeleton width="50%" />
           </TableCell>
         );
       })}

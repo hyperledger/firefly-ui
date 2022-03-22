@@ -383,7 +383,10 @@ export const BlockchainDashboard: () => JSX.Element = () => {
 
   // Recent blockchain events
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(
+      createdFilter,
+      true
+    );
 
     isMounted &&
       fetchCatcher(
@@ -402,7 +405,14 @@ export const BlockchainDashboard: () => JSX.Element = () => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [rowsPerPage, currentPage, lastRefreshTime, selectedNamespace, isMounted]);
+  }, [
+    rowsPerPage,
+    currentPage,
+    selectedNamespace,
+    createdFilter,
+    lastRefreshTime,
+    isMounted,
+  ]);
 
   return (
     <>
@@ -480,6 +490,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
             dataTotal={blockchainEventsTotal}
             currentPage={currentPage}
             rowsPerPage={rowsPerPage}
+            dashboardSize
             headerBtn={
               <IconButton onClick={() => navigate(EVENTS_PATH)}>
                 <ArrowForwardIcon />
