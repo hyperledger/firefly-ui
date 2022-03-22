@@ -26,6 +26,7 @@ import { NetworkRoutes } from '../pages/Network/Routes';
 import { OffChainRoutes } from '../pages/Off-Chain/Routes';
 import { TokensRoutes } from '../pages/Tokens/Routes';
 import { AppWrapper } from './AppWrapper';
+import { NAV_BASENAME } from './Navigation/Navigation';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -39,7 +40,7 @@ export const Router: () => JSX.Element = () => {
   return (
     <QueryClientProvider client={queryClient}>
       <QueryParamProvider>
-        <BrowserRouter>
+        <BrowserRouter basename={NAV_BASENAME}>
           <Routes />
         </BrowserRouter>
       </QueryParamProvider>
