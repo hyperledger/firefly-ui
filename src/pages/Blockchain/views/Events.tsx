@@ -106,7 +106,10 @@ export const BlockchainEvents: () => JSX.Element = () => {
 
   // Blockchain events
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
+    const createdFilterObject: ICreatedFilter = getCreatedFilter(
+      createdFilter,
+      true
+    );
 
     isMounted &&
       fetchCatcher(

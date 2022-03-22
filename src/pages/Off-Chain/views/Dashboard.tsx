@@ -543,6 +543,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
             dataTotal={messageTotal}
             currentPage={currentPage}
             rowsPerPage={rowsPerPage}
+            dashboardSize
             headerBtn={
               <IconButton onClick={() => navigate(MESSAGES_PATH)}>
                 <ArrowForwardIcon />

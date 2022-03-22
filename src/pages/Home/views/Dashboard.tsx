@@ -5,14 +5,14 @@ import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useQueryParam, StringParam } from 'use-query-params';
+import { StringParam, useQueryParam } from 'use-query-params';
 import { EmptyStateCard } from '../../../components/Cards/EmptyStateCard';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
+import { SkeletonCard } from '../../../components/Cards/EventCards/SkeletonCard';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { Header } from '../../../components/Header';
-import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { NetworkMap } from '../../../components/NetworkMap/NetworkMap';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { EventSlide } from '../../../components/Slides/EventSlide';
@@ -387,7 +387,6 @@ export const HomeDashboard: () => JSX.Element = () => {
           setEventHistData([]);
           reportFetchError(err);
         });
-
       fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.networkNodeById(nodeID)}`)
         .then((nodeRes: INode) => {
           setMyNode(nodeRes);
@@ -405,6 +404,23 @@ export const HomeDashboard: () => JSX.Element = () => {
     isMounted,
   ]);
 
+  const skeletonList = () => (
+    <>
+      {Array.from(Array(7)).map((_, idx) => (
+        <Grid
+          item
+          container
+          alignItems="flex-start"
+          justifyContent="flex-start"
+          key={idx}
+        >
+          <SkeletonCard />
+          <Grid sx={{ padding: '1px' }} />
+        </Grid>
+      ))}
+    </>
+  );
+
   const tableCards: IFireFlyCard[] = [
     // Recently submitted Transactions
     {
@@ -420,9 +436,7 @@ export const HomeDashboard: () => JSX.Element = () => {
       ),
       component: (
         <>
-          {!recentEventTxs ? (
-            <FFCircleLoader color="warning" />
-          ) : recentEventTxs.length === 0 ? (
+          {recentEventTxs?.length === 0 ? (
             <EmptyStateCard text={t('noRecentTransactions')} />
           ) : (
             <Grid
@@ -432,32 +446,34 @@ export const HomeDashboard: () => JSX.Element = () => {
               alignItems="flex-start"
               justifyContent="flex-start"
             >
-              {recentEventTxs.map((event, idx) => (
-                <Grid
-                  item
-                  container
-                  alignItems="flex-start"
-                  justifyContent="flex-start"
-                  key={idx}
-                >
-                  <EventCardWrapper
-                    onHandleViewEvent={(event: IEvent) => {
-                      setViewEvent(event);
-                      setSlideQuery(event.id);
-                    }}
-                    onHandleViewTx={(tx: ITransaction) => {
-                      setViewTx(tx);
-                      setSlideQuery(tx.id);
-                    }}
-                    link={FF_NAV_PATHS.activityTxDetailPath(
-                      selectedNamespace,
-                      event.tx
-                    )}
-                    {...{ event }}
-                  />
-                  <Grid sx={{ padding: '1px' }} />
-                </Grid>
-              ))}
+              {!recentEventTxs
+                ? skeletonList()
+                : recentEventTxs.map((event, idx) => (
+                    <Grid
+                      item
+                      container
+                      alignItems="flex-start"
+                      justifyContent="flex-start"
+                      key={idx}
+                    >
+                      <EventCardWrapper
+                        onHandleViewEvent={(event: IEvent) => {
+                          setViewEvent(event);
+                          setSlideQuery(event.id);
+                        }}
+                        onHandleViewTx={(tx: ITransaction) => {
+                          setViewTx(tx);
+                          setSlideQuery(tx.id);
+                        }}
+                        link={FF_NAV_PATHS.activityTxDetailPath(
+                          selectedNamespace,
+                          event.tx
+                        )}
+                        {...{ event }}
+                      />
+                      <Grid sx={{ padding: '1px' }} />
+                    </Grid>
+                  ))}
             </Grid>
           )}
         </>
@@ -477,9 +493,7 @@ export const HomeDashboard: () => JSX.Element = () => {
       ),
       component: (
         <>
-          {!recentEvents ? (
-            <FFCircleLoader color="warning" />
-          ) : recentEvents.length === 0 ? (
+          {recentEvents?.length === 0 ? (
             <EmptyStateCard text={t('noRecentNetworkEvents')} />
           ) : (
             <Grid
@@ -489,33 +503,35 @@ export const HomeDashboard: () => JSX.Element = () => {
               alignItems="flex-start"
               justifyContent="flex-start"
             >
-              {recentEvents.map((event, idx) => (
-                <Grid
-                  item
-                  container
-                  alignItems="flex-start"
-                  justifyContent="flex-start"
-                  key={idx}
-                >
-                  <EventCardWrapper
-                    onHandleViewEvent={(event: IEvent) => {
-                      setViewEvent(event);
-                      setSlideQuery(event.id);
-                    }}
-                    onHandleViewTx={(tx: ITransaction) => {
-                      setViewTx(tx);
-                      setSlideQuery(tx.id);
-                    }}
-                    link={FF_NAV_PATHS.activityTxDetailPath(
-                      selectedNamespace,
-                      event.tx
-                    )}
-                    linkState={{ state: event }}
-                    {...{ event }}
-                  />
-                  <Grid sx={{ padding: '1px' }} />
-                </Grid>
-              ))}
+              {!recentEvents
+                ? skeletonList()
+                : recentEvents.map((event, idx) => (
+                    <Grid
+                      item
+                      container
+                      alignItems="flex-start"
+                      justifyContent="flex-start"
+                      key={idx}
+                    >
+                      <EventCardWrapper
+                        onHandleViewEvent={(event: IEvent) => {
+                          setViewEvent(event);
+                          setSlideQuery(event.id);
+                        }}
+                        onHandleViewTx={(tx: ITransaction) => {
+                          setViewTx(tx);
+                          setSlideQuery(tx.id);
+                        }}
+                        link={FF_NAV_PATHS.activityTxDetailPath(
+                          selectedNamespace,
+                          event.tx
+                        )}
+                        linkState={{ state: event }}
+                        {...{ event }}
+                      />
+                      <Grid sx={{ padding: '1px' }} />
+                    </Grid>
+                  ))}
             </Grid>
           )}
         </>
@@ -526,7 +542,6 @@ export const HomeDashboard: () => JSX.Element = () => {
   useEffect(() => {
     const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
     const qParams = `?limit=25${createdFilterObject.filterString}`;
-
     isMounted &&
       Promise.all([
         fetchCatcher(

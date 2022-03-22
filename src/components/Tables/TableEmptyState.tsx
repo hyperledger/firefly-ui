@@ -14,49 +14,87 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Grid, Typography } from '@mui/material';
+import {
+  Grid,
+  Paper,
+  Table,
+  TableCell,
+  TableContainer,
+  TableHead,
+  TableRow,
+  Typography,
+} from '@mui/material';
 import React from 'react';
-import { DEFAULT_BORDER_RADIUS, DEFAULT_PADDING } from '../../theme';
+import { DEFAULT_PADDING, themeOptions } from '../../theme';
 
 interface Props {
-  header?: string;
   message?: string;
+  columnHeaders: string[];
+  stickyHeader?: boolean;
+  dashboardSize: boolean;
 }
 
-export const DataTableEmptyState: React.FC<Props> = ({ header, message }) => {
+export const DataTableEmptyState: React.FC<Props> = ({
+  message,
+  columnHeaders,
+  stickyHeader,
+  dashboardSize,
+}) => {
   return (
     <>
-      <Box
-        mt={3}
-        p={2}
-        borderRadius={DEFAULT_BORDER_RADIUS}
-        sx={{
-          width: '100%',
-          height: '100%',
-          backgroundColor: 'background.paper',
-        }}
-      >
-        <Grid
-          p={DEFAULT_PADDING}
-          container
-          alignItems="center"
-          justifyContent="center"
-          direction="column"
-        >
-          <Grid item>
-            <Typography
+      <Grid item xs={12} container mt={2}>
+        <TableContainer sx={{ whiteSpace: 'nowrap' }}>
+          <Table stickyHeader={stickyHeader}>
+            <TableHead>
+              <TableRow>
+                {columnHeaders?.map((header, index) => (
+                  <TableCell
+                    sx={{
+                      borderBottom: 0,
+                    }}
+                    key={index}
+                  >
+                    <Typography
+                      sx={{
+                        color: themeOptions.palette?.text?.secondary,
+                        fontSize: 12,
+                        textTransform: 'uppercase',
+                      }}
+                      noWrap
+                    >
+                      {header}
+                    </Typography>
+                  </TableCell>
+                ))}
+              </TableRow>
+            </TableHead>
+          </Table>
+        </TableContainer>
+        <Paper sx={{ height: '100%', width: '100%' }}>
+          <Grid
+            container
+            item
+            justifyContent="center"
+            alignItems="center"
+            direction="row"
+          >
+            <Grid
+              container
+              justifyContent="center"
+              alignItems="center"
+              py={DEFAULT_PADDING}
               sx={{
-                fontWeight: 'bold',
+                height: dashboardSize ? '150px' : '500px',
+                minHeight: 150,
               }}
             >
-              {header}
-            </Typography>
+              <Typography sx={{ fontSize: '16px' }} variant="body1">
+                {message}
+              </Typography>
+            </Grid>
           </Grid>
-          <Grid item>
-            <Typography>{message}</Typography>
-          </Grid>
-        </Grid>
-      </Box>
+        </Paper>
+      </Grid>
     </>
   );
 };
