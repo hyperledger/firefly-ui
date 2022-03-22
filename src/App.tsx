@@ -23,6 +23,7 @@ import {
 } from '@mui/material';
 import { useEffect, useMemo, useRef, useState } from 'react';
 import ReconnectingWebSocket from 'reconnecting-websocket';
+import { NAV_BASENAME } from './components/Navigation/Navigation';
 import { Router } from './components/Router';
 import {
   MessageSnackbar,
@@ -101,7 +102,7 @@ const App: React.FC = () => {
           } else {
             setSelectedNamespace(status.defaults.namespace);
             window.location.replace(
-              `/${NAMESPACES_PATH}/${status.defaults.namespace}/home`
+              `${NAV_BASENAME}/${NAMESPACES_PATH}/${status.defaults.namespace}/home`
             );
           }
         } else {

@@ -22,6 +22,7 @@ import { NetworkNav } from './NetworkNav';
 import { OffChainNav } from './OffChainNav';
 import { TokensNav } from './TokensNav';
 
+export const NAV_BASENAME = '/ui';
 export const NAV_WIDTH = 225;
 
 export const Navigation: React.FC = () => {

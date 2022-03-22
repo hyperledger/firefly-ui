@@ -88,7 +88,7 @@ export const FFTimeline: React.FC<Props> = ({
                   onClick={fetchNewData}
                 >
                   <ArrowCircleUpIcon sx={{ mr: 1 }} />
-                  {`${t('see')} ${numNewEvents} ${t('newEvents')}`}
+                  {`${t('seeNewEvents')}`}
                 </Fab>
               </Grid>
             )}
