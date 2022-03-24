@@ -31,7 +31,7 @@ export const TransferList: React.FC<Props> = ({
   const [dataList, setDataList] = useState<IDataListItem[]>(FFSkeletonList);
 
   useEffect(() => {
-    if (transfer && txStatus) {
+    if (transfer) {
       setDataList([
         {
           label: t('localID'),
@@ -40,15 +40,22 @@ export const TransferList: React.FC<Props> = ({
         },
         {
           label: t('transactionID'),
-          value: <FFListText color="primary" text={transfer.tx.id} />,
-          button: (
+          value: transfer.tx.id ? (
+            <FFListText color="primary" text={transfer.tx.id} />
+          ) : (
+            <FFListText
+              color="secondary"
+              text={t('transactionIDUnavailable')}
+            />
+          ),
+          button: transfer.tx.id ? (
             <>
               {showTxLink && (
                 <TxButton ns={selectedNamespace} txID={transfer.tx.id} />
               )}
               <FFCopyButton value={transfer.tx.id} />
             </>
-          ),
+          ) : undefined,
         },
         {
           label: t('author'),

@@ -20,7 +20,7 @@ export interface IBlockchainEvent {
   timestamp: string;
   tx: {
     type: string;
-    id: string;
+    id?: string;
   };
 }
 
@@ -373,7 +373,7 @@ export interface ITokenApproval {
   created: string;
   tx: {
     type: string;
-    id: string;
+    id?: string;
   };
   blockchainEvent: string;
 }
@@ -406,7 +406,7 @@ export interface ITokenPool {
   created: string;
   tx: {
     type: string;
-    id: string;
+    id?: string;
   };
 }
 
@@ -426,7 +426,7 @@ export interface ITokenTransfer {
   messageHash: string;
   created: string;
   tx: {
-    type?: string;
+    type: string;
     id?: string;
   };
   blockchainEvent: string;

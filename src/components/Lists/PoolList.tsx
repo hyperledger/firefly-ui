@@ -50,13 +50,20 @@ export const PoolList: React.FC<Props> = ({ pool, showPoolLink = true }) => {
         },
         {
           label: t('transactionID'),
-          value: <FFListText color="primary" text={pool.tx.id} />,
-          button: (
+          value: pool.tx.id ? (
+            <FFListText color="primary" text={pool.tx.id} />
+          ) : (
+            <FFListText
+              color="secondary"
+              text={t('transactionIDUnavailable')}
+            />
+          ),
+          button: pool.tx.id ? (
             <>
               <TxButton ns={selectedNamespace} txID={pool.tx.id} />
               <FFCopyButton value={pool.tx.id} />
             </>
-          ),
+          ) : undefined,
         },
         {
           label: t('messageID'),
