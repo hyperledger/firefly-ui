@@ -11,10 +11,10 @@ export const FFAccordionHeader: React.FC<Props> = ({
 }) => {
   return (
     <Grid container direction="row" alignItems="center">
-      <Grid xs={6} item container justifyContent="flex-start">
+      <Grid xs={8} item container justifyContent="flex-start">
         {leftContent}
       </Grid>
-      <Grid xs={6} item container justifyContent="flex-end" alignItems="center">
+      <Grid xs={4} item container justifyContent="flex-end" alignItems="center">
         {rightContent}
       </Grid>
     </Grid>

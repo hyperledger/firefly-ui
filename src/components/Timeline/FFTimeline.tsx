@@ -97,8 +97,8 @@ export const FFTimeline: React.FC<Props> = ({
           <div id="scrollableDiv" style={{ height: '100%', overflow: 'auto' }}>
             <Timeline
               sx={{
-                paddingLeft: '15%',
-                paddingRight: '15%',
+                paddingLeft: '100px',
+                paddingRight: '100px',
                 marginTop: 0,
                 paddingTop: 0,
               }}
@@ -110,18 +110,6 @@ export const FFTimeline: React.FC<Props> = ({
                   hasMore={hasMoreData}
                   scrollableTarget="scrollableDiv"
                   loader={<FFCircleLoader color="warning" />}
-                  endMessage={
-                    <Grid
-                      container
-                      pt={3}
-                      justifyContent="center"
-                      alignItems="center"
-                    >
-                      <Typography sx={{ fontSize: '14px' }}>
-                        {t('noMoreEvents')}
-                      </Typography>
-                    </Grid>
-                  }
                 >
                   {elements.map((element, idx) =>
                     idx === 0 ? (

@@ -28,7 +28,7 @@ import {
   FFColors,
   themeOptions,
 } from '../../theme';
-import { fetchCatcher } from '../../utils';
+import { fetchCatcher, getFFTime } from '../../utils';
 import { HashPopover } from '../Popovers/HashPopover';
 
 interface Props {
@@ -172,13 +172,7 @@ export const NetworkMap: React.FC<Props> = ({ size }) => {
           ?.split(NODE_STRING_DELIM)
           .map((key: any, idx: number) => {
             return (
-              <Grid
-                container
-                item
-                alignItems="center"
-                direction="row"
-                pb={DEFAULT_PADDING}
-              >
+              <Grid container item alignItems="center" direction="row" pb={1}>
                 <Grid
                   xs={6}
                   container
@@ -197,7 +191,9 @@ export const NetworkMap: React.FC<Props> = ({ size }) => {
                   justifyContent="flex-end"
                   alignItems="center"
                 >
-                  <HashPopover address={key} />
+                  <HashPopover
+                    address={idx === 3 ? getFFTime(key, true) : key}
+                  />
                 </Grid>
               </Grid>
             );
@@ -249,7 +245,6 @@ export const NetworkMap: React.FC<Props> = ({ size }) => {
         animate
         onClick={handleClick}
         nodeTooltip={({ node }) => {
-          console.log(node);
           return (
             <div
               style={{

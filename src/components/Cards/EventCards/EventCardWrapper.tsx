@@ -26,6 +26,14 @@ export const EventCardWrapper = ({
 }: Props) => {
   const { t } = useTranslation();
 
+  const getEnrichedText = (event: IEvent) => {
+    const eventObject = FF_EVENTS_CATEGORY_MAP[event.type];
+    if (eventObject) {
+      return eventObject.enrichedEventString(event);
+    }
+    return t('event');
+  };
+
   return (
     <>
       <BaseCard
@@ -34,12 +42,12 @@ export const EventCardWrapper = ({
             ? () => onHandleViewTx(event.transaction)
             : () => onHandleViewEvent(event)
         }
-        title={t(FF_EVENTS_CATEGORY_MAP[event.type]?.nicename)}
-        description={
+        title={
           event.transaction
             ? t(FF_TX_CATEGORY_MAP[event.transaction?.type]?.nicename)
-            : t('event')
+            : t(t(FF_EVENTS_CATEGORY_MAP[event.type]?.nicename))
         }
+        description={getEnrichedText(event)}
         timestamp={getFFTime(event.created)}
         status={<HashPopover address={event.id} shortHash paper />}
         color={FF_EVENTS_CATEGORY_MAP[event.type]?.color}
