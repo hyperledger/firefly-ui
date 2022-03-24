@@ -16,7 +16,7 @@
 
 import ArrowCircleUpIcon from '@mui/icons-material/ArrowCircleUp';
 import { Timeline } from '@mui/lab';
-import { Fab, Grid, Paper, Typography } from '@mui/material';
+import { Fab, Grid, Paper } from '@mui/material';
 import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import InfiniteScroll from 'react-infinite-scroll-component';
