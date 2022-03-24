@@ -22,6 +22,7 @@ export const FFAccordionText: React.FC<Props> = ({
       }}
       color={color}
       variant="body2"
+      noWrap
     >
       {text}
     </Typography>

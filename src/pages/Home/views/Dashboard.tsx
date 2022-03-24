@@ -338,7 +338,7 @@ export const HomeDashboard: () => JSX.Element = () => {
         </IconButton>
       ),
       headerText: t('networkMap'),
-      component: <NetworkMap></NetworkMap>,
+      component: <NetworkMap size="small"></NetworkMap>,
     },
     {
       headerComponent: (
@@ -548,7 +548,7 @@ export const HomeDashboard: () => JSX.Element = () => {
           `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}&type=transaction_submitted&fetchreferences=true`
         ),
         fetchCatcher(
-          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}&type=!transaction_submitted`
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}&type=!transaction_submitted&fetchreferences=true`
         ),
       ])
         .then(([recentEventTxs, recentEvents]) => {

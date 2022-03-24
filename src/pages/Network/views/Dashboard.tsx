@@ -49,7 +49,7 @@ export const NetworkMapDashboard: () => JSX.Element = () => {
           alignItems="center"
           height="85vh"
         >
-          {isMounted && <NetworkMap />}
+          {isMounted && <NetworkMap size="large" />}
         </Grid>
       </Grid>
     </>

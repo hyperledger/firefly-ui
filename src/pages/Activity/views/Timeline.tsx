@@ -130,7 +130,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
           FF_Paths.events
         }?count&limit=${ROWS_PER_PAGE}&skip=${ROWS_PER_PAGE * pageParam}${
           createdFilterObject.filterString
-        }${filterString !== undefined ? filterString : ''}`
+        }${filterString !== undefined ? filterString : ''}&fetchreferences`
       );
       if (res.ok) {
         const data = await res.json();

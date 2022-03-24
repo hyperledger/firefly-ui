@@ -89,8 +89,16 @@ export interface IEvent {
   created: string;
   tx: string;
   blockchainevent?: IBlockchainEvent;
+  contractAPI?: IFireflyApi;
+  contractInterface?: IContractInterface;
+  datatype?: IDatatype;
+  identity?: IOrganization;
   message?: IMessage;
+  namespaceDetails?: INamespace;
+  tokenApproval?: ITokenApproval;
+  tokenPool?: ITokenPool;
   transaction?: ITransaction;
+  tokenTransfer?: ITokenTransfer;
 }
 
 export interface IFireflyApi {
@@ -353,6 +361,23 @@ export interface ITokenAccount {
   key: string;
 }
 
+export interface ITokenApproval {
+  localId: string;
+  pool: string;
+  connector: string;
+  key: string;
+  operator: string;
+  approved: boolean;
+  namespace: string;
+  protocolId: string;
+  created: string;
+  tx: {
+    type: string;
+    id: string;
+  };
+  blockchainEvent: string;
+}
+
 export interface ITokenBalance {
   pool: string;
   uri: string;
@@ -401,8 +426,8 @@ export interface ITokenTransfer {
   messageHash: string;
   created: string;
   tx: {
-    type: string;
-    id: string;
+    type?: string;
+    id?: string;
   };
   blockchainEvent: string;
 }
