@@ -50,53 +50,55 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { poolID } = useParams<{ poolID: string }>();
 
-  const [txBlockchainEvents, setTxBlockchainEvents] = useState<
-    IBlockchainEvent[]
-  >([]);
+  const [transferBlockchainEvent, setTransferBlockchainEvent] =
+    useState<IBlockchainEvent>();
   const [txOperations, setTxOperations] = useState<IOperation[]>([]);
   const [txStatus, setTxStatus] = useState<ITxStatus>();
 
   useEffect(() => {
     // Transaction Status
-    fetchCatcher(
-      `${
-        FF_Paths.nsPrefix
-      }/${selectedNamespace}${FF_Paths.transactionByIdStatus(transfer.tx.id)}`
-    )
-      .then((txStatus: ITxStatus) => {
-        setTxStatus(txStatus);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    transfer.tx.id &&
+      fetchCatcher(
+        `${
+          FF_Paths.nsPrefix
+        }/${selectedNamespace}${FF_Paths.transactionByIdStatus(transfer.tx.id)}`
+      )
+        .then((txStatus: ITxStatus) => {
+          setTxStatus(txStatus);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
     // Transaction Operations
-    fetchCatcher(
-      `${
-        FF_Paths.nsPrefix
-      }/${selectedNamespace}${FF_Paths.transactionByIdOperations(
-        transfer.tx.id
-      )}`
-    )
-      .then((txOperations: IOperation[]) => {
-        setTxOperations(txOperations);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
-    // Transaction Blockchain Events
-    fetchCatcher(
-      `${
-        FF_Paths.nsPrefix
-      }/${selectedNamespace}${FF_Paths.transactionByIdBlockchainEvents(
-        transfer.tx.id
-      )}`
-    )
-      .then((txBlockchainEvents: IBlockchainEvent[]) => {
-        setTxBlockchainEvents(txBlockchainEvents);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    transfer.tx.id &&
+      fetchCatcher(
+        `${
+          FF_Paths.nsPrefix
+        }/${selectedNamespace}${FF_Paths.transactionByIdOperations(
+          transfer.tx.id
+        )}`
+      )
+        .then((txOperations: IOperation[]) => {
+          setTxOperations(txOperations);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+    // Transfer Blockchain Event
+    transfer.tx.id &&
+      fetchCatcher(
+        `${
+          FF_Paths.nsPrefix
+        }/${selectedNamespace}${FF_Paths.blockchainEventsById(
+          transfer.blockchainEvent
+        )}`
+      )
+        .then((txBlockchainEvent: IBlockchainEvent) => {
+          setTransferBlockchainEvent(txBlockchainEvent);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
   }, [transfer]);
 
   return (
@@ -134,7 +136,7 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
             </>
           )}
           {/* Blockchain Events */}
-          {txBlockchainEvents.length > 0 && (
+          {transferBlockchainEvent && (
             <>
               <SlideSectionHeader
                 clickPath={FF_NAV_PATHS.blockchainEventsPath(
@@ -144,9 +146,7 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
                 title={t('blockchainEvents')}
               />
               <Grid container item>
-                {txBlockchainEvents?.map((be, idx) => (
-                  <BlockchainEventAccordion key={idx} be={be} />
-                ))}
+                <BlockchainEventAccordion be={transferBlockchainEvent} />
               </Grid>
             </>
           )}

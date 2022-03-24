@@ -83,7 +83,7 @@ export const BaseCard: React.FC<Props> = ({
         >
           <Grid container item alignItems="center" direction="row">
             <Grid
-              xs={6}
+              xs={8}
               container
               item
               direction="row"
@@ -94,7 +94,7 @@ export const BaseCard: React.FC<Props> = ({
               </Typography>
             </Grid>
             <Grid
-              xs={6}
+              xs={4}
               container
               item
               direction="row"
@@ -127,13 +127,25 @@ export const BaseCard: React.FC<Props> = ({
             item
             alignItems="center"
           >
-            <Grid item>
-              <Typography color="text.secondary" fontSize={12}>
+            <Grid
+              xs={8}
+              container
+              item
+              direction="row"
+              justifyContent="flex-start"
+            >
+              <Typography noWrap color="text.secondary" fontSize={12}>
                 {description}
               </Typography>
             </Grid>
-            <Grid item>
-              <Typography color="text.secondary" fontSize={12}>
+            <Grid
+              xs={4}
+              container
+              item
+              direction="row"
+              justifyContent="flex-end"
+            >
+              <Typography noWrap color="text.secondary" fontSize={12}>
                 {timestamp}
               </Typography>
             </Grid>

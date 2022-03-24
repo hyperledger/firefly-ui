@@ -274,6 +274,7 @@
   "transaction": "Transaction",
   "transactionDetails": "Transaction Details",
   "transactionID": "Transaction ID",
+  "transactionIDUnavailable": "Transaction ID Unavailable",
   "transactions": "Transactions",
   "transactionSubmitted": "Transaction Submitted",
   "transactionType": "Transaction Type",
