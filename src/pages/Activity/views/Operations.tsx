@@ -218,9 +218,19 @@ export const ActivityOperations: () => JSX.Element = () => {
       },
       {
         value: (
+          // TODO: Fix when https://github.com/hyperledger/firefly/issues/628 is resolved
           <Chip
-            sx={{ backgroundColor: OpStatusColorMap[op.status] }}
-            label={op.status?.toLocaleUpperCase()}
+            label={
+              op.status?.toLocaleUpperCase() === 'PENDING'
+                ? 'SUCCEEDED'
+                : op.status?.toLocaleUpperCase()
+            }
+            sx={{
+              backgroundColor:
+                OpStatusColorMap[
+                  op.status === 'Pending' ? 'Succeeded' : op.status
+                ],
+            }}
           ></Chip>
         ),
       },

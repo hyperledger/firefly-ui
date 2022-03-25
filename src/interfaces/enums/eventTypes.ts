@@ -169,9 +169,11 @@ export const FF_EVENTS_CATEGORY_MAP: {
     enrichedEventString: (event: IEvent): string =>
       event.transaction?.blockchainIds?.length === 1
         ? `BlockchainID=${getShortHash(event.transaction?.blockchainIds[0])}`
-        : `BlockchainIDs=[${event.transaction?.blockchainIds
+        : event.transaction?.blockchainIds
+        ? `BlockchainIDs=[${event.transaction?.blockchainIds
             ?.map((bid) => getShortHash(bid))
-            .join(', ')}]`,
+            .join(', ')}]`
+        : t('transactionSubmitted'),
   },
   // Token Events
   [FF_EVENTS.TOKEN_POOL_CONFIRMED]: {
@@ -235,21 +237,6 @@ export const FF_EVENTS_CATEGORY_MAP: {
     nicename: 'tokenTransferFailed',
     enrichedEventKey: 'tokenTransfer',
     enrichedEventString: (event: IEvent): string =>
-      `${
-        event.tokenTransfer?.type
-          ? event.tokenTransfer?.type.charAt(0).toUpperCase() +
-            event.tokenTransfer?.type.slice(1)
-          : ''
-      }, From=${
-        event.tokenTransfer?.from
-          ? getShortHash(event.tokenTransfer?.from)
-          : getShortHash(t('nullAddress'))
-      }, To=${
-        event.tokenTransfer?.to
-          ? getShortHash(event.tokenTransfer?.to)
-          : getShortHash(t('nullAddress'))
-      }, Amount=${event.tokenTransfer?.amount ?? ''}, Signer=${getShortHash(
-        event.tokenTransfer?.key ?? ''
-      )}`,
+      `${t('event')} ID=${event.id}`,
   },
 };

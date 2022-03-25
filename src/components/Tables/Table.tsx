@@ -164,7 +164,7 @@ export const DataTable: React.FC<Props> = ({
               dataTotal !== undefined && (
                 <TablePagination
                   component="div"
-                  count={-1}
+                  count={dataTotal}
                   rowsPerPage={rowsPerPage ?? 5}
                   page={currentPage ?? 0}
                   onPageChange={handleChangePage}
