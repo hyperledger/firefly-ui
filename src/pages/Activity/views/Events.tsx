@@ -38,6 +38,7 @@ import {
   EventFilters,
   FF_EVENTS_CATEGORY_MAP,
   FF_Paths,
+  getEnrichedEventText,
   ICreatedFilter,
   IDataTableRecord,
   IEvent,
@@ -137,9 +138,11 @@ export const ActivityEvents: () => JSX.Element = () => {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.events
-        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          createdFilterObject.filterString
-        }${filterString !== undefined ? filterString : ''}`
+        }?limit=${rowsPerPage}&fetchreferences&count&skip=${
+          rowsPerPage * currentPage
+        }${createdFilterObject.filterString}${
+          filterString !== undefined ? filterString : ''
+        }`
       )
         .then((eventRes: IPagedEventResponse) => {
           if (isMounted) {
@@ -186,6 +189,7 @@ export const ActivityEvents: () => JSX.Element = () => {
 
   const eventsColumnHeaders = [
     t('type'),
+    t('details'),
     t('id'),
     t('reference'),
     t('transactionID'),
@@ -202,6 +206,11 @@ export const ActivityEvents: () => JSX.Element = () => {
               color="primary"
               text={t(FF_EVENTS_CATEGORY_MAP[event.type]?.nicename)}
             />
+          ),
+        },
+        {
+          value: (
+            <FFTableText color="secondary" text={getEnrichedEventText(event)} />
           ),
         },
         {

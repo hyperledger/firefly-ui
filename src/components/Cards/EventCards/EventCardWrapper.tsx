@@ -3,6 +3,7 @@ import { useTranslation } from 'react-i18next';
 import {
   FF_EVENTS_CATEGORY_MAP,
   FF_TX_CATEGORY_MAP,
+  getEnrichedEventText,
   IEvent,
 } from '../../../interfaces';
 import { getFFTime } from '../../../utils';
@@ -26,14 +27,6 @@ export const EventCardWrapper = ({
 }: Props) => {
   const { t } = useTranslation();
 
-  const getEnrichedText = (event: IEvent) => {
-    const eventObject = FF_EVENTS_CATEGORY_MAP[event.type];
-    if (eventObject) {
-      return eventObject.enrichedEventString(event);
-    }
-    return t('event');
-  };
-
   return (
     <>
       <BaseCard
@@ -47,7 +40,7 @@ export const EventCardWrapper = ({
             ? t(FF_TX_CATEGORY_MAP[event.transaction?.type]?.nicename)
             : t(t(FF_EVENTS_CATEGORY_MAP[event.type]?.nicename))
         }
-        description={getEnrichedText(event)}
+        description={getEnrichedEventText(event)}
         timestamp={getFFTime(event.created)}
         status={<HashPopover address={event.id} shortHash paper />}
         color={FF_EVENTS_CATEGORY_MAP[event.type]?.color}

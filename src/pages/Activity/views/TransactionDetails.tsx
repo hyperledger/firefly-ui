@@ -128,7 +128,7 @@ export const TransactionDetails: () => JSX.Element = () => {
         });
       // Transaction events
       fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?tx=${txID}`
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?tx=${txID}&fetchreferences`
       )
         .then((events: IEvent[]) => {
           isMounted && setTxEvents(events);

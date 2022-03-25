@@ -48,6 +48,14 @@ interface IEventCategory {
   nicename: string;
 }
 
+export const getEnrichedEventText = (event: IEvent) => {
+  const eventObject = FF_EVENTS_CATEGORY_MAP[event.type];
+  if (eventObject) {
+    return eventObject.enrichedEventString(event);
+  }
+  return t('event');
+};
+
 export const FF_EVENTS_CATEGORY_MAP: {
   [key in FF_EVENTS]: IEventCategory;
 } = {
