@@ -16,6 +16,7 @@ export const FFJsonViewer: React.FC<Props> = ({ color, json }) => {
       theme={'pop'}
       style={{
         backgroundColor: color ?? themeOptions.palette?.background?.paper,
+        fontSize: '12px',
       }}
       collapseStringsAfterLength={40}
       enableClipboard={handleCopy}

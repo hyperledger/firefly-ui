@@ -195,7 +195,7 @@ export const OffChainMessages: () => JSX.Element = () => {
     t('transactionType'),
     t('tag'),
     t('topic'),
-    t('confirmed'),
+    t('created'),
     t('state'),
   ];
 
@@ -247,14 +247,24 @@ export const OffChainMessages: () => JSX.Element = () => {
       },
       {
         value: (
-          <FFTableText color="secondary" text={getFFTime(msg.confirmed)} />
+          <FFTableText color="secondary" text={getFFTime(msg.header.created)} />
         ),
       },
       {
         value: (
+          // TODO: Fix when https://github.com/hyperledger/firefly/issues/628 is resolved
           <Chip
-            label={msg?.state?.toLocaleUpperCase()}
-            sx={{ backgroundColor: MsgStateColorMap[msg?.state] }}
+            label={
+              msg.state?.toLocaleUpperCase() === 'PENDING'
+                ? 'CONFIRMED'
+                : msg.state?.toLocaleUpperCase()
+            }
+            sx={{
+              backgroundColor:
+                MsgStateColorMap[
+                  msg.state === 'pending' ? 'confirmed' : msg.state
+                ],
+            }}
           ></Chip>
         ),
       },

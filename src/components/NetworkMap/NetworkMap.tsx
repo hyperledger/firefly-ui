@@ -202,6 +202,36 @@ export const NetworkMap: React.FC<Props> = ({ size }) => {
     );
   };
 
+  const getRepulsivity = (numOrgs: number) => {
+    switch (numOrgs) {
+      case 2:
+        return size === 'small' ? 50 : 80;
+      case 3:
+        return size === 'small' ? 34 : 170;
+      case 4:
+        return size === 'small' ? 10 : 28;
+      case 5:
+        return size === 'small' ? 17 : 60;
+      default:
+        return 50;
+    }
+  };
+
+  const getCenteringStrength = (numOrgs: number) => {
+    switch (numOrgs) {
+      case 2:
+        return 1;
+      case 3:
+        return size === 'small' ? 1 : 1;
+      case 4:
+        return size === 'small' ? 1 : 1;
+      case 5:
+        return size === 'small' ? 1 : 1;
+      default:
+        return 1;
+    }
+  };
+
   const content =
     !orgs || !nodes ? (
       <Grid container justifyContent="center" alignItems="center">
@@ -214,9 +244,8 @@ export const NetworkMap: React.FC<Props> = ({ size }) => {
         linkDistance={(e: any) => {
           return e.distance;
         }}
-        distanceMax={size === 'small' ? 10 : 20}
-        centeringStrength={0.4}
-        repulsivity={size === 'small' ? 50 : 80}
+        centeringStrength={getCenteringStrength(orgs.length)}
+        repulsivity={getRepulsivity(orgs.length)}
         nodeSize={(n: any) => {
           return n.size;
         }}

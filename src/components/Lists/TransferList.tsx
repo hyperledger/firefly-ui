@@ -5,6 +5,7 @@ import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { ITokenTransfer, ITxStatus, TxStatusColorMap } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
+import { MsgButton } from '../Buttons/MsgButton';
 import { PoolButton } from '../Buttons/PoolButton';
 import { TxButton } from '../Buttons/TxButton';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
@@ -97,7 +98,10 @@ export const TransferList: React.FC<Props> = ({
             <FFListText color="secondary" text={t('noMessageInTransfer')} />
           ),
           button: transfer.message ? (
-            <FFCopyButton value={transfer.message} />
+            <>
+              <MsgButton ns={selectedNamespace} msgID={transfer.message} />
+              <FFCopyButton value={transfer.message} />
+            </>
           ) : undefined,
         },
         {
