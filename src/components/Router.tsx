@@ -14,9 +14,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React from 'react';
+import React, { useMemo } from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { BrowserRouter, RouteObject, useRoutes, Route } from 'react-router-dom';
+import {
+  BrowserRouter,
+  RouteObject,
+  useLocation,
+  useNavigate,
+  useRoutes,
+} from 'react-router-dom';
 import { QueryParamProvider } from 'use-query-params';
 import { ActivityRoutes } from '../pages/Activity/Routes';
 import { BlockchainRoutes } from '../pages/Blockchain/Routes';
@@ -37,10 +43,28 @@ const queryClient = new QueryClient({
 });
 
 export const Router: () => JSX.Element = () => {
+  const RouteAdapter = ({ children }: any) => {
+    const navigate = useNavigate();
+    const location = useLocation();
+
+    const adaptedHistory = useMemo(
+      () => ({
+        replace(location: any) {
+          navigate(location, { replace: true, state: location.state });
+        },
+        push(location: any) {
+          navigate(location, { replace: false, state: location.state });
+        },
+      }),
+      [navigate]
+    );
+    return children({ history: adaptedHistory, location });
+  };
+
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter basename={NAV_BASENAME}>
-        <QueryParamProvider ReactRouterRoute={Route}>
+        <QueryParamProvider ReactRouterRoute={RouteAdapter}>
           <Routes />
         </QueryParamProvider>
       </BrowserRouter>
