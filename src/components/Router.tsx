@@ -16,7 +16,7 @@
 
 import React from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
-import { BrowserRouter, RouteObject, useRoutes } from 'react-router-dom';
+import { BrowserRouter, RouteObject, useRoutes, Route } from 'react-router-dom';
 import { QueryParamProvider } from 'use-query-params';
 import { ActivityRoutes } from '../pages/Activity/Routes';
 import { BlockchainRoutes } from '../pages/Blockchain/Routes';
@@ -39,11 +39,11 @@ const queryClient = new QueryClient({
 export const Router: () => JSX.Element = () => {
   return (
     <QueryClientProvider client={queryClient}>
-      <QueryParamProvider>
-        <BrowserRouter basename={NAV_BASENAME}>
+      <BrowserRouter basename={NAV_BASENAME}>
+        <QueryParamProvider ReactRouterRoute={Route}>
           <Routes />
-        </BrowserRouter>
-      </QueryParamProvider>
+        </QueryParamProvider>
+      </BrowserRouter>
     </QueryClientProvider>
   );
 };
