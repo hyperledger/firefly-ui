@@ -17,14 +17,15 @@
 import { MenuItem, TextField } from '@mui/material';
 import React, { useContext, useEffect, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StringParam, useQueryParam } from 'use-query-params';
+import { useSearchParams } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { CreatedFilterOptions } from '../../interfaces';
 
 export const DatePicker: React.FC = () => {
   const { t } = useTranslation();
   const { createdFilter, setCreatedFilter } = useContext(ApplicationContext);
-  const [time, setTime] = useQueryParam('time', StringParam);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const time = searchParams.get('time');
 
   const createdQueryOptions = useMemo(
     () => [
@@ -56,8 +57,14 @@ export const DatePicker: React.FC = () => {
     }
 
     // use time from state and update the url
-    setTime(createdFilter, 'replaceIn');
-  }, [time, setTime, setCreatedFilter, createdQueryOptions, createdFilter]);
+    setSearchParams({ time: createdFilter });
+  }, [
+    time,
+    setSearchParams,
+    setCreatedFilter,
+    createdQueryOptions,
+    createdFilter,
+  ]);
 
   return (
     <>
@@ -67,7 +74,7 @@ export const DatePicker: React.FC = () => {
         variant="outlined"
         value={createdFilter}
         onChange={(event) => {
-          setTime(event.target.value as CreatedFilterOptions);
+          setSearchParams({ time: event.target.value as CreatedFilterOptions });
           setCreatedFilter(event.target.value as CreatedFilterOptions);
         }}
         sx={{ pr: 2 }}

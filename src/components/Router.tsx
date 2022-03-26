@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useMemo } from 'react';
+import React from 'react';
 import { QueryClient, QueryClientProvider } from 'react-query';
 import {
   BrowserRouter,
@@ -43,24 +43,6 @@ const queryClient = new QueryClient({
 });
 
 export const Router: () => JSX.Element = () => {
-  const RouteAdapter = ({ children }: any) => {
-    const navigate = useNavigate();
-    const location = useLocation();
-
-    const adaptedHistory = useMemo(
-      () => ({
-        replace(location: any) {
-          navigate(location, { replace: true, state: location.state });
-        },
-        push(location: any) {
-          navigate(location, { replace: false, state: location.state });
-        },
-      }),
-      [navigate]
-    );
-    return children({ history: adaptedHistory, location });
-  };
-
   return (
     <QueryClientProvider client={queryClient}>
       <BrowserRouter basename={NAV_BASENAME}>
@@ -94,3 +76,27 @@ export function getAllRoutes(): RouteObject[] {
     MyNodeRoutes,
   ];
 }
+
+/**
+ * This is the main thing you need to use to adapt the react-router v6
+ * API to what use-query-params expects.
+ *
+ * Pass this as the `ReactRouterRoute` prop to QueryParamProvider.
+ */
+const RouteAdapter = ({ children }: any) => {
+  const navigate = useNavigate();
+  const location = useLocation();
+
+  const adaptedHistory = React.useMemo(
+    () => ({
+      replace(location: any) {
+        navigate(location, { replace: true, state: location.state });
+      },
+      push(location: any) {
+        navigate(location, { replace: false, state: location.state });
+      },
+    }),
+    [navigate]
+  );
+  return children({ history: adaptedHistory, location });
+};
