@@ -26,31 +26,26 @@ import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   ApiFilters,
   FF_EVENTS,
   FF_Paths,
-  ICreatedFilter,
   IDataTableRecord,
   IFireflyApi,
   IPagedFireFlyApiResponse,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, getCreatedFilter } from '../../../utils';
+import { fetchCatcher } from '../../../utils';
 import { isEventType } from '../../../utils/wsEvents';
 
 export const BlockchainApis: () => JSX.Element = () => {
-  const { createdFilter, lastEvent, selectedNamespace } =
-    useContext(ApplicationContext);
-  const {
-    filterAnchor,
-    setFilterAnchor,
-    activeFilters,
-    setActiveFilters,
-    filterString,
-  } = useContext(FilterContext);
+  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { dateFilter } = useContext(DateFilterContext);
+  const { filterAnchor, setFilterAnchor, filterString } =
+    useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
@@ -88,15 +83,13 @@ export const BlockchainApis: () => JSX.Element = () => {
 
   // APIs
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.apis
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          createdFilterObject.filterString
-        }${filterString !== undefined ? filterString : ''}`
+          dateFilter.filterString
+        }${filterString ?? ''}`
       )
         .then((apis: IPagedFireFlyApiResponse) => {
           if (isMounted) {
@@ -112,7 +105,7 @@ export const BlockchainApis: () => JSX.Element = () => {
     rowsPerPage,
     currentPage,
     selectedNamespace,
-    createdFilter,
+    dateFilter,
     filterString,
     lastRefreshTime,
     isMounted,
@@ -187,8 +180,6 @@ export const BlockchainApis: () => JSX.Element = () => {
             title={t('allApis')}
             filter={
               <FilterButton
-                filters={activeFilters}
-                setFilters={setActiveFilters}
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
                   setFilterAnchor(e.currentTarget)
                 }
@@ -222,9 +213,6 @@ export const BlockchainApis: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={ApiFilters}
-          addFilter={(filter: string) =>
-            setActiveFilters((activeFilters) => [...activeFilters, filter])
-          }
         />
       )}
     </>

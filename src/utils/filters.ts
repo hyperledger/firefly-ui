@@ -1,10 +1,10 @@
 import dayjs from 'dayjs';
-import { CreatedFilterOptions, ICreatedFilter } from '../interfaces';
+import { CreatedFilterOptions, ICreatedTimeFilter } from '../interfaces';
 
-export const getCreatedFilter = (
+export const getCreatedTimeFilter = (
   createdFilter: CreatedFilterOptions,
   timestampKey?: boolean
-): ICreatedFilter => {
+): ICreatedTimeFilter => {
   let createdFilterTime: number;
 
   switch (createdFilter) {
@@ -26,6 +26,7 @@ export const getCreatedFilter = (
   }
   return {
     filterTime: createdFilterTime,
+    filterShortString: createdFilter,
     filterString: timestampKey
       ? `&timestamp=>=${createdFilterTime}`
       : `&created=>=${createdFilterTime}`,

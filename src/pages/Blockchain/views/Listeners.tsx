@@ -17,7 +17,6 @@
 import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StringParam, useQueryParam } from 'use-query-params';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
@@ -27,38 +26,29 @@ import { ListenerSlide } from '../../../components/Slides/ListenerSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
+import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   FF_Paths,
   IContractListener,
-  ICreatedFilter,
   IDataTableRecord,
   IPagedContractListenerResponse,
   ListenerFilters,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import {
-  fetchCatcher,
-  getCreatedFilter,
-  getFFTime,
-  isValidUUID,
-} from '../../../utils';
+import { fetchCatcher, getFFTime } from '../../../utils';
 
 export const BlockchainListeners: () => JSX.Element = () => {
-  const { createdFilter, lastEvent, selectedNamespace } =
-    useContext(ApplicationContext);
-  const {
-    filterAnchor,
-    setFilterAnchor,
-    activeFilters,
-    setActiveFilters,
-    filterString,
-  } = useContext(FilterContext);
+  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { dateFilter } = useContext(DateFilterContext);
+  const { filterAnchor, setFilterAnchor, filterString } =
+    useContext(FilterContext);
+  const { slideQuery, addSlideToParams } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
-  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Listeners
   const [listeners, setListeners] = useState<IContractListener[]>();
   // Listener totals
@@ -80,7 +70,6 @@ export const BlockchainListeners: () => JSX.Element = () => {
   useEffect(() => {
     isMounted &&
       slideQuery &&
-      isValidUUID(slideQuery) &&
       fetchCatcher(
         `${
           FF_Paths.nsPrefix
@@ -96,15 +85,13 @@ export const BlockchainListeners: () => JSX.Element = () => {
 
   // Listeners
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.contractListeners
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          createdFilterObject.filterString
-        }${filterString !== undefined ? filterString : ''}`
+          dateFilter.filterString
+        }${filterString ?? ''}`
       )
         .then((listeners: IPagedContractListenerResponse) => {
           if (isMounted) {
@@ -119,7 +106,7 @@ export const BlockchainListeners: () => JSX.Element = () => {
     rowsPerPage,
     currentPage,
     selectedNamespace,
-    createdFilter,
+    dateFilter,
     lastEvent,
     filterString,
     reportFetchError,
@@ -172,7 +159,7 @@ export const BlockchainListeners: () => JSX.Element = () => {
       ],
       onClick: () => {
         setViewListener(l);
-        setSlideQuery(l.id);
+        addSlideToParams(l.id);
       },
     })
   );
@@ -186,8 +173,6 @@ export const BlockchainListeners: () => JSX.Element = () => {
             title={t('allListeners')}
             filter={
               <FilterButton
-                filters={activeFilters}
-                setFilters={setActiveFilters}
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
                   setFilterAnchor(e.currentTarget)
                 }
@@ -221,9 +206,6 @@ export const BlockchainListeners: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={ListenerFilters}
-          addFilter={(filter: string) =>
-            setActiveFilters((activeFilters) => [...activeFilters, filter])
-          }
         />
       )}
       {viewListener && (
@@ -232,7 +214,7 @@ export const BlockchainListeners: () => JSX.Element = () => {
           open={!!viewListener}
           onClose={() => {
             setViewListener(undefined);
-            setSlideQuery(undefined);
+            addSlideToParams(undefined);
           }}
         />
       )}

@@ -19,7 +19,6 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StringParam, useQueryParam } from 'use-query-params';
 import { TxButton } from '../../../components/Buttons/TxButton';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
@@ -31,13 +30,14 @@ import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
+import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
   FF_Paths,
-  ICreatedFilter,
   IDataTableRecord,
   IMetric,
   IPagedTransactionResponse,
@@ -50,12 +50,7 @@ import {
   DEFAULT_PADDING,
   DEFAULT_PAGE_LIMITS,
 } from '../../../theme';
-import {
-  fetchCatcher,
-  getCreatedFilter,
-  getFFTime,
-  isValidUUID,
-} from '../../../utils';
+import { fetchCatcher, getFFTime } from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -65,19 +60,14 @@ import { makeTxHistogram } from '../../../utils/histograms/transactionHistogram'
 import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const ActivityTransactions: () => JSX.Element = () => {
-  const { createdFilter, lastEvent, selectedNamespace } =
-    useContext(ApplicationContext);
-  const {
-    filterAnchor,
-    setFilterAnchor,
-    activeFilters,
-    setActiveFilters,
-    filterString,
-  } = useContext(FilterContext);
+  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { dateFilter } = useContext(DateFilterContext);
+  const { filterAnchor, setFilterAnchor, filterString } =
+    useContext(FilterContext);
+  const { slideQuery, addSlideToParams } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
-  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Transactions
   const [txs, setTxs] = useState<ITransaction[]>();
   // Transaction totals
@@ -117,7 +107,6 @@ export const ActivityTransactions: () => JSX.Element = () => {
   useEffect(() => {
     isMounted &&
       slideQuery &&
-      isValidUUID(slideQuery) &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactionById(
           slideQuery
@@ -133,15 +122,13 @@ export const ActivityTransactions: () => JSX.Element = () => {
 
   // Transactions
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.transactions
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          createdFilterObject.filterString
-        }${filterString !== undefined ? filterString : ''}`
+          dateFilter.filterString
+        }${filterString ?? ''}`
       )
         .then((txRes: IPagedTransactionResponse) => {
           if (isMounted) {
@@ -157,7 +144,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
     rowsPerPage,
     currentPage,
     selectedNamespace,
-    createdFilter,
+    dateFilter,
     filterString,
     lastRefreshTime,
     isMounted,
@@ -166,12 +153,11 @@ export const ActivityTransactions: () => JSX.Element = () => {
   // Histogram;
   useEffect(() => {
     const currentTime = dayjs().unix();
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
     fetchCatcher(
       `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
         BucketCollectionEnum.Transactions,
-        createdFilterObject.filterTime,
+        dateFilter.filterTime,
         currentTime,
         BucketCountEnum.Large
       )}`
@@ -182,7 +168,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
       .catch((err) => {
         reportFetchError(err);
       });
-  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
+  }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
   const txColumnHeaders = [
     t('type'),
@@ -231,7 +217,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
     ],
     onClick: () => {
       setViewTx(tx);
-      setSlideQuery(tx.id);
+      addSlideToParams(tx.id);
     },
     leftBorderColor: FF_TX_CATEGORY_MAP[tx.type]?.color,
   }));
@@ -250,8 +236,6 @@ export const ActivityTransactions: () => JSX.Element = () => {
             title={t('allTransactions')}
             filter={
               <FilterButton
-                filters={activeFilters}
-                setFilters={setActiveFilters}
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
                   setFilterAnchor(e.currentTarget)
                 }
@@ -296,9 +280,6 @@ export const ActivityTransactions: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={TransactionFilters}
-          addFilter={(filter: string) =>
-            setActiveFilters((activeFilters) => [...activeFilters, filter])
-          }
         />
       )}
       {viewTx && (
@@ -307,7 +288,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
           open={!!viewTx}
           onClose={() => {
             setViewTx(undefined);
-            setSlideQuery(undefined);
+            addSlideToParams(undefined);
           }}
         />
       )}

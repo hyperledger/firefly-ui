@@ -19,7 +19,6 @@ import { Grid, IconButton, Paper, Typography } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate, useParams } from 'react-router-dom';
-import { StringParam, useQueryParam } from 'use-query-params';
 import { FFBreadcrumb } from '../../../components/Breadcrumbs/FFBreadcrumb';
 import { FFCopyButton } from '../../../components/Buttons/CopyButton';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
@@ -31,6 +30,7 @@ import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { EventSlide } from '../../../components/Slides/EventSlide';
 import { OperationSlide } from '../../../components/Slides/OperationSlide';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   FF_NAV_PATHS,
@@ -44,16 +44,17 @@ import {
 } from '../../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
 import { DEFAULT_BORDER_RADIUS, DEFAULT_PADDING } from '../../../theme';
-import { fetchCatcher, getShortHash, isValidUUID } from '../../../utils';
+import { fetchCatcher, getShortHash } from '../../../utils';
 
 export const TransactionDetails: () => JSX.Element = () => {
   const { selectedNamespace } = useContext(ApplicationContext);
+  const { slideQuery, addSlideToParams } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const navigate = useNavigate();
   const location = useLocation();
   const [isMounted, setIsMounted] = useState(false);
-  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
+
   const { txID } = useParams<{ txID: string }>();
   // Transactions
   const [tx, setTx] = useState<ITransaction>();
@@ -74,7 +75,7 @@ export const TransactionDetails: () => JSX.Element = () => {
   }, []);
 
   useEffect(() => {
-    if (isMounted && slideQuery && isValidUUID(slideQuery)) {
+    if (isMounted && slideQuery) {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?id=${slideQuery}`
       ).then((eventRes: IEvent[]) => {
@@ -175,7 +176,7 @@ export const TransactionDetails: () => JSX.Element = () => {
               <OpCardWrapper
                 onHandleViewOp={(op: IOperation) => {
                   setViewOp(op);
-                  setSlideQuery(op.id);
+                  addSlideToParams(op.id);
                 }}
                 {...{ op }}
               />
@@ -208,7 +209,7 @@ export const TransactionDetails: () => JSX.Element = () => {
               <EventCardWrapper
                 onHandleViewEvent={(event: IEvent) => {
                   setViewEvent(event);
-                  setSlideQuery(event.id);
+                  addSlideToParams(event.id);
                 }}
                 {...{ event }}
               />
@@ -314,7 +315,7 @@ export const TransactionDetails: () => JSX.Element = () => {
           open={!!viewEvent}
           onClose={() => {
             setViewEvent(undefined);
-            setSlideQuery(undefined);
+            addSlideToParams(undefined);
           }}
         />
       )}
@@ -324,7 +325,7 @@ export const TransactionDetails: () => JSX.Element = () => {
           open={!!viewOp}
           onClose={() => {
             setViewOp(undefined);
-            setSlideQuery(undefined);
+            addSlideToParams(undefined);
           }}
         />
       )}

@@ -40,13 +40,8 @@ import { fetchCatcher, getFFTime } from '../../../utils';
 
 export const NetworkOrganizations: () => JSX.Element = () => {
   const { orgName } = useContext(ApplicationContext);
-  const {
-    filterAnchor,
-    setFilterAnchor,
-    activeFilters,
-    setActiveFilters,
-    filterString,
-  } = useContext(FilterContext);
+  const { filterAnchor, setFilterAnchor, filterString } =
+    useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
@@ -72,7 +67,7 @@ export const NetworkOrganizations: () => JSX.Element = () => {
         `${FF_Paths.apiPrefix}/${
           FF_Paths.networkOrgs
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          filterString !== undefined ? filterString : ''
+          filterString ?? ''
         }&sort=created`
       )
         .then((orgRes: IPagedOrganizationResponse) => {
@@ -152,8 +147,6 @@ export const NetworkOrganizations: () => JSX.Element = () => {
             title={t('allOrganizations')}
             filter={
               <FilterButton
-                filters={activeFilters}
-                setFilters={setActiveFilters}
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
                   setFilterAnchor(e.currentTarget)
                 }
@@ -187,9 +180,6 @@ export const NetworkOrganizations: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={IdentityFilters}
-          addFilter={(filter: string) =>
-            setActiveFilters((activeFilters) => [...activeFilters, filter])
-          }
         />
       )}
     </>

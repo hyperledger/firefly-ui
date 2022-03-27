@@ -19,7 +19,6 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StringParam, useQueryParam } from 'use-query-params';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
@@ -30,7 +29,9 @@ import { EventSlide } from '../../../components/Slides/EventSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
+import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
@@ -39,7 +40,6 @@ import {
   FF_EVENTS_CATEGORY_MAP,
   FF_Paths,
   getEnrichedEventText,
-  ICreatedFilter,
   IDataTableRecord,
   IEvent,
   IMetric,
@@ -50,13 +50,7 @@ import {
   DEFAULT_PADDING,
   DEFAULT_PAGE_LIMITS,
 } from '../../../theme';
-import {
-  fetchCatcher,
-  getCreatedFilter,
-  getFFTime,
-  isValidUUID,
-  makeEventHistogram,
-} from '../../../utils';
+import { fetchCatcher, getFFTime, makeEventHistogram } from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -65,19 +59,14 @@ import {
 import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const ActivityEvents: () => JSX.Element = () => {
-  const { createdFilter, lastEvent, selectedNamespace } =
-    useContext(ApplicationContext);
-  const {
-    filterAnchor,
-    setFilterAnchor,
-    activeFilters,
-    setActiveFilters,
-    filterString,
-  } = useContext(FilterContext);
+  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { dateFilter } = useContext(DateFilterContext);
+  const { filterAnchor, setFilterAnchor, filterString } =
+    useContext(FilterContext);
+  const { slideQuery, addSlideToParams } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
-  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Events
   const [events, setEvents] = useState<IEvent[]>();
   // Event totals
@@ -116,7 +105,6 @@ export const ActivityEvents: () => JSX.Element = () => {
   useEffect(() => {
     isMounted &&
       slideQuery &&
-      isValidUUID(slideQuery) &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.eventsById(
           slideQuery
@@ -132,17 +120,13 @@ export const ActivityEvents: () => JSX.Element = () => {
 
   // Events list
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.events
         }?limit=${rowsPerPage}&fetchreferences&count&skip=${
           rowsPerPage * currentPage
-        }${createdFilterObject.filterString}${
-          filterString !== undefined ? filterString : ''
-        }`
+        }${dateFilter.filterString}${filterString ?? ''}`
       )
         .then((eventRes: IPagedEventResponse) => {
           if (isMounted) {
@@ -158,7 +142,7 @@ export const ActivityEvents: () => JSX.Element = () => {
     rowsPerPage,
     currentPage,
     selectedNamespace,
-    createdFilter,
+    dateFilter,
     filterString,
     lastRefreshTime,
     isMounted,
@@ -167,13 +151,12 @@ export const ActivityEvents: () => JSX.Element = () => {
   // Histogram
   useEffect(() => {
     const currentTime = dayjs().unix();
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
           BucketCollectionEnum.Events,
-          createdFilterObject.filterTime,
+          dateFilter.filterTime,
           currentTime,
           BucketCountEnum.Large
         )}`
@@ -185,7 +168,7 @@ export const ActivityEvents: () => JSX.Element = () => {
           setEventHistData([]);
           reportFetchError(err);
         });
-  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
+  }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
   const eventsColumnHeaders = [
     t('type'),
@@ -239,7 +222,7 @@ export const ActivityEvents: () => JSX.Element = () => {
       ],
       onClick: () => {
         setViewEvent(event);
-        setSlideQuery(event.id);
+        addSlideToParams(event.id);
       },
       leftBorderColor: FF_EVENTS_CATEGORY_MAP[event.type]?.color,
     })
@@ -259,8 +242,6 @@ export const ActivityEvents: () => JSX.Element = () => {
             title={t('allEvents')}
             filter={
               <FilterButton
-                filters={activeFilters}
-                setFilters={setActiveFilters}
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
                   setFilterAnchor(e.currentTarget)
                 }
@@ -305,9 +286,6 @@ export const ActivityEvents: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={EventFilters}
-          addFilter={(filter: string) =>
-            setActiveFilters((activeFilters) => [...activeFilters, filter])
-          }
         />
       )}
       {viewEvent && (
@@ -316,7 +294,7 @@ export const ActivityEvents: () => JSX.Element = () => {
           open={!!viewEvent}
           onClose={() => {
             setViewEvent(undefined);
-            setSlideQuery(undefined);
+            addSlideToParams(undefined);
           }}
         />
       )}

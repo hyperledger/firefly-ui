@@ -17,7 +17,6 @@
 import { Button, Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StringParam, useQueryParam } from 'use-query-params';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
@@ -25,26 +24,27 @@ import { InterfaceSlide } from '../../../components/Slides/InterfaceSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { DateFilterContext } from '../../../contexts/DateFilterContext';
+import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   FF_EVENTS,
   FF_Paths,
   IContractInterface,
-  ICreatedFilter,
   IDataTableRecord,
   IPagedContractInterfaceResponse,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, getCreatedFilter, isValidUUID } from '../../../utils';
+import { fetchCatcher } from '../../../utils';
 import { isEventType } from '../../../utils/wsEvents';
 
 export const BlockchainInterfaces: () => JSX.Element = () => {
-  const { createdFilter, lastEvent, selectedNamespace } =
-    useContext(ApplicationContext);
+  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { dateFilter } = useContext(DateFilterContext);
+  const { slideQuery, addSlideToParams } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
-  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Interfaces
   const [interfaces, setInterfaces] = useState<IContractInterface[]>();
   // Interface totals
@@ -83,7 +83,6 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
   useEffect(() => {
     isMounted &&
       slideQuery &&
-      isValidUUID(slideQuery) &&
       fetchCatcher(
         `${
           FF_Paths.nsPrefix
@@ -99,14 +98,12 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
 
   // Interfaces
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.contractInterfaces
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          createdFilterObject.filterString
+          dateFilter.filterString
         }`
       )
         .then((interfaceRes: IPagedContractInterfaceResponse) => {
@@ -119,7 +116,14 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
           reportFetchError(err);
         })
         .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
-  }, [rowsPerPage, currentPage, selectedNamespace, lastRefreshTime, isMounted]);
+  }, [
+    rowsPerPage,
+    currentPage,
+    selectedNamespace,
+    dateFilter,
+    lastRefreshTime,
+    isMounted,
+  ]);
 
   const interfaceColHeaders = [
     t('name'),
@@ -161,7 +165,7 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
       ],
       onClick: () => {
         setViewInterface(int);
-        setSlideQuery(int.id);
+        addSlideToParams(int.id);
       },
     })
   );
@@ -210,7 +214,7 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
           open={!!viewInterface}
           onClose={() => {
             setViewInterface(undefined);
-            setSlideQuery(undefined);
+            addSlideToParams(undefined);
           }}
         />
       )}

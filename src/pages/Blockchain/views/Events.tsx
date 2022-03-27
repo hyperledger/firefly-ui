@@ -28,6 +28,7 @@ import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
@@ -36,7 +37,6 @@ import {
   BucketCountEnum,
   FF_Paths,
   IBlockchainEvent,
-  ICreatedFilter,
   IDataTableRecord,
   IMetric,
   IPagedBlockchainEventResponse,
@@ -48,7 +48,7 @@ import {
   DEFAULT_PAGE_LIMITS,
   FFColors,
 } from '../../../theme';
-import { fetchCatcher, getCreatedFilter, getFFTime } from '../../../utils';
+import { fetchCatcher, getFFTime } from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -58,15 +58,10 @@ import { makeBlockchainEventHistogram } from '../../../utils/histograms/blockcha
 import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const BlockchainEvents: () => JSX.Element = () => {
-  const { createdFilter, lastEvent, selectedNamespace } =
-    useContext(ApplicationContext);
-  const {
-    filterAnchor,
-    setFilterAnchor,
-    activeFilters,
-    setActiveFilters,
-    filterString,
-  } = useContext(FilterContext);
+  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { dateFilter } = useContext(DateFilterContext);
+  const { filterAnchor, setFilterAnchor, filterString } =
+    useContext(FilterContext);
   const [isMounted, setIsMounted] = useState(false);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
@@ -106,18 +101,13 @@ export const BlockchainEvents: () => JSX.Element = () => {
 
   // Blockchain events
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(
-      createdFilter,
-      true
-    );
-
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.blockchainEvents
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          createdFilterObject.filterString
-        }${filterString !== undefined ? filterString : ''}`
+          dateFilter.filterString
+        }${filterString ?? ''}`
       )
         .then((blockchainEvents: IPagedBlockchainEventResponse) => {
           if (isMounted) {
@@ -133,7 +123,7 @@ export const BlockchainEvents: () => JSX.Element = () => {
     rowsPerPage,
     currentPage,
     selectedNamespace,
-    createdFilter,
+    dateFilter,
     filterString,
     lastRefreshTime,
     isMounted,
@@ -142,13 +132,12 @@ export const BlockchainEvents: () => JSX.Element = () => {
   // Histogram
   useEffect(() => {
     const currentTime = dayjs().unix();
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
           BucketCollectionEnum.BlockchainEvents,
-          createdFilterObject.filterTime,
+          dateFilter.filterTime,
           currentTime,
           BucketCountEnum.Large
         )}`
@@ -159,7 +148,7 @@ export const BlockchainEvents: () => JSX.Element = () => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
+  }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
   const beColHeaders = [
     t('name'),
@@ -208,8 +197,6 @@ export const BlockchainEvents: () => JSX.Element = () => {
             title={t('allBlockchainEvents')}
             filter={
               <FilterButton
-                filters={activeFilters}
-                setFilters={setActiveFilters}
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
                   setFilterAnchor(e.currentTarget)
                 }
@@ -254,9 +241,6 @@ export const BlockchainEvents: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={BlockchainEventFilters}
-          addFilter={(filter: string) =>
-            setActiveFilters((activeFilters) => [...activeFilters, filter])
-          }
         />
       )}
     </>

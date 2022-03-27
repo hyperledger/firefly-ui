@@ -22,7 +22,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
 import { useNavigate } from 'react-router-dom';
-import { useQueryParam, StringParam } from 'use-query-params';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
@@ -33,13 +32,14 @@ import { FFTableText } from '../../../components/Tables/FFTableText';
 import { MediumCardTable } from '../../../components/Tables/MediumCardTable';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { DateFilterContext } from '../../../contexts/DateFilterContext';
+import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
   FF_NAV_PATHS,
   FF_Paths,
-  ICreatedFilter,
   IDataTableRecord,
   IFireFlyCard,
   IGenericPagedResponse,
@@ -63,13 +63,7 @@ import {
   DEFAULT_PAGE_LIMITS,
   DEFAULT_SPACING,
 } from '../../../theme';
-import {
-  fetchCatcher,
-  getCreatedFilter,
-  getFFTime,
-  isValidUUID,
-  jsNumberForAddress,
-} from '../../../utils';
+import { fetchCatcher, getFFTime, jsNumberForAddress } from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -80,12 +74,12 @@ import { isEventType } from '../../../utils/wsEvents';
 
 export const TokensDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
-  const { createdFilter, lastEvent, selectedNamespace } =
-    useContext(ApplicationContext);
+  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { dateFilter } = useContext(DateFilterContext);
+  const { slideQuery, addSlideToParams } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const navigate = useNavigate();
   const [isMounted, setIsMounted] = useState(false);
-  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Small cards
   // Tokens
   const [tokenTransfersCount, setTokenTransfersCount] = useState<number>();
@@ -147,7 +141,6 @@ export const TokensDashboard: () => JSX.Element = () => {
   useEffect(() => {
     isMounted &&
       slideQuery &&
-      isValidUUID(slideQuery) &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransferById(
           slideQuery
@@ -193,8 +186,7 @@ export const TokensDashboard: () => JSX.Element = () => {
 
   // Small Card UseEffect
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-    const qParams = `?count=true&limit=1${createdFilterObject.filterString}`;
+    const qParams = `?count=true&limit=1${dateFilter.filterString}`;
 
     isMounted &&
       Promise.all([
@@ -262,7 +254,7 @@ export const TokensDashboard: () => JSX.Element = () => {
           reportFetchError(err);
         })
         .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
-  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
+  }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
   const tokenAccountsColHeaders = [t('key'), t('poolID'), t('balance')];
   const tokenAccountRecords: IDataTableRecord[] | undefined =
@@ -385,12 +377,11 @@ export const TokensDashboard: () => JSX.Element = () => {
   // Medium Card UseEffect
   useEffect(() => {
     const currentTime = dayjs().unix();
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
     if (isMounted) {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
           BucketCollectionEnum.TokenTransfers,
-          createdFilterObject.filterTime,
+          dateFilter.filterTime,
           currentTime,
           BucketCountEnum.Small
         )}`
@@ -421,7 +412,7 @@ export const TokensDashboard: () => JSX.Element = () => {
           reportFetchError(err);
         });
     }
-  }, [selectedNamespace, lastRefreshTime, createdFilter, isMounted]);
+  }, [selectedNamespace, lastRefreshTime, dateFilter, isMounted]);
 
   const tokenTransferColHeaders = [
     t('type'),
@@ -485,21 +476,19 @@ export const TokensDashboard: () => JSX.Element = () => {
       ],
       onClick: () => {
         setViewTransfer(transfer);
-        setSlideQuery(transfer.localId);
+        addSlideToParams(transfer.localId);
       },
       leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type]?.color,
     }));
 
   // Recent token transfers
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.tokenTransfers
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          createdFilterObject.filterString
+          dateFilter.filterString
         }`
       )
         .then((tokenTransfers: IPagedTokenTransferResponse) => {
@@ -516,7 +505,7 @@ export const TokensDashboard: () => JSX.Element = () => {
     currentPage,
     lastRefreshTime,
     selectedNamespace,
-    createdFilter,
+    dateFilter,
     isMounted,
   ]);
 
@@ -611,7 +600,7 @@ export const TokensDashboard: () => JSX.Element = () => {
           open={!!viewTransfer}
           onClose={() => {
             setViewTransfer(undefined);
-            setSlideQuery(undefined);
+            addSlideToParams(undefined);
           }}
         />
       )}

@@ -31,12 +31,7 @@ import {
 } from './components/Snackbar/MessageSnackbar';
 import { ApplicationContext } from './contexts/ApplicationContext';
 import { SnackbarContext } from './contexts/SnackbarContext';
-import {
-  CreatedFilterOptions,
-  INamespace,
-  IStatus,
-  NAMESPACES_PATH,
-} from './interfaces';
+import { INamespace, IStatus, NAMESPACES_PATH } from './interfaces';
 import { FF_Paths } from './interfaces/constants';
 import { themeOptions } from './theme';
 import { fetchWithCredentials, summarizeFetchError } from './utils';
@@ -62,8 +57,6 @@ const App: React.FC = () => {
   const [orgName, setOrgName] = useState('');
   const [nodeID, setNodeID] = useState('');
   const [nodeName, setNodeName] = useState('');
-  const [createdFilter, setCreatedFilter] =
-    useState<CreatedFilterOptions>('24hours');
   const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
 
   const { pathname: currentPath } = useMemo(() => {
@@ -167,8 +160,6 @@ const App: React.FC = () => {
             identity,
             lastEvent,
             setLastEvent,
-            createdFilter,
-            setCreatedFilter,
           }}
         >
           <SnackbarContext.Provider

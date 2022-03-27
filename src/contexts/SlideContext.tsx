@@ -14,15 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { createContext, Dispatch, SetStateAction } from 'react';
+import { createContext } from 'react';
 
-export interface IFilterContext {
-  filterAnchor: HTMLButtonElement | null;
-  setFilterAnchor: Dispatch<SetStateAction<HTMLButtonElement | null>>;
-  filterString: string;
-  filterArray: string[];
-  addFilterToParams: (filter: string) => void;
-  clearAllFilters: () => void;
+export interface ISlideContext {
+  slideQuery: string | null;
+  addSlideToParams: (slideID: string | undefined) => void;
 }
 
-export const FilterContext = createContext({} as IFilterContext);
+export const SlideContext = createContext({} as ISlideContext);

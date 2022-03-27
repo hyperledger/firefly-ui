@@ -15,30 +15,18 @@
 // limitations under the License.
 
 import { Button, Chip, Grid, Typography } from '@mui/material';
-import React from 'react';
+import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FilterContext } from '../../contexts/FilterContext';
 import { DEFAULT_PADDING } from '../../theme';
 
 interface Props {
-  filters: string[];
-  setFilters: React.Dispatch<React.SetStateAction<string[]>>;
   onSetFilterAnchor: any;
 }
 
-export const FilterButton: React.FC<Props> = ({
-  filters,
-  setFilters,
-  onSetFilterAnchor,
-}) => {
+export const FilterButton: React.FC<Props> = ({ onSetFilterAnchor }) => {
   const { t } = useTranslation();
-
-  const handleClear = () => {
-    setFilters([]);
-  };
-
-  const handleRemoveFilter = (filter: string) => {
-    setFilters(filters.filter((item) => item !== filter));
-  };
+  const { clearAllFilters, filterArray } = useContext(FilterContext);
 
   const handleOpenFilter = (event: React.MouseEvent<HTMLButtonElement>) => {
     onSetFilterAnchor(event);
@@ -52,7 +40,7 @@ export const FilterButton: React.FC<Props> = ({
       item
       alignItems="center"
     >
-      {filters.length > 0 && (
+      {filterArray.length > 0 && (
         <Grid
           container
           item
@@ -61,17 +49,18 @@ export const FilterButton: React.FC<Props> = ({
           my={DEFAULT_PADDING}
         >
           <Grid container alignItems="center" justifyContent="flex-end">
-            {filters.map((filter, index) => (
+            {filterArray.map((filter, index) => (
               <Grid key={`${filter}${index}`} item>
                 <Chip
-                  onDelete={() => handleRemoveFilter(filter)}
+                  // TODO: Add back
+                  // onDelete={() => handleRemoveFilter(filter)}
                   label={filter}
                 />
               </Grid>
             ))}
             <Grid item>
               <Chip
-                onClick={handleClear}
+                onClick={clearAllFilters}
                 variant="outlined"
                 label={t('clear')}
               />

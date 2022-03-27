@@ -18,7 +18,6 @@ import DownloadIcon from '@mui/icons-material/Download';
 import { Grid, IconButton } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StringParam, useQueryParam } from 'use-query-params';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
@@ -28,41 +27,31 @@ import { DataSlide } from '../../../components/Slides/DataSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
+import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   DataFilters,
   FF_EVENTS,
   FF_Paths,
-  ICreatedFilter,
   IData,
   IDataTableRecord,
   IPagedDataResponse,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import {
-  downloadBlobFile,
-  fetchCatcher,
-  getCreatedFilter,
-  getFFTime,
-  isValidUUID,
-} from '../../../utils';
+import { downloadBlobFile, fetchCatcher, getFFTime } from '../../../utils';
 import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const OffChainData: () => JSX.Element = () => {
-  const { createdFilter, lastEvent, selectedNamespace } =
-    useContext(ApplicationContext);
-  const {
-    filterAnchor,
-    setFilterAnchor,
-    activeFilters,
-    setActiveFilters,
-    filterString,
-  } = useContext(FilterContext);
+  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { dateFilter } = useContext(DateFilterContext);
+  const { filterAnchor, setFilterAnchor, filterString } =
+    useContext(FilterContext);
+  const { slideQuery, addSlideToParams } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
-  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
 
   // Data
   const [data, setData] = useState<IData[]>();
@@ -100,7 +89,6 @@ export const OffChainData: () => JSX.Element = () => {
   useEffect(() => {
     isMounted &&
       slideQuery &&
-      isValidUUID(slideQuery) &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.dataById(
           slideQuery
@@ -116,14 +104,13 @@ export const OffChainData: () => JSX.Element = () => {
 
   // Data
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.data
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          createdFilterObject.filterString
-        }${filterString !== undefined ? filterString : ''}`
+          dateFilter.filterString
+        }${filterString ?? ''}`
       )
         .then((dataRes: IPagedDataResponse) => {
           if (isMounted) {
@@ -139,7 +126,7 @@ export const OffChainData: () => JSX.Element = () => {
     rowsPerPage,
     currentPage,
     selectedNamespace,
-    createdFilter,
+    dateFilter,
     filterString,
     lastRefreshTime,
     isMounted,
@@ -200,7 +187,7 @@ export const OffChainData: () => JSX.Element = () => {
     ],
     onClick: () => {
       setViewData(d);
-      setSlideQuery(d.id);
+      addSlideToParams(d.id);
     },
   }));
 
@@ -218,8 +205,6 @@ export const OffChainData: () => JSX.Element = () => {
             title={t('allData')}
             filter={
               <FilterButton
-                filters={activeFilters}
-                setFilters={setActiveFilters}
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
                   setFilterAnchor(e.currentTarget)
                 }
@@ -253,9 +238,6 @@ export const OffChainData: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={DataFilters}
-          addFilter={(filter: string) =>
-            setActiveFilters((activeFilters) => [...activeFilters, filter])
-          }
         />
       )}
       {viewData && (
@@ -264,7 +246,7 @@ export const OffChainData: () => JSX.Element = () => {
           open={!!viewData}
           onClose={() => {
             setViewData(undefined);
-            setSlideQuery(undefined);
+            addSlideToParams(undefined);
           }}
         />
       )}
