@@ -22,7 +22,6 @@ import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { useQueryParam, StringParam } from 'use-query-params';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
@@ -33,6 +32,8 @@ import { FFTableText } from '../../../components/Tables/FFTableText';
 import { MediumCardTable } from '../../../components/Tables/MediumCardTable';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { DateFilterContext } from '../../../contexts/DateFilterContext';
+import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
@@ -43,7 +44,6 @@ import {
   FF_MESSAGES_CATEGORY_MAP,
   FF_NAV_PATHS,
   FF_Paths,
-  ICreatedFilter,
   IData,
   IDataTableRecord,
   IDatatype,
@@ -65,9 +65,7 @@ import {
 import {
   downloadBlobFile,
   fetchCatcher,
-  getCreatedFilter,
   getFFTime,
-  isValidUUID,
   makeMsgHistogram,
 } from '../../../utils';
 import {
@@ -79,12 +77,12 @@ import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const OffChainDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
-  const { createdFilter, lastEvent, selectedNamespace } =
-    useContext(ApplicationContext);
+  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { dateFilter } = useContext(DateFilterContext);
+  const { slideQuery, addSlideToParams } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const navigate = useNavigate();
   const [isMounted, setIsMounted] = useState(false);
-  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Small cards
   // Message count
   const [msgCount, setMsgCount] = useState<number>();
@@ -138,7 +136,6 @@ export const OffChainDashboard: () => JSX.Element = () => {
   useEffect(() => {
     isMounted &&
       slideQuery &&
-      isValidUUID(slideQuery) &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messagesById(
           slideQuery
@@ -176,8 +173,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
 
   // Small Card UseEffect
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-    const qParams = `?count=true&limit=1${createdFilterObject.filterString}`;
+    const qParams = `?count=true&limit=1${dateFilter.filterString}`;
     const qParamsNoRange = `?count=true&limit=1`;
 
     isMounted &&
@@ -218,7 +214,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
           reportFetchError(err);
         })
         .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
-  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
+  }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
   const dataHeaders = [t('nameOrID'), t('created'), t('download')];
   const dataRecords: IDataTableRecord[] | undefined = data?.map((data) => ({
@@ -325,14 +321,13 @@ export const OffChainDashboard: () => JSX.Element = () => {
   // Medium Card UseEffect
   useEffect(() => {
     const currentTime = dayjs().unix();
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-    const qParams = `?limit=25${createdFilterObject.filterString}`;
+    const qParams = `?limit=25${dateFilter.filterString}`;
     const qParamsNoRange = `?limit=25`;
     if (isMounted) {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
           BucketCollectionEnum.Messages,
-          createdFilterObject.filterTime,
+          dateFilter.filterTime,
           currentTime,
           BucketCountEnum.Small
         )}`
@@ -364,18 +359,16 @@ export const OffChainDashboard: () => JSX.Element = () => {
           reportFetchError(err);
         });
     }
-  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
+  }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
   // Messages
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.messages
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          createdFilterObject.filterString
+          dateFilter.filterString
         }`
       )
         .then((msgRes: IPagedMessageResponse) => {
@@ -387,7 +380,14 @@ export const OffChainDashboard: () => JSX.Element = () => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [rowsPerPage, currentPage, lastRefreshTime, selectedNamespace, isMounted]);
+  }, [
+    rowsPerPage,
+    dateFilter,
+    currentPage,
+    lastRefreshTime,
+    selectedNamespace,
+    isMounted,
+  ]);
 
   const msgColumnHeaders = [
     t('type'),
@@ -472,7 +472,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
     ],
     onClick: () => {
       setViewMsg(msg);
-      setSlideQuery(msg.header.id);
+      addSlideToParams(msg.header.id);
     },
     leftBorderColor: FF_MESSAGES_CATEGORY_MAP[msg.header.type]?.color,
   }));
@@ -568,7 +568,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
           open={!!viewMsg}
           onClose={() => {
             setViewMsg(undefined);
-            setSlideQuery(undefined);
+            addSlideToParams(undefined);
           }}
         />
       )}

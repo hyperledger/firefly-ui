@@ -19,7 +19,6 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StringParam, useQueryParam } from 'use-query-params';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
@@ -30,13 +29,14 @@ import { OperationSlide } from '../../../components/Slides/OperationSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
+import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
   FF_Paths,
-  ICreatedFilter,
   IDataTableRecord,
   IMetric,
   IOperation,
@@ -54,9 +54,7 @@ import {
 } from '../../../theme';
 import {
   fetchCatcher,
-  getCreatedFilter,
   getFFTime,
-  isValidUUID,
   makeOperationHistogram,
 } from '../../../utils';
 import {
@@ -67,19 +65,14 @@ import {
 import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const ActivityOperations: () => JSX.Element = () => {
-  const { createdFilter, lastEvent, selectedNamespace } =
-    useContext(ApplicationContext);
-  const {
-    filterAnchor,
-    setFilterAnchor,
-    activeFilters,
-    setActiveFilters,
-    filterString,
-  } = useContext(FilterContext);
+  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { dateFilter } = useContext(DateFilterContext);
+  const { filterAnchor, setFilterAnchor, filterString } =
+    useContext(FilterContext);
+  const { slideQuery, addSlideToParams } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
-  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Operations
   const [ops, setOps] = useState<IOperation[]>();
   // Operation totals
@@ -119,7 +112,6 @@ export const ActivityOperations: () => JSX.Element = () => {
   useEffect(() => {
     isMounted &&
       slideQuery &&
-      isValidUUID(slideQuery) &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operationsById(
           slideQuery
@@ -135,15 +127,13 @@ export const ActivityOperations: () => JSX.Element = () => {
 
   // Operations
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.operations
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          createdFilterObject.filterString
-        }${filterString !== undefined ? filterString : ''}`
+          dateFilter.filterString
+        }${filterString ?? ''}`
       )
         .then((opRes: IPagedOperationResponse) => {
           if (isMounted) {
@@ -159,7 +149,7 @@ export const ActivityOperations: () => JSX.Element = () => {
     rowsPerPage,
     currentPage,
     selectedNamespace,
-    createdFilter,
+    dateFilter,
     filterString,
     lastRefreshTime,
     isMounted,
@@ -168,13 +158,12 @@ export const ActivityOperations: () => JSX.Element = () => {
   // Histogram
   useEffect(() => {
     const currentTime = dayjs().unix();
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
           BucketCollectionEnum.Operations,
-          createdFilterObject.filterTime,
+          dateFilter.filterTime,
           currentTime,
           BucketCountEnum.Large
         )}`
@@ -185,7 +174,7 @@ export const ActivityOperations: () => JSX.Element = () => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
+  }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
   const opsColumnHeaders = [
     t('type'),
@@ -238,7 +227,7 @@ export const ActivityOperations: () => JSX.Element = () => {
     ],
     onClick: () => {
       setViewOp(op);
-      setSlideQuery(op.id);
+      addSlideToParams(op.id);
     },
     leftBorderColor: FF_OP_CATEGORY_MAP[op.type]?.color,
   }));
@@ -257,8 +246,6 @@ export const ActivityOperations: () => JSX.Element = () => {
             title={t('allOperations')}
             filter={
               <FilterButton
-                filters={activeFilters}
-                setFilters={setActiveFilters}
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
                   setFilterAnchor(e.currentTarget)
                 }
@@ -303,9 +290,6 @@ export const ActivityOperations: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={OperationFilters}
-          addFilter={(filter: string) =>
-            setActiveFilters((activeFilters) => [...activeFilters, filter])
-          }
         />
       )}
       {viewOp && (
@@ -314,7 +298,7 @@ export const ActivityOperations: () => JSX.Element = () => {
           open={!!viewOp}
           onClose={() => {
             setViewOp(undefined);
-            setSlideQuery(undefined);
+            addSlideToParams(undefined);
           }}
         />
       )}

@@ -19,7 +19,6 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { StringParam, useQueryParam } from 'use-query-params';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
@@ -30,13 +29,14 @@ import { MessageSlide } from '../../../components/Slides/MessageSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
+import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
   FF_Paths,
-  ICreatedFilter,
   IDataTableRecord,
   IMessage,
   IMetric,
@@ -53,13 +53,7 @@ import {
   DEFAULT_PADDING,
   DEFAULT_PAGE_LIMITS,
 } from '../../../theme';
-import {
-  fetchCatcher,
-  getCreatedFilter,
-  getFFTime,
-  isValidUUID,
-  makeMsgHistogram,
-} from '../../../utils';
+import { fetchCatcher, getFFTime, makeMsgHistogram } from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -68,19 +62,14 @@ import {
 import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const OffChainMessages: () => JSX.Element = () => {
-  const { createdFilter, lastEvent, selectedNamespace } =
-    useContext(ApplicationContext);
-  const {
-    filterAnchor,
-    setFilterAnchor,
-    activeFilters,
-    setActiveFilters,
-    filterString,
-  } = useContext(FilterContext);
+  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { dateFilter } = useContext(DateFilterContext);
+  const { filterAnchor, setFilterAnchor, filterString } =
+    useContext(FilterContext);
+  const { slideQuery, addSlideToParams } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
-  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Messages
   const [messages, setMessages] = useState<IMessage[]>();
   const [messageTotal, setMessageTotal] = useState(0);
@@ -120,7 +109,6 @@ export const OffChainMessages: () => JSX.Element = () => {
   useEffect(() => {
     isMounted &&
       slideQuery &&
-      isValidUUID(slideQuery) &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messagesById(
           slideQuery
@@ -136,15 +124,13 @@ export const OffChainMessages: () => JSX.Element = () => {
 
   // Messages
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.messages
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          createdFilterObject.filterString
-        }${filterString !== undefined ? filterString : ''}`
+          dateFilter.filterString
+        }${filterString ?? ''}`
       )
         .then((msgRes: IPagedMessageResponse) => {
           if (isMounted) {
@@ -160,7 +146,7 @@ export const OffChainMessages: () => JSX.Element = () => {
     rowsPerPage,
     currentPage,
     selectedNamespace,
-    createdFilter,
+    dateFilter,
     filterString,
     lastRefreshTime,
     isMounted,
@@ -169,13 +155,12 @@ export const OffChainMessages: () => JSX.Element = () => {
   // Histogram
   useEffect(() => {
     const currentTime = dayjs().unix();
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
           BucketCollectionEnum.Messages,
-          createdFilterObject.filterTime,
+          dateFilter.filterTime,
           currentTime,
           BucketCountEnum.Large
         )}`
@@ -186,7 +171,7 @@ export const OffChainMessages: () => JSX.Element = () => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
+  }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
   const msgColumnHeaders = [
     t('type'),
@@ -271,7 +256,7 @@ export const OffChainMessages: () => JSX.Element = () => {
     ],
     onClick: () => {
       setViewMsg(msg);
-      setSlideQuery(msg.header.id);
+      addSlideToParams(msg.header.id);
     },
     leftBorderColor: FF_MESSAGES_CATEGORY_MAP[msg.header.type]?.color,
   }));
@@ -290,8 +275,6 @@ export const OffChainMessages: () => JSX.Element = () => {
             title={t('allMessages')}
             filter={
               <FilterButton
-                filters={activeFilters}
-                setFilters={setActiveFilters}
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
                   setFilterAnchor(e.currentTarget)
                 }
@@ -336,9 +319,6 @@ export const OffChainMessages: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={MessageFilters}
-          addFilter={(filter: string) =>
-            setActiveFilters((activeFilters) => [...activeFilters, filter])
-          }
         />
       )}
       {viewMsg && (
@@ -347,7 +327,7 @@ export const OffChainMessages: () => JSX.Element = () => {
           open={!!viewMsg}
           onClose={() => {
             setViewMsg(undefined);
-            setSlideQuery(undefined);
+            addSlideToParams(undefined);
           }}
         />
       )}

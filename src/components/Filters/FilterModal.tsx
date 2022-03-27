@@ -29,23 +29,19 @@ import {
   Typography,
 } from '@mui/material';
 import CloseIcon from 'mdi-react/CloseIcon';
-import React, { useEffect, useState } from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FilterContext } from '../../contexts/FilterContext';
 
 interface Props {
   anchor: HTMLButtonElement | null;
   onClose: () => void;
   fields: string[];
-  addFilter: (filter: string) => void;
 }
 
-export const FilterModal: React.FC<Props> = ({
-  anchor,
-  onClose,
-  fields,
-  addFilter,
-}) => {
+export const FilterModal: React.FC<Props> = ({ anchor, onClose, fields }) => {
   const { t } = useTranslation();
+  const { addFilterToParams } = useContext(FilterContext);
   const [open, setOpen] = useState(false);
   const [filterValue, setFilterValue] = useState('');
   const [filterField, setFilterField] = useState('');
@@ -63,7 +59,7 @@ export const FilterModal: React.FC<Props> = ({
     const filter = `${filterField}=${filterNegate ? '!' : ''}${
       filterCaseInsensitive ? ':' : ''
     }${filterOperator}${filterValue}`;
-    addFilter(filter);
+    addFilterToParams(filter);
     onClose();
   };
 

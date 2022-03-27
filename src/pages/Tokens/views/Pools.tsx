@@ -27,13 +27,13 @@ import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   FF_EVENTS,
   FF_NAV_PATHS,
   FF_Paths,
-  ICreatedFilter,
   IDataTableRecord,
   IPagedTokenPoolResponse,
   ITokenPool,
@@ -41,24 +41,14 @@ import {
   PoolStateColorMap,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import {
-  fetchCatcher,
-  getCreatedFilter,
-  getFFTime,
-  jsNumberForAddress,
-} from '../../../utils';
+import { fetchCatcher, getFFTime, jsNumberForAddress } from '../../../utils';
 import { isEventType } from '../../../utils/wsEvents';
 
 export const TokensPools: () => JSX.Element = () => {
-  const { createdFilter, lastEvent, selectedNamespace } =
-    useContext(ApplicationContext);
-  const {
-    filterAnchor,
-    setFilterAnchor,
-    activeFilters,
-    setActiveFilters,
-    filterString,
-  } = useContext(FilterContext);
+  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { dateFilter } = useContext(DateFilterContext);
+  const { filterAnchor, setFilterAnchor, filterString } =
+    useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -97,15 +87,13 @@ export const TokensPools: () => JSX.Element = () => {
 
   // Token pools
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.tokenPools
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          createdFilterObject.filterString
-        }${filterString !== undefined ? filterString : ''}`
+          dateFilter.filterString
+        }${filterString ?? ''}`
       )
         .then((tokenPoolsRes: IPagedTokenPoolResponse) => {
           setTokenPools(tokenPoolsRes.items);
@@ -120,7 +108,7 @@ export const TokensPools: () => JSX.Element = () => {
     rowsPerPage,
     currentPage,
     selectedNamespace,
-    createdFilter,
+    dateFilter,
     filterString,
     lastRefreshTime,
     isMounted,
@@ -215,8 +203,6 @@ export const TokensPools: () => JSX.Element = () => {
             title={t('allPools')}
             filter={
               <FilterButton
-                filters={activeFilters}
-                setFilters={setActiveFilters}
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
                   setFilterAnchor(e.currentTarget)
                 }
@@ -250,9 +236,6 @@ export const TokensPools: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={PoolFilters}
-          addFilter={(filter: string) =>
-            setActiveFilters((activeFilters) => [...activeFilters, filter])
-          }
         />
       )}
     </>

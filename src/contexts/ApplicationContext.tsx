@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import { createContext, Dispatch, SetStateAction } from 'react';
-import { CreatedFilterOptions, INamespace } from '../interfaces';
+import { INamespace } from '../interfaces';
 
 export interface IApplicationContext {
   identity: string;
@@ -25,8 +25,6 @@ export interface IApplicationContext {
   nodeName: string;
   lastEvent: any;
   setLastEvent: Dispatch<SetStateAction<any>>;
-  createdFilter: CreatedFilterOptions;
-  setCreatedFilter: Dispatch<SetStateAction<CreatedFilterOptions>>;
   selectedNamespace: string;
   setSelectedNamespace: Dispatch<SetStateAction<string>>;
   namespaces: INamespace[];

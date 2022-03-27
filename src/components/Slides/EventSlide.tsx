@@ -52,14 +52,23 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
   const [messageData, setMessageData] = useState<IData[]>();
   const { txID } = useParams<{ txID: string }>();
 
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   useEffect(() => {
     // Enriched event
-    FF_EVENTS_CATEGORY_MAP[event.type]?.enrichedEventKey &&
+    isMounted &&
+      FF_EVENTS_CATEGORY_MAP[event.type]?.enrichedEventKey &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?reference=${event.reference}&fetchreferences=true&limit=1`
       )
         .then((events: IEvent[]) => {
-          setEnrichedEvent(events[0]);
+          isMounted && setEnrichedEvent(events[0]);
         })
         .catch((err) => {
           reportFetchError(err);
@@ -67,7 +76,7 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
   }, [event]);
 
   useEffect(() => {
-    if (enrichedEvent) {
+    if (enrichedEvent && isMounted) {
       enrichedEvent['message'] &&
         fetchCatcher(
           `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messageDataById(
@@ -75,7 +84,7 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
           )}?limit=25`
         )
           .then((data: IData[]) => {
-            setMessageData(data);
+            isMounted && setMessageData(data);
           })
           .catch((err) => {
             reportFetchError(err);

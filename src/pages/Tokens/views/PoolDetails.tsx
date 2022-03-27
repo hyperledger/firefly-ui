@@ -20,7 +20,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
 import { useNavigate, useParams } from 'react-router-dom';
-import { StringParam, useQueryParam } from 'use-query-params';
 import { FFBreadcrumb } from '../../../components/Breadcrumbs/FFBreadcrumb';
 import { FFCopyButton } from '../../../components/Buttons/CopyButton';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
@@ -32,12 +31,13 @@ import { FFTableText } from '../../../components/Tables/FFTableText';
 import { MediumCardTable } from '../../../components/Tables/MediumCardTable';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { DateFilterContext } from '../../../contexts/DateFilterContext';
+import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   FF_NAV_PATHS,
   FF_Paths,
   FF_TRANSFER_CATEGORY_MAP,
-  ICreatedFilter,
   IDataTableRecord,
   IFFBreadcrumb,
   IPagedTokenTransferResponse,
@@ -53,15 +53,15 @@ import {
 } from '../../../theme';
 import {
   fetchCatcher,
-  getCreatedFilter,
   getFFTime,
   getShortHash,
-  isValidUUID,
   jsNumberForAddress,
 } from '../../../utils';
 
 export const PoolDetails: () => JSX.Element = () => {
-  const { createdFilter, selectedNamespace } = useContext(ApplicationContext);
+  const { selectedNamespace } = useContext(ApplicationContext);
+  const { dateFilter } = useContext(DateFilterContext);
+  const { slideQuery, addSlideToParams } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -69,7 +69,6 @@ export const PoolDetails: () => JSX.Element = () => {
   // Pools
   const [pool, setPool] = useState<ITokenPool>();
   const [isMounted, setIsMounted] = useState(false);
-  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   const [viewTransfer, setViewTransfer] = useState<ITokenTransfer>();
 
   // Token transfers
@@ -91,7 +90,6 @@ export const PoolDetails: () => JSX.Element = () => {
   useEffect(() => {
     isMounted &&
       slideQuery &&
-      isValidUUID(slideQuery) &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransferById(
           slideQuery
@@ -138,13 +136,12 @@ export const PoolDetails: () => JSX.Element = () => {
 
   // Token transfers and accounts
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.tokenTransfers
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          createdFilterObject.filterString
+          dateFilter.filterString
         }&pool=${pool?.id}`
       )
         .then((tokenTransferRes: IPagedTokenTransferResponse) => {
@@ -156,7 +153,14 @@ export const PoolDetails: () => JSX.Element = () => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [rowsPerPage, currentPage, selectedNamespace, pool, isMounted]);
+  }, [
+    rowsPerPage,
+    dateFilter,
+    currentPage,
+    selectedNamespace,
+    pool,
+    isMounted,
+  ]);
 
   const breadcrumbs: IFFBreadcrumb[] = [
     {
@@ -267,7 +271,7 @@ export const PoolDetails: () => JSX.Element = () => {
       ],
       onClick: () => {
         setViewTransfer(transfer);
-        setSlideQuery(transfer.localId);
+        addSlideToParams(transfer.localId);
       },
       leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type]?.color,
     }));
@@ -368,6 +372,7 @@ export const PoolDetails: () => JSX.Element = () => {
             dataTotal={tokenTransferTotal}
             currentPage={currentPage}
             rowsPerPage={rowsPerPage}
+            dashboardSize
             headerBtn={
               <IconButton
                 onClick={() =>
@@ -391,7 +396,7 @@ export const PoolDetails: () => JSX.Element = () => {
           open={!!viewTransfer}
           onClose={() => {
             setViewTransfer(undefined);
-            setSlideQuery(undefined);
+            addSlideToParams(undefined);
           }}
         />
       )}

@@ -50,31 +50,41 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
   const [msgData, setMsgData] = useState<IMessageData[]>([]);
   const [msgTransaction, setMsgTransaction] = useState<IMessageTransaction>();
 
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   useEffect(() => {
     // Message Data
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messageDataById(
-        message.header.id
-      )}`
-    )
-      .then((msgData: IMessageData[]) => {
-        setMsgData(msgData);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messageDataById(
+          message.header.id
+        )}`
+      )
+        .then((msgData: IMessageData[]) => {
+          isMounted && setMsgData(msgData);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
     // Message Transaction
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messageTxById(
-        message.header.id
-      )}`
-    )
-      .then((msgTx: IMessageTransaction) => {
-        setMsgTransaction(msgTx);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messageTxById(
+          message.header.id
+        )}`
+      )
+        .then((msgTx: IMessageTransaction) => {
+          isMounted && setMsgTransaction(msgTx);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
   }, [message]);
 
   return (

@@ -5,7 +5,6 @@ import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
-import { StringParam, useQueryParam } from 'use-query-params';
 import { EmptyStateCard } from '../../../components/Cards/EmptyStateCard';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { SkeletonCard } from '../../../components/Cards/EventCards/SkeletonCard';
@@ -18,6 +17,8 @@ import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { EventSlide } from '../../../components/Slides/EventSlide';
 import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { DateFilterContext } from '../../../contexts/DateFilterContext';
+import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
@@ -25,7 +26,6 @@ import {
   FF_EVENTS_CATEGORY_MAP,
   FF_NAV_PATHS,
   FF_OP_CATEGORY_MAP,
-  ICreatedFilter,
   IDataWithHeader,
   IEvent,
   IFireFlyCard,
@@ -40,8 +40,6 @@ import { FF_Paths } from '../../../interfaces/constants';
 import { DEFAULT_PADDING, DEFAULT_SPACING } from '../../../theme';
 import {
   fetchCatcher,
-  getCreatedFilter,
-  isValidUUID,
   makeEventHistogram,
   makeMultipleQueryParams,
 } from '../../../utils';
@@ -54,21 +52,15 @@ import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const HomeDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
-  const {
-    createdFilter,
-    lastEvent,
-    nodeID,
-    nodeName,
-    orgID,
-    orgName,
-    selectedNamespace,
-  } = useContext(ApplicationContext);
+  const { lastEvent, nodeID, nodeName, orgID, orgName, selectedNamespace } =
+    useContext(ApplicationContext);
+  const { dateFilter } = useContext(DateFilterContext);
+  const { slideQuery, addSlideToParams } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const navigate = useNavigate();
   const [isMounted, setIsMounted] = useState(false);
   const [viewTx, setViewTx] = useState<ITransaction>();
   const [viewEvent, setViewEvent] = useState<IEvent>();
-  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   // Small cards
   // Blockchain
   const [blockchainTxCount, setBlockchainTxCount] = useState<number>();
@@ -122,7 +114,7 @@ export const HomeDashboard: () => JSX.Element = () => {
   }, []);
 
   useEffect(() => {
-    if (isMounted && slideQuery && isValidUUID(slideQuery)) {
+    if (isMounted && slideQuery) {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?id=${slideQuery}`
       ).then((eventRes: IEvent[]) => {
@@ -177,8 +169,7 @@ export const HomeDashboard: () => JSX.Element = () => {
 
   // Small Card UseEffect
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-    const qParams = `?count=true&limit=1${createdFilterObject.filterString}`;
+    const qParams = `?count=true&limit=1${dateFilter.filterString}`;
 
     isMounted &&
       Promise.all([
@@ -275,7 +266,7 @@ export const HomeDashboard: () => JSX.Element = () => {
           reportFetchError(err);
         })
         .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
-  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
+  }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
   const myNodeDetailsList: IDataWithHeader[] = [
     {
@@ -369,13 +360,12 @@ export const HomeDashboard: () => JSX.Element = () => {
   // Medium Card UseEffect
   useEffect(() => {
     const currentTime = dayjs().unix();
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
     if (isMounted) {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
           BucketCollectionEnum.Events,
-          createdFilterObject.filterTime,
+          dateFilter.filterTime,
           currentTime,
           BucketCountEnum.Small
         )}`
@@ -395,14 +385,7 @@ export const HomeDashboard: () => JSX.Element = () => {
           reportFetchError(err);
         });
     }
-  }, [
-    selectedNamespace,
-    createdFilter,
-    lastRefreshTime,
-    createdFilter,
-    nodeID,
-    isMounted,
-  ]);
+  }, [selectedNamespace, dateFilter, lastRefreshTime, nodeID, isMounted]);
 
   const skeletonList = () => (
     <>
@@ -459,11 +442,11 @@ export const HomeDashboard: () => JSX.Element = () => {
                       <EventCardWrapper
                         onHandleViewEvent={(event: IEvent) => {
                           setViewEvent(event);
-                          setSlideQuery(event.id);
+                          addSlideToParams(event.id);
                         }}
                         onHandleViewTx={(tx: ITransaction) => {
                           setViewTx(tx);
-                          setSlideQuery(tx.id);
+                          addSlideToParams(tx.id);
                         }}
                         link={FF_NAV_PATHS.activityTxDetailPath(
                           selectedNamespace,
@@ -516,11 +499,11 @@ export const HomeDashboard: () => JSX.Element = () => {
                       <EventCardWrapper
                         onHandleViewEvent={(event: IEvent) => {
                           setViewEvent(event);
-                          setSlideQuery(event.id);
+                          addSlideToParams(event.id);
                         }}
                         onHandleViewTx={(tx: ITransaction) => {
                           setViewTx(tx);
-                          setSlideQuery(tx.id);
+                          addSlideToParams(tx.id);
                         }}
                         link={FF_NAV_PATHS.activityTxDetailPath(
                           selectedNamespace,
@@ -540,8 +523,7 @@ export const HomeDashboard: () => JSX.Element = () => {
   ];
   // Table Card UseEffect
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-    const qParams = `?limit=25${createdFilterObject.filterString}`;
+    const qParams = `?limit=25${dateFilter.filterString}`;
     isMounted &&
       Promise.all([
         fetchCatcher(
@@ -560,7 +542,7 @@ export const HomeDashboard: () => JSX.Element = () => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [selectedNamespace, lastRefreshTime, , createdFilter, isMounted]);
+  }, [selectedNamespace, lastRefreshTime, , dateFilter, isMounted]);
 
   return (
     <>
@@ -653,7 +635,7 @@ export const HomeDashboard: () => JSX.Element = () => {
           open={!!viewTx}
           onClose={() => {
             setViewTx(undefined);
-            setSlideQuery(undefined);
+            addSlideToParams(undefined);
           }}
         />
       )}
@@ -663,7 +645,7 @@ export const HomeDashboard: () => JSX.Element = () => {
           open={!!viewEvent}
           onClose={() => {
             setViewEvent(undefined);
-            setSlideQuery(undefined);
+            addSlideToParams(undefined);
           }}
         />
       )}

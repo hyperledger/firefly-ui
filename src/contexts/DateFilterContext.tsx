@@ -14,15 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { createContext, Dispatch, SetStateAction } from 'react';
+import { createContext } from 'react';
+import { CreatedFilterOptions, ICreatedTimeFilter } from '../interfaces';
 
-export interface IFilterContext {
-  filterAnchor: HTMLButtonElement | null;
-  setFilterAnchor: Dispatch<SetStateAction<HTMLButtonElement | null>>;
-  filterString: string;
-  filterArray: string[];
-  addFilterToParams: (filter: string) => void;
-  clearAllFilters: () => void;
+export interface IDateFilterContext {
+  searchParams: URLSearchParams;
+  dateFilter: ICreatedTimeFilter;
+  addDateToParams: (timeFilterString: CreatedFilterOptions) => void;
 }
 
-export const FilterContext = createContext({} as IFilterContext);
+export const DateFilterContext = createContext({} as IDateFilterContext);

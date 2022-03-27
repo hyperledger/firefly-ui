@@ -30,6 +30,7 @@ import { FFTableText } from '../../../components/Tables/FFTableText';
 import { MediumCardTable } from '../../../components/Tables/MediumCardTable';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
@@ -40,7 +41,6 @@ import {
   IBlockchainEvent,
   IContractInterface,
   IContractListener,
-  ICreatedFilter,
   IDataTableRecord,
   IFireFlyCard,
   IGenericPagedResponse,
@@ -57,7 +57,7 @@ import {
   DEFAULT_SPACING,
   FFColors,
 } from '../../../theme';
-import { fetchCatcher, getCreatedFilter, getFFTime } from '../../../utils';
+import { fetchCatcher, getFFTime } from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -68,8 +68,8 @@ import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const BlockchainDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
-  const { createdFilter, lastEvent, selectedNamespace } =
-    useContext(ApplicationContext);
+  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { dateFilter } = useContext(DateFilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const navigate = useNavigate();
   const [isMounted, setIsMounted] = useState(false);
@@ -153,8 +153,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
 
   // Small Card UseEffect
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
-    const qParams = `?count=true&limit=1${createdFilterObject.filterString}`;
+    const qParams = `?count=true&limit=1${dateFilter.filterString}`;
     const qParamsNoRange = `?count=true&limit=1`;
 
     isMounted &&
@@ -208,7 +207,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
           reportFetchError(err);
         })
         .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
-  }, [selectedNamespace, lastRefreshTime, createdFilter, isMounted]);
+  }, [selectedNamespace, lastRefreshTime, dateFilter, isMounted]);
 
   const ciColHeaders = [t('name'), t('version'), t('interfaceID')];
   const ciRecords: IDataTableRecord[] | undefined = contractInterfaces?.map(
@@ -324,18 +323,17 @@ export const BlockchainDashboard: () => JSX.Element = () => {
           reportFetchError(err);
         });
     }
-  }, [selectedNamespace, lastRefreshTime, createdFilter, isMounted]);
+  }, [selectedNamespace, lastRefreshTime, isMounted]);
 
   // Histogram
   useEffect(() => {
     const currentTime = dayjs().unix();
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
           BucketCollectionEnum.BlockchainEvents,
-          createdFilterObject.filterTime,
+          dateFilter.filterTime,
           currentTime,
           BucketCountEnum.Small
         )}`
@@ -346,7 +344,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [selectedNamespace, lastRefreshTime, createdFilter, isMounted]);
+  }, [selectedNamespace, lastRefreshTime, dateFilter, isMounted]);
 
   const beColHeaders = [
     t('name'),
@@ -383,17 +381,12 @@ export const BlockchainDashboard: () => JSX.Element = () => {
 
   // Recent blockchain events
   useEffect(() => {
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(
-      createdFilter,
-      true
-    );
-
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.blockchainEvents
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          createdFilterObject.filterString
+          dateFilter.filterString
         }`
       )
         .then((blockchainEvents: IPagedBlockchainEventResponse) => {
@@ -409,7 +402,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
     rowsPerPage,
     currentPage,
     selectedNamespace,
-    createdFilter,
+    dateFilter,
     lastRefreshTime,
     isMounted,
   ]);

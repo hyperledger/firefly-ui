@@ -21,7 +21,6 @@ import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { InfiniteData, useInfiniteQuery, useQueryClient } from 'react-query';
-import { useQueryParam, StringParam } from 'use-query-params';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
@@ -33,7 +32,9 @@ import { EventSlide } from '../../../components/Slides/EventSlide';
 import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { FFTimeline } from '../../../components/Timeline/FFTimeline';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
+import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
@@ -42,7 +43,6 @@ import {
   EventFilters,
   FF_NAV_PATHS,
   FF_Paths,
-  ICreatedFilter,
   IEvent,
   IPagedEventResponse,
   ITransaction,
@@ -51,8 +51,6 @@ import { DEFAULT_HIST_HEIGHT, DEFAULT_PADDING, FFColors } from '../../../theme';
 import {
   fetchCatcher,
   fetchWithCredentials,
-  getCreatedFilter,
-  isValidUUID,
   makeEventHistogram,
 } from '../../../utils';
 import { isHistogramEmpty } from '../../../utils/charts';
@@ -62,18 +60,13 @@ import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 const ROWS_PER_PAGE = 25;
 
 export const ActivityTimeline: () => JSX.Element = () => {
-  const { createdFilter, lastEvent, selectedNamespace } =
-    useContext(ApplicationContext);
-  const {
-    filterAnchor,
-    setFilterAnchor,
-    activeFilters,
-    setActiveFilters,
-    filterString,
-  } = useContext(FilterContext);
+  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { dateFilter } = useContext(DateFilterContext);
+  const { filterAnchor, setFilterAnchor, filterString } =
+    useContext(FilterContext);
+  const { slideQuery, addSlideToParams } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const [isMounted, setIsMounted] = useState(false);
-  const [slideQuery, setSlideQuery] = useQueryParam('slide', StringParam);
   const [eventHistData, setEventHistData] = useState<BarDatum[]>();
   const { t } = useTranslation();
   const [viewTx, setViewTx] = useState<ITransaction>();
@@ -106,7 +99,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
   }, []);
 
   useEffect(() => {
-    if (isMounted && slideQuery && isValidUUID(slideQuery)) {
+    if (isMounted && slideQuery) {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?id=${slideQuery}`
       ).then((eventRes: IEvent[]) => {
@@ -123,14 +116,12 @@ export const ActivityTimeline: () => JSX.Element = () => {
   const { data, fetchNextPage, hasNextPage, refetch } = useInfiniteQuery(
     'events',
     async ({ pageParam = 0 }) => {
-      const createdFilterObject: ICreatedFilter =
-        getCreatedFilter(createdFilter);
       const res = await fetchWithCredentials(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.events
         }?count&limit=${ROWS_PER_PAGE}&skip=${ROWS_PER_PAGE * pageParam}${
-          createdFilterObject.filterString
-        }${filterString !== undefined ? filterString : ''}&fetchreferences`
+          dateFilter.filterString
+        }${filterString ?? ''}&fetchreferences`
       );
       if (res.ok) {
         const data = await res.json();
@@ -154,13 +145,12 @@ export const ActivityTimeline: () => JSX.Element = () => {
   // Events Histogram
   useEffect(() => {
     const currentTime = dayjs().unix();
-    const createdFilterObject: ICreatedFilter = getCreatedFilter(createdFilter);
 
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
           BucketCollectionEnum.Events,
-          createdFilterObject.filterTime,
+          dateFilter.filterTime,
           currentTime,
           BucketCountEnum.Large
         )}`
@@ -171,7 +161,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [selectedNamespace, createdFilter, lastRefreshTime, isMounted]);
+  }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
   useEffect(() => {
     if (isVisible && hasNextPage && isMounted) {
@@ -181,7 +171,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
 
   useEffect(() => {
     isMounted && refetch();
-  }, [createdFilter, queryClient, refetch, filterString, isMounted]);
+  }, [dateFilter, queryClient, refetch, filterString, isMounted]);
 
   useEffect(() => {
     if (isMounted) {
@@ -200,11 +190,11 @@ export const ActivityTimeline: () => JSX.Element = () => {
           <EventCardWrapper
             onHandleViewEvent={(event: IEvent) => {
               setViewEvent(event);
-              setSlideQuery(event.id);
+              addSlideToParams(event.id);
             }}
             onHandleViewTx={(tx: ITransaction) => {
               setViewTx(tx);
-              setSlideQuery(tx.id);
+              addSlideToParams(tx.id);
             }}
             link={FF_NAV_PATHS.activityTxDetailPath(
               selectedNamespace,
@@ -231,8 +221,6 @@ export const ActivityTimeline: () => JSX.Element = () => {
             title={t('allEvents')}
             filter={
               <FilterButton
-                filters={activeFilters}
-                setFilters={setActiveFilters}
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
                   setFilterAnchor(e.currentTarget)
                 }
@@ -278,9 +266,6 @@ export const ActivityTimeline: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={EventFilters}
-          addFilter={(filter: string) =>
-            setActiveFilters((activeFilters) => [...activeFilters, filter])
-          }
         />
       )}
       {viewEvent && (
@@ -289,7 +274,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
           open={!!viewEvent}
           onClose={() => {
             setViewEvent(undefined);
-            setSlideQuery(undefined);
+            addSlideToParams(undefined);
           }}
         />
       )}
@@ -299,7 +284,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
           open={!!viewTx}
           onClose={() => {
             setViewTx(undefined);
-            setSlideQuery(undefined);
+            addSlideToParams(undefined);
           }}
         />
       )}

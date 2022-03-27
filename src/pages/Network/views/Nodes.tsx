@@ -40,13 +40,8 @@ import { fetchCatcher, getFFTime } from '../../../utils';
 
 export const NetworkNodes: () => JSX.Element = () => {
   const { nodeName } = useContext(ApplicationContext);
-  const {
-    filterAnchor,
-    setFilterAnchor,
-    activeFilters,
-    setActiveFilters,
-    filterString,
-  } = useContext(FilterContext);
+  const { filterAnchor, setFilterAnchor, filterString } =
+    useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
@@ -71,7 +66,7 @@ export const NetworkNodes: () => JSX.Element = () => {
         `${FF_Paths.apiPrefix}/${
           FF_Paths.networkNodes
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          filterString !== undefined ? filterString : ''
+          filterString ?? ''
         }&sort=created`
       )
         .then((nodeRes: IPagedNodeResponse) => {
@@ -150,8 +145,6 @@ export const NetworkNodes: () => JSX.Element = () => {
             title={t('allNodes')}
             filter={
               <FilterButton
-                filters={activeFilters}
-                setFilters={setActiveFilters}
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
                   setFilterAnchor(e.currentTarget)
                 }
@@ -185,9 +178,6 @@ export const NetworkNodes: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={IdentityFilters}
-          addFilter={(filter: string) =>
-            setActiveFilters((activeFilters) => [...activeFilters, filter])
-          }
         />
       )}
     </>
