@@ -57,27 +57,37 @@ export const InterfaceSlide: React.FC<Props> = ({
     IContractListener[]
   >([]);
 
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   useEffect(() => {
     // Interface API, if exists
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.apis}?interface=${cInterface?.id}&limit=5`
-    )
-      .then((apis: IFireflyApi[]) => {
-        setInterfaceApis(apis);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.apis}?interface=${cInterface?.id}&limit=5`
+      )
+        .then((apis: IFireflyApi[]) => {
+          isMounted && setInterfaceApis(apis);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
     // Interface Listeners
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.contractListeners}?interface=${cInterface?.id}&limit=5`
-    )
-      .then((listeners: IContractListener[]) => {
-        setInterfaceListeners(listeners);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    isMounted &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.contractListeners}?interface=${cInterface?.id}&limit=5`
+      )
+        .then((listeners: IContractListener[]) => {
+          isMounted && setInterfaceListeners(listeners);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
   }, [cInterface]);
 
   return (

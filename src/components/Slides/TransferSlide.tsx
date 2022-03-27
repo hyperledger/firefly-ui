@@ -55,22 +55,32 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
   const [txOperations, setTxOperations] = useState<IOperation[]>([]);
   const [txStatus, setTxStatus] = useState<ITxStatus>();
 
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   useEffect(() => {
     // Transaction Status
-    transfer.tx.id &&
+    isMounted &&
+      transfer.tx.id &&
       fetchCatcher(
         `${
           FF_Paths.nsPrefix
         }/${selectedNamespace}${FF_Paths.transactionByIdStatus(transfer.tx.id)}`
       )
         .then((txStatus: ITxStatus) => {
-          setTxStatus(txStatus);
+          isMounted && setTxStatus(txStatus);
         })
         .catch((err) => {
           reportFetchError(err);
         });
     // Transaction Operations
-    transfer.tx.id &&
+    isMounted &&
+      transfer.tx.id &&
       fetchCatcher(
         `${
           FF_Paths.nsPrefix
@@ -79,13 +89,14 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
         )}`
       )
         .then((txOperations: IOperation[]) => {
-          setTxOperations(txOperations);
+          isMounted && setTxOperations(txOperations);
         })
         .catch((err) => {
           reportFetchError(err);
         });
     // Transfer Blockchain Event
-    transfer.tx.id &&
+    isMounted &&
+      transfer.tx.id &&
       fetchCatcher(
         `${
           FF_Paths.nsPrefix
@@ -94,7 +105,7 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
         )}`
       )
         .then((txBlockchainEvent: IBlockchainEvent) => {
-          setTransferBlockchainEvent(txBlockchainEvent);
+          isMounted && setTransferBlockchainEvent(txBlockchainEvent);
         })
         .catch((err) => {
           reportFetchError(err);

@@ -57,47 +57,58 @@ export const TransactionSlide: React.FC<Props> = ({
   const [txOperations, setTxOperations] = useState<IOperation[]>([]);
   const [txStatus, setTxStatus] = useState<ITxStatus>();
 
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
   useEffect(() => {
     // Transaction Status
-    fetchCatcher(
-      `${
-        FF_Paths.nsPrefix
-      }/${selectedNamespace}${FF_Paths.transactionByIdStatus(transaction.id)}`
-    )
-      .then((txStatus: ITxStatus) => {
-        setTxStatus(txStatus);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    isMounted &&
+      fetchCatcher(
+        `${
+          FF_Paths.nsPrefix
+        }/${selectedNamespace}${FF_Paths.transactionByIdStatus(transaction.id)}`
+      )
+        .then((txStatus: ITxStatus) => {
+          isMounted && setTxStatus(txStatus);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
     // Transaction Operations
-    fetchCatcher(
-      `${
-        FF_Paths.nsPrefix
-      }/${selectedNamespace}${FF_Paths.transactionByIdOperations(
-        transaction.id
-      )}`
-    )
-      .then((txOperations: IOperation[]) => {
-        setTxOperations(txOperations);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    isMounted &&
+      fetchCatcher(
+        `${
+          FF_Paths.nsPrefix
+        }/${selectedNamespace}${FF_Paths.transactionByIdOperations(
+          transaction.id
+        )}`
+      )
+        .then((txOperations: IOperation[]) => {
+          isMounted && setTxOperations(txOperations);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
     // Transaction Blockchain Events
-    fetchCatcher(
-      `${
-        FF_Paths.nsPrefix
-      }/${selectedNamespace}${FF_Paths.transactionByIdBlockchainEvents(
-        transaction.id
-      )}`
-    )
-      .then((txBlockchainEvents: IBlockchainEvent[]) => {
-        setTxBlockchainEvents(txBlockchainEvents);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    isMounted &&
+      fetchCatcher(
+        `${
+          FF_Paths.nsPrefix
+        }/${selectedNamespace}${FF_Paths.transactionByIdBlockchainEvents(
+          transaction.id
+        )}`
+      )
+        .then((txBlockchainEvents: IBlockchainEvent[]) => {
+          isMounted && setTxBlockchainEvents(txBlockchainEvents);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
   }, [transaction]);
 
   return (

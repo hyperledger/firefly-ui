@@ -70,6 +70,12 @@ export const AppWrapper: React.FC = () => {
     setFilterString(`&${filterArray.join('&')}`);
   }, [pathname]);
 
+  // Slide ID
+  useEffect(() => {
+    const slideQuery = searchParams.get(SLIDE_QUERY_KEY);
+    slideQuery !== null && setSlideQuery(slideQuery);
+  }, [pathname]);
+
   // Time string
   useEffect(() => {
     const timeString = searchParams.get(TIME_QUERY_KEY) as CreatedFilterOptions;
