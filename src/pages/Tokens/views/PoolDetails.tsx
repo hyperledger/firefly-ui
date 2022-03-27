@@ -372,6 +372,7 @@ export const PoolDetails: () => JSX.Element = () => {
             dataTotal={tokenTransferTotal}
             currentPage={currentPage}
             rowsPerPage={rowsPerPage}
+            dashboardSize
             headerBtn={
               <IconButton
                 onClick={() =>

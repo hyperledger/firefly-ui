@@ -74,7 +74,7 @@ export const AppWrapper: React.FC = () => {
   useEffect(() => {
     const slideQuery = searchParams.get(SLIDE_QUERY_KEY);
     slideQuery !== null && setSlideQuery(slideQuery);
-  }, [pathname]);
+  }, [pathname, setSearchParams]);
 
   // Time string
   useEffect(() => {
@@ -106,9 +106,8 @@ export const AppWrapper: React.FC = () => {
       searchParams.delete(SLIDE_QUERY_KEY);
     } else {
       isValidUUID(slideID) && searchParams.set(SLIDE_QUERY_KEY, slideID);
-      setSlideQuery(slideID);
+      setSearchParams(searchParams);
     }
-    setSearchParams(searchParams);
   };
 
   const addDateToParams = (timeFilterString: CreatedFilterOptions) => {
