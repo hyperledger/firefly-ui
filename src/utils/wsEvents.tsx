@@ -1,56 +1,58 @@
-import {
-  FF_EVENTS,
-  FF_MESSAGES,
-  FF_MESSAGES_CATEGORY_MAP,
-  FF_TX,
-  FF_TX_CATEGORY_MAP,
-} from '../interfaces';
+import { FF_EVENTS } from '../interfaces';
 
-export enum WsEventTypes {
-  BLOCKCHAIN_EVENT = 'blockchainevent',
-  CONTRACT_API = 'contract_api_confirmed',
-  // Denotes normal event type
-  EVENT = 'type',
-  MESSAGE = 'message',
-  TRANSACTION = 'transaction',
-}
+export const hasApiEvent = (events: FF_EVENTS[]) => {
+  return events.includes(FF_EVENTS.CONTRACT_API_CONFIRMED);
+};
 
-export const isEventType = (
-  event: any | undefined,
-  eventType: string
-): boolean => {
-  if (!event) {
-    return false;
-  }
-  switch (eventType) {
-    case WsEventTypes.BLOCKCHAIN_EVENT:
-      return event[WsEventTypes.BLOCKCHAIN_EVENT] !== undefined;
-    case FF_EVENTS.CONTRACT_API_CONFIRMED:
-      return event.type === FF_EVENTS.CONTRACT_API_CONFIRMED;
-    case FF_EVENTS.DATATYPE_CONFIRMED:
-      return event.type === FF_EVENTS.DATATYPE_CONFIRMED;
-    case FF_EVENTS.CONTRACT_INTERFACE_CONFIRMED:
-      return event.type === FF_EVENTS.CONTRACT_INTERFACE_CONFIRMED;
-    case WsEventTypes.MESSAGE:
-      return (
-        event?.message?.header?.type &&
-        FF_MESSAGES_CATEGORY_MAP[event.message.header.type as FF_MESSAGES] !==
-          undefined
-      );
-    case FF_EVENTS.TOKEN_POOL_CONFIRMED:
-      return event.type === FF_EVENTS.TOKEN_POOL_CONFIRMED;
-    case FF_EVENTS.TOKEN_TRANSFER_CONFIRMED:
-      return event.type === FF_EVENTS.TOKEN_TRANSFER_CONFIRMED;
-    case FF_EVENTS.TOKEN_TRANSFER_FAILED:
-      return event.type === FF_EVENTS.TOKEN_TRANSFER_FAILED;
-    case WsEventTypes.TRANSACTION:
-      return (
-        event?.transaction?.type &&
-        FF_TX_CATEGORY_MAP[event.transaction.type as FF_TX] !== undefined
-      );
-    case WsEventTypes.EVENT:
-      return event?.type;
-    default:
-      return false;
-  }
+export const hasBlockchainEvent = (events: FF_EVENTS[]) => {
+  return (
+    events.includes(FF_EVENTS.BLOCKCHAIN_EVENT_RECEIVED) ||
+    events.includes(FF_EVENTS.CONTRACT_API_CONFIRMED) ||
+    events.includes(FF_EVENTS.CONTRACT_INTERFACE_CONFIRMED) ||
+    events.includes(FF_EVENTS.DATATYPE_CONFIRMED) ||
+    events.includes(FF_EVENTS.IDENTITY_CONFIRMED) ||
+    events.includes(FF_EVENTS.IDENTITY_UPDATED) ||
+    events.includes(FF_EVENTS.NS_CONFIRMED)
+  );
+};
+
+export const hasDatatypeEvent = (events: FF_EVENTS[]) => {
+  return events.includes(FF_EVENTS.DATATYPE_CONFIRMED);
+};
+
+export const hasDataEvent = (events: FF_EVENTS[]) => {
+  return (
+    events.includes(FF_EVENTS.MSG_CONFIRMED) ||
+    events.includes(FF_EVENTS.MSG_REJECTED)
+  );
+};
+
+export const hasInterfaceEvent = (events: FF_EVENTS[]) => {
+  return events.includes(FF_EVENTS.CONTRACT_INTERFACE_CONFIRMED);
+};
+
+export const hasOffchainEvent = (events: FF_EVENTS[]) => {
+  return (
+    events.includes(FF_EVENTS.MSG_CONFIRMED) ||
+    events.includes(FF_EVENTS.MSG_REJECTED) ||
+    events.includes(FF_EVENTS.DATATYPE_CONFIRMED)
+  );
+};
+
+export const hasPoolEvent = (events: FF_EVENTS[]) => {
+  return events.includes(FF_EVENTS.TOKEN_POOL_CONFIRMED);
+};
+
+export const hasTransferEvent = (events: FF_EVENTS[]) => {
+  return (
+    events.includes(FF_EVENTS.TOKEN_POOL_CONFIRMED) ||
+    events.includes(FF_EVENTS.TOKEN_APPROVAL_CONFIRMED) ||
+    events.includes(FF_EVENTS.TOKEN_APPROVAL_OP_FAILED) ||
+    events.includes(FF_EVENTS.TOKEN_TRANSFER_CONFIRMED) ||
+    events.includes(FF_EVENTS.TOKEN_TRANSFER_FAILED)
+  );
+};
+
+export const hasTxEvent = (events: FF_EVENTS[]) => {
+  return events.includes(FF_EVENTS.TX_SUBMITTED);
 };

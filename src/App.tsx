@@ -31,7 +31,7 @@ import {
 } from './components/Snackbar/MessageSnackbar';
 import { ApplicationContext } from './contexts/ApplicationContext';
 import { SnackbarContext } from './contexts/SnackbarContext';
-import { INamespace, IStatus, NAMESPACES_PATH } from './interfaces';
+import { FF_EVENTS, INamespace, IStatus, NAMESPACES_PATH } from './interfaces';
 import { FF_Paths } from './interfaces/constants';
 import { themeOptions } from './theme';
 import { fetchWithCredentials, summarizeFetchError } from './utils';
@@ -50,7 +50,6 @@ const App: React.FC = () => {
   const [selectedNamespace, setSelectedNamespace] = useState('');
   const ws = useRef<ReconnectingWebSocket | null>(null);
   const [identity, setIdentity] = useState('');
-  const [lastEvent, setLastEvent] = useState<MessageEvent>();
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<SnackbarMessageType>('error');
   const [orgID, setOrgID] = useState('');
@@ -58,6 +57,11 @@ const App: React.FC = () => {
   const [nodeID, setNodeID] = useState('');
   const [nodeName, setNodeName] = useState('');
   const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+  // Event Context
+  const [newEvents, setNewEvents] = useState<FF_EVENTS[]>([]);
+  const [lastRefreshTime, setLastRefresh] = useState<string>(
+    new Date().toISOString()
+  );
 
   const { pathname: currentPath } = useMemo(() => {
     return window.location;
@@ -116,7 +120,10 @@ const App: React.FC = () => {
       );
       ws.current.onmessage = (event: any) => {
         const eventData = JSON.parse(event.data);
-        setLastEvent(eventData);
+        const eventType: FF_EVENTS = eventData.type;
+        if (Object.values(FF_EVENTS).includes(eventType)) {
+          setNewEvents((existing) => [eventType, ...existing]);
+        }
       };
 
       return () => {
@@ -132,6 +139,11 @@ const App: React.FC = () => {
       setMessageType('error');
       setMessage(message);
     });
+  };
+
+  const clearNewEvents = () => {
+    setNewEvents([]);
+    setLastRefresh(new Date().toISOString());
   };
 
   if (initialized) {
@@ -158,8 +170,9 @@ const App: React.FC = () => {
             nodeID,
             nodeName,
             identity,
-            lastEvent,
-            setLastEvent,
+            newEvents,
+            clearNewEvents,
+            lastRefreshTime,
           }}
         >
           <SnackbarContext.Provider

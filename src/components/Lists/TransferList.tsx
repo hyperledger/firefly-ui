@@ -119,9 +119,21 @@ export const TransferList: React.FC<Props> = ({
         {
           label: t('status'),
           value: txStatus && (
+            // TODO: Fix when https://github.com/hyperledger/firefly/issues/628 is resolved
             <Chip
-              label={txStatus.status?.toLocaleUpperCase()}
-              sx={{ backgroundColor: TxStatusColorMap[txStatus.status] }}
+              label={
+                txStatus.status?.toLocaleUpperCase() === 'PENDING'
+                  ? 'SUCCEEDED'
+                  : txStatus.status?.toLocaleUpperCase()
+              }
+              sx={{
+                backgroundColor:
+                  TxStatusColorMap[
+                    txStatus.status === 'Pending'
+                      ? 'Succeeded'
+                      : txStatus.status
+                  ],
+              }}
             ></Chip>
           ),
         },

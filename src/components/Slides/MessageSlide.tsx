@@ -85,7 +85,7 @@ export const MessageSlide: React.FC<Props> = ({ message, open, onClose }) => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [message]);
+  }, [message, isMounted]);
 
   return (
     <>

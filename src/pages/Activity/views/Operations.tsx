@@ -62,14 +62,14 @@ import {
   makeColorArray,
   makeKeyArray,
 } from '../../../utils/charts';
-import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const ActivityOperations: () => JSX.Element = () => {
-  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
+    useContext(ApplicationContext);
   const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
-  const { slideQuery, addSlideToParams } = useContext(SlideContext);
+  const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
@@ -83,27 +83,11 @@ export const ActivityOperations: () => JSX.Element = () => {
   const [opHistData, setOpHistData] = useState<BarDatum[]>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
-  // Last event tracking
-  const [numNewEvents, setNumNewEvents] = useState(0);
-  const [lastRefreshTime, setLastRefresh] = useState<string>(
-    new Date().toISOString()
-  );
 
-  useEffect(() => {
-    // TODO: Figure out best type to filter by
-    isMounted &&
-      isEventType(lastEvent, WsEventTypes.EVENT) &&
-      setNumNewEvents(numNewEvents + 1);
-  }, [lastEvent]);
-
-  const refreshData = () => {
-    setNumNewEvents(0);
-    setLastRefresh(new Date().toString());
-  };
+  const [isHistLoading, setIsHistLoading] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
-    setNumNewEvents(0);
     return () => {
       setIsMounted(false);
     };
@@ -111,10 +95,10 @@ export const ActivityOperations: () => JSX.Element = () => {
 
   useEffect(() => {
     isMounted &&
-      slideQuery &&
+      slideID &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operationsById(
-          slideQuery
+          slideID
         )}`
       )
         .then((opRes: IOperation) => {
@@ -123,11 +107,12 @@ export const ActivityOperations: () => JSX.Element = () => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [slideQuery, isMounted]);
+  }, [slideID, isMounted]);
 
   // Operations
   useEffect(() => {
     isMounted &&
+      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.operations
@@ -143,8 +128,7 @@ export const ActivityOperations: () => JSX.Element = () => {
         })
         .catch((err) => {
           reportFetchError(err);
-        })
-        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
+        });
   }, [
     rowsPerPage,
     currentPage,
@@ -157,9 +141,11 @@ export const ActivityOperations: () => JSX.Element = () => {
 
   // Histogram
   useEffect(() => {
+    setIsHistLoading(true);
     const currentTime = dayjs().unix();
 
     isMounted &&
+      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
           BucketCollectionEnum.Operations,
@@ -173,7 +159,8 @@ export const ActivityOperations: () => JSX.Element = () => {
         })
         .catch((err) => {
           reportFetchError(err);
-        });
+        })
+        .finally(() => setIsHistLoading(false));
   }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
   const opsColumnHeaders = [
@@ -227,7 +214,7 @@ export const ActivityOperations: () => JSX.Element = () => {
     ],
     onClick: () => {
       setViewOp(op);
-      addSlideToParams(op.id);
+      setSlideSearchParam(op.id);
     },
     leftBorderColor: FF_OP_CATEGORY_MAP[op.type]?.color,
   }));
@@ -237,8 +224,8 @@ export const ActivityOperations: () => JSX.Element = () => {
       <Header
         title={t('operations')}
         subtitle={t('activity')}
-        onRefresh={refreshData}
-        numNewEvents={numNewEvents}
+        showRefreshBtn={newEvents.length > 0}
+        onRefresh={clearNewEvents}
       ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
@@ -260,6 +247,7 @@ export const ActivityOperations: () => JSX.Element = () => {
               keys={makeKeyArray(FF_OP_CATEGORY_MAP)}
               includeLegend={true}
               emptyText={t('noOperations')}
+              isLoading={isHistLoading}
               isEmpty={isHistogramEmpty(opHistData ?? [])}
             />
           </Box>
@@ -298,7 +286,7 @@ export const ActivityOperations: () => JSX.Element = () => {
           open={!!viewOp}
           onClose={() => {
             setViewOp(undefined);
-            addSlideToParams(undefined);
+            setSlideSearchParam(null);
           }}
         />
       )}

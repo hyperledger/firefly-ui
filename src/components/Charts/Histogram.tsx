@@ -21,6 +21,7 @@ interface Props {
   indexBy: string;
   isEmpty: boolean;
   keys: string[];
+  isLoading: boolean;
 }
 
 export const Histogram: React.FC<Props> = ({
@@ -32,6 +33,7 @@ export const Histogram: React.FC<Props> = ({
   indexBy,
   isEmpty,
   keys,
+  isLoading,
 }) => {
   const [xAxisValues, setXAxisValues] = useState<(string | number)[]>([]);
 
@@ -51,7 +53,7 @@ export const Histogram: React.FC<Props> = ({
         backgroundColor: 'background.paper',
       }}
     >
-      {!data ? (
+      {!data || isLoading ? (
         <FFCircleLoader height="100%" color="warning"></FFCircleLoader>
       ) : isEmpty ? (
         <EmptyStateCard text={emptyText}></EmptyStateCard>

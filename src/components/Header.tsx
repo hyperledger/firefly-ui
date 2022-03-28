@@ -33,8 +33,7 @@ interface Props {
   title: string | JSX.Element;
   subtitle: string;
   onRefresh?: any;
-  numNewEvents?: number;
-  showNumNewEvents?: boolean;
+  showRefreshBtn?: boolean;
   noDateFilter?: boolean;
   noNsFilter?: boolean;
 }
@@ -43,8 +42,7 @@ export const Header: React.FC<Props> = ({
   title,
   subtitle,
   onRefresh,
-  numNewEvents = 0,
-  showNumNewEvents = false,
+  showRefreshBtn = false,
   noDateFilter = false,
   noNsFilter = false,
 }) => {
@@ -88,7 +86,7 @@ export const Header: React.FC<Props> = ({
               alignItems="center"
             >
               <Grid item pr={1}>
-                {numNewEvents > 0 && (
+                {showRefreshBtn && (
                   <Button
                     onClick={onRefresh}
                     variant="contained"
@@ -96,9 +94,7 @@ export const Header: React.FC<Props> = ({
                     sx={{ borderRadius: '16px' }}
                   >
                     <Typography sx={{ fontSize: '14px' }}>
-                      {`${t('refresh')}${
-                        showNumNewEvents ? ` (${numNewEvents})` : ''
-                      }`}
+                      {t('refresh')}
                     </Typography>
                   </Button>
                 )}

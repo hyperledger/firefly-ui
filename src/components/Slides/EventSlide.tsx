@@ -73,7 +73,7 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [event]);
+  }, [event, isMounted]);
 
   useEffect(() => {
     if (enrichedEvent && isMounted) {
@@ -90,7 +90,7 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
             reportFetchError(err);
           });
     }
-  }, [enrichedEvent]);
+  }, [enrichedEvent, isMounted]);
 
   return (
     <>

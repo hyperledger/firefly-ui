@@ -33,7 +33,6 @@ interface Props {
   color?: string;
   onClick?: () => void;
   link?: string;
-  linkState?: any;
 }
 
 export const BaseCard: React.FC<Props> = ({
@@ -44,7 +43,6 @@ export const BaseCard: React.FC<Props> = ({
   color,
   onClick,
   link,
-  linkState,
 }) => {
   const navigate = useNavigate();
 
@@ -106,7 +104,7 @@ export const BaseCard: React.FC<Props> = ({
               {link && (
                 <IconButton
                   size="small"
-                  onClick={() => navigate(link, linkState ?? undefined)}
+                  onClick={() => navigate(link)}
                   sx={{
                     elevation: 0,
                     backgroundColor: 'background.paper',

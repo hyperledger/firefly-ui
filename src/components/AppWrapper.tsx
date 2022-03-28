@@ -11,11 +11,11 @@ import { DateFilterContext } from '../contexts/DateFilterContext';
 import { FilterContext } from '../contexts/FilterContext';
 import { SlideContext } from '../contexts/SlideContext';
 import {
-  CreatedFilterOptions,
-  ICreatedTimeFilter,
+  ITimeFilterObject,
   NAMESPACES_PATH,
+  TimeFilterEnum,
 } from '../interfaces';
-import { getCreatedTimeFilter, isValidUUID } from '../utils';
+import { getTimeFilterObject, isValidUUID } from '../utils';
 import { Navigation, NAV_WIDTH } from './Navigation/Navigation';
 
 const Main = styled('main')({
@@ -38,7 +38,7 @@ export const SLIDE_QUERY_KEY = 'slide';
 export const TIME_QUERY_KEY = 'time';
 
 export const AppWrapper: React.FC = () => {
-  const { pathname } = useLocation();
+  const { pathname, search } = useLocation();
   const { selectedNamespace } = useContext(ApplicationContext);
   const [filterAnchor, setFilterAnchor] = useState<HTMLButtonElement | null>(
     null
@@ -47,12 +47,9 @@ export const AppWrapper: React.FC = () => {
   // Table filters
   const [filterArray, setFilterArray] = useState<string[]>([]);
   const [filterString, setFilterString] = useState('');
-  // Slide filters
-  const [slideQuery, setSlideQuery] = useState<string | null>(null);
+  const [slideID, setSlideID] = useState<string | null>(null);
   // Date filter
-  const [dateFilter, setDateFilter] = useState<ICreatedTimeFilter>(
-    getCreatedTimeFilter('24hours')
-  );
+  const [dateFilter, setDateFilter] = useState<ITimeFilterObject>();
 
   if (pathname === '/') {
     return (
@@ -63,28 +60,68 @@ export const AppWrapper: React.FC = () => {
     );
   }
 
-  // Table Filters
   useEffect(() => {
-    const filterArray = searchParams.getAll(FILTERS_QUERY_KEY);
-    setFilterArray(filterArray);
-    setFilterString(`&${filterArray.join('&')}`);
-  }, [pathname]);
+    initializeTimeSearchParams();
+    initializeSlideSearchParams();
+    initializeTableFilterSearchParams();
+  }, [pathname, search]);
 
-  // Slide ID
-  useEffect(() => {
-    const slideQuery = searchParams.get(SLIDE_QUERY_KEY);
-    slideQuery !== null && setSlideQuery(slideQuery);
-  }, [pathname, setSearchParams]);
-
-  // Time string
-  useEffect(() => {
-    const timeString = searchParams.get(TIME_QUERY_KEY) as CreatedFilterOptions;
-    if (timeString === null) {
-      addDateToParams(dateFilter.filterShortString);
-    } else {
-      setDateFilter(getCreatedTimeFilter(timeString));
+  const initializeTimeSearchParams = () => {
+    // If date has already been set
+    if (
+      dateFilter?.filterShortString &&
+      dateFilter?.filterShortString in TimeFilterEnum
+    ) {
+      setTimeSearchParam(dateFilter.filterShortString);
+      return;
     }
-  }, [pathname]);
+    // If time param is invalid
+    const existingTimeParam = searchParams.get(TIME_QUERY_KEY);
+    if (existingTimeParam === null || !(existingTimeParam in TimeFilterEnum)) {
+      setTimeSearchParam(TimeFilterEnum['24hours']);
+    } else {
+      // Set filter string for components to consume
+      setDateFilter(getTimeFilterObject(existingTimeParam as TimeFilterEnum));
+    }
+  };
+
+  const setTimeSearchParam = (timeFilter: TimeFilterEnum) => {
+    searchParams.set(TIME_QUERY_KEY, timeFilter);
+    setSearchParams(searchParams);
+    if (
+      getTimeFilterObject(timeFilter).filterShortString !==
+      dateFilter?.filterShortString
+    ) {
+      setDateFilter(getTimeFilterObject(timeFilter));
+    }
+  };
+
+  const initializeSlideSearchParams = () => {
+    setSlideID(null);
+    const existingSlideParam = searchParams.get(SLIDE_QUERY_KEY);
+    if (existingSlideParam === null || !isValidUUID(existingSlideParam)) {
+      setSlideSearchParam(null);
+    } else {
+      setSlideSearchParam(existingSlideParam);
+    }
+  };
+
+  const setSlideSearchParam = (slideID: string | null) => {
+    if (slideID === null) {
+      searchParams.delete(SLIDE_QUERY_KEY);
+      setSearchParams(searchParams);
+    } else if (isValidUUID(slideID)) {
+      searchParams.set(SLIDE_QUERY_KEY, slideID);
+      setSearchParams(searchParams);
+      setSlideID(slideID);
+    }
+  };
+
+  const initializeTableFilterSearchParams = () => {
+    const existingFilterArray = searchParams.getAll(FILTERS_QUERY_KEY);
+    setFilterArray(existingFilterArray);
+    setFilterString(`&${existingFilterArray.join('&')}`);
+  };
 
   const addFilterToParams = (filter: string) => {
     searchParams.append(FILTERS_QUERY_KEY, filter);
@@ -101,19 +138,20 @@ export const AppWrapper: React.FC = () => {
     setFilterString('');
   };
 
-  const addSlideToParams = (slideID: string | undefined) => {
-    if (slideID === undefined) {
-      searchParams.delete(SLIDE_QUERY_KEY);
-    } else {
-      isValidUUID(slideID) && searchParams.set(SLIDE_QUERY_KEY, slideID);
+  const removeFilter = (filterToRemove: string) => {
+    const filters = searchParams.getAll(FILTERS_QUERY_KEY);
+    searchParams.delete(FILTERS_QUERY_KEY);
+    if (filters.length > 0) {
+      filters.forEach((f) => {
+        if (f !== filterToRemove) {
+          searchParams.append(FILTERS_QUERY_KEY, f);
+        }
+      });
       setSearchParams(searchParams);
+      const filterArray = searchParams.getAll(FILTERS_QUERY_KEY);
+      setFilterArray(filterArray);
+      setFilterString(`&${filterArray.join('&')}`);
     }
-  };
-
-  const addDateToParams = (timeFilterString: CreatedFilterOptions) => {
-    searchParams.set(TIME_QUERY_KEY, timeFilterString);
-    setSearchParams(searchParams);
-    setDateFilter(getCreatedTimeFilter(timeFilterString));
   };
 
   return (
@@ -125,6 +163,7 @@ export const AppWrapper: React.FC = () => {
           filterString,
           filterArray,
           addFilterToParams,
+          removeFilter,
           clearAllFilters,
         }}
       >
@@ -132,13 +171,13 @@ export const AppWrapper: React.FC = () => {
           value={{
             searchParams,
             dateFilter,
-            addDateToParams,
+            setTimeSearchParam,
           }}
         >
           <SlideContext.Provider
             value={{
-              slideQuery,
-              addSlideToParams,
+              slideID,
+              setSlideSearchParam,
             }}
           >
             <Main>

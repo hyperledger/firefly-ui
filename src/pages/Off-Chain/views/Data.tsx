@@ -33,7 +33,6 @@ import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   DataFilters,
-  FF_EVENTS,
   FF_Paths,
   IData,
   IDataTableRecord,
@@ -41,14 +40,15 @@ import {
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { downloadBlobFile, fetchCatcher, getFFTime } from '../../../utils';
-import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
+import { hasDataEvent } from '../../../utils/wsEvents';
 
 export const OffChainData: () => JSX.Element = () => {
-  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
+    useContext(ApplicationContext);
   const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
-  const { slideQuery, addSlideToParams } = useContext(SlideContext);
+  const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
@@ -60,27 +60,9 @@ export const OffChainData: () => JSX.Element = () => {
   const [viewData, setViewData] = useState<IData | undefined>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
-  // Last event tracking
-  const [numNewEvents, setNumNewEvents] = useState(0);
-  const [lastRefreshTime, setLastRefresh] = useState<string>(
-    new Date().toISOString()
-  );
-
-  useEffect(() => {
-    isMounted &&
-      (isEventType(lastEvent, WsEventTypes.MESSAGE) ||
-        isEventType(lastEvent, FF_EVENTS.DATATYPE_CONFIRMED)) &&
-      setNumNewEvents(numNewEvents + 1);
-  }, [lastEvent]);
-
-  const refreshData = () => {
-    setNumNewEvents(0);
-    setLastRefresh(new Date().toString());
-  };
 
   useEffect(() => {
     setIsMounted(true);
-    setNumNewEvents(0);
     return () => {
       setIsMounted(false);
     };
@@ -88,11 +70,9 @@ export const OffChainData: () => JSX.Element = () => {
 
   useEffect(() => {
     isMounted &&
-      slideQuery &&
+      slideID &&
       fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.dataById(
-          slideQuery
-        )}`
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.dataById(slideID)}`
       )
         .then((dataRes: IData) => {
           setViewData(dataRes);
@@ -100,11 +80,12 @@ export const OffChainData: () => JSX.Element = () => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [slideQuery, isMounted]);
+  }, [slideID, isMounted]);
 
   // Data
   useEffect(() => {
     isMounted &&
+      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.data
@@ -120,8 +101,7 @@ export const OffChainData: () => JSX.Element = () => {
         })
         .catch((err) => {
           reportFetchError(err);
-        })
-        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
+        });
   }, [
     rowsPerPage,
     currentPage,
@@ -187,7 +167,7 @@ export const OffChainData: () => JSX.Element = () => {
     ],
     onClick: () => {
       setViewData(d);
-      addSlideToParams(d.id);
+      setSlideSearchParam(d.id);
     },
   }));
 
@@ -196,8 +176,8 @@ export const OffChainData: () => JSX.Element = () => {
       <Header
         title={t('data')}
         subtitle={t('offChain')}
-        onRefresh={refreshData}
-        numNewEvents={numNewEvents}
+        showRefreshBtn={hasDataEvent(newEvents)}
+        onRefresh={clearNewEvents}
       ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
@@ -246,7 +226,7 @@ export const OffChainData: () => JSX.Element = () => {
           open={!!viewData}
           onClose={() => {
             setViewData(undefined);
-            addSlideToParams(undefined);
+            setSlideSearchParam(null);
           }}
         />
       )}

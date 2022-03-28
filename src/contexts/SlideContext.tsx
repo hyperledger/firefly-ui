@@ -17,8 +17,8 @@
 import { createContext } from 'react';
 
 export interface ISlideContext {
-  slideQuery: string | null;
-  addSlideToParams: (slideID: string | undefined) => void;
+  slideID: string | null;
+  setSlideSearchParam: (slideID: string | null) => void;
 }
 
 export const SlideContext = createContext({} as ISlideContext);

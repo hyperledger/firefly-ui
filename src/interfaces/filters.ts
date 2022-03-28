@@ -14,13 +14,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-export interface ICreatedTimeFilter {
+export interface ITimeFilterObject {
   filterString: string;
-  filterShortString: CreatedFilterOptions;
+  filterShortString: any;
   filterTime: number;
 }
 
-export type CreatedFilterOptions = '1hour' | '24hours' | '7days' | '30days';
+export const times = ['1hour', '24hours', '7days', '30days'];
+
+export enum TimeFilterEnum {
+  '1hour' = '1hour',
+  '24hours' = '24hours',
+  '7days' = '7days',
+  '30days' = '30days',
+}
 
 export const ApiFilters = ['id', 'name', 'interface'];
 

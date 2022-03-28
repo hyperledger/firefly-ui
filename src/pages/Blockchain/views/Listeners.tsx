@@ -41,11 +41,11 @@ import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime } from '../../../utils';
 
 export const BlockchainListeners: () => JSX.Element = () => {
-  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { selectedNamespace } = useContext(ApplicationContext);
   const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
-  const { slideQuery, addSlideToParams } = useContext(SlideContext);
+  const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
@@ -69,11 +69,11 @@ export const BlockchainListeners: () => JSX.Element = () => {
 
   useEffect(() => {
     isMounted &&
-      slideQuery &&
+      slideID &&
       fetchCatcher(
         `${
           FF_Paths.nsPrefix
-        }/${selectedNamespace}${FF_Paths.contractListenersByNameId(slideQuery)}`
+        }/${selectedNamespace}${FF_Paths.contractListenersByNameId(slideID)}`
       )
         .then((listenerRes: IContractListener) => {
           setViewListener(listenerRes);
@@ -81,11 +81,12 @@ export const BlockchainListeners: () => JSX.Element = () => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [slideQuery, isMounted]);
+  }, [slideID, isMounted]);
 
   // Listeners
   useEffect(() => {
     isMounted &&
+      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.contractListeners
@@ -107,9 +108,7 @@ export const BlockchainListeners: () => JSX.Element = () => {
     currentPage,
     selectedNamespace,
     dateFilter,
-    lastEvent,
     filterString,
-    reportFetchError,
     isMounted,
   ]);
 
@@ -159,7 +158,7 @@ export const BlockchainListeners: () => JSX.Element = () => {
       ],
       onClick: () => {
         setViewListener(l);
-        addSlideToParams(l.id);
+        setSlideSearchParam(l.id);
       },
     })
   );
@@ -214,7 +213,7 @@ export const BlockchainListeners: () => JSX.Element = () => {
           open={!!viewListener}
           onClose={() => {
             setViewListener(undefined);
-            addSlideToParams(undefined);
+            setSlideSearchParam(null);
           }}
         />
       )}

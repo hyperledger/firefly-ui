@@ -110,7 +110,7 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [transfer]);
+  }, [transfer, isMounted]);
 
   return (
     <>

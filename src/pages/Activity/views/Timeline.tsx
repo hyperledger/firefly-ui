@@ -55,16 +55,16 @@ import {
 } from '../../../utils';
 import { isHistogramEmpty } from '../../../utils/charts';
 import { isOppositeTimelineEvent } from '../../../utils/timeline';
-import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 const ROWS_PER_PAGE = 25;
 
 export const ActivityTimeline: () => JSX.Element = () => {
-  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
+    useContext(ApplicationContext);
   const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
-  const { slideQuery, addSlideToParams } = useContext(SlideContext);
+  const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const [isMounted, setIsMounted] = useState(false);
   const [eventHistData, setEventHistData] = useState<BarDatum[]>();
@@ -74,44 +74,29 @@ export const ActivityTimeline: () => JSX.Element = () => {
   const queryClient = useQueryClient();
   const [isVisible, setIsVisible] = useState(0);
   // Last event tracking
-  const [numNewEvents, setNumNewEvents] = useState(0);
-  const [lastRefreshTime, setLastRefresh] = useState<string>(
-    new Date().toISOString()
-  );
-
-  useEffect(() => {
-    isMounted &&
-      isEventType(lastEvent, WsEventTypes.EVENT) &&
-      setNumNewEvents(numNewEvents + 1);
-  }, [lastEvent]);
-
-  const refreshData = () => {
-    setNumNewEvents(0);
-    setLastRefresh(new Date().toString());
-  };
+  const [isHistLoading, setIsHistLoading] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
-    setNumNewEvents(0);
     return () => {
       setIsMounted(false);
     };
   }, []);
 
   useEffect(() => {
-    if (isMounted && slideQuery) {
+    if (isMounted && slideID) {
       fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?id=${slideQuery}`
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?id=${slideID}`
       ).then((eventRes: IEvent[]) => {
         isMounted && eventRes.length > 0 && setViewEvent(eventRes[0]);
       });
       fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactions}?id=${slideQuery}`
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactions}?id=${slideID}`
       ).then((txRes: ITransaction[]) => {
         isMounted && txRes.length > 0 && setViewTx(txRes[0]);
       });
     }
-  }, [slideQuery, isMounted]);
+  }, [slideID, isMounted]);
 
   const { data, fetchNextPage, hasNextPage, refetch } = useInfiniteQuery(
     'events',
@@ -120,7 +105,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.events
         }?count&limit=${ROWS_PER_PAGE}&skip=${ROWS_PER_PAGE * pageParam}${
-          dateFilter.filterString
+          dateFilter?.filterString ?? ''
         }${filterString ?? ''}&fetchreferences`
       );
       if (res.ok) {
@@ -144,9 +129,11 @@ export const ActivityTimeline: () => JSX.Element = () => {
 
   // Events Histogram
   useEffect(() => {
+    setIsHistLoading(true);
     const currentTime = dayjs().unix();
 
     isMounted &&
+      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
           BucketCollectionEnum.Events,
@@ -160,7 +147,8 @@ export const ActivityTimeline: () => JSX.Element = () => {
         })
         .catch((err) => {
           reportFetchError(err);
-        });
+        })
+        .finally(() => setIsHistLoading(false));
   }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
   useEffect(() => {
@@ -190,18 +178,17 @@ export const ActivityTimeline: () => JSX.Element = () => {
           <EventCardWrapper
             onHandleViewEvent={(event: IEvent) => {
               setViewEvent(event);
-              addSlideToParams(event.id);
+              setSlideSearchParam(event?.id);
             }}
             onHandleViewTx={(tx: ITransaction) => {
               setViewTx(tx);
-              addSlideToParams(tx.id);
+              setSlideSearchParam(tx?.id);
             }}
             link={FF_NAV_PATHS.activityTxDetailPath(
               selectedNamespace,
-              event.tx
+              event?.tx
             )}
             {...{ event }}
-            linkState={{ state: event }}
           />
         ),
         opposite: isOppositeTimelineEvent(event.type),
@@ -214,7 +201,11 @@ export const ActivityTimeline: () => JSX.Element = () => {
 
   return (
     <>
-      <Header title={t('timeline')} subtitle={t('activity')} />
+      <Header
+        title={t('timeline')}
+        subtitle={t('activity')}
+        showRefreshBtn={false}
+      />
       <Grid container px={DEFAULT_PADDING} direction="column" spacing={2}>
         <Grid item>
           <ChartTableHeader
@@ -238,6 +229,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
                 EventCategoryEnum.TOKENS,
               ]}
               includeLegend={true}
+              isLoading={isHistLoading}
               isEmpty={isHistogramEmpty(eventHistData ?? [])}
               emptyText={t('noActivity')}
             />
@@ -254,8 +246,8 @@ export const ActivityTimeline: () => JSX.Element = () => {
             height={'calc(100vh - 475px)'}
             fetchMoreData={() => setIsVisible(isVisible + 1)}
             hasMoreData={hasNextPage}
-            numNewEvents={numNewEvents}
-            fetchNewData={() => refreshData()}
+            hasNewEvents={newEvents.length > 0}
+            fetchNewData={clearNewEvents}
           />
         </Grid>
       </Grid>
@@ -274,7 +266,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
           open={!!viewEvent}
           onClose={() => {
             setViewEvent(undefined);
-            addSlideToParams(undefined);
+            setSlideSearchParam(null);
           }}
         />
       )}
@@ -284,7 +276,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
           open={!!viewTx}
           onClose={() => {
             setViewTx(undefined);
-            addSlideToParams(undefined);
+            setSlideSearchParam(null);
           }}
         />
       )}

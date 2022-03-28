@@ -22,6 +22,7 @@ export interface IFilterContext {
   filterString: string;
   filterArray: string[];
   addFilterToParams: (filter: string) => void;
+  removeFilter: (filterToRemove: string) => void;
   clearAllFilters: () => void;
 }
 
