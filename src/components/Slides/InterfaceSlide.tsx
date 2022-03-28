@@ -88,7 +88,7 @@ export const InterfaceSlide: React.FC<Props> = ({
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [cInterface]);
+  }, [cInterface, isMounted]);
 
   return (
     <>

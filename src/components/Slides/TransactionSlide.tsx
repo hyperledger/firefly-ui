@@ -109,7 +109,7 @@ export const TransactionSlide: React.FC<Props> = ({
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [transaction]);
+  }, [transaction, isMounted]);
 
   return (
     <>
