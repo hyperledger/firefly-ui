@@ -140,6 +140,7 @@ export const AppWrapper: React.FC = () => {
 
   const removeFilter = (filterToRemove: string) => {
     const filters = searchParams.getAll(FILTERS_QUERY_KEY);
+    searchParams.delete(FILTERS_QUERY_KEY);
     if (filters.length > 0) {
       filters.forEach((f) => {
         if (f !== filterToRemove) {
