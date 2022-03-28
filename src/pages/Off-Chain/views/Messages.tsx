@@ -59,14 +59,15 @@ import {
   makeColorArray,
   makeKeyArray,
 } from '../../../utils/charts';
-import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
+import { hasDataEvent } from '../../../utils/wsEvents';
 
 export const OffChainMessages: () => JSX.Element = () => {
-  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
+    useContext(ApplicationContext);
   const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
-  const { slideQuery, addSlideToParams } = useContext(SlideContext);
+  const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
@@ -81,26 +82,10 @@ export const OffChainMessages: () => JSX.Element = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
-  // Last event tracking
-  const [numNewEvents, setNumNewEvents] = useState(0);
-  const [lastRefreshTime, setLastRefresh] = useState<string>(
-    new Date().toISOString()
-  );
-
-  useEffect(() => {
-    isMounted &&
-      isEventType(lastEvent, WsEventTypes.MESSAGE) &&
-      setNumNewEvents(numNewEvents + 1);
-  }, [lastEvent]);
-
-  const refreshData = () => {
-    setNumNewEvents(0);
-    setLastRefresh(new Date().toString());
-  };
+  const [isHistLoading, setIsHistLoading] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
-    setNumNewEvents(0);
     return () => {
       setIsMounted(false);
     };
@@ -108,10 +93,10 @@ export const OffChainMessages: () => JSX.Element = () => {
 
   useEffect(() => {
     isMounted &&
-      slideQuery &&
+      slideID &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messagesById(
-          slideQuery
+          slideID
         )}`
       )
         .then((messageRes: IMessage) => {
@@ -120,11 +105,12 @@ export const OffChainMessages: () => JSX.Element = () => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [slideQuery, isMounted]);
+  }, [slideID, isMounted]);
 
   // Messages
   useEffect(() => {
     isMounted &&
+      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.messages
@@ -140,8 +126,7 @@ export const OffChainMessages: () => JSX.Element = () => {
         })
         .catch((err) => {
           reportFetchError(err);
-        })
-        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
+        });
   }, [
     rowsPerPage,
     currentPage,
@@ -154,9 +139,11 @@ export const OffChainMessages: () => JSX.Element = () => {
 
   // Histogram
   useEffect(() => {
+    setIsHistLoading(true);
     const currentTime = dayjs().unix();
 
     isMounted &&
+      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
           BucketCollectionEnum.Messages,
@@ -170,7 +157,8 @@ export const OffChainMessages: () => JSX.Element = () => {
         })
         .catch((err) => {
           reportFetchError(err);
-        });
+        })
+        .finally(() => setIsHistLoading(false));
   }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
   const msgColumnHeaders = [
@@ -256,7 +244,7 @@ export const OffChainMessages: () => JSX.Element = () => {
     ],
     onClick: () => {
       setViewMsg(msg);
-      addSlideToParams(msg.header.id);
+      setSlideSearchParam(msg.header.id);
     },
     leftBorderColor: FF_MESSAGES_CATEGORY_MAP[msg.header.type]?.color,
   }));
@@ -266,8 +254,8 @@ export const OffChainMessages: () => JSX.Element = () => {
       <Header
         title={t('messages')}
         subtitle={t('offChain')}
-        onRefresh={refreshData}
-        numNewEvents={numNewEvents}
+        showRefreshBtn={hasDataEvent(newEvents)}
+        onRefresh={clearNewEvents}
       ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
@@ -289,6 +277,7 @@ export const OffChainMessages: () => JSX.Element = () => {
               keys={makeKeyArray(FF_MESSAGES_CATEGORY_MAP)}
               includeLegend={true}
               emptyText={t('noMessages')}
+              isLoading={isHistLoading}
               isEmpty={isHistogramEmpty(messageHistData ?? [])}
             />
           </Box>
@@ -327,7 +316,7 @@ export const OffChainMessages: () => JSX.Element = () => {
           open={!!viewMsg}
           onClose={() => {
             setViewMsg(undefined);
-            addSlideToParams(undefined);
+            setSlideSearchParam(null);
           }}
         />
       )}

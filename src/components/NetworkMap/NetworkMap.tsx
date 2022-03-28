@@ -171,7 +171,14 @@ export const NetworkMap: React.FC<Props> = ({ size }) => {
           ?.split(NODE_STRING_DELIM)
           .map((key: any, idx: number) => {
             return (
-              <Grid container item alignItems="center" direction="row" pb={1}>
+              <Grid
+                container
+                item
+                alignItems="center"
+                direction="row"
+                pb={1}
+                key={idx}
+              >
                 <Grid
                   xs={6}
                   container
@@ -262,14 +269,6 @@ export const NetworkMap: React.FC<Props> = ({ size }) => {
           return 1 + 1 * n.target.data.height;
         }}
         linkColor={'#9BA7B0'}
-        motionConfig={{
-          mass: 1,
-          tension: 1,
-          friction: 1,
-          clamp: false,
-          precision: 0.01,
-          velocity: 0,
-        }}
         animate
         onClick={handleClick}
         nodeTooltip={({ node }) => {
@@ -296,7 +295,7 @@ export const NetworkMap: React.FC<Props> = ({ size }) => {
       {anchorPosition && (
         <Popover
           id={id}
-          open={popoverNode}
+          open={popoverNode ? true : false}
           anchorEl={anchorEl}
           onClose={handleClose}
           anchorOrigin={{

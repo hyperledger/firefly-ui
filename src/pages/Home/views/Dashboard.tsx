@@ -48,14 +48,21 @@ import {
   makeColorArray,
   makeKeyArray,
 } from '../../../utils/charts';
-import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
 
 export const HomeDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
-  const { lastEvent, nodeID, nodeName, orgID, orgName, selectedNamespace } =
-    useContext(ApplicationContext);
+  const {
+    newEvents,
+    lastRefreshTime,
+    clearNewEvents,
+    nodeID,
+    nodeName,
+    orgID,
+    orgName,
+    selectedNamespace,
+  } = useContext(ApplicationContext);
   const { dateFilter } = useContext(DateFilterContext);
-  const { slideQuery, addSlideToParams } = useContext(SlideContext);
+  const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const navigate = useNavigate();
   const [isMounted, setIsMounted] = useState(false);
@@ -88,45 +95,29 @@ export const HomeDashboard: () => JSX.Element = () => {
   // Table cards
   const [recentEventTxs, setRecentEventTxs] = useState<IEvent[]>();
   const [recentEvents, setRecentEvents] = useState<IEvent[]>();
-  // Last event tracking
-  const [numNewEvents, setNumNewEvents] = useState(0);
-  const [lastRefreshTime, setLastRefresh] = useState<string>(
-    new Date().toISOString()
-  );
-
-  useEffect(() => {
-    isMounted &&
-      isEventType(lastEvent, WsEventTypes.EVENT) &&
-      setNumNewEvents(numNewEvents + 1);
-  }, [lastEvent]);
-
-  const refreshData = () => {
-    setNumNewEvents(0);
-    setLastRefresh(new Date().toString());
-  };
+  const [isHistLoading, setIsHistLoading] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
-    setNumNewEvents(0);
     return () => {
       setIsMounted(false);
     };
   }, []);
 
   useEffect(() => {
-    if (isMounted && slideQuery) {
+    if (isMounted && slideID) {
       fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?id=${slideQuery}`
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?id=${slideID}`
       ).then((eventRes: IEvent[]) => {
         isMounted && eventRes.length > 0 && setViewEvent(eventRes[0]);
       });
       fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactions}?id=${slideQuery}`
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactions}?id=${slideID}`
       ).then((txRes: ITransaction[]) => {
         isMounted && txRes.length > 0 && setViewTx(txRes[0]);
       });
     }
-  }, [slideQuery, isMounted]);
+  }, [slideID, isMounted]);
 
   const smallCards: ISmallCard[] = [
     {
@@ -169,9 +160,10 @@ export const HomeDashboard: () => JSX.Element = () => {
 
   // Small Card UseEffect
   useEffect(() => {
-    const qParams = `?count=true&limit=1${dateFilter.filterString}`;
+    const qParams = `?count=true&limit=1${dateFilter?.filterString ?? ''}`;
 
     isMounted &&
+      dateFilter &&
       Promise.all([
         // Blockchain
         fetchCatcher(
@@ -264,8 +256,7 @@ export const HomeDashboard: () => JSX.Element = () => {
         )
         .catch((err) => {
           reportFetchError(err);
-        })
-        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
+        });
   }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
   const myNodeDetailsList: IDataWithHeader[] = [
@@ -315,6 +306,7 @@ export const HomeDashboard: () => JSX.Element = () => {
           indexBy="timestamp"
           keys={makeKeyArray(FF_EVENTS_CATEGORY_MAP)}
           emptyText={t('noActivity')}
+          isLoading={isHistLoading}
           isEmpty={isHistogramEmpty(eventHistData ?? [])}
           includeLegend={true}
         />
@@ -359,9 +351,10 @@ export const HomeDashboard: () => JSX.Element = () => {
 
   // Medium Card UseEffect
   useEffect(() => {
+    setIsHistLoading(true);
     const currentTime = dayjs().unix();
 
-    if (isMounted) {
+    if (isMounted && dateFilter) {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
           BucketCollectionEnum.Events,
@@ -376,7 +369,8 @@ export const HomeDashboard: () => JSX.Element = () => {
         .catch((err) => {
           setEventHistData([]);
           reportFetchError(err);
-        });
+        })
+        .finally(() => setIsHistLoading(false));
       fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.networkNodeById(nodeID)}`)
         .then((nodeRes: INode) => {
           setMyNode(nodeRes);
@@ -442,11 +436,11 @@ export const HomeDashboard: () => JSX.Element = () => {
                       <EventCardWrapper
                         onHandleViewEvent={(event: IEvent) => {
                           setViewEvent(event);
-                          addSlideToParams(event.id);
+                          setSlideSearchParam(event.id);
                         }}
                         onHandleViewTx={(tx: ITransaction) => {
                           setViewTx(tx);
-                          addSlideToParams(tx.id);
+                          setSlideSearchParam(tx.id);
                         }}
                         link={FF_NAV_PATHS.activityTxDetailPath(
                           selectedNamespace,
@@ -499,17 +493,16 @@ export const HomeDashboard: () => JSX.Element = () => {
                       <EventCardWrapper
                         onHandleViewEvent={(event: IEvent) => {
                           setViewEvent(event);
-                          addSlideToParams(event.id);
+                          setSlideSearchParam(event.id);
                         }}
                         onHandleViewTx={(tx: ITransaction) => {
                           setViewTx(tx);
-                          addSlideToParams(tx.id);
+                          setSlideSearchParam(tx.id);
                         }}
                         link={FF_NAV_PATHS.activityTxDetailPath(
                           selectedNamespace,
                           event.tx
                         )}
-                        linkState={{ state: event }}
                         {...{ event }}
                       />
                       <Grid sx={{ padding: '1px' }} />
@@ -523,8 +516,9 @@ export const HomeDashboard: () => JSX.Element = () => {
   ];
   // Table Card UseEffect
   useEffect(() => {
-    const qParams = `?limit=25${dateFilter.filterString}`;
+    const qParams = `?limit=25${dateFilter?.filterString ?? ''}`;
     isMounted &&
+      dateFilter &&
       Promise.all([
         fetchCatcher(
           `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}&type=transaction_submitted&fetchreferences=true`
@@ -549,8 +543,8 @@ export const HomeDashboard: () => JSX.Element = () => {
       <Header
         title={'Dashboard'}
         subtitle={'Home'}
-        onRefresh={refreshData}
-        numNewEvents={numNewEvents}
+        showRefreshBtn={newEvents.length > 0}
+        onRefresh={clearNewEvents}
       ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
@@ -635,7 +629,7 @@ export const HomeDashboard: () => JSX.Element = () => {
           open={!!viewTx}
           onClose={() => {
             setViewTx(undefined);
-            addSlideToParams(undefined);
+            setSlideSearchParam(null);
           }}
         />
       )}
@@ -645,7 +639,7 @@ export const HomeDashboard: () => JSX.Element = () => {
           open={!!viewEvent}
           onClose={() => {
             setViewEvent(undefined);
-            addSlideToParams(undefined);
+            setSlideSearchParam(null);
           }}
         />
       )}

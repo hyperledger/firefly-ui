@@ -61,7 +61,7 @@ import {
 export const PoolDetails: () => JSX.Element = () => {
   const { selectedNamespace } = useContext(ApplicationContext);
   const { dateFilter } = useContext(DateFilterContext);
-  const { slideQuery, addSlideToParams } = useContext(SlideContext);
+  const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -89,10 +89,10 @@ export const PoolDetails: () => JSX.Element = () => {
 
   useEffect(() => {
     isMounted &&
-      slideQuery &&
+      slideID &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransferById(
-          slideQuery
+          slideID
         )}`
       )
         .then((transferRes: ITokenTransfer) => {
@@ -101,7 +101,7 @@ export const PoolDetails: () => JSX.Element = () => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [slideQuery, isMounted]);
+  }, [slideID, isMounted]);
 
   useEffect(() => {
     if (poolID && isMounted) {
@@ -137,6 +137,7 @@ export const PoolDetails: () => JSX.Element = () => {
   // Token transfers and accounts
   useEffect(() => {
     isMounted &&
+      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.tokenTransfers
@@ -271,7 +272,7 @@ export const PoolDetails: () => JSX.Element = () => {
       ],
       onClick: () => {
         setViewTransfer(transfer);
-        addSlideToParams(transfer.localId);
+        setSlideSearchParam(transfer.localId);
       },
       leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type]?.color,
     }));
@@ -396,7 +397,7 @@ export const PoolDetails: () => JSX.Element = () => {
           open={!!viewTransfer}
           onClose={() => {
             setViewTransfer(undefined);
-            addSlideToParams(undefined);
+            setSlideSearchParam(null);
           }}
         />
       )}

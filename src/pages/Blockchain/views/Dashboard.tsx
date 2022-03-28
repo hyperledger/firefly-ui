@@ -64,11 +64,12 @@ import {
   makeKeyArray,
 } from '../../../utils/charts';
 import { makeBlockchainEventHistogram } from '../../../utils/histograms/blockchainEventHistogram';
-import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
+import { hasBlockchainEvent } from '../../../utils/wsEvents';
 
 export const BlockchainDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
-  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
+    useContext(ApplicationContext);
   const { dateFilter } = useContext(DateFilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const navigate = useNavigate();
@@ -102,26 +103,11 @@ export const BlockchainDashboard: () => JSX.Element = () => {
 
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[0]);
-  // Last event tracking
-  const [numNewEvents, setNumNewEvents] = useState(0);
-  const [lastRefreshTime, setLastRefresh] = useState<string>(
-    new Date().toISOString()
-  );
 
-  useEffect(() => {
-    isMounted &&
-      isEventType(lastEvent, WsEventTypes.BLOCKCHAIN_EVENT) &&
-      setNumNewEvents(numNewEvents + 1);
-  }, [lastEvent]);
-
-  const refreshData = () => {
-    setNumNewEvents(0);
-    setLastRefresh(new Date().toString());
-  };
+  const [isHistLoading, setIsHistLoading] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
-    setNumNewEvents(0);
     return () => {
       setIsMounted(false);
     };
@@ -153,10 +139,11 @@ export const BlockchainDashboard: () => JSX.Element = () => {
 
   // Small Card UseEffect
   useEffect(() => {
-    const qParams = `?count=true&limit=1${dateFilter.filterString}`;
+    const qParams = `?count=true&limit=1${dateFilter?.filterString ?? ''}`;
     const qParamsNoRange = `?count=true&limit=1`;
 
     isMounted &&
+      dateFilter &&
       Promise.all([
         // Blockchain Operations
         fetchCatcher(
@@ -205,8 +192,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
         )
         .catch((err) => {
           reportFetchError(err);
-        })
-        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
+        });
   }, [selectedNamespace, lastRefreshTime, dateFilter, isMounted]);
 
   const ciColHeaders = [t('name'), t('version'), t('interfaceID')];
@@ -263,6 +249,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
           keys={makeKeyArray(FF_BE_CATEGORY_MAP)}
           includeLegend={true}
           emptyText={t('noBlockchainEvents')}
+          isLoading={isHistLoading}
           isEmpty={isHistogramEmpty(beHistData ?? [])}
         />
       ),
@@ -327,9 +314,11 @@ export const BlockchainDashboard: () => JSX.Element = () => {
 
   // Histogram
   useEffect(() => {
+    setIsHistLoading(true);
     const currentTime = dayjs().unix();
 
     isMounted &&
+      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
           BucketCollectionEnum.BlockchainEvents,
@@ -343,7 +332,8 @@ export const BlockchainDashboard: () => JSX.Element = () => {
         })
         .catch((err) => {
           reportFetchError(err);
-        });
+        })
+        .finally(() => setIsHistLoading(false));
   }, [selectedNamespace, lastRefreshTime, dateFilter, isMounted]);
 
   const beColHeaders = [
@@ -382,6 +372,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
   // Recent blockchain events
   useEffect(() => {
     isMounted &&
+      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.blockchainEvents
@@ -412,8 +403,8 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       <Header
         title={t('dashboard')}
         subtitle={t('blockchain')}
-        onRefresh={refreshData}
-        numNewEvents={numNewEvents}
+        showRefreshBtn={hasBlockchainEvent(newEvents)}
+        onRefresh={clearNewEvents}
       ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">

@@ -15,12 +15,12 @@
 // limitations under the License.
 
 import { createContext } from 'react';
-import { CreatedFilterOptions, ICreatedTimeFilter } from '../interfaces';
+import { ITimeFilterObject, TimeFilterEnum } from '../interfaces';
 
 export interface IDateFilterContext {
   searchParams: URLSearchParams;
-  dateFilter: ICreatedTimeFilter;
-  addDateToParams: (timeFilterString: CreatedFilterOptions) => void;
+  dateFilter: ITimeFilterObject | undefined;
+  setTimeSearchParam: (timeFilter: TimeFilterEnum) => void;
 }
 
 export const DateFilterContext = createContext({} as IDateFilterContext);

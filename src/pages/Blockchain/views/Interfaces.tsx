@@ -28,7 +28,6 @@ import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
-  FF_EVENTS,
   FF_Paths,
   IContractInterface,
   IDataTableRecord,
@@ -36,12 +35,13 @@ import {
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
-import { isEventType } from '../../../utils/wsEvents';
+import { hasInterfaceEvent } from '../../../utils/wsEvents';
 
 export const BlockchainInterfaces: () => JSX.Element = () => {
-  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
+    useContext(ApplicationContext);
   const { dateFilter } = useContext(DateFilterContext);
-  const { slideQuery, addSlideToParams } = useContext(SlideContext);
+  const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
@@ -55,26 +55,9 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
   >();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
-  // Last event tracking
-  const [numNewEvents, setNumNewEvents] = useState(0);
-  const [lastRefreshTime, setLastRefresh] = useState<string>(
-    new Date().toISOString()
-  );
-
-  useEffect(() => {
-    isMounted &&
-      isEventType(lastEvent, FF_EVENTS.CONTRACT_INTERFACE_CONFIRMED) &&
-      setNumNewEvents(numNewEvents + 1);
-  }, [lastEvent]);
-
-  const refreshData = () => {
-    setNumNewEvents(0);
-    setLastRefresh(new Date().toString());
-  };
 
   useEffect(() => {
     setIsMounted(true);
-    setNumNewEvents(0);
     return () => {
       setIsMounted(false);
     };
@@ -82,11 +65,11 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
 
   useEffect(() => {
     isMounted &&
-      slideQuery &&
+      slideID &&
       fetchCatcher(
         `${
           FF_Paths.nsPrefix
-        }/${selectedNamespace}${FF_Paths.contractInterfacesById(slideQuery)}`
+        }/${selectedNamespace}${FF_Paths.contractInterfacesById(slideID)}`
       )
         .then((contractRes: IContractInterface) => {
           setViewInterface(contractRes);
@@ -94,11 +77,12 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [slideQuery, isMounted]);
+  }, [slideID, isMounted]);
 
   // Interfaces
   useEffect(() => {
     isMounted &&
+      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.contractInterfaces
@@ -114,8 +98,7 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
         })
         .catch((err) => {
           reportFetchError(err);
-        })
-        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
+        });
   }, [
     rowsPerPage,
     currentPage,
@@ -165,7 +148,7 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
       ],
       onClick: () => {
         setViewInterface(int);
-        addSlideToParams(int.id);
+        setSlideSearchParam(int.id);
       },
     })
   );
@@ -175,8 +158,8 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
       <Header
         title={t('contractInterfaces')}
         subtitle={t('blockchain')}
-        onRefresh={refreshData}
-        numNewEvents={numNewEvents}
+        showRefreshBtn={hasInterfaceEvent(newEvents)}
+        onRefresh={clearNewEvents}
       ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
@@ -214,7 +197,7 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
           open={!!viewInterface}
           onClose={() => {
             setViewInterface(undefined);
-            addSlideToParams(undefined);
+            setSlideSearchParam(null);
           }}
         />
       )}

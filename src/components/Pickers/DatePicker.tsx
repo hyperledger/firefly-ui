@@ -18,12 +18,12 @@ import { MenuItem, TextField } from '@mui/material';
 import React, { useContext, useMemo } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DateFilterContext } from '../../contexts/DateFilterContext';
-import { CreatedFilterOptions } from '../../interfaces';
+import { TimeFilterEnum } from '../../interfaces';
 import { TIME_QUERY_KEY } from '../AppWrapper';
 
 export const DatePicker: React.FC = () => {
   const { t } = useTranslation();
-  const { addDateToParams, searchParams } = useContext(DateFilterContext);
+  const { setTimeSearchParam, searchParams } = useContext(DateFilterContext);
 
   const createdQueryOptions = useMemo(
     () => [
@@ -55,7 +55,7 @@ export const DatePicker: React.FC = () => {
         variant="outlined"
         value={searchParams.get(TIME_QUERY_KEY) ?? ''}
         onChange={(event) => {
-          addDateToParams(event.target.value as CreatedFilterOptions);
+          setTimeSearchParam(event.target.value as TimeFilterEnum);
         }}
         sx={{ pr: 2 }}
       >

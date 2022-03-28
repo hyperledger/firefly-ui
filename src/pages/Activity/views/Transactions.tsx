@@ -57,14 +57,15 @@ import {
   makeKeyArray,
 } from '../../../utils/charts';
 import { makeTxHistogram } from '../../../utils/histograms/transactionHistogram';
-import { isEventType, WsEventTypes } from '../../../utils/wsEvents';
+import { hasTxEvent } from '../../../utils/wsEvents';
 
 export const ActivityTransactions: () => JSX.Element = () => {
-  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
+    useContext(ApplicationContext);
   const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
-  const { slideQuery, addSlideToParams } = useContext(SlideContext);
+  const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
@@ -79,26 +80,11 @@ export const ActivityTransactions: () => JSX.Element = () => {
 
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
-  // Last event tracking
-  const [numNewEvents, setNumNewEvents] = useState(0);
-  const [lastRefreshTime, setLastRefresh] = useState<string>(
-    new Date().toISOString()
-  );
 
-  useEffect(() => {
-    isMounted &&
-      isEventType(lastEvent, WsEventTypes.TRANSACTION) &&
-      setNumNewEvents(numNewEvents + 1);
-  }, [lastEvent]);
-
-  const refreshData = () => {
-    setNumNewEvents(0);
-    setLastRefresh(new Date().toString());
-  };
+  const [isHistLoading, setIsHistLoading] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
-    setNumNewEvents(0);
     return () => {
       setIsMounted(false);
     };
@@ -106,10 +92,10 @@ export const ActivityTransactions: () => JSX.Element = () => {
 
   useEffect(() => {
     isMounted &&
-      slideQuery &&
+      slideID &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactionById(
-          slideQuery
+          slideID
         )}`
       )
         .then((txRes: ITransaction) => {
@@ -118,11 +104,12 @@ export const ActivityTransactions: () => JSX.Element = () => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [slideQuery, isMounted]);
+  }, [slideID, isMounted]);
 
   // Transactions
   useEffect(() => {
     isMounted &&
+      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.transactions
@@ -138,8 +125,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
         })
         .catch((err) => {
           reportFetchError(err);
-        })
-        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
+        });
   }, [
     rowsPerPage,
     currentPage,
@@ -152,22 +138,26 @@ export const ActivityTransactions: () => JSX.Element = () => {
 
   // Histogram;
   useEffect(() => {
+    setIsHistLoading(true);
     const currentTime = dayjs().unix();
 
-    fetchCatcher(
-      `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-        BucketCollectionEnum.Transactions,
-        dateFilter.filterTime,
-        currentTime,
-        BucketCountEnum.Large
-      )}`
-    )
-      .then((histTypes: IMetric[]) => {
-        isMounted && setTxHistData(makeTxHistogram(histTypes));
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    isMounted &&
+      dateFilter &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
+          BucketCollectionEnum.Transactions,
+          dateFilter.filterTime,
+          currentTime,
+          BucketCountEnum.Large
+        )}`
+      )
+        .then((histTypes: IMetric[]) => {
+          isMounted && setTxHistData(makeTxHistogram(histTypes));
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        })
+        .finally(() => setIsHistLoading(false));
   }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
   const txColumnHeaders = [
@@ -217,7 +207,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
     ],
     onClick: () => {
       setViewTx(tx);
-      addSlideToParams(tx.id);
+      setSlideSearchParam(tx.id);
     },
     leftBorderColor: FF_TX_CATEGORY_MAP[tx.type]?.color,
   }));
@@ -227,8 +217,8 @@ export const ActivityTransactions: () => JSX.Element = () => {
       <Header
         title={t('transactions')}
         subtitle={t('activity')}
-        onRefresh={refreshData}
-        numNewEvents={numNewEvents}
+        onRefresh={clearNewEvents}
+        showRefreshBtn={hasTxEvent(newEvents)}
       ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
@@ -250,6 +240,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
               keys={makeKeyArray(FF_TX_CATEGORY_MAP)}
               includeLegend={true}
               emptyText={t('noTransactions')}
+              isLoading={isHistLoading}
               isEmpty={isHistogramEmpty(txHistData ?? [])}
             />
           </Box>
@@ -288,7 +279,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
           open={!!viewTx}
           onClose={() => {
             setViewTx(undefined);
-            addSlideToParams(undefined);
+            setSlideSearchParam(null);
           }}
         />
       )}

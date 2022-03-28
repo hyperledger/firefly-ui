@@ -33,7 +33,7 @@ interface Props {
   hasMoreData: boolean | undefined;
   height?: string | number;
   fetchNewData: any;
-  numNewEvents: number;
+  hasNewEvents: boolean;
 }
 
 export const FFTimeline: React.FC<Props> = ({
@@ -43,16 +43,16 @@ export const FFTimeline: React.FC<Props> = ({
   hasMoreData = false,
   height,
   fetchNewData,
-  numNewEvents,
+  hasNewEvents,
 }) => {
   const { t } = useTranslation();
   const myRef: any = useRef(null);
 
   useEffect(() => {
-    if (numNewEvents === 0 && myRef?.current) {
+    if (!hasNewEvents && myRef?.current) {
       myRef.current.scrollIntoView({ behavior: 'smooth' });
     }
-  }, [numNewEvents]);
+  }, [hasNewEvents]);
 
   return (
     <Paper
@@ -79,7 +79,7 @@ export const FFTimeline: React.FC<Props> = ({
               position: 'relative',
             }}
           >
-            {numNewEvents > 0 && (
+            {hasNewEvents && (
               <Grid item py={1} sx={{ position: 'absolute', zIndex: 1000 }}>
                 <Fab
                   size="small"

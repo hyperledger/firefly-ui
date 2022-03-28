@@ -31,7 +31,6 @@ import { FilterContext } from '../../../contexts/FilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   ApiFilters,
-  FF_EVENTS,
   FF_Paths,
   IDataTableRecord,
   IFireflyApi,
@@ -39,10 +38,11 @@ import {
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
-import { isEventType } from '../../../utils/wsEvents';
+import { hasApiEvent } from '../../../utils/wsEvents';
 
 export const BlockchainApis: () => JSX.Element = () => {
-  const { lastEvent, selectedNamespace } = useContext(ApplicationContext);
+  const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
+    useContext(ApplicationContext);
   const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
@@ -56,26 +56,9 @@ export const BlockchainApis: () => JSX.Element = () => {
 
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
-  // Last event tracking
-  const [numNewEvents, setNumNewEvents] = useState(0);
-  const [lastRefreshTime, setLastRefresh] = useState<string>(
-    new Date().toISOString()
-  );
-
-  useEffect(() => {
-    isMounted &&
-      isEventType(lastEvent, FF_EVENTS.CONTRACT_API_CONFIRMED) &&
-      setNumNewEvents(numNewEvents + 1);
-  }, [lastEvent]);
-
-  const refreshData = () => {
-    setNumNewEvents(0);
-    setLastRefresh(new Date().toString());
-  };
 
   useEffect(() => {
     setIsMounted(true);
-    setNumNewEvents(0);
     return () => {
       setIsMounted(false);
     };
@@ -84,6 +67,7 @@ export const BlockchainApis: () => JSX.Element = () => {
   // APIs
   useEffect(() => {
     isMounted &&
+      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.apis
@@ -99,8 +83,7 @@ export const BlockchainApis: () => JSX.Element = () => {
         })
         .catch((err) => {
           reportFetchError(err);
-        })
-        .finally(() => numNewEvents !== 0 && setNumNewEvents(0));
+        });
   }, [
     rowsPerPage,
     currentPage,
@@ -171,8 +154,8 @@ export const BlockchainApis: () => JSX.Element = () => {
       <Header
         title={t('apis')}
         subtitle={t('blockchain')}
-        onRefresh={refreshData}
-        numNewEvents={numNewEvents}
+        showRefreshBtn={hasApiEvent(newEvents)}
+        onRefresh={clearNewEvents}
       ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">

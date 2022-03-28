@@ -48,7 +48,7 @@ import { fetchCatcher, getShortHash } from '../../../utils';
 
 export const TransactionDetails: () => JSX.Element = () => {
   const { selectedNamespace } = useContext(ApplicationContext);
-  const { slideQuery, addSlideToParams } = useContext(SlideContext);
+  const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const navigate = useNavigate();
@@ -75,19 +75,19 @@ export const TransactionDetails: () => JSX.Element = () => {
   }, []);
 
   useEffect(() => {
-    if (isMounted && slideQuery) {
+    if (isMounted && slideID) {
       fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?id=${slideQuery}`
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?id=${slideID}`
       ).then((eventRes: IEvent[]) => {
         isMounted && eventRes.length > 0 && setViewEvent(eventRes[0]);
       });
       fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}?id=${slideQuery}`
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}?id=${slideID}`
       ).then((opRes: IOperation[]) => {
         isMounted && opRes.length > 0 && setViewOp(opRes[0]);
       });
     }
-  }, [slideQuery, isMounted]);
+  }, [slideID, isMounted]);
 
   // Transaction details
   useEffect(() => {
@@ -176,7 +176,7 @@ export const TransactionDetails: () => JSX.Element = () => {
               <OpCardWrapper
                 onHandleViewOp={(op: IOperation) => {
                   setViewOp(op);
-                  addSlideToParams(op.id);
+                  setSlideSearchParam(op.id);
                 }}
                 {...{ op }}
               />
@@ -209,7 +209,7 @@ export const TransactionDetails: () => JSX.Element = () => {
               <EventCardWrapper
                 onHandleViewEvent={(event: IEvent) => {
                   setViewEvent(event);
-                  addSlideToParams(event.id);
+                  setSlideSearchParam(event.id);
                 }}
                 {...{ event }}
               />
@@ -315,7 +315,7 @@ export const TransactionDetails: () => JSX.Element = () => {
           open={!!viewEvent}
           onClose={() => {
             setViewEvent(undefined);
-            addSlideToParams(undefined);
+            setSlideSearchParam(null);
           }}
         />
       )}
@@ -325,7 +325,7 @@ export const TransactionDetails: () => JSX.Element = () => {
           open={!!viewOp}
           onClose={() => {
             setViewOp(undefined);
-            addSlideToParams(undefined);
+            setSlideSearchParam(null);
           }}
         />
       )}
