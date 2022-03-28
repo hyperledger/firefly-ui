@@ -132,6 +132,22 @@ export interface IGenericPagedResponse {
   total: number;
 }
 
+export interface IIdentity {
+  id: string;
+  did: string;
+  type: string;
+  parent?: string;
+  namespace: string;
+  name: string;
+  messages: {
+    claim: string;
+    verification: string | null;
+    update: string | null;
+  };
+  created: string;
+  updated: string;
+}
+
 export interface IMessage {
   header: {
     id: string;
@@ -288,6 +304,13 @@ export interface IPagedFireFlyApiResponse {
   pageParam: number;
   count: number;
   items: IFireflyApi[];
+  total: number;
+}
+
+export interface IPagedIdentityResponse {
+  pageParam: number;
+  count: number;
+  items: IIdentity[];
   total: number;
 }
 

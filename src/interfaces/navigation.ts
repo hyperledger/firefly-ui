@@ -30,6 +30,7 @@ export const DOCS_PATH = 'https://hyperledger.github.io/firefly/';
 export const EVENTS_PATH = 'events';
 export const FILE_EXPLORER_PATH = 'fileExplorer';
 export const HOME_PATH = 'home';
+export const IDENTITIES_PATH = 'identities';
 export const INTERFACES_PATH = 'interfaces';
 export const LISTENERS_PATH = 'listeners';
 export const MESSAGES_PATH = 'messages';
@@ -116,6 +117,8 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}/${ORGANIZATIONS_PATH}`,
   networkNodesPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}/${NODES_PATH}`,
+  networkIdentitiesPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}/${IDENTITIES_PATH}`,
   // My Node
   myNodePath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${MY_NODES_PATH}`,
   // Docs

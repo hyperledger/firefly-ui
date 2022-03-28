@@ -46,7 +46,7 @@ export const TokensNav = () => {
     {
       name: t('pools'),
       action: () => navigate(poolsPath),
-      itemIsActive: pathname === poolsPath,
+      itemIsActive: pathname.startsWith(poolsPath),
     },
   ];
 

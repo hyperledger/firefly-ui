@@ -163,7 +163,6 @@ export const ActivityTransactions: () => JSX.Element = () => {
   const txColumnHeaders = [
     t('type'),
     t('id'),
-    // t('details'),
     t('blockchainIds'),
     t('created'),
     t(''),
@@ -183,10 +182,6 @@ export const ActivityTransactions: () => JSX.Element = () => {
       {
         value: <HashPopover shortHash={true} address={tx.id}></HashPopover>,
       },
-      // TODO: Enrich content
-      // {
-      //   value: <FFTableText color="primary" text={'TODO'} />,
-      // },
       {
         value: (
           <>

@@ -47,7 +47,7 @@ export const ActivityNav = () => {
     {
       name: t('transactions'),
       action: () => navigate(txPath),
-      itemIsActive: pathname === txPath,
+      itemIsActive: pathname.startsWith(txPath),
     },
     {
       name: t('operations'),
