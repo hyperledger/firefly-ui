@@ -140,6 +140,17 @@ export const PoolFilters = [
   'tx.id',
 ];
 
+export const SubscriptionFilters = [
+  'id',
+  'namespace',
+  'name',
+  'transport',
+  'events',
+  'filters',
+  'options',
+  'created',
+];
+
 export const TransactionFilters = ['id', 'type', 'created', 'blockchainids'];
 
 export const TransferFilters = [

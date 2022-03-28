@@ -42,6 +42,7 @@ export const OFFCHAIN_PATH = 'offChain';
 export const OPERATIONS_PATH = 'operations';
 export const ORGANIZATIONS_PATH = 'organizations';
 export const POOLS_PATH = 'pools';
+export const SUBSCRIPTIONS_PATH = 'subscriptions';
 export const TOKENS_PATH = 'tokens';
 export const TRANSACTIONS_PATH = 'transactions';
 export const TRANSFERS_PATH = 'transfers';
@@ -121,6 +122,8 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}/${IDENTITIES_PATH}`,
   // My Node
   myNodePath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${MY_NODES_PATH}`,
+  myNodeSubscriptionsPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${MY_NODES_PATH}/${SUBSCRIPTIONS_PATH}`,
   // Docs
   docsPath: DOCS_PATH,
 };

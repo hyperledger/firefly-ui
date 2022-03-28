@@ -17,6 +17,7 @@ import { FF_NAV_PATHS } from '../../interfaces';
 import { MenuLogo } from '../MenuLogo';
 import { ActivityNav } from './ActivityNav';
 import { BlockchainNav } from './BlockchainNav';
+import { MyNodeNav } from './MyNodeNav';
 import { NavItem } from './NavItem';
 import { NetworkNav } from './NetworkNav';
 import { OffChainNav } from './OffChainNav';
@@ -45,13 +46,7 @@ export const Navigation: React.FC = () => {
       <OffChainNav />
       <TokensNav />
       <NetworkNav />
-      <NavItem
-        name={t('myNode')}
-        icon={<HexagonIcon />}
-        action={() => navigate(FF_NAV_PATHS.myNodePath(selectedNamespace))}
-        itemIsActive={pathname === FF_NAV_PATHS.myNodePath(selectedNamespace)}
-        isRoot
-      />
+      <MyNodeNav />
       <NavItem
         name={t('docs')}
         icon={<MenuBookIcon />}
