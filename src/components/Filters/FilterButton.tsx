@@ -26,7 +26,8 @@ interface Props {
 
 export const FilterButton: React.FC<Props> = ({ onSetFilterAnchor }) => {
   const { t } = useTranslation();
-  const { clearAllFilters, filterArray } = useContext(FilterContext);
+  const { clearAllFilters, filterArray, removeFilter } =
+    useContext(FilterContext);
 
   const handleOpenFilter = (event: React.MouseEvent<HTMLButtonElement>) => {
     onSetFilterAnchor(event);
@@ -51,11 +52,7 @@ export const FilterButton: React.FC<Props> = ({ onSetFilterAnchor }) => {
           <Grid container alignItems="center" justifyContent="flex-end">
             {filterArray.map((filter, index) => (
               <Grid key={`${filter}${index}`} item>
-                <Chip
-                  // TODO: Add back
-                  // onDelete={() => handleRemoveFilter(filter)}
-                  label={filter}
-                />
+                <Chip onDelete={() => removeFilter(filter)} label={filter} />
               </Grid>
             ))}
             <Grid item>
