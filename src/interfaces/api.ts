@@ -342,6 +342,13 @@ export interface IPagedOrganizationResponse {
   total: number;
 }
 
+export interface IPagedSubscriptionsResponse {
+  pageParam: number;
+  count: number;
+  items: ISubscription[];
+  total: number;
+}
+
 export interface IPagedTokenPoolResponse {
   pageParam: number;
   count: number;
@@ -378,6 +385,17 @@ export interface IStatus {
   defaults: {
     namespace: string;
   };
+}
+
+export interface ISubscription {
+  id: string;
+  namespace: string;
+  name: string;
+  transport: string;
+  filter?: any;
+  options?: any;
+  created: string;
+  updated: string | null;
 }
 
 export interface ITokenAccount {
