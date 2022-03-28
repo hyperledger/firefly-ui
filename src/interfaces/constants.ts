@@ -71,6 +71,9 @@ export const FF_Paths = {
   // Groups
   groups: '/groups',
   groupsById: (groupId: string) => `/groups/${groupId}`,
+  // Identities
+  identities: '/identities',
+  identitiesById: (identityID: string) => `/identities/${identityID}`,
   // Messages
   messages: '/messages',
   messagesBroadcast: '/messages/broadcast',

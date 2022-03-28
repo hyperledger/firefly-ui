@@ -16,7 +16,10 @@ export const TxButton: React.FC<Props> = ({ ns, txID, small = false }) => {
     <IconButton
       size={small ? 'small' : undefined}
       sx={{ backgroundColor: FFColors.Purple }}
-      onClick={() => navigate(FF_NAV_PATHS.activityTxDetailPath(ns, txID))}
+      onClick={(e) => {
+        e.stopPropagation();
+        navigate(FF_NAV_PATHS.activityTxDetailPath(ns, txID));
+      }}
     >
       <LaunchIcon />
     </IconButton>

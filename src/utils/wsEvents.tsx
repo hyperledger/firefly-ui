@@ -27,6 +27,13 @@ export const hasDataEvent = (events: FF_EVENTS[]) => {
   );
 };
 
+export const hasIdentityEvent = (events: FF_EVENTS[]) => {
+  return (
+    events.includes(FF_EVENTS.IDENTITY_CONFIRMED) ||
+    events.includes(FF_EVENTS.IDENTITY_UPDATED)
+  );
+};
+
 export const hasInterfaceEvent = (events: FF_EVENTS[]) => {
   return events.includes(FF_EVENTS.CONTRACT_INTERFACE_CONFIRMED);
 };
