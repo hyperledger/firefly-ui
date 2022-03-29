@@ -1,4 +1,3 @@
-import HexagonIcon from '@mui/icons-material/Hexagon';
 import LaunchIcon from '@mui/icons-material/Launch';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import {

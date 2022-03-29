@@ -26,7 +26,6 @@ import { SubscriptionSlide } from '../../../components/Slides/SubscriptionSlide'
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
-import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
@@ -42,7 +41,6 @@ import { fetchCatcher, getFFTime } from '../../../utils';
 
 export const MyNodeSubscriptions: () => JSX.Element = () => {
   const { selectedNamespace } = useContext(ApplicationContext);
-  const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
