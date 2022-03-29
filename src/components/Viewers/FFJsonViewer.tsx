@@ -1,12 +1,12 @@
+import { useTheme } from '@mui/material';
 import ReactJson from 'react-json-view';
-import { themeOptions } from '../../theme';
 
 interface Props {
-  color?: string;
   json: object;
 }
 
-export const FFJsonViewer: React.FC<Props> = ({ color, json }) => {
+export const FFJsonViewer: React.FC<Props> = ({ json }) => {
+  const theme = useTheme();
   const handleCopy = (copy: any) => {
     navigator.clipboard.writeText(JSON.stringify(copy.src, null, '\t'));
   };
@@ -15,7 +15,7 @@ export const FFJsonViewer: React.FC<Props> = ({ color, json }) => {
     <ReactJson
       theme={'pop'}
       style={{
-        backgroundColor: color ?? themeOptions.palette?.background?.paper,
+        backgroundColor: theme.palette.background.paper,
         fontSize: '12px',
       }}
       collapseStringsAfterLength={40}

@@ -14,20 +14,20 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { CircularProgress, Grid, Popover, Typography } from '@mui/material';
+import {
+  CircularProgress,
+  Grid,
+  Paper,
+  Popover,
+  Typography,
+} from '@mui/material';
 import { ResponsiveNetwork } from '@nivo/network';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import { INode, IOrganization } from '../../interfaces';
 import { FF_Paths } from '../../interfaces/constants';
-import {
-  DEFAULT_BORDER_RADIUS,
-  DEFAULT_PADDING,
-  FFBackgroundHover,
-  FFColors,
-  themeOptions,
-} from '../../theme';
+import { DEFAULT_BORDER_RADIUS, DEFAULT_PADDING, FFColors } from '../../theme';
 import { fetchCatcher, getFFTime } from '../../utils';
 import { HashPopover } from '../Popovers/HashPopover';
 
@@ -160,10 +160,10 @@ export const NetworkMap: React.FC<Props> = ({ size }) => {
         sx={{
           borderRadius: DEFAULT_BORDER_RADIUS,
           opacity: '0.92 !important',
-
-          backgroundColor: themeOptions.palette?.background?.paper,
+          backgroundColor: 'background.paper',
           maxWidth: 420,
-          border: `1px solid ${FFColors.White}`,
+          border: `1px solid`,
+          borderColor: 'primary.main',
         }}
         p={DEFAULT_PADDING}
       >
@@ -273,17 +273,18 @@ export const NetworkMap: React.FC<Props> = ({ size }) => {
         onClick={handleClick}
         nodeTooltip={({ node }) => {
           return (
-            <div
-              style={{
-                padding: 12,
-                color: themeOptions.palette?.text?.primary,
-                background: FFBackgroundHover,
+            <Paper
+              sx={{
+                borderRadius: DEFAULT_BORDER_RADIUS,
+                padding: 1,
+                color: 'text.primary',
+                background: 'secondary.dark',
               }}
             >
               <Grid item>
                 <Typography>{node?.id?.split(NODE_STRING_DELIM)[0]}</Typography>
               </Grid>
-            </div>
+            </Paper>
           );
         }}
       />

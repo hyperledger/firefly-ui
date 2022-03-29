@@ -14,10 +14,9 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { IconButton, Modal, Paper, Slide } from '@mui/material';
+import { IconButton, Modal, Paper, Slide, useTheme } from '@mui/material';
 import CloseIcon from 'mdi-react/CloseIcon';
 import React from 'react';
-import { theme } from '../../App';
 import { DEFAULT_PADDING } from '../../theme';
 
 export interface Props {
@@ -26,6 +25,7 @@ export interface Props {
 }
 
 export const DisplaySlide: React.FC<Props> = ({ children, open, onClose }) => {
+  const theme = useTheme();
   return (
     <>
       <Modal {...{ open }} {...{ onClose }}>

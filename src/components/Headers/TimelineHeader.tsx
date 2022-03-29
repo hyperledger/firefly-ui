@@ -16,7 +16,6 @@
 
 import { Divider, Grid, Typography } from '@mui/material';
 import React from 'react';
-import { FFTimelineLine } from '../../theme';
 
 interface Props {
   leftHeader: string;
@@ -40,7 +39,8 @@ export const FFTimelineHeader: React.FC<Props> = ({
           container
           item
           justifyContent="center"
-          borderRight={`1px solid ${FFTimelineLine}`}
+          borderRight={`1px solid`}
+          borderColor={'secondary.main'}
           height="100%"
           py="16px"
         >
@@ -58,7 +58,8 @@ export const FFTimelineHeader: React.FC<Props> = ({
           container
           item
           justifyContent="center"
-          borderLeft={`1px solid ${FFTimelineLine}`}
+          borderLeft={`1px solid`}
+          borderColor={'secondary.main'}
           height="100%"
           py="16px"
         >

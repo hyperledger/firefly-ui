@@ -25,7 +25,7 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
-import { DEFAULT_PADDING, themeOptions } from '../../theme';
+import { DEFAULT_PADDING } from '../../theme';
 
 interface Props {
   message?: string;
@@ -56,7 +56,7 @@ export const DataTableEmptyState: React.FC<Props> = ({
                   >
                     <Typography
                       sx={{
-                        color: themeOptions.palette?.text?.secondary,
+                        color: 'text.secondary',
                         fontSize: 12,
                         textTransform: 'uppercase',
                       }}

@@ -17,7 +17,6 @@
 import { TableCell, TableRow } from '@mui/material';
 import React from 'react';
 import { IDataTableRecord } from '../../interfaces/table';
-import { FFBackgroundHover, themeOptions } from '../../theme';
 
 interface Props {
   record: IDataTableRecord;
@@ -27,14 +26,13 @@ export const MediumCardTableRow: React.FC<Props> = ({ record }) => {
   return (
     <TableRow
       sx={{
-        backgroundColor: themeOptions.palette?.background?.paper,
+        bgColor: 'background.paper',
         '&:hover': {
-          backgroundColor: record.onClick ? FFBackgroundHover : undefined,
+          bgColor: record.onClick ? 'secondary.dark' : undefined,
           cursor: record.onClick ? 'pointer' : 'default',
         },
         margin: '16px 16px 16px 16px',
         padding: '8px',
-        borderBottom: '1px solid ' + themeOptions.palette?.background?.default,
       }}
       onClick={record.onClick}
     >
@@ -45,8 +43,8 @@ export const MediumCardTableRow: React.FC<Props> = ({ record }) => {
             sx={{
               margin: '16px 16px 16px 16px',
               padding: '8px',
-              borderBottom:
-                '1px solid ' + themeOptions.palette?.background?.default,
+              borderBottom: '1px solid',
+              borderColor: 'background.default',
             }}
           >
             {column.value}

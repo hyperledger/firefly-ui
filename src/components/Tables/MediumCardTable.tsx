@@ -26,7 +26,6 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { IDataTableRecord } from '../../interfaces/table';
-import { themeOptions } from '../../theme';
 import { EmptyStateCard } from '../Cards/EmptyStateCard';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { MediumCardTableRow } from './MediumCardTableRow';
@@ -63,8 +62,8 @@ export const MediumCardTable: React.FC<Props> = ({
                       key={index}
                     >
                       <Typography
+                        color="secondary"
                         sx={{
-                          color: themeOptions.palette?.text?.secondary,
                           fontSize: 12,
                           textTransform: 'uppercase',
                         }}

@@ -15,9 +15,8 @@
 // limitations under the License.
 
 import { styled } from '@mui/material/styles';
-import { FFTimelineLine } from '../../../theme';
 
-export const TimelineLine = styled('hr')({
+export const TimelineLine = styled('hr')(({ theme }) => ({
   border: '1px solid',
-  borderColor: FFTimelineLine,
-});
+  color: theme.palette.secondary.main,
+}));

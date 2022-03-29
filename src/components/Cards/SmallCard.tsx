@@ -3,7 +3,7 @@ import { Box } from '@mui/system';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ISmallCard } from '../../interfaces';
-import { DEFAULT_BORDER_RADIUS, FFBackgroundHover } from '../../theme';
+import { DEFAULT_BORDER_RADIUS } from '../../theme';
 
 type Props = {
   card: ISmallCard;
@@ -23,7 +23,7 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
         height: '100%',
         backgroundColor: 'background.paper',
         '&:hover': card.clickPath && {
-          backgroundColor: FFBackgroundHover,
+          backgroundColor: 'secondary.dark',
           cursor: 'pointer',
         },
       }}
