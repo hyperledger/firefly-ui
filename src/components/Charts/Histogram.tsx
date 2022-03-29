@@ -132,7 +132,7 @@ export const Histogram: React.FC<Props> = ({
                 sx={{
                   borderRadius: DEFAULT_BORDER_RADIUS,
                   padding: 1,
-                  bgColor: 'background.paper',
+                  backgroundColor: 'background.paper',
                 }}
               >
                 {keys.map((key, idx) => {

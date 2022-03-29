@@ -26,7 +26,7 @@ export const MediumCardTableRow: React.FC<Props> = ({ record }) => {
   return (
     <TableRow
       sx={{
-        bgColor: 'background.paper',
+        backgroundColor: 'background.paper',
         '&:hover': {
           backgroundColor: record.onClick ? 'secondary.dark' : undefined,
           cursor: record.onClick ? 'pointer' : 'default',
