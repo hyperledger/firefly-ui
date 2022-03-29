@@ -28,7 +28,7 @@ export const MediumCardTableRow: React.FC<Props> = ({ record }) => {
       sx={{
         bgColor: 'background.paper',
         '&:hover': {
-          bgColor: record.onClick ? 'secondary.dark' : undefined,
+          backgroundColor: record.onClick ? 'secondary.dark' : undefined,
           cursor: record.onClick ? 'pointer' : 'default',
         },
         margin: '16px 16px 16px 16px',
