@@ -15,7 +15,6 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { FF_NAV_PATHS, IData, IDataWithHeader } from '../../interfaces';
-import { themeOptions } from '../../theme';
 import { getFFTime } from '../../utils';
 import { HashPopover } from '../Popovers/HashPopover';
 import { FFJsonViewer } from '../Viewers/FFJsonViewer';
@@ -109,10 +108,7 @@ export const MessageDataAccordion: React.FC<Props> = ({
         sx={{ wordWrap: 'break-word' }}
       >
         <Paper sx={modalStyle} elevation={0}>
-          <FFJsonViewer
-            color={themeOptions.palette?.background?.paper}
-            json={data.value}
-          />
+          <FFJsonViewer json={data.value} />
         </Paper>
       </Modal>
     </>
@@ -127,7 +123,7 @@ const modalStyle = {
   transform: 'translate(-50%, -50%)',
   width: '40%',
   height: '50%',
-  bgcolor: 'background.paper',
+  backgroundColor: 'background.paper',
   border: '2px solid #000',
   boxShadow: 24,
   p: 4,

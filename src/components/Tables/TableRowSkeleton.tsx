@@ -16,7 +16,7 @@
 
 import { Skeleton, TableCell, TableRow } from '@mui/material';
 import React from 'react';
-import { DEFAULT_BORDER_RADIUS, themeOptions } from '../../theme';
+import { DEFAULT_BORDER_RADIUS } from '../../theme';
 
 interface Props {
   numColumns: number;
@@ -26,7 +26,7 @@ export const TableRowSkeleton: React.FC<Props> = ({ numColumns }) => {
   return (
     <TableRow
       sx={{
-        backgroundColor: themeOptions.palette?.background?.paper,
+        backgroundColor: 'background.paper',
       }}
     >
       {Array.from(Array(numColumns)).map((column, index) => {
@@ -45,8 +45,8 @@ export const TableRowSkeleton: React.FC<Props> = ({ numColumns }) => {
                 index == numColumns - 1 ? DEFAULT_BORDER_RADIUS : undefined,
               margin: '16px 16px 16px 16px',
               padding: '8px',
-              borderBottom:
-                '1px solid ' + themeOptions.palette?.background?.default,
+              borderBottom: '1px solid',
+              borderBottomColor: 'background.default',
             }}
           >
             <Skeleton width="50%" />

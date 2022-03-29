@@ -1,13 +1,10 @@
-import { Typography } from '@mui/material';
+import { Paper, Typography } from '@mui/material';
+import { useTheme } from '@mui/material/styles';
 import { Box } from '@mui/system';
 import { BarDatum, ResponsiveBar } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
-import {
-  DEFAULT_BORDER_RADIUS,
-  DEFAULT_HIST_HEIGHT,
-  themeOptions,
-} from '../../theme';
+import { DEFAULT_BORDER_RADIUS, DEFAULT_HIST_HEIGHT } from '../../theme';
 import { getFFTime } from '../../utils';
 import { EmptyStateCard } from '../Cards/EmptyStateCard';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
@@ -35,6 +32,7 @@ export const Histogram: React.FC<Props> = ({
   keys,
   isLoading,
 }) => {
+  const theme = useTheme();
   const [xAxisValues, setXAxisValues] = useState<(string | number)[]>([]);
 
   useEffect(() => {
@@ -99,7 +97,7 @@ export const Histogram: React.FC<Props> = ({
                     itemHeight: 10,
                     itemDirection: 'left-to-right',
                     itemOpacity: 1,
-                    itemTextColor: 'white',
+                    itemTextColor: theme.palette.text.primary,
                     symbolSize: 15,
                     symbolShape: 'circle',
                   },
@@ -110,40 +108,38 @@ export const Histogram: React.FC<Props> = ({
           enableLabel={false}
           role="application"
           theme={{
-            background: themeOptions.palette?.background?.paper,
+            background: theme.palette.background.paper,
             axis: {
               ticks: {
                 line: {
-                  stroke: themeOptions.palette?.background?.default,
+                  stroke: theme.palette.background.default,
                 },
                 text: {
-                  fill: themeOptions.palette?.text?.disabled,
+                  fill: theme.palette.text.disabled,
                 },
               },
             },
             grid: {
               line: {
-                stroke: themeOptions.palette?.background?.default,
+                stroke: theme.palette.background.default,
               },
             },
           }}
           tooltip={({ data }) => {
             return (
-              <div
+              <Paper
                 key={data.timestamp}
-                style={{
-                  padding: 12,
-                  color: themeOptions.palette?.text?.primary,
-                  background: themeOptions.palette?.background?.paper,
+                sx={{
+                  borderRadius: DEFAULT_BORDER_RADIUS,
+                  padding: 1,
+                  backgroundColor: 'background.paper',
                 }}
               >
                 {keys.map((key, idx) => {
                   return (
-                    <React.Fragment key={idx}>
-                      <Typography key={idx} sx={{ color: colors[idx] }}>
-                        {`${key.toUpperCase()}: ${data[key] ?? 0}`}
-                      </Typography>
-                    </React.Fragment>
+                    <Typography key={idx} sx={{ color: colors[idx] }}>
+                      {`${key.toUpperCase()}: ${data[key] ?? 0}`}
+                    </Typography>
                   );
                 })}
                 <Typography variant="subtitle1" color="secondary">
@@ -152,7 +148,7 @@ export const Histogram: React.FC<Props> = ({
                 <Typography variant="subtitle2" color="secondary">
                   {getFFTime(data.timestamp.toString(), true)}
                 </Typography>
-              </div>
+              </Paper>
             );
           }}
         />

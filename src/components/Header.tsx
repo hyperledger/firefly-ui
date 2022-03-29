@@ -25,7 +25,7 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { DEFAULT_PADDING, themeOptions } from '../theme';
+import { DEFAULT_PADDING } from '../theme';
 import { DatePicker } from './Pickers/DatePicker';
 import { NamespacePicker } from './Pickers/NamespacePicker';
 
@@ -52,9 +52,10 @@ export const Header: React.FC<Props> = ({
     <Box display="flex" px={DEFAULT_PADDING} pt={DEFAULT_PADDING}>
       <CssBaseline />
       <MaterialAppBar
+        elevation={0}
         position="relative"
         sx={{
-          background: themeOptions.palette?.background?.default,
+          backgroundColor: 'background.default',
           boxShadow: 'none',
         }}
       >
@@ -66,13 +67,16 @@ export const Header: React.FC<Props> = ({
             alignItems="center"
           >
             <Grid direction="column" container xs={6} item>
-              <Typography variant="subtitle1">{subtitle}</Typography>
+              <Typography color="primary" variant="subtitle1">
+                {subtitle}
+              </Typography>
               <Typography
                 variant="h5"
                 sx={{
                   fontWeight: 'bold',
                   fontSize: '14',
                 }}
+                color="primary"
               >
                 {title}
               </Typography>

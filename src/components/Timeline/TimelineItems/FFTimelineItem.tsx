@@ -24,7 +24,6 @@ import {
 import { Grid } from '@mui/material';
 import React from 'react';
 import { ITimelineElement } from '../../../interfaces';
-import { FFTimelineLine } from '../../../theme';
 import { TimelineLine } from './TimelineLine';
 
 interface Props {
@@ -37,7 +36,7 @@ export const FFTimelineItem: React.FC<Props> = ({ element }) => {
       <TItem>
         <TimelineOppositeContent sx={{ paddingRight: '0' }} />
         <TimelineSeparator>
-          <TimelineConnector sx={{ backgroundColor: FFTimelineLine }} />
+          <TimelineConnector sx={{ backgroundColor: 'secondary.main' }} />
         </TimelineSeparator>
         <TimelineContent sx={{ paddingLeft: '0', height: '10%' }}>
           <Grid container justifyContent="flex-start" alignItems="center">

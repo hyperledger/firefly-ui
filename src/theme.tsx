@@ -13,7 +13,6 @@ export enum FFColors {
   Purple = '#6b00f2',
   Red = '#e1111e',
   Yellow = '#ffca00',
-  White = '#FFFFFF',
 }
 
 export const themeOptions: ThemeOptions = {
@@ -28,6 +27,7 @@ export const themeOptions: ThemeOptions = {
     },
     secondary: {
       main: '#9BA7B0',
+      dark: '#252C32',
     },
     info: {
       main: FFColors.Pink,
@@ -70,7 +70,3 @@ export const themeOptions: ThemeOptions = {
     },
   },
 };
-
-export const FFBackgroundHover = '#252C32';
-export const FFTimelineLine = '#4B5955';
-export const FFTimelineLineHover = '#FFFFFF';

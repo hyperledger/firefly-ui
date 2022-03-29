@@ -27,7 +27,7 @@ import {
 } from '@mui/material';
 import React from 'react';
 import { IDataTableRecord } from '../../interfaces/table';
-import { DEFAULT_PAGE_LIMITS, themeOptions } from '../../theme';
+import { DEFAULT_PAGE_LIMITS } from '../../theme';
 import { DataTableEmptyState } from './TableEmptyState';
 import { DataTableRow } from './TableRow';
 import { TableRowSkeleton } from './TableRowSkeleton';
@@ -124,7 +124,7 @@ export const DataTable: React.FC<Props> = ({
                       >
                         <Typography
                           sx={{
-                            color: themeOptions.palette?.text?.secondary,
+                            color: 'text.secondary',
                             fontSize: 12,
                             textTransform: 'uppercase',
                           }}

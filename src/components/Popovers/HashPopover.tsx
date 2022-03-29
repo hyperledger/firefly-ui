@@ -14,11 +14,17 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Chip, Grid, IconButton, Popover, Typography } from '@mui/material';
+import {
+  Chip,
+  Grid,
+  IconButton,
+  Popover,
+  Typography,
+  useTheme,
+} from '@mui/material';
 import ContentCopyIcon from 'mdi-react/ContentCopyIcon';
 import React, { useRef, useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
-import { theme } from '../../App';
 import { DEFAULT_BORDER_RADIUS } from '../../theme';
 import { getShortHash } from '../../utils';
 
@@ -26,19 +32,18 @@ interface Props {
   address: string;
   shortHash?: boolean;
   fullLength?: boolean;
-  textColor?: 'primary' | 'secondary';
   paper?: boolean;
 }
 
 export const HashPopover: React.FC<Props> = ({
   address,
   shortHash,
-  textColor = 'primary',
   paper,
   fullLength,
 }) => {
   const [open, setOpen] = useState(false);
   const anchorRef = useRef<HTMLDivElement>(null);
+  const theme = useTheme();
 
   return (
     <>
@@ -46,10 +51,7 @@ export const HashPopover: React.FC<Props> = ({
         label={shortHash ? getShortHash(address) : address}
         sx={{
           width: fullLength ? '100%' : shortHash ? 110 : 200,
-          color:
-            textColor === 'secondary'
-              ? theme.palette.text.secondary
-              : undefined,
+          color: theme.palette.text.primary,
           borderRadius: DEFAULT_BORDER_RADIUS,
           fontSize: '12px',
           backgroundColor: paper

@@ -21,7 +21,6 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material';
-import { FFColors, themeOptions } from '../../theme';
 
 interface Props {
   name: string;
@@ -45,12 +44,10 @@ export const NavItem = ({
       onClick={action}
       sx={{
         borderLeft: 6,
-        borderLeftColor: itemIsActive
-          ? FFColors.Yellow
-          : themeOptions.palette?.background?.default,
+        borderLeftColor: itemIsActive ? 'warning.main' : 'background.default',
         backgroundColor: itemIsActive
           ? 'background.paper'
-          : themeOptions.palette?.background?.default,
+          : 'background.default',
       }}
     >
       <ListItemIcon>{icon}</ListItemIcon>

@@ -26,7 +26,6 @@ import ExpandLess from 'mdi-react/ChevronUpIcon';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { INavItem } from '../../interfaces';
-import { themeOptions } from '../../theme';
 import { NavItem } from './NavItem';
 
 interface Props {
@@ -53,8 +52,8 @@ export const NavSection = ({ icon, navItems, title }: Props) => {
       <ListItemButton
         sx={{
           borderLeft: 6,
-          borderLeftColor: themeOptions.palette?.background?.default,
-          backgroundColor: themeOptions.palette?.background?.default,
+          borderLeftColor: 'background.default',
+          backgroundColor: 'background.default',
         }}
         onClick={() => setOpen(!open)}
       >

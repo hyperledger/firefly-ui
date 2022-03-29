@@ -18,12 +18,7 @@ import LaunchIcon from '@mui/icons-material/Launch';
 import { Grid, IconButton, Paper, Typography } from '@mui/material';
 import React from 'react';
 import { useNavigate } from 'react-router-dom';
-import {
-  DEFAULT_BORDER_RADIUS,
-  FFBackgroundHover,
-  FFColors,
-  FFTimelineLineHover,
-} from '../../../theme';
+import { DEFAULT_BORDER_RADIUS } from '../../../theme';
 
 interface Props {
   title?: string;
@@ -66,9 +61,9 @@ export const BaseCard: React.FC<Props> = ({
         <Grid
           sx={{
             '&:hover': {
-              backgroundColor: onClick && FFTimelineLineHover,
+              backgroundColor: onClick && 'primary.main',
               cursor: onClick && 'pointer',
-              color: onClick && FFBackgroundHover,
+              color: onClick && 'secondary.dark',
               borderTopRightRadius: DEFAULT_BORDER_RADIUS,
               borderBottomRightRadius: DEFAULT_BORDER_RADIUS,
             },
@@ -104,12 +99,16 @@ export const BaseCard: React.FC<Props> = ({
               {link && (
                 <IconButton
                   size="small"
-                  onClick={() => navigate(link)}
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    navigate(link);
+                  }}
+                  color="primary"
                   sx={{
                     elevation: 0,
                     backgroundColor: 'background.paper',
                     '&:hover': {
-                      backgroundColor: FFColors.Purple,
+                      backgroundColor: 'success.main',
                       cursor: onClick && 'pointer',
                     },
                   }}
@@ -132,7 +131,7 @@ export const BaseCard: React.FC<Props> = ({
               direction="row"
               justifyContent="flex-start"
             >
-              <Typography noWrap color="text.secondary" fontSize={12}>
+              <Typography noWrap color="secondary" fontSize={12}>
                 {description}
               </Typography>
             </Grid>
@@ -143,7 +142,7 @@ export const BaseCard: React.FC<Props> = ({
               direction="row"
               justifyContent="flex-end"
             >
-              <Typography noWrap color="text.secondary" fontSize={12}>
+              <Typography noWrap color="secondary" fontSize={12}>
                 {timestamp}
               </Typography>
             </Grid>
