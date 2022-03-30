@@ -116,7 +116,9 @@ const App: React.FC = () => {
   useEffect(() => {
     if (selectedNamespace) {
       ws.current = new ReconnectingWebSocket(
-        `${protocol}://${window.location.hostname}:${window.location.port}/ws?namespace=${selectedNamespace}&ephemeral&autoack`
+        process.env.NODE_ENV === 'development'
+          ? `ws://localhost:5000/ws?namespace=${selectedNamespace}&ephemeral&autoack`
+          : `${protocol}://${window.location.hostname}:${window.location.port}/ws?namespace=${selectedNamespace}&ephemeral&autoack`
       );
       ws.current.onmessage = (event: any) => {
         const eventData = JSON.parse(event.data);
