@@ -1,12 +1,6 @@
 import LaunchIcon from '@mui/icons-material/Launch';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
-import {
-  Drawer,
-  List,
-  ListItem,
-  ListItemText,
-  Typography,
-} from '@mui/material';
+import { Drawer, List } from '@mui/material';
 import ViewDashboardOutlineIcon from 'mdi-react/ViewDashboardOutlineIcon';
 import { default as React, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -26,7 +20,7 @@ export const NAV_BASENAME = '/ui';
 export const NAV_WIDTH = 225;
 
 export const Navigation: React.FC = () => {
-  const { orgName, selectedNamespace } = useContext(ApplicationContext);
+  const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
   const { pathname } = useLocation();
   const navigate = useNavigate();
@@ -72,16 +66,7 @@ export const Navigation: React.FC = () => {
         anchor="left"
       >
         <MenuLogo />
-        <List>
-          <ListItem>
-            <ListItemText>
-              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                {orgName}
-              </Typography>
-            </ListItemText>
-          </ListItem>
-          {makeDrawerContents}
-        </List>
+        <List>{makeDrawerContents}</List>
       </Drawer>
     </>
   );
