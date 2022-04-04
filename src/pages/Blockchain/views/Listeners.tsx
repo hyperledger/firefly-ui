@@ -169,7 +169,6 @@ export const BlockchainListeners: () => JSX.Element = () => {
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
-            title={t('allListeners')}
             filter={
               <FilterButton
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>

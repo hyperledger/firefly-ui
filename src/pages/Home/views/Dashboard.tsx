@@ -506,9 +506,10 @@ export const HomeDashboard: () => JSX.Element = () => {
                           setViewTx(tx);
                           setSlideSearchParam(tx.id);
                         }}
-                        link={FF_NAV_PATHS.activityTxDetailPath(
+                        link={FF_NAV_PATHS.activityTxDetailPathWithSlide(
                           selectedNamespace,
-                          event.tx
+                          event.tx,
+                          event.id
                         )}
                         {...{ event }}
                       />

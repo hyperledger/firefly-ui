@@ -164,7 +164,6 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
-            title={t('allInterfaces')}
             filter={
               <Grid my={DEFAULT_PADDING}>
                 <Button variant="outlined">Filter</Button>

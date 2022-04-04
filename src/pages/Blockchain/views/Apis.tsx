@@ -160,7 +160,6 @@ export const BlockchainApis: () => JSX.Element = () => {
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
-            title={t('allApis')}
             filter={
               <FilterButton
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>

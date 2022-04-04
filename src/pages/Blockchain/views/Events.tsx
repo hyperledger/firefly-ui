@@ -183,7 +183,6 @@ export const BlockchainEvents: () => JSX.Element = () => {
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
-            title={t('allBlockchainEvents')}
             filter={
               <FilterButton
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>

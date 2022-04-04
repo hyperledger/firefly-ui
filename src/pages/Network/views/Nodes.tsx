@@ -94,13 +94,7 @@ export const NetworkNodes: () => JSX.Element = () => {
       key: node.id,
       columns: [
         {
-          value: (
-            <FFTableText
-              color="primary"
-              text={node.name}
-              icon={<HexagonIcon />}
-            />
-          ),
+          value: <FFTableText color="primary" text={node.name} />,
         },
         {
           value: <HashPopover shortHash={true} address={node.id} />,
@@ -142,7 +136,6 @@ export const NetworkNodes: () => JSX.Element = () => {
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
-            title={t('allNodes')}
             filter={
               <FilterButton
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>

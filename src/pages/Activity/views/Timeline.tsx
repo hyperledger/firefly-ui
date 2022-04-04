@@ -209,7 +209,6 @@ export const ActivityTimeline: () => JSX.Element = () => {
       <Grid container px={DEFAULT_PADDING} direction="column" spacing={2}>
         <Grid item>
           <ChartTableHeader
-            title={t('allEvents')}
             filter={
               <FilterButton
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>

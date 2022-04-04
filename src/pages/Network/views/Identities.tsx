@@ -105,13 +105,7 @@ export const NetworkIdentities: () => JSX.Element = () => {
       key: id.id,
       columns: [
         {
-          value: (
-            <FFTableText
-              color="primary"
-              text={id.name}
-              icon={<PermIdentityIcon />}
-            />
-          ),
+          value: <FFTableText color="primary" text={id.name} />,
         },
         {
           value: <HashPopover shortHash={true} address={id.id} />,
@@ -150,7 +144,6 @@ export const NetworkIdentities: () => JSX.Element = () => {
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
-            title={t('allIdentities')}
             filter={
               <FilterButton
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>

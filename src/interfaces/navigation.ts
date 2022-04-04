@@ -61,6 +61,8 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}`,
   activityTxDetailPath: (ns: string, txID: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}/${txID}`,
+  activityTxDetailPathWithSlide: (ns: string, txID: string, slideID: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}/${txID}?slide=${slideID}`,
   activityOpPath: (ns: string, txID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}${
       txID ? `?filters=tx==${txID}` : ''
