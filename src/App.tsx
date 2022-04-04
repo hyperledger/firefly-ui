@@ -18,7 +18,6 @@ import {
   createTheme,
   CssBaseline,
   StyledEngineProvider,
-  Theme,
   ThemeProvider,
 } from '@mui/material';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -35,13 +34,6 @@ import { FF_EVENTS, INamespace, IStatus, NAMESPACES_PATH } from './interfaces';
 import { FF_Paths } from './interfaces/constants';
 import { themeOptions } from './theme';
 import { fetchWithCredentials, summarizeFetchError } from './utils';
-
-//TODO: remove along with useStyles() usage
-declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
-export const theme = createTheme(themeOptions);
 
 const App: React.FC = () => {
   const [initialized, setInitialized] = useState(false);
@@ -148,13 +140,15 @@ const App: React.FC = () => {
     setLastRefresh(new Date().toISOString());
   };
 
+  const theme = createTheme(themeOptions);
+
   if (initialized) {
     if (initError) {
       // figure out what to display
       return (
         <>
           <StyledEngineProvider injectFirst>
-            <ThemeProvider {...{ theme }}>
+            <ThemeProvider theme={theme}>
               <CssBaseline>Fallback</CssBaseline>
             </ThemeProvider>
           </StyledEngineProvider>
@@ -181,7 +175,7 @@ const App: React.FC = () => {
             value={{ setMessage, setMessageType, reportFetchError }}
           >
             <StyledEngineProvider injectFirst>
-              <ThemeProvider {...{ theme }}>
+              <ThemeProvider theme={theme}>
                 <CssBaseline>
                   <Router />
                   <MessageSnackbar

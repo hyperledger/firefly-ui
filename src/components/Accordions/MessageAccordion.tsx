@@ -71,20 +71,10 @@ export const MessageAccordion: React.FC<Props> = ({
             }
             rightContent={
               message.state && (
-                // TODO: Fix when https://github.com/hyperledger/firefly/issues/628 is resolved
                 <Chip
-                  label={
-                    message.state?.toLocaleUpperCase() === 'PENDING'
-                      ? 'CONFIRMED'
-                      : message.state?.toLocaleUpperCase()
-                  }
+                  label={message.state?.toLocaleUpperCase()}
                   sx={{
-                    backgroundColor:
-                      MsgStateColorMap[
-                        message.state === 'pending'
-                          ? 'confirmed'
-                          : message.state
-                      ],
+                    backgroundColor: MsgStateColorMap[message.state],
                   }}
                 ></Chip>
               )

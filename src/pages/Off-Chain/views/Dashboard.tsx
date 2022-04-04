@@ -441,18 +441,10 @@ export const OffChainDashboard: () => JSX.Element = () => {
       },
       {
         value: (
-          // TODO: Fix when https://github.com/hyperledger/firefly/issues/628 is resolved
           <Chip
-            label={
-              msg.state?.toLocaleUpperCase() === 'PENDING'
-                ? 'CONFIRMED'
-                : msg.state?.toLocaleUpperCase()
-            }
+            label={msg.state?.toLocaleUpperCase()}
             sx={{
-              backgroundColor:
-                MsgStateColorMap[
-                  msg.state === 'pending' ? 'confirmed' : msg.state
-                ],
+              backgroundColor: MsgStateColorMap[msg.state],
             }}
           ></Chip>
         ),
