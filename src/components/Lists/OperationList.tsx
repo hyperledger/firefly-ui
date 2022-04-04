@@ -4,6 +4,7 @@ import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { IOperation } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
+import { OpRetryButton } from '../Buttons/OpRetryButton';
 import { TxButton } from '../Buttons/TxButton';
 import { OpStatusChip } from '../Chips/OpStatusChip';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
@@ -51,6 +52,16 @@ export const OperationList: React.FC<Props> = ({ op, showTxLink = true }) => {
           value: op.status && <OpStatusChip op={op} />,
         },
         {
+          label: op.retry ? t('retriedOperation') : '',
+          value: op.retry ? <FFListText color="primary" text={op.retry} /> : '',
+          button: (
+            <>
+              {op.retry && <OpRetryButton retryOpID={op.retry} />}
+              <FFCopyButton value={op.tx ?? ''} />
+            </>
+          ),
+        },
+        {
           label: t('updated'),
           value: <FFListTimestamp ts={op.updated} />,
         },
@@ -64,9 +75,9 @@ export const OperationList: React.FC<Props> = ({ op, showTxLink = true }) => {
         <FFCircleLoader color="warning" />
       ) : (
         <>
-          {dataList.map((d, idx) => (
-            <FFListItem key={idx} item={d} />
-          ))}
+          {dataList.map(
+            (d, idx) => d.label !== '' && <FFListItem key={idx} item={d} />
+          )}
         </>
       )}
     </>

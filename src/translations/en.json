@@ -223,6 +223,7 @@
   "referenceID": "Reference ID",
   "refresh": "Refresh",
   "retried": "Retried",
+  "retriedOperation": "Retried Operation",
   "rule": "Rule",
   "save": "Save",
   "schema": "Schema",
