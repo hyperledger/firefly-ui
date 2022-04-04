@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { FF_OPS } from './enums';
+
 export interface INavItem {
   name: string;
   action: () => void;
@@ -23,6 +25,7 @@ export interface INavItem {
 
 export const ACTIVITY_PATH = 'activity';
 export const APIS_PATH = 'apis';
+export const BALANCES_PATH = 'balances';
 export const BLOCKCHAIN_PATH = 'blockchain';
 export const DATA_PATH = 'data';
 export const DATATYPES_PATH = 'datatypes';
@@ -110,14 +113,20 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${TRANSFERS_PATH}${
       poolID ? `?filters=pool==${poolID}` : ''
     }`,
+  tokensTransfersErrorPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}?filters=error=!=&filters=type==${FF_OPS.TOKEN_TRANSFER}`,
   tokensTransfersPathLocalID: (ns: string, localID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${TRANSFERS_PATH}${
       localID ? `?filters=localid==${localID}` : ''
     }`,
+  tokensTransfersPathByKeyAndPool: (ns: string, key: string, pool: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${TRANSFERS_PATH}${`?filters=key==${key}&filters=pool==${pool}`}`,
   tokensPoolsPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${POOLS_PATH}`,
   tokensPoolDetailsPath: (ns: string, poolID: string) =>
     `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${POOLS_PATH}/${poolID}`,
+  tokensBalancesPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${BALANCES_PATH}`,
   // Network
   networkPath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}`,
   networkOrgsPath: (ns: string) =>

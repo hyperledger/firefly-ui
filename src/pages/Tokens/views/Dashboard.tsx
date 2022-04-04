@@ -37,6 +37,7 @@ import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
+  BALANCES_PATH,
   BucketCollectionEnum,
   BucketCountEnum,
   FF_NAV_PATHS,
@@ -141,6 +142,7 @@ export const TokensDashboard: () => JSX.Element = () => {
     {
       header: t('tokens'),
       numErrors: tokenErrorCount,
+      errorLink: FF_NAV_PATHS.tokensTransfersErrorPath(selectedNamespace),
       data: [
         { header: t('transfers'), data: tokenTransfersCount },
         { header: t('mint'), data: tokenMintCount },
@@ -322,7 +324,7 @@ export const TokensDashboard: () => JSX.Element = () => {
     {
       headerText: t('accountBalances'),
       headerComponent: (
-        <IconButton onClick={() => navigate(POOLS_PATH)}>
+        <IconButton onClick={() => navigate(BALANCES_PATH)}>
           <ArrowForwardIcon />
         </IconButton>
       ),

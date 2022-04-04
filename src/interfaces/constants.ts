@@ -95,6 +95,8 @@ export const FF_Paths = {
   tokenAccounts: '/tokens/accounts',
   tokenAccountPoolsByKey: (key: string) => `/tokens/accounts/${key}/pools`,
   tokenBalances: '/tokens/balances',
+  tokenBalancesByKeyPool: (key: string, pool: string) =>
+    `/tokens/balances?key=${key}&pool=${pool}`,
   tokenBurn: '/tokens/burn',
   tokenConnectors: '/tokens/connectors',
   tokenMint: '/tokens/mint',

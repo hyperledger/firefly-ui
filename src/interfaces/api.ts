@@ -350,6 +350,13 @@ export interface IPagedSubscriptionsResponse {
   total: number;
 }
 
+export interface IPagedTokenBalanceResponse {
+  pageParam: number;
+  count: number;
+  items: ITokenBalance[];
+  total: number;
+}
+
 export interface IPagedTokenPoolResponse {
   pageParam: number;
   count: number;
