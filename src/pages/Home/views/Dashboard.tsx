@@ -73,8 +73,9 @@ export const HomeDashboard: () => JSX.Element = () => {
   const [blockchainTxCount, setBlockchainTxCount] = useState<number>();
   const [blockchainEventCount, setBlockchainEventCount] = useState<number>();
   // Messages
-  const [messagesTxCount, setMessagesTxCount] = useState<number>();
-  const [messagesEventCount, setMessagesEventCount] = useState<number>();
+  const [messagesBroadcastCount, setMessagesBroadcastCount] =
+    useState<number>();
+  const [messagesPrivateCount, setMessagesPrivateCount] = useState<number>();
   // Tokens
   const [tokenTransfersCount, setTokenTransfersCount] = useState<number>();
   const [tokenMintCount, setTokenMintcount] = useState<number>();
@@ -123,7 +124,7 @@ export const HomeDashboard: () => JSX.Element = () => {
     {
       header: t('blockchain'),
       data: [
-        { header: t('tx'), data: blockchainTxCount },
+        { header: t('transactions'), data: blockchainTxCount },
         { header: t('events'), data: blockchainEventCount },
       ],
       clickPath: FF_NAV_PATHS.blockchainPath(selectedNamespace),
@@ -131,8 +132,8 @@ export const HomeDashboard: () => JSX.Element = () => {
     {
       header: t('messages'),
       data: [
-        { header: t('tx'), data: messagesTxCount },
-        { header: t('events'), data: messagesEventCount },
+        { header: t('broadcast'), data: messagesBroadcastCount },
+        { header: t('private'), data: messagesPrivateCount },
       ],
       clickPath: FF_NAV_PATHS.offchainPath(selectedNamespace),
     },
@@ -225,8 +226,8 @@ export const HomeDashboard: () => JSX.Element = () => {
           ([
             blockchainTx,
             blockchainEvents,
-            msgsTx,
-            msgsEvents,
+            msgsBroadcast,
+            msgPrivate,
             tokensTransfer,
             tokensMint,
             tokensBurn,
@@ -240,8 +241,8 @@ export const HomeDashboard: () => JSX.Element = () => {
               setBlockchainTxCount(blockchainTx.total);
               setBlockchainEventCount(blockchainEvents.total);
               // Messages
-              setMessagesEventCount(msgsTx.total);
-              setMessagesTxCount(msgsEvents.total);
+              setMessagesBroadcastCount(msgsBroadcast.total);
+              setMessagesPrivateCount(msgPrivate.total);
               // Tokens
               setTokenTransfersCount(tokensTransfer.total);
               setTokenMintcount(tokensMint.total);
@@ -336,8 +337,14 @@ export const HomeDashboard: () => JSX.Element = () => {
         <Grid container item>
           {myNodeDetailsList.map((data, idx) => (
             <React.Fragment key={idx}>
-              <Grid item xs={6} pb={2}>
-                <Typography pb={1} variant="body2">
+              <Grid
+                item
+                xs={6}
+                pb={2}
+                pr={idx % 2 === 0 ? 1 : 0}
+                pl={idx % 2 === 1 ? 1 : 0}
+              >
+                <Typography pb={1} noWrap variant="body2">
                   {data.header}
                 </Typography>
                 <HashPopover address={data.data?.toString() ?? ''} />
@@ -560,7 +567,9 @@ export const HomeDashboard: () => JSX.Element = () => {
               return (
                 <Grid
                   key={card.header}
-                  xs={DEFAULT_PADDING}
+                  sm={12}
+                  md={12}
+                  lg={3}
                   direction="column"
                   alignItems="center"
                   justifyContent="center"
@@ -590,7 +599,8 @@ export const HomeDashboard: () => JSX.Element = () => {
                   justifyContent="center"
                   container
                   item
-                  xs={4}
+                  md={12}
+                  lg={4}
                 >
                   <FireFlyCard card={card} position="flex-start" />
                 </Grid>
@@ -614,7 +624,8 @@ export const HomeDashboard: () => JSX.Element = () => {
                   justifyContent="center"
                   container
                   item
-                  xs={6}
+                  sm={12}
+                  md={6}
                 >
                   <FireFlyCard position="flex-start" key={idx} card={card} />
                 </Grid>

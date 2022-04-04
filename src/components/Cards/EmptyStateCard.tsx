@@ -2,7 +2,7 @@ import { Grid, Typography } from '@mui/material';
 import { DEFAULT_PADDING } from '../../theme';
 
 type Props = {
-  height?: number;
+  height?: string | number;
   text: string;
   subText?: string;
 };

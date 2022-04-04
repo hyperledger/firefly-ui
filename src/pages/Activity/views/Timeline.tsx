@@ -232,6 +232,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
               isLoading={isHistLoading}
               isEmpty={isHistogramEmpty(eventHistData ?? [])}
               emptyText={t('noActivity')}
+              height="100%"
             />
           </Box>
         </Grid>

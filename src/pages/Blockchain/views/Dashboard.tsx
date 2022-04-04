@@ -420,7 +420,9 @@ export const BlockchainDashboard: () => JSX.Element = () => {
               return (
                 <Grid
                   key={card.header}
-                  xs={DEFAULT_PADDING}
+                  sm={12}
+                  md={6}
+                  lg={3}
                   direction="column"
                   alignItems="center"
                   justifyContent="center"
@@ -449,7 +451,8 @@ export const BlockchainDashboard: () => JSX.Element = () => {
                   justifyContent="center"
                   container
                   item
-                  xs={4}
+                  sm={12}
+                  lg={4}
                 >
                   <FireFlyCard card={card} position="flex-start" />
                 </Grid>

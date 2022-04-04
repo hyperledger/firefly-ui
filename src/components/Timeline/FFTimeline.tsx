@@ -97,8 +97,8 @@ export const FFTimeline: React.FC<Props> = ({
           <div id="scrollableDiv" style={{ height: '100%', overflow: 'auto' }}>
             <Timeline
               sx={{
-                paddingLeft: '100px',
-                paddingRight: '100px',
+                paddingLeft: '5%',
+                paddingRight: '5%',
                 marginTop: 0,
                 paddingTop: 0,
               }}
@@ -113,7 +113,7 @@ export const FFTimeline: React.FC<Props> = ({
                 >
                   {elements.map((element, idx) =>
                     idx === 0 ? (
-                      <div key={idx} ref={myRef} className="scrollToHere">
+                      <div key={idx} ref={myRef}>
                         <TimelineItemWrapper
                           {...{ element }}
                           opposite={element.opposite}

@@ -108,6 +108,10 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${TRANSFERS_PATH}${
       poolID ? `?filters=pool==${poolID}` : ''
     }`,
+  tokensTransfersPathLocalID: (ns: string, localID?: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${TRANSFERS_PATH}${
+      localID ? `?filters=localid==${localID}` : ''
+    }`,
   tokensPoolsPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${POOLS_PATH}`,
   tokensPoolDetailsPath: (ns: string, poolID: string) =>
