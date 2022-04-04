@@ -241,6 +241,7 @@ export interface IOperation {
   };
   created: string;
   updated: string;
+  retry?: string;
 }
 
 export interface IOrganization {

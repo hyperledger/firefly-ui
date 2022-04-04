@@ -16,7 +16,7 @@
 
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
 import DownloadIcon from '@mui/icons-material/Download';
-import { Chip, Grid, IconButton } from '@mui/material';
+import { Grid, IconButton } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -25,6 +25,7 @@ import { useNavigate } from 'react-router-dom';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
+import { MsgStatusChip } from '../../../components/Chips/MsgStatusChip';
 import { Header } from '../../../components/Header';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { MessageSlide } from '../../../components/Slides/MessageSlide';
@@ -53,7 +54,6 @@ import {
   IPagedMessageResponse,
   ISmallCard,
   MESSAGES_PATH,
-  MsgStateColorMap,
 } from '../../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
 import {
@@ -440,14 +440,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
         ),
       },
       {
-        value: (
-          <Chip
-            label={msg.state?.toLocaleUpperCase()}
-            sx={{
-              backgroundColor: MsgStateColorMap[msg.state],
-            }}
-          ></Chip>
-        ),
+        value: <MsgStatusChip msg={msg} />,
       },
     ],
     onClick: () => {

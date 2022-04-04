@@ -43,6 +43,7 @@ export const OpStatusColorMap: { [key: string]: string } = {
   Succeeded: FFColors.Purple,
   Pending: FFColors.Orange,
   Failed: FFColors.Red,
+  Retried: FFColors.Pink,
 };
 
 export enum FF_OPS {

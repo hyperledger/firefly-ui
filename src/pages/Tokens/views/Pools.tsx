@@ -14,11 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Chip, Grid } from '@mui/material';
+import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
 import { useNavigate } from 'react-router-dom';
+import { PoolStatusChip } from '../../../components/Chips/PoolStatusChip';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
@@ -37,7 +38,6 @@ import {
   IPagedTokenPoolResponse,
   ITokenPool,
   PoolFilters,
-  PoolStateColorMap,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime, jsNumberForAddress } from '../../../utils';
@@ -151,12 +151,7 @@ export const TokensPools: () => JSX.Element = () => {
           value: <FFTableText color="primary" text={pool.protocolId} />,
         },
         {
-          value: (
-            <Chip
-              sx={{ backgroundColor: PoolStateColorMap[pool.state] }}
-              label={pool.state.toLocaleUpperCase()}
-            ></Chip>
-          ),
+          value: <PoolStatusChip pool={pool} />,
         },
         {
           value: (

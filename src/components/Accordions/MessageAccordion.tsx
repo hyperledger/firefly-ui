@@ -3,7 +3,6 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Chip,
   Grid,
 } from '@mui/material';
 import { useState } from 'react';
@@ -12,9 +11,9 @@ import {
   FF_MESSAGES_CATEGORY_MAP,
   IDataWithHeader,
   IMessage,
-  MsgStateColorMap,
 } from '../../interfaces';
 import { getFFTime } from '../../utils';
+import { MsgStatusChip } from '../Chips/MsgStatusChip';
 import { HashPopover } from '../Popovers/HashPopover';
 import { FFAccordionHeader } from './FFAccordionHeader';
 import { FFAccordionText } from './FFAccordionText';
@@ -69,16 +68,7 @@ export const MessageAccordion: React.FC<Props> = ({
                 isHeader
               />
             }
-            rightContent={
-              message.state && (
-                <Chip
-                  label={message.state?.toLocaleUpperCase()}
-                  sx={{
-                    backgroundColor: MsgStateColorMap[message.state],
-                  }}
-                ></Chip>
-              )
-            }
+            rightContent={message.state && <MsgStatusChip msg={message} />}
           />
         </AccordionSummary>
         <AccordionDetails>

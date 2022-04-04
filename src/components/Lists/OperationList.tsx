@@ -1,11 +1,11 @@
-import { Chip } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { IOperation, OpStatusColorMap } from '../../interfaces';
+import { IOperation } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { TxButton } from '../Buttons/TxButton';
+import { OpStatusChip } from '../Chips/OpStatusChip';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
@@ -48,14 +48,7 @@ export const OperationList: React.FC<Props> = ({ op, showTxLink = true }) => {
         },
         {
           label: t('status'),
-          value: op.status && (
-            <Chip
-              label={op.status?.toLocaleUpperCase()}
-              sx={{
-                backgroundColor: OpStatusColorMap[op.status],
-              }}
-            ></Chip>
-          ),
+          value: op.status && <OpStatusChip op={op} />,
         },
         {
           label: t('updated'),

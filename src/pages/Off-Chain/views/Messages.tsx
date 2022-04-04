@@ -14,12 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Chip, Grid } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Histogram } from '../../../components/Charts/Histogram';
+import { MsgStatusChip } from '../../../components/Chips/MsgStatusChip';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
@@ -43,10 +44,7 @@ import {
   IPagedMessageResponse,
   MessageFilters,
 } from '../../../interfaces';
-import {
-  FF_MESSAGES_CATEGORY_MAP,
-  MsgStateColorMap,
-} from '../../../interfaces/enums';
+import { FF_MESSAGES_CATEGORY_MAP } from '../../../interfaces/enums';
 import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
 import {
   DEFAULT_HIST_HEIGHT,
@@ -224,14 +222,7 @@ export const OffChainMessages: () => JSX.Element = () => {
         ),
       },
       {
-        value: (
-          <Chip
-            label={msg.state?.toLocaleUpperCase()}
-            sx={{
-              backgroundColor: MsgStateColorMap[msg.state],
-            }}
-          ></Chip>
-        ),
+        value: <MsgStatusChip msg={msg} />,
       },
     ],
     onClick: () => {

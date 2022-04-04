@@ -1,13 +1,13 @@
-import { Chip } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { ITokenTransfer, ITxStatus, TxStatusColorMap } from '../../interfaces';
+import { ITokenTransfer, ITxStatus } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { MsgButton } from '../Buttons/MsgButton';
 import { PoolButton } from '../Buttons/PoolButton';
 import { TxButton } from '../Buttons/TxButton';
+import { TxStatusChip } from '../Chips/TxStatusChip';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
@@ -118,14 +118,7 @@ export const TransferList: React.FC<Props> = ({
         },
         {
           label: t('status'),
-          value: txStatus && (
-            <Chip
-              label={txStatus.status?.toLocaleUpperCase()}
-              sx={{
-                backgroundColor: TxStatusColorMap[txStatus.status],
-              }}
-            ></Chip>
-          ),
+          value: txStatus && <TxStatusChip txStatus={txStatus} />,
         },
         {
           label: t('created'),

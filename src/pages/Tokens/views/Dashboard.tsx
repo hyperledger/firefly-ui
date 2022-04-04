@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Chip, Grid, IconButton } from '@mui/material';
+import { Grid, IconButton } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -25,6 +25,7 @@ import { useNavigate } from 'react-router-dom';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
+import { PoolStatusChip } from '../../../components/Chips/PoolStatusChip';
 import { Header } from '../../../components/Header';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { TransferSlide } from '../../../components/Slides/TransferSlide';
@@ -54,7 +55,6 @@ import {
 } from '../../../interfaces';
 import {
   FF_TRANSFER_CATEGORY_MAP,
-  PoolStateColorMap,
   TransferIconMap,
 } from '../../../interfaces/enums';
 import {
@@ -287,12 +287,7 @@ export const TokensDashboard: () => JSX.Element = () => {
         },
         { value: <FFTableText color="primary" text={pool.standard} /> },
         {
-          value: pool.state && (
-            <Chip
-              label={pool.state.toLocaleUpperCase()}
-              sx={{ backgroundColor: PoolStateColorMap[pool.state] }}
-            />
-          ),
+          value: pool.state && <PoolStatusChip pool={pool} />,
         },
       ],
       onClick: () =>

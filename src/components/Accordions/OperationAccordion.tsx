@@ -3,14 +3,14 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Chip,
   Grid,
 } from '@mui/material';
 import { useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { IDataWithHeader, IOperation } from '../../interfaces';
-import { FF_OP_CATEGORY_MAP, OpStatusColorMap } from '../../interfaces/enums';
+import { FF_OP_CATEGORY_MAP } from '../../interfaces/enums';
 import { getFFTime } from '../../utils';
+import { OpStatusChip } from '../Chips/OpStatusChip';
 import { HashPopover } from '../Popovers/HashPopover';
 import { FFAccordionHeader } from './FFAccordionHeader';
 import { FFAccordionText } from './FFAccordionText';
@@ -56,14 +56,7 @@ export const OperationAccordion: React.FC<Props> = ({ op, isOpen = false }) => {
               isHeader
             />
           }
-          rightContent={
-            <Chip
-              label={op.status?.toLocaleUpperCase()}
-              sx={{
-                backgroundColor: OpStatusColorMap[op.status],
-              }}
-            ></Chip>
-          }
+          rightContent={<OpStatusChip op={op} />}
         />
       </AccordionSummary>
       <AccordionDetails>

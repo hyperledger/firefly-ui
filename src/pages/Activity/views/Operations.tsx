@@ -14,12 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Chip, Grid } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Histogram } from '../../../components/Charts/Histogram';
+import { OpStatusChip } from '../../../components/Chips/OpStatusChip';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
@@ -43,10 +44,7 @@ import {
   IPagedOperationResponse,
   OperationFilters,
 } from '../../../interfaces';
-import {
-  FF_OP_CATEGORY_MAP,
-  OpStatusColorMap,
-} from '../../../interfaces/enums';
+import { FF_OP_CATEGORY_MAP } from '../../../interfaces/enums';
 import {
   DEFAULT_HIST_HEIGHT,
   DEFAULT_PADDING,
@@ -165,8 +163,8 @@ export const ActivityOperations: () => JSX.Element = () => {
 
   const opsColumnHeaders = [
     t('type'),
-    t('operationID'),
     t('plugin'),
+    t('operationID'),
     t('transactionID'),
     t('status'),
     t('updated'),
@@ -184,23 +182,16 @@ export const ActivityOperations: () => JSX.Element = () => {
         ),
       },
       {
-        value: <HashPopover shortHash={true} address={op.id}></HashPopover>,
+        value: <FFTableText color="primary" text={op.plugin} />,
       },
       {
-        value: <FFTableText color="primary" text={op.plugin} />,
+        value: <HashPopover shortHash={true} address={op.id}></HashPopover>,
       },
       {
         value: <HashPopover shortHash={true} address={op.tx}></HashPopover>,
       },
       {
-        value: (
-          <Chip
-            label={op.status?.toLocaleUpperCase()}
-            sx={{
-              backgroundColor: OpStatusColorMap[op.status],
-            }}
-          ></Chip>
-        ),
+        value: <OpStatusChip op={op} />,
       },
       { value: <FFTableText color="secondary" text={getFFTime(op.created)} /> },
     ],

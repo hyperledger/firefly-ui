@@ -1,12 +1,12 @@
-import { Chip } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { ITokenPool, PoolStateColorMap } from '../../interfaces';
+import { ITokenPool } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { PoolButton } from '../Buttons/PoolButton';
 import { TxButton } from '../Buttons/TxButton';
+import { PoolStatusChip } from '../Chips/PoolStatusChip';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
@@ -78,12 +78,7 @@ export const PoolList: React.FC<Props> = ({ pool, showPoolLink = true }) => {
         },
         {
           label: t('state'),
-          value: pool.state && (
-            <Chip
-              label={pool.state.toLocaleUpperCase()}
-              sx={{ backgroundColor: PoolStateColorMap[pool.state] }}
-            ></Chip>
-          ),
+          value: pool.state && <PoolStatusChip pool={pool} />,
         },
         {
           label: t('created'),
