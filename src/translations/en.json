@@ -79,6 +79,7 @@
   "eventName": "Event Name",
   "eventParams": "Event Params",
   "events": "Events",
+  "eventSchema": "Event Schema",
   "eventTypes": "Event Types",
   "failed": "Failed",
   "field": "Field",

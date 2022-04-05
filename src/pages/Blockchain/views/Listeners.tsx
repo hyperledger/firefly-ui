@@ -117,7 +117,6 @@ export const BlockchainListeners: () => JSX.Element = () => {
     t('id'),
     t('interfaceID'),
     t('protocolID'),
-    t('location'),
     t('created'),
   ];
 
@@ -142,14 +141,6 @@ export const BlockchainListeners: () => JSX.Element = () => {
         {
           value: (
             <HashPopover shortHash={true} address={l.protocolId}></HashPopover>
-          ),
-        },
-        {
-          value: (
-            <HashPopover
-              shortHash={true}
-              address={l.location?.address ?? ''}
-            ></HashPopover>
           ),
         },
         {

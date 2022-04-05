@@ -120,7 +120,6 @@ export const BlockchainApis: () => JSX.Element = () => {
     t('name'),
     t('id'),
     t('interfaceID'),
-    t('location'),
     t('openApi'),
     t('ui'),
   ];
@@ -147,14 +146,6 @@ export const BlockchainApis: () => JSX.Element = () => {
           <HashPopover
             shortHash={true}
             address={api.interface.id}
-          ></HashPopover>
-        ),
-      },
-      {
-        value: (
-          <HashPopover
-            shortHash={true}
-            address={api.location?.address ?? ''}
           ></HashPopover>
         ),
       },
