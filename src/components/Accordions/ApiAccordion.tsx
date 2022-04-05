@@ -5,9 +5,10 @@ import {
   AccordionSummary,
   Grid,
 } from '@mui/material';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IDataWithHeader, IFireflyApi } from '../../interfaces';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
+import { FF_Paths, IDataWithHeader, IFireflyApi } from '../../interfaces';
 import { HashPopover } from '../Popovers/HashPopover';
 import { FFAccordionHeader } from './FFAccordionHeader';
 import { FFAccordionLink } from './FFAccordionLink';
@@ -19,6 +20,7 @@ interface Props {
 }
 
 export const ApiAccordion: React.FC<Props> = ({ api, isOpen = false }) => {
+  const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState<boolean>(isOpen);
 
@@ -42,7 +44,11 @@ export const ApiAccordion: React.FC<Props> = ({ api, isOpen = false }) => {
       <AccordionSummary expandIcon={<ExpandMoreIcon />}>
         <FFAccordionHeader
           leftContent={
-            <FFAccordionText color="primary" text={api.name} isHeader />
+            <FFAccordionText
+              color="primary"
+              text={`${FF_Paths.nsPrefix}/${selectedNamespace}/apis/${api.name}`}
+              isHeader
+            />
           }
           rightContent={<HashPopover shortHash address={api.id} />}
         />

@@ -180,20 +180,16 @@ export const ActivityTransactions: () => JSX.Element = () => {
         ),
       },
       {
-        value: <HashPopover shortHash={true} address={tx.id}></HashPopover>,
-      },
-      {
         value: (
           <>
             {tx.blockchainIds?.map((bid, idx) => (
-              <HashPopover
-                key={idx}
-                shortHash={true}
-                address={bid}
-              ></HashPopover>
+              <HashPopover key={idx} address={bid}></HashPopover>
             ))}
           </>
         ),
+      },
+      {
+        value: <HashPopover shortHash={true} address={tx.id}></HashPopover>,
       },
       {
         value: <FFTableText color="secondary" text={getFFTime(tx.created)} />,

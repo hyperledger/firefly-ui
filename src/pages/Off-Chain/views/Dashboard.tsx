@@ -15,13 +15,13 @@
 // limitations under the License.
 
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import DownloadIcon from '@mui/icons-material/Download';
 import { Grid, IconButton } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { DownloadButton } from '../../../components/Buttons/DownloadButton';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
@@ -61,12 +61,7 @@ import {
   DEFAULT_PAGE_LIMITS,
   DEFAULT_SPACING,
 } from '../../../theme';
-import {
-  downloadBlobFile,
-  fetchCatcher,
-  getFFTime,
-  makeMsgHistogram,
-} from '../../../utils';
+import { fetchCatcher, getFFTime, makeMsgHistogram } from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -216,14 +211,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
       },
       {
         value: data.blob && (
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              downloadBlobFile(data.id, data.blob?.name);
-            }}
-          >
-            <DownloadIcon />
-          </IconButton>
+          <DownloadButton isBlob url={data.id} filename={data.blob?.name} />
         ),
       },
     ],

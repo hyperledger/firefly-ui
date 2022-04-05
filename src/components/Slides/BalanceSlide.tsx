@@ -195,6 +195,7 @@ export const BalanceSlide: React.FC<Props> = ({ balance, open, onClose }) => {
                 dataTotal={tokenTransferTotal}
                 currentPage={currentPage}
                 rowsPerPage={rowsPerPage}
+                dashboardSize
               />
             </Grid>
           )}

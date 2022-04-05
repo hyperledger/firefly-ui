@@ -16,7 +16,7 @@ export const FFAccordionText: React.FC<Props> = ({
   return (
     <Typography
       sx={{
-        fontSize: isHeader ? '16px' : '14px',
+        fontSize: '14px',
         fontWeight: isHeader ? '600' : '500',
         paddingBottom: padding ? 1 : 0,
       }}

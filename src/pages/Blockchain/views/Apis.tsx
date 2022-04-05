@@ -18,6 +18,7 @@ import LaunchIcon from '@mui/icons-material/Launch';
 import { Grid, IconButton, Link } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { DownloadButton } from '../../../components/Buttons/DownloadButton';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
@@ -95,17 +96,26 @@ export const BlockchainApis: () => JSX.Element = () => {
   ]);
 
   const apiColHeaders = [
+    t('endpoint'),
     t('name'),
     t('id'),
     t('interfaceID'),
     t('location'),
     t('openApi'),
-    t('swagger'),
+    t('ui'),
   ];
 
   const apiRecords: IDataTableRecord[] | undefined = apis?.map((api) => ({
     key: api.id,
     columns: [
+      {
+        value: (
+          <HashPopover
+            address={`${FF_Paths.nsPrefix}/${selectedNamespace}/apis/${api.name}`}
+            fullLength
+          />
+        ),
+      },
       {
         value: <FFTableText color="primary" text={api.name} />,
       },
@@ -130,11 +140,11 @@ export const BlockchainApis: () => JSX.Element = () => {
       },
       {
         value: (
-          <Link target="_blank" href={api.urls.openapi} underline="always">
-            <IconButton>
-              <LaunchIcon />
-            </IconButton>
-          </Link>
+          <DownloadButton
+            filename={api.name}
+            url={api.urls.openapi}
+            isBlob={false}
+          />
         ),
       },
       {

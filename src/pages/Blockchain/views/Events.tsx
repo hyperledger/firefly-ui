@@ -25,11 +25,13 @@ import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { BlockchainEventSlide } from '../../../components/Slides/BlockchainEventSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
+import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BlockchainEventFilters,
@@ -63,6 +65,7 @@ export const BlockchainEvents: () => JSX.Element = () => {
   const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
+  const { setSlideSearchParam, slideID } = useContext(SlideContext);
   const [isMounted, setIsMounted] = useState(false);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
@@ -75,6 +78,8 @@ export const BlockchainEvents: () => JSX.Element = () => {
   const [beHistData, setBeHistData] = useState<BarDatum[]>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
+  const [viewBlockchainEvent, setViewBlockchainEvent] =
+    useState<IBlockchainEvent>();
 
   const [isHistLoading, setIsHistLoading] = useState(false);
 
@@ -84,6 +89,23 @@ export const BlockchainEvents: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
+
+  // Slide for blockchain event
+  useEffect(() => {
+    isMounted &&
+      slideID &&
+      fetchCatcher(
+        `${
+          FF_Paths.nsPrefix
+        }/${selectedNamespace}${FF_Paths.blockchainEventsById(slideID)}`
+      )
+        .then((beRes: IBlockchainEvent) => {
+          setViewBlockchainEvent(beRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [slideID, isMounted]);
 
   // Blockchain events
   useEffect(() => {
@@ -169,6 +191,10 @@ export const BlockchainEvents: () => JSX.Element = () => {
         },
       ],
       leftBorderColor: FFColors.Yellow,
+      onClick: () => {
+        setViewBlockchainEvent(be);
+        setSlideSearchParam(be.id);
+      },
     })
   );
 
@@ -230,6 +256,16 @@ export const BlockchainEvents: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={BlockchainEventFilters}
+        />
+      )}
+      {viewBlockchainEvent && (
+        <BlockchainEventSlide
+          be={viewBlockchainEvent}
+          open={!!viewBlockchainEvent}
+          onClose={() => {
+            setViewBlockchainEvent(undefined);
+            setSlideSearchParam(null);
+          }}
         />
       )}
     </>
