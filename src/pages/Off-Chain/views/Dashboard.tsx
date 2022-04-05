@@ -215,7 +215,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
         });
   }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
-  const dataHeaders = [t('nameOrID'), t('created'), t('download')];
+  const dataHeaders = [t('nameOrID'), t('created'), t('blob')];
   const dataRecords: IDataTableRecord[] | undefined = data?.map((data) => ({
     key: data.id,
     columns: [
@@ -230,8 +230,10 @@ export const OffChainDashboard: () => JSX.Element = () => {
         value: <FFTableText color="secondary" text={getFFTime(data.created)} />,
       },
       {
-        value: data.blob && (
+        value: data.blob ? (
           <DownloadButton isBlob url={data.id} filename={data.blob?.name} />
+        ) : (
+          <FFTableText color="secondary" text={t('noBlobInData')} />
         ),
       },
     ],
