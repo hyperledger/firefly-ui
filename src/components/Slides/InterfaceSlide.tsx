@@ -20,7 +20,6 @@ import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import {
-  FF_NAV_PATHS,
   IContractInterface,
   IContractListener,
   IFireflyApi,
@@ -106,13 +105,7 @@ export const InterfaceSlide: React.FC<Props> = ({
           {/* APIs */}
           {interfaceApis?.length > 0 && (
             <>
-              <SlideSectionHeader
-                clickPath={FF_NAV_PATHS.blockchainApisPath(
-                  selectedNamespace,
-                  cInterface.id
-                )}
-                title={t('apis')}
-              />
+              <SlideSectionHeader title={t('apis')} />
               <Grid container item>
                 {interfaceApis?.map((api, idx) => (
                   <ApiAccordion key={idx} api={api} />
@@ -123,13 +116,7 @@ export const InterfaceSlide: React.FC<Props> = ({
           {/* Listeners */}
           {interfaceListeners?.length > 0 && (
             <>
-              <SlideSectionHeader
-                clickPath={FF_NAV_PATHS.blockchainListenersPath(
-                  selectedNamespace,
-                  cInterface.id
-                )}
-                title={t('listeners')}
-              />
+              <SlideSectionHeader title={t('listeners')} />
               <Grid container item>
                 {interfaceListeners?.map((listener) => (
                   <ListenerAccordion key={listener.id} listener={listener} />

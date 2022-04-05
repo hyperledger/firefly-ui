@@ -8,7 +8,13 @@ import {
 import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { FF_Paths, IDataWithHeader, IFireflyApi } from '../../interfaces';
+import {
+  FF_NAV_PATHS,
+  FF_Paths,
+  IDataWithHeader,
+  IFireflyApi,
+} from '../../interfaces';
+import { LaunchButton } from '../Buttons/LaunchButton';
 import { HashPopover } from '../Popovers/HashPopover';
 import { FFAccordionHeader } from './FFAccordionHeader';
 import { FFAccordionLink } from './FFAccordionLink';
@@ -50,7 +56,14 @@ export const ApiAccordion: React.FC<Props> = ({ api, isOpen = false }) => {
               isHeader
             />
           }
-          rightContent={<HashPopover shortHash address={api.id} />}
+          rightContent={
+            <LaunchButton
+              link={FF_NAV_PATHS.blockchainApisPath(
+                selectedNamespace,
+                api.name
+              )}
+            />
+          }
         />
       </AccordionSummary>
       <AccordionDetails>

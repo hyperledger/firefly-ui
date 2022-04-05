@@ -79,9 +79,9 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${EVENTS_PATH}${
       txID ? `?filters=tx.id==${txID}` : ''
     }`,
-  blockchainApisPath: (ns: string, interfaceID?: string) =>
+  blockchainApisPath: (ns: string, apiName?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${APIS_PATH}${
-      interfaceID ? `?filters=interface==${interfaceID}` : ''
+      apiName ? `?slide=${apiName}` : ''
     }`,
   blockchainInterfacesPath: (ns: string, interfaceID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${INTERFACES_PATH}${
@@ -92,7 +92,7 @@ export const FF_NAV_PATHS = {
       interfaceID ? `?filters=interface==${interfaceID}` : ''
     }`,
   blockchainListenersSinglePath: (ns: string, listenerID: string) =>
-    `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${LISTENERS_PATH}${`?slide=${listenerID}&filters=id==${listenerID}`}`,
+    `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${LISTENERS_PATH}${`?slide=${listenerID}`}`,
   // Off-Chain
   offchainPath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}`,
   offchainMessagesPath: (ns: string, msgID?: string) =>

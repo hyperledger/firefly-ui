@@ -7,6 +7,7 @@ import { FF_Paths, IFireflyApi } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { DownloadButton } from '../Buttons/DownloadButton';
+import { InterfaceButton } from '../Buttons/InterfaceButton';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
 import { FFSkeletonList } from './FFSkeletonList';
@@ -45,7 +46,15 @@ export const ApiList: React.FC<Props> = ({ api }) => {
         {
           label: api.interface.id ? t('interfaceID') : '',
           value: <FFListText text={api.interface.id} color="primary" />,
-          button: <FFCopyButton value={api.interface.id} />,
+          button: (
+            <>
+              <InterfaceButton
+                interfaceID={api.interface.id}
+                ns={selectedNamespace}
+              />
+              <FFCopyButton value={api.interface.id} />
+            </>
+          ),
         },
         {
           label: t('openApi'),

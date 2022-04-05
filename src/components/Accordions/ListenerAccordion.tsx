@@ -5,10 +5,16 @@ import {
   AccordionSummary,
   Grid,
 } from '@mui/material';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IContractListener, IDataWithHeader } from '../../interfaces';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
+import {
+  FF_NAV_PATHS,
+  IContractListener,
+  IDataWithHeader,
+} from '../../interfaces';
 import { getFFTime } from '../../utils';
+import { LaunchButton } from '../Buttons/LaunchButton';
 import { HashPopover } from '../Popovers/HashPopover';
 import { FFAccordionHeader } from './FFAccordionHeader';
 import { FFAccordionText } from './FFAccordionText';
@@ -22,6 +28,7 @@ export const ListenerAccordion: React.FC<Props> = ({
   listener,
   isOpen = false,
 }) => {
+  const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState<boolean>(isOpen);
 
@@ -31,13 +38,11 @@ export const ListenerAccordion: React.FC<Props> = ({
       data: <HashPopover address={listener.id} shortHash />,
     },
     {
-      header: t('protocolID'),
-      data: <HashPopover address={listener.protocolId} shortHash />,
-    },
-    {
-      header: t('location'),
-      data: (
-        <HashPopover address={listener.location?.address ?? ''} shortHash />
+      header: t('topic'),
+      data: listener.topic ? (
+        <HashPopover address={listener.topic} shortHash />
+      ) : (
+        <FFAccordionText color="secondary" text={t('noTopicInListener')} />
       ),
     },
     {
@@ -67,10 +72,11 @@ export const ListenerAccordion: React.FC<Props> = ({
             />
           }
           rightContent={
-            <FFAccordionText
-              color="primary"
-              text={getFFTime(listener.created)}
-              isHeader
+            <LaunchButton
+              link={FF_NAV_PATHS.blockchainListenersSinglePath(
+                selectedNamespace,
+                listener.id
+              )}
             />
           }
         />
@@ -79,7 +85,7 @@ export const ListenerAccordion: React.FC<Props> = ({
         {/* Basic Data */}
         <Grid container item direction="row">
           {accInfo.map((info, idx) => (
-            <Grid key={idx} item xs={3} pb={1} justifyContent="flex-start">
+            <Grid key={idx} item xs={4} pb={1} justifyContent="flex-start">
               <FFAccordionText
                 color="primary"
                 text={info.header ?? ''}
