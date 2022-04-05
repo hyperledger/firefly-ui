@@ -26,7 +26,6 @@ export const FF_Paths = {
     `/apis/${apiName}/query/${methodPath}`,
   apisSubscribe: (apiName: string, methodPath: string) =>
     `/apis/${apiName}/subscribe/${methodPath}`,
-  apisById: (id: string) => `/apis/${id}`,
   // Batches
   batches: '/batches',
   batchesByBatchId: (batchId: string) => `/batches/${batchId}`,

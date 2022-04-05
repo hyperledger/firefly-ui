@@ -68,13 +68,9 @@ export const ApiAccordion: React.FC<Props> = ({ api, isOpen = false }) => {
           ))}
         </Grid>
         {/* OpenAPI */}
-        {api.urls.openapi && (
-          <FFAccordionLink header={t('openApi')} link={api.urls.openapi} />
-        )}
-        {/* Swagger */}
-        {api.urls.ui && (
-          <FFAccordionLink header={t('swagger')} link={api.urls.ui} />
-        )}
+        <FFAccordionLink header={t('openApi')} link={api.urls.openapi} />
+        {/* UI */}
+        <FFAccordionLink header={t('ui')} link={api.urls.ui} />
       </AccordionDetails>
     </Accordion>
   );

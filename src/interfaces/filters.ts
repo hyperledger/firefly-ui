@@ -53,6 +53,8 @@ export const BlockchainEventFilters = [
   'timestamp',
 ];
 
+export const InterfaceFilters = ['id', 'name', 'namespace', 'version'];
+
 export const DataFilters = [
   'id',
   'validator',

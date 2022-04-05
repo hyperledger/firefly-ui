@@ -24,11 +24,13 @@ import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { ApiSlide } from '../../../components/Slides/ApiSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
+import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   ApiFilters,
@@ -47,6 +49,7 @@ export const BlockchainApis: () => JSX.Element = () => {
   const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
+  const { setSlideSearchParam, slideID } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
@@ -54,7 +57,7 @@ export const BlockchainApis: () => JSX.Element = () => {
   const [apis, setApis] = useState<IFireflyApi[]>();
   // API Totals
   const [apiTotal, setApiTotal] = useState(0);
-
+  const [viewApi, setViewApi] = useState<IFireflyApi>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
@@ -64,6 +67,23 @@ export const BlockchainApis: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
+
+  // Slide for api
+  useEffect(() => {
+    isMounted &&
+      slideID &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.apisByName(
+          slideID
+        )}`
+      )
+        .then((apiRes: IFireflyApi) => {
+          setViewApi(apiRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [slideID, isMounted]);
 
   // APIs
   useEffect(() => {
@@ -157,6 +177,10 @@ export const BlockchainApis: () => JSX.Element = () => {
         ),
       },
     ],
+    onClick: () => {
+      setViewApi(api);
+      setSlideSearchParam(api.name);
+    },
   }));
 
   return (
@@ -205,6 +229,16 @@ export const BlockchainApis: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={ApiFilters}
+        />
+      )}
+      {viewApi && (
+        <ApiSlide
+          api={viewApi}
+          open={!!viewApi}
+          onClose={() => {
+            setViewApi(undefined);
+            setSlideSearchParam(null);
+          }}
         />
       )}
     </>

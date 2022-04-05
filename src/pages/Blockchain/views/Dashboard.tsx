@@ -28,6 +28,7 @@ import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { Header } from '../../../components/Header';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { ApiSlide } from '../../../components/Slides/ApiSlide';
 import { BlockchainEventSlide } from '../../../components/Slides/BlockchainEventSlide';
 import { ListenerSlide } from '../../../components/Slides/ListenerSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
@@ -111,6 +112,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
 
   const [isHistLoading, setIsHistLoading] = useState(false);
 
+  const [viewApi, setViewApi] = useState<IFireflyApi>();
   const [viewListener, setViewListener] = useState<IContractListener>();
   const [viewBlockchainEvent, setViewBlockchainEvent] =
     useState<IBlockchainEvent>();
@@ -121,23 +123,6 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
-
-  // Slide for blockchain event
-  useEffect(() => {
-    isMounted &&
-      slideID &&
-      fetchCatcher(
-        `${
-          FF_Paths.nsPrefix
-        }/${selectedNamespace}${FF_Paths.blockchainEventsById(slideID)}`
-      )
-        .then((beRes: IBlockchainEvent) => {
-          setViewBlockchainEvent(beRes);
-        })
-        .catch((err) => {
-          reportFetchError(err);
-        });
-  }, [slideID, isMounted]);
 
   useEffect(() => {
     if (isMounted && slideID) {
@@ -154,6 +139,13 @@ export const BlockchainDashboard: () => JSX.Element = () => {
         }/${selectedNamespace}${FF_Paths.contractListenersByNameId(slideID)}`
       ).then((clRes: IContractListener) => {
         isMounted && clRes && setViewListener(clRes);
+      });
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.apisByName(
+          slideID
+        )}`
+      ).then((apiRes: IFireflyApi) => {
+        isMounted && apiRes && setViewApi(apiRes);
       });
     }
   }, [slideID, isMounted]);
@@ -271,6 +263,10 @@ export const BlockchainDashboard: () => JSX.Element = () => {
         ),
       },
     ],
+    onClick: () => {
+      setViewApi(api);
+      setSlideSearchParam(api.name);
+    },
   }));
 
   const clColHeaders = [t('id'), t('event'), t('topic')];
@@ -553,6 +549,16 @@ export const BlockchainDashboard: () => JSX.Element = () => {
           />
         </Grid>
       </Grid>
+      {viewApi && (
+        <ApiSlide
+          api={viewApi}
+          open={!!viewApi}
+          onClose={() => {
+            setViewApi(undefined);
+            setSlideSearchParam(null);
+          }}
+        />
+      )}
       {viewListener && (
         <ListenerSlide
           listener={viewListener}
