@@ -23,7 +23,6 @@ import { JsonViewAccordion } from '../Accordions/JsonViewerAccordion';
 import { DataList } from '../Lists/DataList';
 import { DisplaySlide } from './DisplaySlide';
 import { SlideHeader } from './SlideHeader';
-import { SlideSectionHeader } from './SlideSectionHeader';
 
 interface Props {
   data: IData;
@@ -45,10 +44,13 @@ export const DataSlide: React.FC<Props> = ({ data, open, onClose }) => {
             <DataList data={data} />
           </Grid>
           {/* Value */}
-          {data.value && <SlideSectionHeader title={t('dataValue')} />}
           {data.value && (
             <Grid container item pb={DEFAULT_PADDING}>
-              <JsonViewAccordion header={t('value')} json={data.value} />
+              <JsonViewAccordion
+                isOpen
+                header={t('dataValue')}
+                json={data.value}
+              />
             </Grid>
           )}
         </Grid>

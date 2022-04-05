@@ -23,7 +23,6 @@ import { JsonViewAccordion } from '../Accordions/JsonViewerAccordion';
 import { DatatypeList } from '../Lists/DatatypeList';
 import { DisplaySlide } from './DisplaySlide';
 import { SlideHeader } from './SlideHeader';
-import { SlideSectionHeader } from './SlideSectionHeader';
 
 interface Props {
   dt: IDatatype;
@@ -45,10 +44,9 @@ export const DatatypeSlide: React.FC<Props> = ({ dt, open, onClose }) => {
             <DatatypeList dt={dt} />
           </Grid>
           {/* Value */}
-          {dt.value && <SlideSectionHeader title={t('datatypeValue')} />}
           {dt.value && (
             <Grid container item pb={DEFAULT_PADDING}>
-              <JsonViewAccordion header={t('value')} json={dt.value} />
+              <JsonViewAccordion isOpen header={t('schema')} json={dt.value} />
             </Grid>
           )}
         </Grid>
