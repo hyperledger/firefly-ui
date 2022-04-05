@@ -116,7 +116,7 @@ export const BlockchainListeners: () => JSX.Element = () => {
     t('eventName'),
     t('id'),
     t('interfaceID'),
-    t('protocolID'),
+    t('fireflyID'),
     t('created'),
   ];
 

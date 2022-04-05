@@ -189,7 +189,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
         ),
       },
       {
-        value: <HashPopover shortHash={true} address={tx.id}></HashPopover>,
+        value: <HashPopover address={tx.id}></HashPopover>,
       },
       {
         value: <FFTableText color="secondary" text={getFFTime(tx.created)} />,
