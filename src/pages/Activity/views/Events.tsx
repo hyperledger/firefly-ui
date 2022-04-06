@@ -56,6 +56,7 @@ import {
   makeColorArray,
   makeKeyArray,
 } from '../../../utils/charts';
+import { hasAnyEvent } from '../../../utils/wsEvents';
 
 export const ActivityEvents: () => JSX.Element = () => {
   const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
@@ -219,7 +220,7 @@ export const ActivityEvents: () => JSX.Element = () => {
       <Header
         title={t('events')}
         subtitle={t('activity')}
-        showRefreshBtn={newEvents.length > 0}
+        showRefreshBtn={hasAnyEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
       <Grid container px={DEFAULT_PADDING}>

@@ -34,6 +34,7 @@ import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
+import { hasAnyEvent } from '../../../utils/wsEvents';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
@@ -207,7 +208,7 @@ export const ActivityOperations: () => JSX.Element = () => {
       <Header
         title={t('operations')}
         subtitle={t('activity')}
-        showRefreshBtn={newEvents.length > 0}
+        showRefreshBtn={hasAnyEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
       <Grid container px={DEFAULT_PADDING}>

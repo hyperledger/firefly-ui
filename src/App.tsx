@@ -30,10 +30,22 @@ import {
 } from './components/Snackbar/MessageSnackbar';
 import { ApplicationContext } from './contexts/ApplicationContext';
 import { SnackbarContext } from './contexts/SnackbarContext';
-import { FF_EVENTS, INamespace, IStatus, NAMESPACES_PATH } from './interfaces';
+import {
+  FF_EVENTS,
+  INamespace,
+  INewEventSet,
+  IStatus,
+  NAMESPACES_PATH,
+} from './interfaces';
 import { FF_Paths } from './interfaces/constants';
 import { themeOptions } from './theme';
 import { fetchWithCredentials, summarizeFetchError } from './utils';
+
+const makeNewEventMap = (): INewEventSet => {
+  const map: any = {};
+  Object.values(FF_EVENTS).map((v) => (map[v] = false));
+  return map;
+};
 
 const App: React.FC = () => {
   const [initialized, setInitialized] = useState(false);
@@ -50,7 +62,7 @@ const App: React.FC = () => {
   const [nodeName, setNodeName] = useState('');
   const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
   // Event Context
-  const [newEvents, setNewEvents] = useState<FF_EVENTS[]>([]);
+  const [newEvents, setNewEvents] = useState<INewEventSet>(makeNewEventMap());
   const [lastRefreshTime, setLastRefresh] = useState<string>(
     new Date().toISOString()
   );
@@ -115,8 +127,13 @@ const App: React.FC = () => {
       ws.current.onmessage = (event: any) => {
         const eventData = JSON.parse(event.data);
         const eventType: FF_EVENTS = eventData.type;
-        if (Object.values(FF_EVENTS).includes(eventType)) {
-          setNewEvents((existing) => [eventType, ...existing]);
+        if (
+          !newEvents[eventType] &&
+          Object.values(FF_EVENTS).includes(eventType)
+        ) {
+          setNewEvents((existing) => {
+            return { ...existing, [eventType]: true };
+          });
         }
       };
 
@@ -136,7 +153,7 @@ const App: React.FC = () => {
   };
 
   const clearNewEvents = () => {
-    setNewEvents([]);
+    setNewEvents(makeNewEventMap());
     setLastRefresh(new Date().toISOString());
   };
 

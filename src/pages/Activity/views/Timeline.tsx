@@ -36,6 +36,7 @@ import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
+import { hasAnyEvent } from '../../../utils/wsEvents';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
@@ -246,7 +247,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
             height={'calc(100vh - 475px)'}
             fetchMoreData={() => setIsVisible(isVisible + 1)}
             hasMoreData={hasNextPage}
-            hasNewEvents={newEvents.length > 0}
+            hasNewEvents={hasAnyEvent(newEvents)}
             fetchNewData={clearNewEvents}
           />
         </Grid>

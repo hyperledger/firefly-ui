@@ -39,7 +39,7 @@ export const TIME_QUERY_KEY = 'time';
 
 export const AppWrapper: React.FC = () => {
   const { pathname, search } = useLocation();
-  const { selectedNamespace } = useContext(ApplicationContext);
+  const { selectedNamespace, clearNewEvents } = useContext(ApplicationContext);
   const [filterAnchor, setFilterAnchor] = useState<HTMLButtonElement | null>(
     null
   );
@@ -65,6 +65,10 @@ export const AppWrapper: React.FC = () => {
     initializeSlideSearchParams();
     initializeTableFilterSearchParams();
   }, [pathname, search]);
+
+  useEffect(() => {
+    clearNewEvents();
+  }, [pathname]);
 
   const initializeTimeSearchParams = () => {
     // If date has already been set

@@ -48,6 +48,7 @@ import {
   makeColorArray,
   makeKeyArray,
 } from '../../../utils/charts';
+import { hasAnyEvent } from '../../../utils/wsEvents';
 
 export const HomeDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
@@ -551,7 +552,7 @@ export const HomeDashboard: () => JSX.Element = () => {
       <Header
         title={'Dashboard'}
         subtitle={'Home'}
-        showRefreshBtn={newEvents.length > 0}
+        showRefreshBtn={hasAnyEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
       <Grid container px={DEFAULT_PADDING}>
