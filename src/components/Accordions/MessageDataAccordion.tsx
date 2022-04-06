@@ -55,7 +55,7 @@ export const MessageDataAccordion: React.FC<Props> = ({
       ),
     },
   ];
-  console.log(data);
+
   return (
     <>
       <Accordion
