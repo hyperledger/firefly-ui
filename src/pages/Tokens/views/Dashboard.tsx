@@ -25,9 +25,9 @@ import { useNavigate } from 'react-router-dom';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
-import { PoolStatusChip } from '../../../components/Chips/PoolStatusChip';
 import { Header } from '../../../components/Header';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { BalanceSlide } from '../../../components/Slides/BalanceSlide';
 import { TransferSlide } from '../../../components/Slides/TransferSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { MediumCardTable } from '../../../components/Tables/MediumCardTable';
@@ -71,6 +71,7 @@ import {
 } from '../../../utils/charts';
 import { makeTransferHistogram } from '../../../utils/histograms/transferHistogram';
 import { hasTransferEvent } from '../../../utils/wsEvents';
+import { KEY_POOL_DELIM } from './Balances';
 
 export const TokensDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
@@ -87,8 +88,8 @@ export const TokensDashboard: () => JSX.Element = () => {
   const [tokenMintCount, setTokenMintcount] = useState<number>();
   const [tokenBurnCount, setTokenBurnCount] = useState<number>();
   const [tokenErrorCount, setTokenErrorCount] = useState<number>(0);
-  // Accounts
-  const [tokenAccountsCount, setTokenAccountsCount] = useState<number>();
+  // Approvals
+  const [tokenApprovalCount, setTokenApprovalCount] = useState<number>();
   // Pools
   const [tokenPoolCount, setTokenPoolCount] = useState<number>();
   const [tokenPoolErrorCount, setTokenPoolErrorCount] = useState<number>(0);
@@ -110,6 +111,7 @@ export const TokensDashboard: () => JSX.Element = () => {
   const [viewTransfer, setViewTransfer] = useState<
     ITokenTransfer | undefined
   >();
+  const [viewBalance, setViewBalance] = useState<ITokenBalance>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[0]);
 
@@ -123,24 +125,41 @@ export const TokensDashboard: () => JSX.Element = () => {
   }, []);
 
   useEffect(() => {
-    isMounted &&
-      slideID &&
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenTransferById(
-          slideID
-        )}`
-      )
-        .then((transferRes: ITokenTransfer) => {
+    if (isMounted && slideID) {
+      // Expected structure: <key>||<poolID>
+      const keyPoolArray = slideID.split(KEY_POOL_DELIM);
+      if (keyPoolArray.length !== 2) {
+        fetchCatcher(
+          `${
+            FF_Paths.nsPrefix
+          }/${selectedNamespace}${FF_Paths.tokenTransferById(slideID)}`
+        ).then((transferRes: ITokenTransfer) => {
           setViewTransfer(transferRes);
-        })
-        .catch((err) => {
-          reportFetchError(err);
         });
+      } else {
+        fetchCatcher(
+          `${
+            FF_Paths.nsPrefix
+          }/${selectedNamespace}${FF_Paths.tokenBalancesByKeyPool(
+            keyPoolArray[0],
+            keyPoolArray[1]
+          )}`
+        )
+          .then((balanceRes: ITokenBalance[]) => {
+            isMounted &&
+              balanceRes.length === 1 &&
+              setViewBalance(balanceRes[0]);
+          })
+          .catch((err) => {
+            reportFetchError(err);
+          });
+      }
+    }
   }, [slideID, isMounted]);
 
   const smallCards: ISmallCard[] = [
     {
-      header: t('tokens'),
+      header: t('activity'),
       numErrors: tokenErrorCount,
       errorLink: FF_NAV_PATHS.tokensTransfersErrorPath(selectedNamespace),
       data: [
@@ -151,16 +170,15 @@ export const TokensDashboard: () => JSX.Element = () => {
       clickPath: TRANSFERS_PATH,
     },
     {
-      header: t('accounts'),
-      numErrors: 0,
-      data: [{ header: t('total'), data: tokenAccountsCount }],
-      clickPath: POOLS_PATH,
-    },
-    {
       header: t('tokenPools'),
       numErrors: tokenPoolErrorCount,
       data: [{ header: t('total'), data: tokenPoolCount }],
       clickPath: POOLS_PATH,
+    },
+    {
+      header: t('approvals'),
+      numErrors: 0,
+      data: [{ header: t('total'), data: tokenApprovalCount }],
     },
     {
       header: t('connectors'),
@@ -189,9 +207,9 @@ export const TokensDashboard: () => JSX.Element = () => {
         fetchCatcher(
           `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&type=token_create_pool&type=token_activate_pool&type=token_transfer&status=Failed`
         ),
-        // Accounts
+        // Approvals
         fetchCatcher(
-          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenAccounts}${qParams}`
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenApprovals}${qParams}`
         ),
         // Pools
         fetchCatcher(
@@ -212,8 +230,8 @@ export const TokensDashboard: () => JSX.Element = () => {
             tokensMint,
             tokensBurn,
             tokenErrors,
-            // Accounts
-            tokenAccounts,
+            // Approvals
+            tokenApprovals,
             // Pools
             tokenPools,
             tokenPoolErrors,
@@ -226,8 +244,8 @@ export const TokensDashboard: () => JSX.Element = () => {
               setTokenMintcount(tokensMint.total);
               setTokenBurnCount(tokensBurn.total);
               setTokenErrorCount(tokenErrors.total);
-              // Accounts
-              setTokenAccountsCount(tokenAccounts.total);
+              // Approvals
+              setTokenApprovalCount(tokenApprovals.total);
               // Pools
               setTokenPoolCount(tokenPools.total);
               setTokenPoolErrorCount(tokenPoolErrors.total);
@@ -256,26 +274,22 @@ export const TokensDashboard: () => JSX.Element = () => {
           value: <FFTableText color="primary" text={acct.balance} />,
         },
       ],
-      onClick: () =>
-        navigate(
-          FF_NAV_PATHS.tokensPoolDetailsPath(selectedNamespace, acct.pool)
-        ),
+      onClick: () => {
+        setViewBalance(acct);
+        // Since a key can have transfers in multiple pools, the slide ID must be a string
+        // with the following structure: <key>||<poolID>
+        setSlideSearchParam([acct.key, acct.pool].join(KEY_POOL_DELIM));
+      },
     }));
 
-  const tokenPoolColHeaders = [t(''), t('name'), t('standard'), t('state')];
+  const tokenPoolColHeaders = [t('name'), t('symbol'), t('standard')];
   const tokenPoolRecords: IDataTableRecord[] | undefined = tokenPools?.map(
     (pool) => ({
       key: pool.id,
       columns: [
         {
           value: (
-            <Jazzicon diameter={20} seed={jsNumberForAddress(pool.name)} />
-          ),
-        },
-        {
-          value: (
             <FFTableText
-              isComponent
               color="primary"
               text={
                 pool.name.length > 10 ? (
@@ -284,13 +298,20 @@ export const TokensDashboard: () => JSX.Element = () => {
                   pool.name
                 )
               }
+              icon={
+                <Jazzicon diameter={20} seed={jsNumberForAddress(pool.name)} />
+              }
             />
           ),
         },
-        { value: <FFTableText color="primary" text={pool.standard} /> },
         {
-          value: pool.state && <PoolStatusChip pool={pool} />,
+          value: pool.symbol ? (
+            <FFTableText color="primary" text={pool.symbol} />
+          ) : (
+            <FFTableText color="secondary" text={t('---')} />
+          ),
         },
+        { value: <FFTableText color="primary" text={pool.standard} /> },
       ],
       onClick: () =>
         navigate(
@@ -403,7 +424,7 @@ export const TokensDashboard: () => JSX.Element = () => {
     t('to'),
     t('amount'),
     t('blockchainEvent'),
-    t('author'),
+    t('signingKey'),
     t('timestamp'),
   ];
   const tokenTransferRecords: IDataTableRecord[] | undefined =
@@ -439,12 +460,7 @@ export const TokensDashboard: () => JSX.Element = () => {
           value: <FFTableText color="primary" text={transfer.amount} />,
         },
         {
-          value: (
-            <HashPopover
-              shortHash={true}
-              address={transfer.blockchainEvent}
-            ></HashPopover>
-          ),
+          value: <HashPopover address={transfer.protocolId}></HashPopover>,
         },
         {
           value: (
@@ -587,6 +603,16 @@ export const TokensDashboard: () => JSX.Element = () => {
           open={!!viewTransfer}
           onClose={() => {
             setViewTransfer(undefined);
+            setSlideSearchParam(null);
+          }}
+        />
+      )}
+      {viewBalance && (
+        <BalanceSlide
+          balance={viewBalance}
+          open={!!viewBalance}
+          onClose={() => {
+            setViewBalance(undefined);
             setSlideSearchParam(null);
           }}
         />

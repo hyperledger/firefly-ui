@@ -19,7 +19,7 @@ import React from 'react';
 
 interface Props {
   subtitle?: string;
-  title: string;
+  title: string | JSX.Element;
 }
 
 export const SlideHeader: React.FC<Props> = ({ subtitle, title }) => {

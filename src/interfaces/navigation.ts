@@ -75,9 +75,9 @@ export const FF_NAV_PATHS = {
   // Blockchain
   blockchainPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}`,
-  blockchainEventsPath: (ns: string, txID?: string) =>
+  blockchainEventsPath: (ns: string, beID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${EVENTS_PATH}${
-      txID ? `?filters=tx.id==${txID}` : ''
+      beID ? `?slide=${beID}` : ''
     }`,
   blockchainApisPath: (ns: string, apiName?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${APIS_PATH}${
@@ -97,7 +97,7 @@ export const FF_NAV_PATHS = {
   offchainPath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}`,
   offchainMessagesPath: (ns: string, msgID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${MESSAGES_PATH}${
-      msgID ? `?filters=id==${msgID}` : ''
+      msgID ? `?slide=${msgID}` : ''
     }`,
   offchainDataPath: (ns: string, dataID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${DATA_PATH}${
@@ -127,6 +127,8 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${POOLS_PATH}/${poolID}`,
   tokensBalancesPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${BALANCES_PATH}`,
+  tokensBalancesPathByPool: (ns: string, poolID: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${BALANCES_PATH}?filters=pool==${poolID}`,
   // Network
   networkPath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}`,
   networkOrgsPath: (ns: string) =>

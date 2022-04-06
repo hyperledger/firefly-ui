@@ -144,13 +144,7 @@ export const TransactionSlide: React.FC<Props> = ({
           {/* Blockchain Events */}
           {txBlockchainEvents?.length > 0 && (
             <>
-              <SlideSectionHeader
-                clickPath={FF_NAV_PATHS.blockchainEventsPath(
-                  selectedNamespace,
-                  transaction.id
-                )}
-                title={t('recentBlockchainEvents')}
-              />
+              <SlideSectionHeader title={t('recentBlockchainEvents')} />
               <Grid container item>
                 {txBlockchainEvents?.map((be, idx) => (
                   <BlockchainEventAccordion key={idx} be={be} />

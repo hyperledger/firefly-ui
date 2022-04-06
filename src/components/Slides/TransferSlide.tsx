@@ -20,19 +20,15 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
-import {
-  FF_NAV_PATHS,
-  IBlockchainEvent,
-  IOperation,
-  ITokenTransfer,
-  ITxStatus,
-} from '../../interfaces';
+import { IBlockchainEvent, ITokenTransfer, ITxStatus } from '../../interfaces';
 import { FF_Paths } from '../../interfaces/constants';
-import { FF_TRANSFER_CATEGORY_MAP } from '../../interfaces/enums';
+import {
+  FF_TRANSFER_CATEGORY_MAP,
+  TransferIconMapWithColor,
+} from '../../interfaces/enums';
 import { DEFAULT_PADDING } from '../../theme';
 import { fetchCatcher } from '../../utils';
 import { BlockchainEventAccordion } from '../Accordions/BlockchainEventAccordion';
-import { OperationAccordion } from '../Accordions/OperationAccordion';
 import { TransferList } from '../Lists/TransferList';
 import { DisplaySlide } from './DisplaySlide';
 import { SlideHeader } from './SlideHeader';
@@ -52,7 +48,6 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
 
   const [transferBlockchainEvent, setTransferBlockchainEvent] =
     useState<IBlockchainEvent>();
-  const [txOperations, setTxOperations] = useState<IOperation[]>([]);
   const [txStatus, setTxStatus] = useState<ITxStatus>();
 
   const [isMounted, setIsMounted] = useState(false);
@@ -74,22 +69,6 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
       )
         .then((txStatus: ITxStatus) => {
           isMounted && setTxStatus(txStatus);
-        })
-        .catch((err) => {
-          reportFetchError(err);
-        });
-    // Transaction Operations
-    isMounted &&
-      transfer.tx.id &&
-      fetchCatcher(
-        `${
-          FF_Paths.nsPrefix
-        }/${selectedNamespace}${FF_Paths.transactionByIdOperations(
-          transfer.tx.id
-        )}`
-      )
-        .then((txOperations: IOperation[]) => {
-          isMounted && setTxOperations(txOperations);
         })
         .catch((err) => {
           reportFetchError(err);
@@ -119,7 +98,12 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
           {/* Header */}
           <SlideHeader
             subtitle={t('tokenTransfer')}
-            title={t(FF_TRANSFER_CATEGORY_MAP[transfer.type]?.nicename)}
+            title={
+              <Grid container direction="row" alignItems="center">
+                {TransferIconMapWithColor[transfer.type]}
+                {t(FF_TRANSFER_CATEGORY_MAP[transfer.type]?.nicename)}
+              </Grid>
+            }
           />
           {/* Data list */}
           <Grid container item>
@@ -129,35 +113,12 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
               showPoolLink={poolID !== transfer.pool}
             />
           </Grid>
-          {/* Operations */}
-          {txOperations.length > 0 && (
-            <>
-              <SlideSectionHeader
-                clickPath={FF_NAV_PATHS.activityOpPath(
-                  selectedNamespace,
-                  transfer.tx.id
-                )}
-                title={t('operations')}
-              />
-              <Grid container item>
-                {txOperations?.map((op, idx) => (
-                  <OperationAccordion op={op} key={idx} />
-                ))}
-              </Grid>
-            </>
-          )}
           {/* Blockchain Events */}
           {transferBlockchainEvent && (
             <>
-              <SlideSectionHeader
-                clickPath={FF_NAV_PATHS.blockchainEventsPath(
-                  selectedNamespace,
-                  transfer.tx.id
-                )}
-                title={t('blockchainEvents')}
-              />
+              <SlideSectionHeader title={t('blockchainEvent')} />
               <Grid container item>
-                <BlockchainEventAccordion be={transferBlockchainEvent} />
+                <BlockchainEventAccordion isOpen be={transferBlockchainEvent} />
               </Grid>
             </>
           )}

@@ -59,7 +59,7 @@ export const TransferList: React.FC<Props> = ({
           ) : undefined,
         },
         {
-          label: t('author'),
+          label: t('signingKey'),
           value: <FFListText color="primary" text={transfer.key} />,
           button: <FFCopyButton value={transfer.key} />,
         },

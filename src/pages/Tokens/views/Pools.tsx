@@ -135,7 +135,7 @@ export const TokensPools: () => JSX.Element = () => {
           value: pool.symbol ? (
             <FFTableText color="primary" text={pool.symbol} />
           ) : (
-            <FFTableText color="secondary" text={t('noSymbolSpecified')} />
+            <FFTableText color="secondary" text={t('---')} />
           ),
         },
         {

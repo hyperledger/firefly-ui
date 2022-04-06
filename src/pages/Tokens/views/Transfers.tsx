@@ -204,12 +204,7 @@ export const TokensTransfers: () => JSX.Element = () => {
           value: <FFTableText color="primary" text={transfer.amount} />,
         },
         {
-          value: (
-            <HashPopover
-              shortHash={true}
-              address={transfer.blockchainEvent}
-            ></HashPopover>
-          ),
+          value: <HashPopover address={transfer.protocolId}></HashPopover>,
         },
         {
           value: (

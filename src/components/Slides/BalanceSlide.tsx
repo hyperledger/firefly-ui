@@ -91,9 +91,9 @@ export const BalanceSlide: React.FC<Props> = ({ balance, open, onClose }) => {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.tokenTransfers
-        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}&key=${
-          balance.key
-        }&pool=${balance.pool}`
+        }?limit=${rowsPerPage}&count&skip=${
+          rowsPerPage * currentPage
+        }&fromOrTo=${balance.key}&pool=${balance.pool}`
       )
         .then((tokenTransferRes: IPagedTokenTransferResponse) => {
           if (isMounted) {

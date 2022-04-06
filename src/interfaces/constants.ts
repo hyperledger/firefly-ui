@@ -93,6 +93,7 @@ export const FF_Paths = {
   tokens: '/tokens',
   tokenAccounts: '/tokens/accounts',
   tokenAccountPoolsByKey: (key: string) => `/tokens/accounts/${key}/pools`,
+  tokenApprovals: '/tokens/approvals',
   tokenBalances: '/tokens/balances',
   tokenBalancesByKeyPool: (key: string, pool: string) =>
     `/tokens/balances?key=${key}&pool=${pool}`,

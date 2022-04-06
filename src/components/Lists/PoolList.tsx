@@ -4,7 +4,7 @@ import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { ITokenPool } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
-import { PoolButton } from '../Buttons/PoolButton';
+import { MsgButton } from '../Buttons/MsgButton';
 import { TxButton } from '../Buttons/TxButton';
 import { PoolStatusChip } from '../Chips/PoolStatusChip';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
@@ -15,10 +15,9 @@ import { FFSkeletonList } from './FFSkeletonList';
 
 interface Props {
   pool?: ITokenPool;
-  showPoolLink?: boolean;
 }
 
-export const PoolList: React.FC<Props> = ({ pool, showPoolLink = true }) => {
+export const PoolList: React.FC<Props> = ({ pool }) => {
   const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
   const [dataList, setDataList] = useState<IDataListItem[]>(FFSkeletonList);
@@ -30,23 +29,6 @@ export const PoolList: React.FC<Props> = ({ pool, showPoolLink = true }) => {
           label: t('id'),
           value: <FFListText color="primary" text={pool.id} />,
           button: <FFCopyButton value={pool.id} />,
-        },
-        {
-          label: t('protocolID'),
-          value: <FFListText color="primary" text={pool.protocolId} />,
-          button: <FFCopyButton value={pool.protocolId} />,
-        },
-        {
-          label: t('connector'),
-          value: <FFListText color="primary" text={pool.connector} />,
-          button: (
-            <>
-              {showPoolLink && (
-                <PoolButton ns={selectedNamespace} poolID={pool.id} />
-              )}
-              <FFCopyButton value={pool.connector} />
-            </>
-          ),
         },
         {
           label: t('transactionID'),
@@ -73,7 +55,10 @@ export const PoolList: React.FC<Props> = ({ pool, showPoolLink = true }) => {
             <FFListText color="secondary" text={t('noMessageInTransfer')} />
           ),
           button: pool.message ? (
-            <FFCopyButton value={pool.message} />
+            <>
+              <MsgButton ns={selectedNamespace} msgID={pool.message} />
+              <FFCopyButton value={pool.message} />
+            </>
           ) : undefined,
         },
         {

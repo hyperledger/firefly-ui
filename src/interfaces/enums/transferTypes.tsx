@@ -73,3 +73,17 @@ export const TransferIconMap = {
   [TransferCategoryEnum.MINT.toLowerCase()]: <ApprovalIcon />,
   [TransferCategoryEnum.TRANSFER.toLowerCase()]: <SwapHorizIcon />,
 };
+
+export const TransferIconMapWithColor = {
+  [TransferCategoryEnum.BURN.toLowerCase()]: (
+    <LocalFireDepartmentIcon
+      sx={{ color: FF_TRANSFER_CATEGORY_MAP['burn'].color }}
+    />
+  ),
+  [TransferCategoryEnum.MINT.toLowerCase()]: (
+    <ApprovalIcon sx={{ color: FF_TRANSFER_CATEGORY_MAP['mint'].color }} />
+  ),
+  [TransferCategoryEnum.TRANSFER.toLowerCase()]: (
+    <SwapHorizIcon sx={{ color: FF_TRANSFER_CATEGORY_MAP['transfer'].color }} />
+  ),
+};

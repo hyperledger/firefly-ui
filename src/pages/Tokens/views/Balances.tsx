@@ -41,7 +41,7 @@ import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime } from '../../../utils';
 import { hasTransferEvent } from '../../../utils/wsEvents';
 
-const KEY_POOL_DELIM = '||';
+export const KEY_POOL_DELIM = '||';
 
 export const TokensBalances: () => JSX.Element = () => {
   const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
@@ -72,7 +72,6 @@ export const TokensBalances: () => JSX.Element = () => {
     if (isMounted && slideID) {
       // Expected structure: <key>||<poolID>
       const keyPoolArray = slideID.split(KEY_POOL_DELIM);
-      console.log(keyPoolArray);
       if (keyPoolArray.length !== 2) {
         return;
       }
@@ -86,7 +85,6 @@ export const TokensBalances: () => JSX.Element = () => {
         )}`
       )
         .then((balanceRes: ITokenBalance[]) => {
-          console.log(balanceRes);
           isMounted && balanceRes.length === 1 && setViewBalance(balanceRes[0]);
         })
         .catch((err) => {

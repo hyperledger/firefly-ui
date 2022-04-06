@@ -43,7 +43,7 @@ export const MessageList: React.FC<Props> = ({ message }) => {
           button: <FFCopyButton value={message.header.author} />,
         },
         {
-          label: t('authorKey'),
+          label: t('signingKey'),
           value: <FFListText color="primary" text={message.header.key} />,
           button: <FFCopyButton value={message.header.key} />,
         },

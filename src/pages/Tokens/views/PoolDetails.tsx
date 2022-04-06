@@ -200,6 +200,17 @@ export const PoolDetails: () => JSX.Element = () => {
 
   const accountsCard = {
     headerText: t('accountsInPool'),
+    headerComponent: pool && (
+      <IconButton
+        onClick={() =>
+          navigate(
+            FF_NAV_PATHS.tokensBalancesPathByPool(selectedNamespace, pool.id)
+          )
+        }
+      >
+        <ArrowForwardIcon />
+      </IconButton>
+    ),
     component: (
       <MediumCardTable
         records={poolAccountsRecords}
@@ -216,7 +227,7 @@ export const PoolDetails: () => JSX.Element = () => {
     t('to'),
     t('amount'),
     t('blockchainEvent'),
-    t('author'),
+    t('signingKey'),
     t('timestamp'),
   ];
   const tokenTransferRecords: IDataTableRecord[] | undefined =
@@ -327,7 +338,7 @@ export const PoolDetails: () => JSX.Element = () => {
                     {pool.name}
                   </Typography>
                 </Grid>
-                <PoolList pool={pool} showPoolLink={false} />
+                <PoolList pool={pool} />
               </Grid>
             )}
           </Paper>
