@@ -14,12 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Chip, Grid } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Histogram } from '../../../components/Charts/Histogram';
+import { OpStatusChip } from '../../../components/Chips/OpStatusChip';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
@@ -33,6 +34,7 @@ import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
+import { hasAnyEvent } from '../../../utils/wsEvents';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
@@ -43,10 +45,7 @@ import {
   IPagedOperationResponse,
   OperationFilters,
 } from '../../../interfaces';
-import {
-  FF_OP_CATEGORY_MAP,
-  OpStatusColorMap,
-} from '../../../interfaces/enums';
+import { FF_OP_CATEGORY_MAP } from '../../../interfaces/enums';
 import {
   DEFAULT_HIST_HEIGHT,
   DEFAULT_PADDING,
@@ -165,8 +164,8 @@ export const ActivityOperations: () => JSX.Element = () => {
 
   const opsColumnHeaders = [
     t('type'),
-    t('operationID'),
     t('plugin'),
+    t('operationID'),
     t('transactionID'),
     t('status'),
     t('updated'),
@@ -184,31 +183,16 @@ export const ActivityOperations: () => JSX.Element = () => {
         ),
       },
       {
-        value: <HashPopover shortHash={true} address={op.id}></HashPopover>,
+        value: <FFTableText color="primary" text={op.plugin} />,
       },
       {
-        value: <FFTableText color="primary" text={op.plugin} />,
+        value: <HashPopover shortHash={true} address={op.id}></HashPopover>,
       },
       {
         value: <HashPopover shortHash={true} address={op.tx}></HashPopover>,
       },
       {
-        value: (
-          // TODO: Fix when https://github.com/hyperledger/firefly/issues/628 is resolved
-          <Chip
-            label={
-              op.status?.toLocaleUpperCase() === 'PENDING'
-                ? 'SUCCEEDED'
-                : op.status?.toLocaleUpperCase()
-            }
-            sx={{
-              backgroundColor:
-                OpStatusColorMap[
-                  op.status === 'Pending' ? 'Succeeded' : op.status
-                ],
-            }}
-          ></Chip>
-        ),
+        value: <OpStatusChip op={op} />,
       },
       { value: <FFTableText color="secondary" text={getFFTime(op.created)} /> },
     ],
@@ -224,13 +208,12 @@ export const ActivityOperations: () => JSX.Element = () => {
       <Header
         title={t('operations')}
         subtitle={t('activity')}
-        showRefreshBtn={newEvents.length > 0}
+        showRefreshBtn={hasAnyEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
-            title={t('allOperations')}
             filter={
               <FilterButton
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>

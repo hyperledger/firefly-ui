@@ -14,7 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import HexagonIcon from '@mui/icons-material/Hexagon';
 import { Chip, Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -94,13 +93,7 @@ export const NetworkNodes: () => JSX.Element = () => {
       key: node.id,
       columns: [
         {
-          value: (
-            <FFTableText
-              color="primary"
-              text={node.name}
-              icon={<HexagonIcon />}
-            />
-          ),
+          value: <FFTableText color="primary" text={node.name} />,
         },
         {
           value: <HashPopover shortHash={true} address={node.id} />,
@@ -142,7 +135,6 @@ export const NetworkNodes: () => JSX.Element = () => {
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
-            title={t('allNodes')}
             filter={
               <FilterButton
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>

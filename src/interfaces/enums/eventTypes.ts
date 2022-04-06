@@ -3,6 +3,10 @@ import { FFColors } from '../../theme';
 import { getShortHash } from '../../utils';
 import { IEvent } from '../api';
 
+export type INewEventSet = {
+  [key in FF_EVENTS]: boolean;
+};
+
 export interface IHistEventBucket {
   [EventCategoryEnum.BLOCKCHAIN]: number;
   [EventCategoryEnum.MESSAGES]: number;

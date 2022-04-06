@@ -204,12 +204,7 @@ export const TokensTransfers: () => JSX.Element = () => {
           value: <FFTableText color="primary" text={transfer.amount} />,
         },
         {
-          value: (
-            <HashPopover
-              shortHash={true}
-              address={transfer.blockchainEvent}
-            ></HashPopover>
-          ),
+          value: <HashPopover address={transfer.protocolId}></HashPopover>,
         },
         {
           value: (
@@ -240,7 +235,6 @@ export const TokensTransfers: () => JSX.Element = () => {
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
-            title={t('allTransfers')}
             filter={
               <FilterButton
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>

@@ -18,7 +18,6 @@ import {
   createTheme,
   CssBaseline,
   StyledEngineProvider,
-  Theme,
   ThemeProvider,
 } from '@mui/material';
 import { useEffect, useMemo, useRef, useState } from 'react';
@@ -31,17 +30,22 @@ import {
 } from './components/Snackbar/MessageSnackbar';
 import { ApplicationContext } from './contexts/ApplicationContext';
 import { SnackbarContext } from './contexts/SnackbarContext';
-import { FF_EVENTS, INamespace, IStatus, NAMESPACES_PATH } from './interfaces';
+import {
+  FF_EVENTS,
+  INamespace,
+  INewEventSet,
+  IStatus,
+  NAMESPACES_PATH,
+} from './interfaces';
 import { FF_Paths } from './interfaces/constants';
 import { themeOptions } from './theme';
 import { fetchWithCredentials, summarizeFetchError } from './utils';
 
-//TODO: remove along with useStyles() usage
-declare module '@mui/styles/defaultTheme' {
-  // eslint-disable-next-line @typescript-eslint/no-empty-interface
-  interface DefaultTheme extends Theme {}
-}
-export const theme = createTheme(themeOptions);
+const makeNewEventMap = (): INewEventSet => {
+  const map: any = {};
+  Object.values(FF_EVENTS).map((v) => (map[v] = false));
+  return map;
+};
 
 const App: React.FC = () => {
   const [initialized, setInitialized] = useState(false);
@@ -58,7 +62,7 @@ const App: React.FC = () => {
   const [nodeName, setNodeName] = useState('');
   const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
   // Event Context
-  const [newEvents, setNewEvents] = useState<FF_EVENTS[]>([]);
+  const [newEvents, setNewEvents] = useState<INewEventSet>(makeNewEventMap());
   const [lastRefreshTime, setLastRefresh] = useState<string>(
     new Date().toISOString()
   );
@@ -123,8 +127,13 @@ const App: React.FC = () => {
       ws.current.onmessage = (event: any) => {
         const eventData = JSON.parse(event.data);
         const eventType: FF_EVENTS = eventData.type;
-        if (Object.values(FF_EVENTS).includes(eventType)) {
-          setNewEvents((existing) => [eventType, ...existing]);
+        if (
+          !newEvents[eventType] &&
+          Object.values(FF_EVENTS).includes(eventType)
+        ) {
+          setNewEvents((existing) => {
+            return { ...existing, [eventType]: true };
+          });
         }
       };
 
@@ -144,9 +153,11 @@ const App: React.FC = () => {
   };
 
   const clearNewEvents = () => {
-    setNewEvents([]);
+    setNewEvents(makeNewEventMap());
     setLastRefresh(new Date().toISOString());
   };
+
+  const theme = createTheme(themeOptions);
 
   if (initialized) {
     if (initError) {
@@ -154,7 +165,7 @@ const App: React.FC = () => {
       return (
         <>
           <StyledEngineProvider injectFirst>
-            <ThemeProvider {...{ theme }}>
+            <ThemeProvider theme={theme}>
               <CssBaseline>Fallback</CssBaseline>
             </ThemeProvider>
           </StyledEngineProvider>
@@ -181,7 +192,7 @@ const App: React.FC = () => {
             value={{ setMessage, setMessageType, reportFetchError }}
           >
             <StyledEngineProvider injectFirst>
-              <ThemeProvider {...{ theme }}>
+              <ThemeProvider theme={theme}>
                 <CssBaseline>
                   <Router />
                   <MessageSnackbar

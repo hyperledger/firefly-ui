@@ -51,11 +51,11 @@ export const FilterButton: React.FC<Props> = ({ onSetFilterAnchor }) => {
         >
           <Grid container alignItems="center" justifyContent="flex-end">
             {filterArray.map((filter, index) => (
-              <Grid key={`${filter}${index}`} item>
+              <Grid key={`${filter}${index}`} item pl={1}>
                 <Chip onDelete={() => removeFilter(filter)} label={filter} />
               </Grid>
             ))}
-            <Grid item>
+            <Grid item pl={1}>
               <Chip
                 onClick={clearAllFilters}
                 variant="outlined"
@@ -65,14 +65,7 @@ export const FilterButton: React.FC<Props> = ({ onSetFilterAnchor }) => {
           </Grid>
         </Grid>
       )}
-      <Grid
-        container
-        item
-        justifyContent="flex-end"
-        my={DEFAULT_PADDING}
-        xs={1}
-        pl={1}
-      >
+      <Grid container item justifyContent="flex-end" my={1} xs={1} pl={1}>
         <Button
           sx={{ height: 40 }}
           variant="outlined"

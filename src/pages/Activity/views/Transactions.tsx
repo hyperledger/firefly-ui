@@ -180,20 +180,16 @@ export const ActivityTransactions: () => JSX.Element = () => {
         ),
       },
       {
-        value: <HashPopover shortHash={true} address={tx.id}></HashPopover>,
-      },
-      {
         value: (
           <>
             {tx.blockchainIds?.map((bid, idx) => (
-              <HashPopover
-                key={idx}
-                shortHash={true}
-                address={bid}
-              ></HashPopover>
+              <HashPopover key={idx} address={bid}></HashPopover>
             ))}
           </>
         ),
+      },
+      {
+        value: <HashPopover address={tx.id}></HashPopover>,
       },
       {
         value: <FFTableText color="secondary" text={getFFTime(tx.created)} />,
@@ -218,7 +214,6 @@ export const ActivityTransactions: () => JSX.Element = () => {
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
-            title={t('allTransactions')}
             filter={
               <FilterButton
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>

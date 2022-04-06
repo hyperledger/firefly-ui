@@ -14,9 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Button, Grid } from '@mui/material';
+import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { FilterButton } from '../../../components/Filters/FilterButton';
+import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
@@ -25,12 +27,14 @@ import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { DateFilterContext } from '../../../contexts/DateFilterContext';
+import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   FF_Paths,
   IContractInterface,
   IDataTableRecord,
+  InterfaceFilters,
   IPagedContractInterfaceResponse,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
@@ -41,6 +45,8 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
   const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
     useContext(ApplicationContext);
   const { dateFilter } = useContext(DateFilterContext);
+  const { filterAnchor, setFilterAnchor, filterString } =
+    useContext(FilterContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
@@ -88,7 +94,7 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
           FF_Paths.contractInterfaces
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
           dateFilter.filterString
-        }`
+        }${filterString ?? ''}`
       )
         .then((interfaceRes: IPagedContractInterfaceResponse) => {
           if (isMounted) {
@@ -104,6 +110,7 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
     currentPage,
     selectedNamespace,
     dateFilter,
+    filterString,
     lastRefreshTime,
     isMounted,
   ]);
@@ -164,11 +171,12 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
-            title={t('allInterfaces')}
             filter={
-              <Grid my={DEFAULT_PADDING}>
-                <Button variant="outlined">Filter</Button>
-              </Grid>
+              <FilterButton
+                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                  setFilterAnchor(e.currentTarget)
+                }
+              />
             }
           />
           <DataTable
@@ -191,6 +199,15 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
           />
         </Grid>
       </Grid>
+      {filterAnchor && (
+        <FilterModal
+          anchor={filterAnchor}
+          onClose={() => {
+            setFilterAnchor(null);
+          }}
+          fields={InterfaceFilters}
+        />
+      )}
       {viewInterface && (
         <InterfaceSlide
           cInterface={viewInterface}

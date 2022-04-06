@@ -15,18 +15,21 @@
 // limitations under the License.
 
 import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import DownloadIcon from '@mui/icons-material/Download';
-import { Chip, Grid, IconButton } from '@mui/material';
+import { Grid, IconButton } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
+import { DownloadButton } from '../../../components/Buttons/DownloadButton';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
+import { MsgStatusChip } from '../../../components/Chips/MsgStatusChip';
 import { Header } from '../../../components/Header';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { DataSlide } from '../../../components/Slides/DataSlide';
+import { DatatypeSlide } from '../../../components/Slides/DatatypeSlide';
 import { MessageSlide } from '../../../components/Slides/MessageSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { MediumCardTable } from '../../../components/Tables/MediumCardTable';
@@ -41,7 +44,6 @@ import {
   DATATYPES_PATH,
   DATA_PATH,
   FF_MESSAGES_CATEGORY_MAP,
-  FF_NAV_PATHS,
   FF_Paths,
   IData,
   IDataTableRecord,
@@ -53,7 +55,6 @@ import {
   IPagedMessageResponse,
   ISmallCard,
   MESSAGES_PATH,
-  MsgStateColorMap,
 } from '../../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
 import {
@@ -61,12 +62,7 @@ import {
   DEFAULT_PAGE_LIMITS,
   DEFAULT_SPACING,
 } from '../../../theme';
-import {
-  downloadBlobFile,
-  fetchCatcher,
-  getFFTime,
-  makeMsgHistogram,
-} from '../../../utils';
+import { fetchCatcher, getFFTime, makeMsgHistogram } from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -90,6 +86,8 @@ export const OffChainDashboard: () => JSX.Element = () => {
   const [dataCount, setDataCount] = useState<number>();
   // Datatypes
   const [datatypesCount, setDatatypesCount] = useState<number>();
+  // Blobs
+  const [blobCount, setBlobCount] = useState<number>();
 
   // Medium cards
   // Messages histogram
@@ -105,6 +103,8 @@ export const OffChainDashboard: () => JSX.Element = () => {
   const [messageTotal, setMessageTotal] = useState(0);
   // View message slide out
   const [viewMsg, setViewMsg] = useState<IMessage | undefined>();
+  const [viewData, setViewData] = useState<IData | undefined>();
+  const [viewDatatype, setViewDatatype] = useState<IDatatype | undefined>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[0]);
 
@@ -118,19 +118,25 @@ export const OffChainDashboard: () => JSX.Element = () => {
   }, []);
 
   useEffect(() => {
-    isMounted &&
-      slideID &&
+    if (isMounted && slideID) {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.messagesById(
           slideID
         )}`
-      )
-        .then((messageRes: IMessage) => {
-          setViewMsg(messageRes);
-        })
-        .catch((err) => {
-          reportFetchError(err);
-        });
+      ).then((messageRes: IMessage) => {
+        setViewMsg(messageRes);
+      });
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.dataById(slideID)}`
+      ).then((dataRes: IData) => {
+        setViewData(dataRes);
+      });
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.datatypes}?id=${slideID}`
+      ).then((dtRes: IDatatype[]) => {
+        dtRes.length === 1 && setViewDatatype(dtRes[0]);
+      });
+    }
   }, [slideID, isMounted]);
 
   const smallCards: ISmallCard[] = [
@@ -145,13 +151,14 @@ export const OffChainDashboard: () => JSX.Element = () => {
       clickPath: `${DATA_PATH}`,
     },
     {
+      header: t('blobs'),
+      data: [{ data: blobCount }],
+      clickPath: `${DATA_PATH}?filters=blob.hash=!=`,
+    },
+    {
       header: t('totalDatatypes'),
       data: [{ data: datatypesCount }],
       clickPath: DATATYPES_PATH,
-    },
-    {
-      header: t('totalFileSize'),
-      data: [{ data: 0 }],
     },
   ];
 
@@ -171,6 +178,10 @@ export const OffChainDashboard: () => JSX.Element = () => {
         fetchCatcher(
           `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.data}${qParams}`
         ),
+        // Blobs
+        fetchCatcher(
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.data}${qParams}&blob.hash=!?`
+        ),
         // Datatypes
         fetchCatcher(
           `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.datatypes}${qParamsNoRange}`
@@ -182,6 +193,8 @@ export const OffChainDashboard: () => JSX.Element = () => {
             msgs,
             // Data
             data,
+            // Blobs
+            blobs,
             // Datatypes
             datatypes,
           ]: IGenericPagedResponse[] | any[]) => {
@@ -190,6 +203,8 @@ export const OffChainDashboard: () => JSX.Element = () => {
               setMsgCount(msgs.total);
               // Data Count
               setDataCount(data.total);
+              // Blob count
+              setBlobCount(blobs.total);
               // Datatypes
               setDatatypesCount(datatypes.total);
             }
@@ -200,7 +215,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
         });
   }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
-  const dataHeaders = [t('nameOrID'), t('created'), t('download')];
+  const dataHeaders = [t('nameOrID'), t('created'), t('blob')];
   const dataRecords: IDataTableRecord[] | undefined = data?.map((data) => ({
     key: data.id,
     columns: [
@@ -215,20 +230,17 @@ export const OffChainDashboard: () => JSX.Element = () => {
         value: <FFTableText color="secondary" text={getFFTime(data.created)} />,
       },
       {
-        value: data.blob && (
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              downloadBlobFile(data.id, data.blob?.name);
-            }}
-          >
-            <DownloadIcon />
-          </IconButton>
+        value: data.blob ? (
+          <DownloadButton isBlob url={data.id} filename={data.blob?.name} />
+        ) : (
+          <FFTableText color="secondary" text={t('noBlobInData')} />
         ),
       },
     ],
-    onClick: () =>
-      navigate(FF_NAV_PATHS.offchainDataPath(selectedNamespace, data.id)),
+    onClick: () => {
+      setViewData(data);
+      setSlideSearchParam(data.id);
+    },
   }));
 
   const dtHeaders = [t('id'), t('version'), t('created')];
@@ -243,8 +255,10 @@ export const OffChainDashboard: () => JSX.Element = () => {
         value: <FFTableText color="secondary" text={getFFTime(dt.created)} />,
       },
     ],
-    onClick: () =>
-      navigate(FF_NAV_PATHS.offchainDatatypesPath(selectedNamespace, dt.id)),
+    onClick: () => {
+      setViewDatatype(dt);
+      setSlideSearchParam(dt.id);
+    },
   }));
 
   const mediumCards: IFireFlyCard[] = [
@@ -440,22 +454,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
         ),
       },
       {
-        value: (
-          // TODO: Fix when https://github.com/hyperledger/firefly/issues/628 is resolved
-          <Chip
-            label={
-              msg.state?.toLocaleUpperCase() === 'PENDING'
-                ? 'CONFIRMED'
-                : msg.state?.toLocaleUpperCase()
-            }
-            sx={{
-              backgroundColor:
-                MsgStateColorMap[
-                  msg.state === 'pending' ? 'confirmed' : msg.state
-                ],
-            }}
-          ></Chip>
-        ),
+        value: <MsgStatusChip msg={msg} />,
       },
     ],
     onClick: () => {
@@ -487,7 +486,9 @@ export const OffChainDashboard: () => JSX.Element = () => {
               return (
                 <Grid
                   key={card.header}
-                  xs={DEFAULT_PADDING}
+                  sm={12}
+                  md={6}
+                  lg={3}
                   direction="column"
                   alignItems="center"
                   justifyContent="center"
@@ -516,7 +517,8 @@ export const OffChainDashboard: () => JSX.Element = () => {
                   justifyContent="center"
                   container
                   item
-                  xs={4}
+                  md={12}
+                  lg={4}
                 >
                   <FireFlyCard card={card} position="flex-start" />
                 </Grid>
@@ -550,6 +552,26 @@ export const OffChainDashboard: () => JSX.Element = () => {
           />
         </Grid>
       </Grid>
+      {viewData && (
+        <DataSlide
+          data={viewData}
+          open={!!viewData}
+          onClose={() => {
+            setViewData(undefined);
+            setSlideSearchParam(null);
+          }}
+        />
+      )}
+      {viewDatatype && (
+        <DatatypeSlide
+          dt={viewDatatype}
+          open={!!viewDatatype}
+          onClose={() => {
+            setViewDatatype(undefined);
+            setSlideSearchParam(null);
+          }}
+        />
+      )}
       {viewMsg && (
         <MessageSlide
           message={viewMsg}

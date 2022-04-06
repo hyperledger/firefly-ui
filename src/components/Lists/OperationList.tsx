@@ -1,11 +1,12 @@
-import { Chip } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { IOperation, OpStatusColorMap } from '../../interfaces';
+import { IOperation } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
+import { OpRetryButton } from '../Buttons/OpRetryButton';
 import { TxButton } from '../Buttons/TxButton';
+import { OpStatusChip } from '../Chips/OpStatusChip';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
@@ -48,21 +49,16 @@ export const OperationList: React.FC<Props> = ({ op, showTxLink = true }) => {
         },
         {
           label: t('status'),
-          value: op.status && (
-            // TODO: Fix when https://github.com/hyperledger/firefly/issues/628 is resolved
-            <Chip
-              label={
-                op.status?.toLocaleUpperCase() === 'PENDING'
-                  ? 'SUCCEEDED'
-                  : op.status?.toLocaleUpperCase()
-              }
-              sx={{
-                backgroundColor:
-                  OpStatusColorMap[
-                    op.status === 'Pending' ? 'Succeeded' : op.status
-                  ],
-              }}
-            ></Chip>
+          value: op.status && <OpStatusChip op={op} />,
+        },
+        {
+          label: op.retry ? t('retriedOperation') : '',
+          value: op.retry ? <FFListText color="primary" text={op.retry} /> : '',
+          button: (
+            <>
+              {op.retry && <OpRetryButton retryOpID={op.retry} />}
+              <FFCopyButton value={op.tx ?? ''} />
+            </>
           ),
         },
         {
@@ -79,9 +75,9 @@ export const OperationList: React.FC<Props> = ({ op, showTxLink = true }) => {
         <FFCircleLoader color="warning" />
       ) : (
         <>
-          {dataList.map((d, idx) => (
-            <FFListItem key={idx} item={d} />
-          ))}
+          {dataList.map(
+            (d, idx) => d.label !== '' && <FFListItem key={idx} item={d} />
+          )}
         </>
       )}
     </>

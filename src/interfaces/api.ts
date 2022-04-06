@@ -19,7 +19,7 @@ export interface IBlockchainEvent {
   info?: any;
   timestamp: string;
   tx: {
-    type: string;
+    type: FF_TX;
     id?: string;
   };
 }
@@ -39,7 +39,7 @@ export interface IContractListener {
     id: string;
   };
   namespace: string;
-  name: string;
+  name?: string;
   protocolId: string;
   location?: {
     address?: string;
@@ -50,6 +50,7 @@ export interface IContractListener {
     description?: '';
     params: IFireFlyParam[];
   };
+  topic?: string;
 }
 
 export interface IData {
@@ -241,6 +242,7 @@ export interface IOperation {
   };
   created: string;
   updated: string;
+  retry?: string;
 }
 
 export interface IOrganization {
@@ -349,6 +351,13 @@ export interface IPagedSubscriptionsResponse {
   total: number;
 }
 
+export interface IPagedTokenBalanceResponse {
+  pageParam: number;
+  count: number;
+  items: ITokenBalance[];
+  total: number;
+}
+
 export interface IPagedTokenPoolResponse {
   pageParam: number;
   count: number;
@@ -449,6 +458,7 @@ export interface ITokenPool {
     type: string;
     id?: string;
   };
+  info?: any;
 }
 
 export interface ITokenTransfer {

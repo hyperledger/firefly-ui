@@ -14,10 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import DownloadIcon from '@mui/icons-material/Download';
-import { Grid, IconButton } from '@mui/material';
+import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { DownloadButton } from '../../../components/Buttons/DownloadButton';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
@@ -39,7 +39,7 @@ import {
   IPagedDataResponse,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { downloadBlobFile, fetchCatcher, getFFTime } from '../../../utils';
+import { fetchCatcher, getFFTime } from '../../../utils';
 import { hasDataEvent } from '../../../utils/wsEvents';
 
 export const OffChainData: () => JSX.Element = () => {
@@ -154,14 +154,7 @@ export const OffChainData: () => JSX.Element = () => {
       },
       {
         value: d.blob && (
-          <IconButton
-            onClick={(e) => {
-              e.stopPropagation();
-              downloadBlobFile(d.id, d.blob?.name);
-            }}
-          >
-            <DownloadIcon />
-          </IconButton>
+          <DownloadButton isBlob url={d.id} filename={d.blob?.name} />
         ),
       },
     ],
@@ -182,7 +175,6 @@ export const OffChainData: () => JSX.Element = () => {
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
-            title={t('allData')}
             filter={
               <FilterButton
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>

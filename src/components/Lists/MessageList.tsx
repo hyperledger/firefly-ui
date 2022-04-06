@@ -1,10 +1,10 @@
-import { Chip } from '@mui/material';
 import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IMessage, MsgStateColorMap } from '../../interfaces';
+import { IMessage } from '../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../interfaces/enums/transactionTypes';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
+import { MsgStatusChip } from '../Chips/MsgStatusChip';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
@@ -43,7 +43,7 @@ export const MessageList: React.FC<Props> = ({ message }) => {
           button: <FFCopyButton value={message.header.author} />,
         },
         {
-          label: t('authorKey'),
+          label: t('signingKey'),
           value: <FFListText color="primary" text={message.header.key} />,
           button: <FFCopyButton value={message.header.key} />,
         },
@@ -74,22 +74,7 @@ export const MessageList: React.FC<Props> = ({ message }) => {
         },
         {
           label: t('status'),
-          value: message && (
-            // TODO: Fix when https://github.com/hyperledger/firefly/issues/628 is resolved
-            <Chip
-              label={
-                message.state?.toLocaleUpperCase() === 'PENDING'
-                  ? 'CONFIRMED'
-                  : message.state?.toLocaleUpperCase()
-              }
-              sx={{
-                backgroundColor:
-                  MsgStateColorMap[
-                    message.state === 'pending' ? 'confirmed' : message.state
-                  ],
-              }}
-            ></Chip>
-          ),
+          value: message && <MsgStatusChip msg={message} />,
         },
         {
           label: t('confirmed'),

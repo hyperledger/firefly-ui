@@ -19,11 +19,10 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { IContractListener } from '../../interfaces';
 import { DEFAULT_PADDING } from '../../theme';
-import { ListenerEventParamAccordion } from '../Accordions/ListenerEventParamAccordion';
+import { JsonViewAccordion } from '../Accordions/JsonViewerAccordion';
 import { ListenerList } from '../Lists/ListenerList';
 import { DisplaySlide } from './DisplaySlide';
 import { SlideHeader } from './SlideHeader';
-import { SlideSectionHeader } from './SlideSectionHeader';
 
 interface Props {
   listener: IContractListener;
@@ -47,17 +46,24 @@ export const ListenerSlide: React.FC<Props> = ({ listener, open, onClose }) => {
           <Grid container item>
             <ListenerList listener={listener} />
           </Grid>
-          {/* Event Params */}
-          {listener.event.params.length > 0 && (
-            <>
-              <SlideSectionHeader title={t('eventParams')} />
-              <Grid container item>
-                {listener.event.params?.map((param) => (
-                  <ListenerEventParamAccordion key={param.name} param={param} />
-                ))}
-              </Grid>
-            </>
+          {/* API Location */}
+          {listener.location && (
+            <Grid container item pb={DEFAULT_PADDING}>
+              <JsonViewAccordion
+                isOpen
+                json={listener.location}
+                header={t('location')}
+              />
+            </Grid>
           )}
+          {/* Event schema */}
+          <Grid container item pb={DEFAULT_PADDING}>
+            <JsonViewAccordion
+              isOpen
+              json={listener.event}
+              header={t('eventSchema')}
+            />
+          </Grid>
         </Grid>
       </DisplaySlide>
     </>

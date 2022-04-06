@@ -291,7 +291,7 @@ export const NetworkMap: React.FC<Props> = ({ size }) => {
     );
 
   return (
-    <Grid container sx={{ width: '100%', height: '100%' }}>
+    <Grid container sx={{ width: '100%', height: '100%', cursor: 'pointer' }}>
       {content}
       {anchorPosition && (
         <Popover

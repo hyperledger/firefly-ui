@@ -1,0 +1,75 @@
+import { useContext, useEffect, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
+import { FF_TX_CATEGORY_MAP, IBlockchainEvent } from '../../interfaces';
+import { IDataListItem } from '../../interfaces/lists';
+import { FFCopyButton } from '../Buttons/CopyButton';
+import { TxButton } from '../Buttons/TxButton';
+import { FFCircleLoader } from '../Loaders/FFCircleLoader';
+import { FFListItem } from './FFListItem';
+import { FFListText } from './FFListText';
+import { FFListTimestamp } from './FFListTimestamp';
+import { FFSkeletonList } from './FFSkeletonList';
+
+interface Props {
+  be?: IBlockchainEvent;
+}
+
+export const BlockchainEventList: React.FC<Props> = ({ be }) => {
+  const { selectedNamespace } = useContext(ApplicationContext);
+  const { t } = useTranslation();
+  const [dataList, setDataList] = useState<IDataListItem[]>(FFSkeletonList);
+
+  useEffect(() => {
+    if (be) {
+      setDataList([
+        {
+          label: t('id'),
+          value: <FFListText color="primary" text={be.id} />,
+        },
+        {
+          label: t('source'),
+          value: <FFListText color="primary" text={be.source} />,
+          button: <FFCopyButton value={be.source} />,
+        },
+        {
+          label: be.tx?.type ? t('transactionType') : '',
+          value: be.tx?.type && (
+            <FFListText
+              color="primary"
+              text={t(FF_TX_CATEGORY_MAP[be.tx.type].nicename)}
+            />
+          ),
+        },
+        {
+          label: be.tx?.id ? t('transactionID') : '',
+          value: be.tx?.id && <FFListText color="primary" text={be.tx.id} />,
+          button: be.tx?.id ? (
+            <>
+              <TxButton ns={selectedNamespace} txID={be.tx.id} />
+              <FFCopyButton value={be.tx.id} />
+            </>
+          ) : undefined,
+        },
+        {
+          label: t('timestamp'),
+          value: <FFListTimestamp ts={be.timestamp} />,
+        },
+      ]);
+    }
+  }, [be]);
+
+  return (
+    <>
+      {!be ? (
+        <FFCircleLoader color="warning" />
+      ) : (
+        <>
+          {dataList.map(
+            (d, idx) => d.label !== '' && <FFListItem key={idx} item={d} />
+          )}
+        </>
+      )}
+    </>
+  );
+};

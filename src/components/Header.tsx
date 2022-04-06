@@ -23,8 +23,9 @@ import {
   Toolbar,
   Typography,
 } from '@mui/material';
-import React from 'react';
+import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ApplicationContext } from '../contexts/ApplicationContext';
 import { DEFAULT_PADDING } from '../theme';
 import { DatePicker } from './Pickers/DatePicker';
 import { NamespacePicker } from './Pickers/NamespacePicker';
@@ -46,6 +47,7 @@ export const Header: React.FC<Props> = ({
   noDateFilter = false,
   noNsFilter = false,
 }) => {
+  const { nodeName } = useContext(ApplicationContext);
   const { t } = useTranslation();
 
   return (
@@ -105,6 +107,11 @@ export const Header: React.FC<Props> = ({
               </Grid>
               <Grid item>{!noDateFilter && <DatePicker />}</Grid>
               <Grid item>{!noNsFilter && <NamespacePicker />}</Grid>
+              <Grid item pl={DEFAULT_PADDING}>
+                <Typography noWrap variant="subtitle1">
+                  {nodeName}
+                </Typography>
+              </Grid>
             </Grid>
           </Grid>
         </Toolbar>

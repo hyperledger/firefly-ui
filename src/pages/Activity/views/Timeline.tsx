@@ -36,6 +36,7 @@ import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
+import { hasAnyEvent } from '../../../utils/wsEvents';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
@@ -209,7 +210,6 @@ export const ActivityTimeline: () => JSX.Element = () => {
       <Grid container px={DEFAULT_PADDING} direction="column" spacing={2}>
         <Grid item>
           <ChartTableHeader
-            title={t('allEvents')}
             filter={
               <FilterButton
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
@@ -232,6 +232,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
               isLoading={isHistLoading}
               isEmpty={isHistogramEmpty(eventHistData ?? [])}
               emptyText={t('noActivity')}
+              height="100%"
             />
           </Box>
         </Grid>
@@ -246,7 +247,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
             height={'calc(100vh - 475px)'}
             fetchMoreData={() => setIsVisible(isVisible + 1)}
             hasMoreData={hasNextPage}
-            hasNewEvents={newEvents.length > 0}
+            hasNewEvents={hasAnyEvent(newEvents)}
             fetchNewData={clearNewEvents}
           />
         </Grid>

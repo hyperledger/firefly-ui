@@ -116,8 +116,7 @@ export const BlockchainListeners: () => JSX.Element = () => {
     t('eventName'),
     t('id'),
     t('interfaceID'),
-    t('protocolID'),
-    t('location'),
+    t('fireflyID'),
     t('created'),
   ];
 
@@ -145,14 +144,6 @@ export const BlockchainListeners: () => JSX.Element = () => {
           ),
         },
         {
-          value: (
-            <HashPopover
-              shortHash={true}
-              address={l.location?.address ?? ''}
-            ></HashPopover>
-          ),
-        },
-        {
           value: <FFTableText color="secondary" text={getFFTime(l.created)} />,
         },
       ],
@@ -169,7 +160,6 @@ export const BlockchainListeners: () => JSX.Element = () => {
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
-            title={t('allListeners')}
             filter={
               <FilterButton
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>

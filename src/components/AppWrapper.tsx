@@ -15,7 +15,7 @@ import {
   NAMESPACES_PATH,
   TimeFilterEnum,
 } from '../interfaces';
-import { getTimeFilterObject, isValidUUID } from '../utils';
+import { getTimeFilterObject } from '../utils';
 import { Navigation, NAV_WIDTH } from './Navigation/Navigation';
 
 const Main = styled('main')({
@@ -39,7 +39,7 @@ export const TIME_QUERY_KEY = 'time';
 
 export const AppWrapper: React.FC = () => {
   const { pathname, search } = useLocation();
-  const { selectedNamespace } = useContext(ApplicationContext);
+  const { selectedNamespace, clearNewEvents } = useContext(ApplicationContext);
   const [filterAnchor, setFilterAnchor] = useState<HTMLButtonElement | null>(
     null
   );
@@ -65,6 +65,10 @@ export const AppWrapper: React.FC = () => {
     initializeSlideSearchParams();
     initializeTableFilterSearchParams();
   }, [pathname, search]);
+
+  useEffect(() => {
+    clearNewEvents();
+  }, [pathname]);
 
   const initializeTimeSearchParams = () => {
     // If date has already been set
@@ -99,7 +103,7 @@ export const AppWrapper: React.FC = () => {
   const initializeSlideSearchParams = () => {
     setSlideID(null);
     const existingSlideParam = searchParams.get(SLIDE_QUERY_KEY);
-    if (existingSlideParam === null || !isValidUUID(existingSlideParam)) {
+    if (existingSlideParam === null) {
       setSlideSearchParam(null);
     } else {
       setSlideSearchParam(existingSlideParam);
@@ -110,7 +114,7 @@ export const AppWrapper: React.FC = () => {
     if (slideID === null) {
       searchParams.delete(SLIDE_QUERY_KEY);
       setSearchParams(searchParams);
-    } else if (isValidUUID(slideID)) {
+    } else {
       searchParams.set(SLIDE_QUERY_KEY, slideID);
       setSearchParams(searchParams);
       setSlideID(slideID);

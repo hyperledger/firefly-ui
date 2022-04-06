@@ -26,7 +26,6 @@ export const FF_Paths = {
     `/apis/${apiName}/query/${methodPath}`,
   apisSubscribe: (apiName: string, methodPath: string) =>
     `/apis/${apiName}/subscribe/${methodPath}`,
-  apisById: (id: string) => `/apis/${id}`,
   // Batches
   batches: '/batches',
   batchesByBatchId: (batchId: string) => `/batches/${batchId}`,
@@ -94,7 +93,10 @@ export const FF_Paths = {
   tokens: '/tokens',
   tokenAccounts: '/tokens/accounts',
   tokenAccountPoolsByKey: (key: string) => `/tokens/accounts/${key}/pools`,
+  tokenApprovals: '/tokens/approvals',
   tokenBalances: '/tokens/balances',
+  tokenBalancesByKeyPool: (key: string, pool: string) =>
+    `/tokens/balances?key=${key}&pool=${pool}`,
   tokenBurn: '/tokens/burn',
   tokenConnectors: '/tokens/connectors',
   tokenMint: '/tokens/mint',

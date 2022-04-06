@@ -3,18 +3,21 @@ import {
   Accordion,
   AccordionDetails,
   AccordionSummary,
-  Chip,
   Grid,
 } from '@mui/material';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
 import {
   FF_MESSAGES_CATEGORY_MAP,
+  FF_NAV_PATHS,
   IDataWithHeader,
   IMessage,
-  MsgStateColorMap,
 } from '../../interfaces';
+import { DEFAULT_PADDING } from '../../theme';
 import { getFFTime } from '../../utils';
+import { LaunchButton } from '../Buttons/LaunchButton';
+import { MsgStatusChip } from '../Chips/MsgStatusChip';
 import { HashPopover } from '../Popovers/HashPopover';
 import { FFAccordionHeader } from './FFAccordionHeader';
 import { FFAccordionText } from './FFAccordionText';
@@ -28,6 +31,7 @@ export const MessageAccordion: React.FC<Props> = ({
   message,
   isOpen = false,
 }) => {
+  const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState<boolean>(isOpen);
 
@@ -70,29 +74,20 @@ export const MessageAccordion: React.FC<Props> = ({
               />
             }
             rightContent={
-              message.state && (
-                // TODO: Fix when https://github.com/hyperledger/firefly/issues/628 is resolved
-                <Chip
-                  label={
-                    message.state?.toLocaleUpperCase() === 'PENDING'
-                      ? 'CONFIRMED'
-                      : message.state?.toLocaleUpperCase()
-                  }
-                  sx={{
-                    backgroundColor:
-                      MsgStateColorMap[
-                        message.state === 'pending'
-                          ? 'confirmed'
-                          : message.state
-                      ],
-                  }}
-                ></Chip>
-              )
+              <>
+                {message.state && <MsgStatusChip msg={message} />}
+                <LaunchButton
+                  link={FF_NAV_PATHS.offchainMessagesPath(
+                    selectedNamespace,
+                    message.header.id
+                  )}
+                ></LaunchButton>
+              </>
             }
           />
         </AccordionSummary>
         <AccordionDetails>
-          <Grid container item direction="row">
+          <Grid container item direction="row" pt={DEFAULT_PADDING}>
             {accInfo.map((info, idx) => (
               <Grid key={idx} item xs={4} pb={1} justifyContent="flex-start">
                 <FFAccordionText

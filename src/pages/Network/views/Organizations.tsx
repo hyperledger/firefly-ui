@@ -14,7 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import HiveIcon from '@mui/icons-material/Hive';
 import { Chip, Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -96,11 +95,7 @@ export const NetworkOrganizations: () => JSX.Element = () => {
         {
           value: (
             <>
-              <FFTableText
-                color="primary"
-                text={org.name}
-                icon={<HiveIcon />}
-              />
+              <FFTableText color="primary" text={org.name} />
             </>
           ),
         },
@@ -144,7 +139,6 @@ export const NetworkOrganizations: () => JSX.Element = () => {
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
-            title={t('allOrganizations')}
             filter={
               <FilterButton
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>

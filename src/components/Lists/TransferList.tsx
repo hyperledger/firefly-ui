@@ -1,13 +1,13 @@
-import { Chip } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { ITokenTransfer, ITxStatus, TxStatusColorMap } from '../../interfaces';
+import { ITokenTransfer, ITxStatus } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { MsgButton } from '../Buttons/MsgButton';
 import { PoolButton } from '../Buttons/PoolButton';
 import { TxButton } from '../Buttons/TxButton';
+import { TxStatusChip } from '../Chips/TxStatusChip';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
@@ -59,7 +59,7 @@ export const TransferList: React.FC<Props> = ({
           ) : undefined,
         },
         {
-          label: t('author'),
+          label: t('signingKey'),
           value: <FFListText color="primary" text={transfer.key} />,
           button: <FFCopyButton value={transfer.key} />,
         },
@@ -117,25 +117,8 @@ export const TransferList: React.FC<Props> = ({
           ),
         },
         {
-          label: t('status'),
-          value: txStatus && (
-            // TODO: Fix when https://github.com/hyperledger/firefly/issues/628 is resolved
-            <Chip
-              label={
-                txStatus.status?.toLocaleUpperCase() === 'PENDING'
-                  ? 'SUCCEEDED'
-                  : txStatus.status?.toLocaleUpperCase()
-              }
-              sx={{
-                backgroundColor:
-                  TxStatusColorMap[
-                    txStatus.status === 'Pending'
-                      ? 'Succeeded'
-                      : txStatus.status
-                  ],
-              }}
-            ></Chip>
-          ),
+          label: txStatus ? t('status') : '',
+          value: txStatus && <TxStatusChip txStatus={txStatus} />,
         },
         {
           label: t('created'),
@@ -151,9 +134,9 @@ export const TransferList: React.FC<Props> = ({
         <FFCircleLoader color="warning" />
       ) : (
         <>
-          {dataList.map((d, idx) => (
-            <FFListItem key={idx} item={d} />
-          ))}
+          {dataList.map(
+            (d, idx) => d.label !== '' && <FFListItem key={idx} item={d} />
+          )}
         </>
       )}
     </>

@@ -1,8 +1,7 @@
-import { Chip } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { ITransaction, ITxStatus, TxStatusColorMap } from '../../interfaces';
+import { ITransaction, ITxStatus } from '../../interfaces';
 import {
   FF_TX_STATUS,
   FF_TX_STATUS_CATEGORY_MAP,
@@ -10,6 +9,7 @@ import {
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { TxButton } from '../Buttons/TxButton';
+import { TxStatusChip } from '../Chips/TxStatusChip';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { HashPopover } from '../Popovers/HashPopover';
 import { FFListItem } from './FFListItem';
@@ -64,24 +64,7 @@ export const TxList: React.FC<Props> = ({
         },
         {
           label: t('status'),
-          value: txStatus && (
-            // TODO: Fix when https://github.com/hyperledger/firefly/issues/628 is resolved
-            <Chip
-              label={
-                txStatus.status?.toLocaleUpperCase() === 'PENDING'
-                  ? 'SUCCEEDED'
-                  : txStatus.status?.toLocaleUpperCase()
-              }
-              sx={{
-                backgroundColor:
-                  TxStatusColorMap[
-                    txStatus.status === 'Pending'
-                      ? 'Succeeded'
-                      : txStatus.status
-                  ],
-              }}
-            ></Chip>
-          ),
+          value: txStatus && <TxStatusChip txStatus={txStatus} />,
         },
         {
           label: t('created'),

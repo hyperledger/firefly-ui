@@ -18,16 +18,19 @@ import LaunchIcon from '@mui/icons-material/Launch';
 import { Grid, IconButton, Link } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { DownloadButton } from '../../../components/Buttons/DownloadButton';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { ApiSlide } from '../../../components/Slides/ApiSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
+import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   ApiFilters,
@@ -46,6 +49,7 @@ export const BlockchainApis: () => JSX.Element = () => {
   const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
+  const { setSlideSearchParam, slideID } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
@@ -53,7 +57,7 @@ export const BlockchainApis: () => JSX.Element = () => {
   const [apis, setApis] = useState<IFireflyApi[]>();
   // API Totals
   const [apiTotal, setApiTotal] = useState(0);
-
+  const [viewApi, setViewApi] = useState<IFireflyApi>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
@@ -63,6 +67,23 @@ export const BlockchainApis: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
+
+  // Slide for api
+  useEffect(() => {
+    isMounted &&
+      slideID &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.apisByName(
+          slideID
+        )}`
+      )
+        .then((apiRes: IFireflyApi) => {
+          setViewApi(apiRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [slideID, isMounted]);
 
   // APIs
   useEffect(() => {
@@ -95,17 +116,25 @@ export const BlockchainApis: () => JSX.Element = () => {
   ]);
 
   const apiColHeaders = [
+    t('endpoint'),
     t('name'),
     t('id'),
     t('interfaceID'),
-    t('location'),
     t('openApi'),
-    t('swagger'),
+    t('ui'),
   ];
 
   const apiRecords: IDataTableRecord[] | undefined = apis?.map((api) => ({
     key: api.id,
     columns: [
+      {
+        value: (
+          <HashPopover
+            address={`${FF_Paths.nsPrefix}/${selectedNamespace}/apis/${api.name}`}
+            fullLength
+          />
+        ),
+      },
       {
         value: <FFTableText color="primary" text={api.name} />,
       },
@@ -122,19 +151,11 @@ export const BlockchainApis: () => JSX.Element = () => {
       },
       {
         value: (
-          <HashPopover
-            shortHash={true}
-            address={api.location?.address ?? ''}
-          ></HashPopover>
-        ),
-      },
-      {
-        value: (
-          <Link target="_blank" href={api.urls.openapi} underline="always">
-            <IconButton>
-              <LaunchIcon />
-            </IconButton>
-          </Link>
+          <DownloadButton
+            filename={api.name}
+            url={api.urls.openapi}
+            isBlob={false}
+          />
         ),
       },
       {
@@ -147,6 +168,10 @@ export const BlockchainApis: () => JSX.Element = () => {
         ),
       },
     ],
+    onClick: () => {
+      setViewApi(api);
+      setSlideSearchParam(api.name);
+    },
   }));
 
   return (
@@ -160,7 +185,6 @@ export const BlockchainApis: () => JSX.Element = () => {
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
           <ChartTableHeader
-            title={t('allApis')}
             filter={
               <FilterButton
                 onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
@@ -196,6 +220,16 @@ export const BlockchainApis: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={ApiFilters}
+        />
+      )}
+      {viewApi && (
+        <ApiSlide
+          api={viewApi}
+          open={!!viewApi}
+          onClose={() => {
+            setViewApi(undefined);
+            setSlideSearchParam(null);
+          }}
         />
       )}
     </>

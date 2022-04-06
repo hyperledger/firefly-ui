@@ -5,10 +5,17 @@ import {
   AccordionSummary,
   Grid,
 } from '@mui/material';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IBlockchainEvent, IDataWithHeader } from '../../interfaces';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
+import {
+  FF_NAV_PATHS,
+  IBlockchainEvent,
+  IDataWithHeader,
+} from '../../interfaces';
+import { DEFAULT_PADDING } from '../../theme';
 import { getFFTime } from '../../utils';
+import { LaunchButton } from '../Buttons/LaunchButton';
 import { HashPopover } from '../Popovers/HashPopover';
 import { FFJsonViewer } from '../Viewers/FFJsonViewer';
 import { FFAccordionHeader } from './FFAccordionHeader';
@@ -23,6 +30,7 @@ export const BlockchainEventAccordion: React.FC<Props> = ({
   be,
   isOpen = false,
 }) => {
+  const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState<boolean>(isOpen);
 
@@ -59,12 +67,38 @@ export const BlockchainEventAccordion: React.FC<Props> = ({
             />
           }
           rightContent={
-            <FFAccordionText color="primary" text={getFFTime(be.timestamp)} />
+            <LaunchButton
+              link={FF_NAV_PATHS.blockchainEventsPath(selectedNamespace, be.id)}
+            />
           }
         />
       </AccordionSummary>
       <AccordionDetails>
-        <Grid container item direction="row">
+        {be.info && (
+          <Grid container item direction="column" pb={2}>
+            <FFAccordionText
+              color="primary"
+              text={t('info')}
+              padding
+              isHeader
+            />
+            <FFJsonViewer json={be.info} />
+          </Grid>
+        )}
+        {be.output && (
+          <Grid container item direction="column">
+            <FFAccordionText
+              color="primary"
+              text={t('output')}
+              padding
+              isHeader
+            />
+            <Grid item>
+              <FFJsonViewer json={be.output} />
+            </Grid>
+          </Grid>
+        )}
+        <Grid container item direction="row" pt={DEFAULT_PADDING}>
           {accInfo.map((info, idx) => (
             <Grid key={idx} item xs={4} pb={1} justifyContent="flex-start">
               <FFAccordionText
@@ -76,20 +110,6 @@ export const BlockchainEventAccordion: React.FC<Props> = ({
             </Grid>
           ))}
         </Grid>
-        {be.info && (
-          <Grid container item direction="column" pb={2}>
-            <FFAccordionText color="primary" text={t('info')} padding />
-            <FFJsonViewer json={be.info} />
-          </Grid>
-        )}
-        {be.output && (
-          <Grid container item direction="column">
-            <FFAccordionText color="primary" text={t('output')} padding />
-            <Grid item>
-              <FFJsonViewer json={be.output} />
-            </Grid>
-          </Grid>
-        )}
       </AccordionDetails>
     </Accordion>
   );

@@ -87,7 +87,7 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
               {data.data !== undefined ? (
                 <Typography
                   noWrap
-                  sx={{ fontSize: 24, fontWeight: 'bold' }}
+                  sx={{ fontSize: 24, width: 40, fontWeight: 'bold' }}
                   variant="subtitle1"
                 >
                   {data.data}

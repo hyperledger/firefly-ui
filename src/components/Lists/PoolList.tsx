@@ -1,12 +1,12 @@
-import { Chip } from '@mui/material';
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { ITokenPool, PoolStateColorMap } from '../../interfaces';
+import { ITokenPool } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
-import { PoolButton } from '../Buttons/PoolButton';
+import { MsgButton } from '../Buttons/MsgButton';
 import { TxButton } from '../Buttons/TxButton';
+import { PoolStatusChip } from '../Chips/PoolStatusChip';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
@@ -15,10 +15,9 @@ import { FFSkeletonList } from './FFSkeletonList';
 
 interface Props {
   pool?: ITokenPool;
-  showPoolLink?: boolean;
 }
 
-export const PoolList: React.FC<Props> = ({ pool, showPoolLink = true }) => {
+export const PoolList: React.FC<Props> = ({ pool }) => {
   const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
   const [dataList, setDataList] = useState<IDataListItem[]>(FFSkeletonList);
@@ -30,23 +29,6 @@ export const PoolList: React.FC<Props> = ({ pool, showPoolLink = true }) => {
           label: t('id'),
           value: <FFListText color="primary" text={pool.id} />,
           button: <FFCopyButton value={pool.id} />,
-        },
-        {
-          label: t('protocolID'),
-          value: <FFListText color="primary" text={pool.protocolId} />,
-          button: <FFCopyButton value={pool.protocolId} />,
-        },
-        {
-          label: t('connector'),
-          value: <FFListText color="primary" text={pool.connector} />,
-          button: (
-            <>
-              {showPoolLink && (
-                <PoolButton ns={selectedNamespace} poolID={pool.id} />
-              )}
-              <FFCopyButton value={pool.connector} />
-            </>
-          ),
         },
         {
           label: t('transactionID'),
@@ -73,17 +55,15 @@ export const PoolList: React.FC<Props> = ({ pool, showPoolLink = true }) => {
             <FFListText color="secondary" text={t('noMessageInTransfer')} />
           ),
           button: pool.message ? (
-            <FFCopyButton value={pool.message} />
+            <>
+              <MsgButton ns={selectedNamespace} msgID={pool.message} />
+              <FFCopyButton value={pool.message} />
+            </>
           ) : undefined,
         },
         {
           label: t('state'),
-          value: pool.state && (
-            <Chip
-              label={pool.state.toLocaleUpperCase()}
-              sx={{ backgroundColor: PoolStateColorMap[pool.state] }}
-            ></Chip>
-          ),
+          value: pool.state && <PoolStatusChip pool={pool} />,
         },
         {
           label: t('created'),

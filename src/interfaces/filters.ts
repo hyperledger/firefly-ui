@@ -31,6 +31,17 @@ export enum TimeFilterEnum {
 
 export const ApiFilters = ['id', 'name', 'interface'];
 
+export const BalanceFilters = [
+  'pool',
+  'tokenindex',
+  'uri',
+  'connector',
+  'namespace',
+  'key',
+  'balance',
+  'updated',
+];
+
 export const BlockchainEventFilters = [
   'id',
   'source',
@@ -41,6 +52,8 @@ export const BlockchainEventFilters = [
   'tx.id',
   'timestamp',
 ];
+
+export const InterfaceFilters = ['id', 'name', 'namespace', 'version'];
 
 export const DataFilters = [
   'id',

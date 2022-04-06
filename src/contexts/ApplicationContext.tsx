@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import { createContext, Dispatch, SetStateAction } from 'react';
-import { FF_EVENTS, INamespace } from '../interfaces';
+import { INamespace, INewEventSet } from '../interfaces';
 
 export interface IApplicationContext {
   identity: string;
@@ -26,7 +26,7 @@ export interface IApplicationContext {
   selectedNamespace: string;
   setSelectedNamespace: Dispatch<SetStateAction<string>>;
   namespaces: INamespace[];
-  newEvents: FF_EVENTS[];
+  newEvents: INewEventSet;
   clearNewEvents: () => void;
   lastRefreshTime: string;
 }

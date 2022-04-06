@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { IContractListener } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
+import { InterfaceButton } from '../Buttons/InterfaceButton';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
@@ -14,6 +16,7 @@ interface Props {
 }
 
 export const ListenerList: React.FC<Props> = ({ listener }) => {
+  const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
   const [dataList, setDataList] = useState<IDataListItem[]>(FFSkeletonList);
 
@@ -28,7 +31,15 @@ export const ListenerList: React.FC<Props> = ({ listener }) => {
         {
           label: t('interfaceID'),
           value: <FFListText color="primary" text={listener.interface.id} />,
-          button: <FFCopyButton value={listener.interface.id} />,
+          button: (
+            <>
+              <InterfaceButton
+                interfaceID={listener.interface.id}
+                ns={selectedNamespace}
+              />
+              <FFCopyButton value={listener.interface.id} />
+            </>
+          ),
         },
         {
           label: t('protocolID'),

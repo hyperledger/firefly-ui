@@ -14,6 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { FF_OPS } from './enums';
+
 export interface INavItem {
   name: string;
   action: () => void;
@@ -23,6 +25,7 @@ export interface INavItem {
 
 export const ACTIVITY_PATH = 'activity';
 export const APIS_PATH = 'apis';
+export const BALANCES_PATH = 'balances';
 export const BLOCKCHAIN_PATH = 'blockchain';
 export const DATA_PATH = 'data';
 export const DATATYPES_PATH = 'datatypes';
@@ -61,6 +64,8 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}`,
   activityTxDetailPath: (ns: string, txID: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}/${txID}`,
+  activityTxDetailPathWithSlide: (ns: string, txID: string, slideID: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}/${txID}?slide=${slideID}`,
   activityOpPath: (ns: string, txID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}${
       txID ? `?filters=tx==${txID}` : ''
@@ -70,13 +75,13 @@ export const FF_NAV_PATHS = {
   // Blockchain
   blockchainPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}`,
-  blockchainEventsPath: (ns: string, txID?: string) =>
+  blockchainEventsPath: (ns: string, beID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${EVENTS_PATH}${
-      txID ? `?filters=tx.id==${txID}` : ''
+      beID ? `?slide=${beID}` : ''
     }`,
-  blockchainApisPath: (ns: string, interfaceID?: string) =>
+  blockchainApisPath: (ns: string, apiName?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${APIS_PATH}${
-      interfaceID ? `?filters=interface==${interfaceID}` : ''
+      apiName ? `?slide=${apiName}` : ''
     }`,
   blockchainInterfacesPath: (ns: string, interfaceID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${INTERFACES_PATH}${
@@ -87,12 +92,12 @@ export const FF_NAV_PATHS = {
       interfaceID ? `?filters=interface==${interfaceID}` : ''
     }`,
   blockchainListenersSinglePath: (ns: string, listenerID: string) =>
-    `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${LISTENERS_PATH}${`?slide=${listenerID}&filters=id==${listenerID}`}`,
+    `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${LISTENERS_PATH}${`?slide=${listenerID}`}`,
   // Off-Chain
   offchainPath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}`,
   offchainMessagesPath: (ns: string, msgID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${MESSAGES_PATH}${
-      msgID ? `?filters=id==${msgID}` : ''
+      msgID ? `?slide=${msgID}` : ''
     }`,
   offchainDataPath: (ns: string, dataID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${DATA_PATH}${
@@ -108,10 +113,22 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${TRANSFERS_PATH}${
       poolID ? `?filters=pool==${poolID}` : ''
     }`,
+  tokensTransfersErrorPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}?filters=error=!=&filters=type==${FF_OPS.TOKEN_TRANSFER}`,
+  tokensTransfersPathLocalID: (ns: string, localID?: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${TRANSFERS_PATH}${
+      localID ? `?filters=localid==${localID}` : ''
+    }`,
+  tokensTransfersPathByKeyAndPool: (ns: string, key: string, pool: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${TRANSFERS_PATH}${`?filters=key==${key}&filters=pool==${pool}`}`,
   tokensPoolsPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${POOLS_PATH}`,
   tokensPoolDetailsPath: (ns: string, poolID: string) =>
     `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${POOLS_PATH}/${poolID}`,
+  tokensBalancesPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${BALANCES_PATH}`,
+  tokensBalancesPathByPool: (ns: string, poolID: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${BALANCES_PATH}?filters=pool==${poolID}`,
   // Network
   networkPath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}`,
   networkOrgsPath: (ns: string) =>
