@@ -89,14 +89,14 @@ export const NetworkMap: React.FC<Props> = ({ size }) => {
   const id = open ? 'simple-popover' : undefined;
 
   useEffect(() => {
-    fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.networkOrgs}`)
+    fetchCatcher(`${FF_Paths.apiPrefix}${FF_Paths.networkOrgs}`)
       .then((orgRes: IOrganization[]) => {
         setOrgs(orgRes);
       })
       .catch((err) => {
         reportFetchError(err);
       });
-    fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.networkNodes}`)
+    fetchCatcher(`${FF_Paths.apiPrefix}${FF_Paths.networkNodes}`)
       .then((nodeRes: INode[]) => {
         setNodes(nodeRes);
       })
