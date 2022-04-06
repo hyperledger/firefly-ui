@@ -1,10 +1,12 @@
 import { Grid } from '@mui/material';
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon, { jsNumberForAddress } from 'react-jazzicon';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { ITokenBalance, ITokenPool } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
+import { PoolButton } from '../Buttons/PoolButton';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
@@ -17,6 +19,7 @@ interface Props {
 }
 
 export const BalanceList: React.FC<Props> = ({ balance, pool }) => {
+  const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
   const [dataList, setDataList] = useState<IDataListItem[]>(FFSkeletonList);
 
@@ -40,6 +43,7 @@ export const BalanceList: React.FC<Props> = ({ balance, pool }) => {
               </Grid>
             </Grid>
           ),
+          button: <PoolButton ns={selectedNamespace} poolID={pool.id} />,
         },
         {
           label: t('balance'),
