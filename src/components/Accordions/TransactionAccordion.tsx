@@ -5,11 +5,13 @@ import {
   AccordionSummary,
   Grid,
 } from '@mui/material';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IDataWithHeader, ITransaction } from '../../interfaces';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
+import { FF_NAV_PATHS, IDataWithHeader, ITransaction } from '../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../interfaces/enums/transactionTypes';
 import { getFFTime } from '../../utils';
+import { LaunchButton } from '../Buttons/LaunchButton';
 import { HashPopover } from '../Popovers/HashPopover';
 import { FFAccordionHeader } from './FFAccordionHeader';
 import { FFAccordionText } from './FFAccordionText';
@@ -23,6 +25,7 @@ export const TransactionAccordion: React.FC<Props> = ({
   tx,
   isOpen = false,
 }) => {
+  const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
   const [expanded, setExpanded] = useState<boolean>(isOpen);
 
@@ -65,7 +68,17 @@ export const TransactionAccordion: React.FC<Props> = ({
                 isHeader
               />
             }
-            rightContent={<HashPopover shortHash address={tx.id} />}
+            rightContent={
+              <>
+                <HashPopover shortHash address={tx.id} />
+                <LaunchButton
+                  link={FF_NAV_PATHS.activityTxDetailPath(
+                    selectedNamespace,
+                    tx.id
+                  )}
+                />
+              </>
+            }
           />
         </AccordionSummary>
         <AccordionDetails>

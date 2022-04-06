@@ -1,9 +1,20 @@
-import { useTheme } from '@mui/material';
+import { InputAdornment, TextField, useTheme } from '@mui/material';
 import ReactJson from 'react-json-view';
+import { FFCopyButton } from '../Buttons/CopyButton';
 
 interface Props {
-  json: object;
+  json: object | string;
 }
+
+const isValidJson = (obj: object) => {
+  const str = JSON.stringify(obj);
+  try {
+    JSON.parse(str);
+  } catch (e) {
+    return false;
+  }
+  return true;
+};
 
 export const FFJsonViewer: React.FC<Props> = ({ json }) => {
   const theme = useTheme();
@@ -11,7 +22,7 @@ export const FFJsonViewer: React.FC<Props> = ({ json }) => {
     navigator.clipboard.writeText(JSON.stringify(copy.src, null, '\t'));
   };
 
-  return (
+  return typeof json === 'object' && isValidJson(json) ? (
     <ReactJson
       theme={'pop'}
       style={{
@@ -21,7 +32,23 @@ export const FFJsonViewer: React.FC<Props> = ({ json }) => {
       collapseStringsAfterLength={50}
       enableClipboard={handleCopy}
       displayDataTypes={false}
+      displayObjectSize={false}
       src={json}
+      name={false}
+    />
+  ) : (
+    <TextField
+      multiline
+      defaultValue={json}
+      value={json}
+      InputProps={{
+        endAdornment: (
+          <InputAdornment position="end">
+            {typeof json === 'string' && <FFCopyButton value={json} />}
+          </InputAdornment>
+        ),
+      }}
+      fullWidth
     />
   );
 };

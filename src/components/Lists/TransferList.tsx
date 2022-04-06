@@ -117,7 +117,7 @@ export const TransferList: React.FC<Props> = ({
           ),
         },
         {
-          label: t('status'),
+          label: txStatus ? t('status') : '',
           value: txStatus && <TxStatusChip txStatus={txStatus} />,
         },
         {
@@ -134,9 +134,9 @@ export const TransferList: React.FC<Props> = ({
         <FFCircleLoader color="warning" />
       ) : (
         <>
-          {dataList.map((d, idx) => (
-            <FFListItem key={idx} item={d} />
-          ))}
+          {dataList.map(
+            (d, idx) => d.label !== '' && <FFListItem key={idx} item={d} />
+          )}
         </>
       )}
     </>

@@ -1,6 +1,5 @@
 import ExpandMoreIcon from '@mui/icons-material/ExpandMore';
 import LaunchIcon from '@mui/icons-material/Launch';
-import VisibilityIcon from '@mui/icons-material/Visibility';
 import {
   Accordion,
   AccordionDetails,
@@ -15,7 +14,9 @@ import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { FF_NAV_PATHS, IData, IDataWithHeader } from '../../interfaces';
+import { DEFAULT_PADDING } from '../../theme';
 import { getFFTime } from '../../utils';
+import { DownloadButton } from '../Buttons/DownloadButton';
 import { HashPopover } from '../Popovers/HashPopover';
 import { FFJsonViewer } from '../Viewers/FFJsonViewer';
 import { FFAccordionHeader } from './FFAccordionHeader';
@@ -24,11 +25,13 @@ import { FFAccordionText } from './FFAccordionText';
 interface Props {
   data: IData;
   isOpen?: boolean;
+  showLink?: boolean;
 }
 
 export const MessageDataAccordion: React.FC<Props> = ({
   data,
   isOpen = false,
+  showLink = true,
 }) => {
   const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
@@ -52,7 +55,7 @@ export const MessageDataAccordion: React.FC<Props> = ({
       ),
     },
   ];
-
+  console.log(data);
   return (
     <>
       <Accordion
@@ -65,30 +68,47 @@ export const MessageDataAccordion: React.FC<Props> = ({
             leftContent={<HashPopover address={data.id} />}
             rightContent={
               <>
-                <IconButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    setOpenDataModal(true);
-                  }}
-                >
-                  <VisibilityIcon />
-                </IconButton>
-                <IconButton
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    navigate(
-                      FF_NAV_PATHS.offchainDataPath(selectedNamespace, data.id)
-                    );
-                  }}
-                >
-                  <LaunchIcon />
-                </IconButton>
+                {data.blob && (
+                  <DownloadButton
+                    isBlob
+                    url={data.id}
+                    filename={data.blob.name}
+                  />
+                )}
+                {showLink && (
+                  <IconButton
+                    onClick={(e) => {
+                      e.stopPropagation();
+                      navigate(
+                        FF_NAV_PATHS.offchainDataPath(
+                          selectedNamespace,
+                          data.id
+                        )
+                      );
+                    }}
+                  >
+                    <LaunchIcon />
+                  </IconButton>
+                )}
               </>
             }
           />
         </AccordionSummary>
         <AccordionDetails>
-          <Grid container item direction="row">
+          {data.value && (
+            <Grid container item direction="column">
+              <FFAccordionText
+                color="primary"
+                text={t('dataValue')}
+                padding
+                isHeader
+              />
+              <Grid item>
+                <FFJsonViewer json={data.value} />
+              </Grid>
+            </Grid>
+          )}
+          <Grid container item direction="row" pt={DEFAULT_PADDING}>
             {accInfo.map((info, idx) => (
               <Grid key={idx} item xs={4} pb={1} justifyContent="flex-start">
                 <FFAccordionText

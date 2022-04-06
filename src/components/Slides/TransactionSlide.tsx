@@ -124,6 +124,17 @@ export const TransactionSlide: React.FC<Props> = ({
           <Grid container item>
             <TxList tx={transaction} txStatus={txStatus} />
           </Grid>
+          {/* Blockchain Events */}
+          {txBlockchainEvents?.length > 0 && (
+            <>
+              <SlideSectionHeader title={t('recentBlockchainEvents')} />
+              <Grid container item>
+                {txBlockchainEvents?.map((be, idx) => (
+                  <BlockchainEventAccordion isOpen key={idx} be={be} />
+                ))}
+              </Grid>
+            </>
+          )}
           {/* Operations */}
           {txOperations?.length > 0 && (
             <>
@@ -136,18 +147,9 @@ export const TransactionSlide: React.FC<Props> = ({
               />
               <Grid container item>
                 {txOperations?.map((op, idx) => (
-                  <OperationAccordion key={idx} op={op} />
-                ))}
-              </Grid>
-            </>
-          )}
-          {/* Blockchain Events */}
-          {txBlockchainEvents?.length > 0 && (
-            <>
-              <SlideSectionHeader title={t('recentBlockchainEvents')} />
-              <Grid container item>
-                {txBlockchainEvents?.map((be, idx) => (
-                  <BlockchainEventAccordion key={idx} be={be} />
+                  <Grid width={'100%'} item pb={1}>
+                    <OperationAccordion key={idx} op={op} />
+                  </Grid>
                 ))}
               </Grid>
             </>
