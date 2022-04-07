@@ -21,6 +21,7 @@ export interface IHistMsgBucket {
   [MsgCategoryEnum.BROADCAST]: number;
   [MsgCategoryEnum.DEFINITON]: number;
   [MsgCategoryEnum.PRIVATE]: number;
+  isCapped: number;
 }
 
 export interface IHistMsgTimeMap {

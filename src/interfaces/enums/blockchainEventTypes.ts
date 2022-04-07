@@ -3,6 +3,7 @@ import { FFColors } from '../../theme';
 
 export interface IHistBlockchainEventBucket {
   [BlockchainEventCategoryEnum.BLOCKCHAINEVENT]: number;
+  isCapped: number;
 }
 
 export interface IHistBlockchainEventTimeMap {

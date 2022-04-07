@@ -12,10 +12,12 @@ export const makeBlockchainEventHistogram = (
   histList.map((hist) => {
     timeMap[hist.timestamp] = {
       [BlockchainEventCategoryEnum.BLOCKCHAINEVENT]: 0,
+      isCapped: 0,
     };
     timeMap[hist.timestamp][BlockchainEventCategoryEnum.BLOCKCHAINEVENT] =
       timeMap[hist.timestamp][BlockchainEventCategoryEnum.BLOCKCHAINEVENT] +
       +hist.count;
+    hist.isCapped && (timeMap[hist.timestamp].isCapped = 1);
   });
 
   const finalHistogram: BarDatum[] = [];

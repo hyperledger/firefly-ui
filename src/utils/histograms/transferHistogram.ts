@@ -14,6 +14,7 @@ export const makeTransferHistogram = (histList: IMetric[]): BarDatum[] => {
       [TransferCategoryEnum.MINT]: 0,
       [TransferCategoryEnum.BURN]: 0,
       [TransferCategoryEnum.TRANSFER]: 0,
+      isCapped: 0,
     };
     hist.types.map((type) => {
       switch (FF_TRANSFER_CATEGORY_MAP[type.type as FF_TRANSFERS]?.category) {
@@ -34,6 +35,7 @@ export const makeTransferHistogram = (histList: IMetric[]): BarDatum[] => {
             +type.count;
           break;
       }
+      hist.isCapped && (timeMap[hist.timestamp].isCapped = 1);
     });
   });
 

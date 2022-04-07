@@ -21,6 +21,9 @@ interface Props {
   isLoading: boolean;
 }
 
+export const getIsCappedColor = (lightMode: boolean) =>
+  lightMode ? '#000000' : '#FFFFFF';
+
 export const Histogram: React.FC<Props> = ({
   colors,
   data,
@@ -34,6 +37,8 @@ export const Histogram: React.FC<Props> = ({
 }) => {
   const theme = useTheme();
   const [xAxisValues, setXAxisValues] = useState<(string | number)[]>([]);
+
+  colors.push(getIsCappedColor(theme.palette.mode === 'light'));
 
   useEffect(() => {
     if (data) {
@@ -94,7 +99,7 @@ export const Histogram: React.FC<Props> = ({
                       anchor: 'bottom',
                       direction: 'row',
                       justify: false,
-                      translateX: 20,
+                      translateX: 0,
                       translateY: 50,
                       itemsSpacing: 2,
                       itemWidth: 100,
@@ -129,10 +134,10 @@ export const Histogram: React.FC<Props> = ({
                 },
               },
             }}
-            tooltip={({ data }) => {
+            tooltip={({ data }, idx) => {
               return (
                 <Paper
-                  key={data.timestamp}
+                  key={idx}
                   sx={{
                     borderRadius: DEFAULT_BORDER_RADIUS,
                     padding: 1,
@@ -141,9 +146,11 @@ export const Histogram: React.FC<Props> = ({
                 >
                   {keys.map((key, idx) => {
                     return (
-                      <Typography key={idx} sx={{ color: colors[idx] }}>
-                        {`${key.toUpperCase()}: ${data[key] ?? 0}`}
-                      </Typography>
+                      key !== 'isCapped' && (
+                        <Typography key={idx} sx={{ color: colors[idx] }}>
+                          {`${key.toUpperCase()}: ${data[key] ?? 0}`}
+                        </Typography>
+                      )
                     );
                   })}
                   <Typography variant="subtitle1" color="secondary">

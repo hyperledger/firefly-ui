@@ -21,6 +21,7 @@ export interface IHistTxBucket {
   [TxCategoryEnum.BLOCKCHAIN]: number;
   [TxCategoryEnum.MESSAGES]: number;
   [TxCategoryEnum.TOKENS]: number;
+  isCapped: number;
 }
 
 export interface IHistTxTimeMap {
