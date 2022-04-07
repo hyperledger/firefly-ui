@@ -25,6 +25,7 @@ export interface INavItem {
 
 export const ACTIVITY_PATH = 'activity';
 export const APIS_PATH = 'apis';
+export const APPROVALS_PATH = 'approvals';
 export const BALANCES_PATH = 'balances';
 export const BLOCKCHAIN_PATH = 'blockchain';
 export const DATA_PATH = 'data';
@@ -120,7 +121,7 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}?filters=error=!=&filters=type==${FF_OPS.TOKEN_TRANSFER}`,
   tokensTransfersPathLocalID: (ns: string, localID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${TRANSFERS_PATH}${
-      localID ? `?filters=localid==${localID}` : ''
+      localID ? `?slide=${localID}` : ''
     }`,
   tokensTransfersPathByKeyAndPool: (ns: string, key: string, pool: string) =>
     `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${TRANSFERS_PATH}${`?filters=key==${key}&filters=pool==${pool}`}`,
@@ -132,6 +133,10 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${BALANCES_PATH}`,
   tokensBalancesPathByPool: (ns: string, poolID: string) =>
     `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${BALANCES_PATH}?filters=pool==${poolID}`,
+  tokensApprovalsPath: (ns: string, approvalID?: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${APPROVALS_PATH}${
+      approvalID ? '?slide=' + approvalID : ''
+    }`,
   // Network
   networkPath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}`,
   networkOrgsPath: (ns: string, slideID?: string) =>
@@ -144,6 +149,10 @@ export const FF_NAV_PATHS = {
     }`,
   networkIdentitiesPath: (ns: string, slideID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}/${IDENTITIES_PATH}${
+      slideID ? '?slide=' + slideID : ''
+    }`,
+  networkNamespacesPath: (ns: string, slideID?: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}/${NAMESPACES_PATH}${
       slideID ? '?slide=' + slideID : ''
     }`,
   // My Node

@@ -1,5 +1,6 @@
 import { RouteObject } from 'react-router-dom';
 import { NAMESPACES_PATH } from '../../interfaces';
+import { TokensApprovals } from './views/Approvals';
 import { TokensBalances } from './views/Balances';
 import { TokensDashboard } from './views/Dashboard';
 import { PoolDetails } from './views/PoolDetails';
@@ -29,6 +30,10 @@ export const TokensRoutes: RouteObject = {
     {
       path: 'balances',
       element: <TokensBalances />,
+    },
+    {
+      path: 'approvals',
+      element: <TokensApprovals />,
     },
   ],
 };

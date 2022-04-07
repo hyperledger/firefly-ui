@@ -22,7 +22,7 @@ import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
-import { BalanceSlide } from '../../../components/Slides/BalanceSlide';
+import { ApprovalSlide } from '../../../components/Slides/ApprovalSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
@@ -31,19 +31,17 @@ import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
-  BalanceFilters,
+  ApprovalFilters,
   FF_Paths,
   IDataTableRecord,
-  IPagedTokenBalanceResponse,
-  ITokenBalance,
+  IPagedTokenApprovalResponse,
+  ITokenApproval,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime } from '../../../utils';
-import { hasTransferEvent } from '../../../utils/wsEvents';
+import { hasApprovalEvent } from '../../../utils/wsEvents';
 
-export const KEY_POOL_DELIM = '||';
-
-export const TokensBalances: () => JSX.Element = () => {
+export const TokensApprovals: () => JSX.Element = () => {
   const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
     useContext(ApplicationContext);
   const { dateFilter } = useContext(DateFilterContext);
@@ -53,11 +51,11 @@ export const TokensBalances: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
-  // Token balances
-  const [tokenBalances, setTokenBalances] = useState<ITokenBalance[]>();
-  // Token balances totals
-  const [tokenBalancesTotal, setTokenBalancesTotal] = useState(0);
-  const [viewBalance, setViewBalance] = useState<ITokenBalance>();
+  // Token approvals
+  const [tokenApprovals, setTokenApprovals] = useState<ITokenApproval[]>();
+  // Token approvals totals
+  const [tokenApprovalsTotal, setTokenApprovalsTotal] = useState(0);
+  const [viewApproval, setViewApproval] = useState<ITokenApproval>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
@@ -69,44 +67,35 @@ export const TokensBalances: () => JSX.Element = () => {
   }, []);
 
   useEffect(() => {
-    if (isMounted && slideID) {
-      // Expected structure: <key>||<poolID>
-      const keyPoolArray = slideID.split(KEY_POOL_DELIM);
-      if (keyPoolArray.length !== 2) {
-        return;
-      }
-
+    isMounted &&
+      slideID &&
       fetchCatcher(
-        `${
-          FF_Paths.nsPrefix
-        }/${selectedNamespace}${FF_Paths.tokenBalancesByKeyPool(
-          keyPoolArray[0],
-          keyPoolArray[1]
-        )}`
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenApprovals}?localid=${slideID}`
       )
-        .then((balanceRes: ITokenBalance[]) => {
-          isMounted && balanceRes.length === 1 && setViewBalance(balanceRes[0]);
+        .then((approvalRes: ITokenApproval[]) => {
+          isMounted &&
+            approvalRes.length === 1 &&
+            setViewApproval(approvalRes[0]);
         })
         .catch((err) => {
           reportFetchError(err);
         });
-    }
   }, [slideID, isMounted]);
 
-  // Token balances
+  // Token approvals
   useEffect(() => {
     isMounted &&
       dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
-          FF_Paths.tokenBalances
+          FF_Paths.tokenApprovals
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
           dateFilter.filterString
         }${filterString ?? ''}`
       )
-        .then((tokenBalancesRes: IPagedTokenBalanceResponse) => {
-          setTokenBalances(tokenBalancesRes.items);
-          setTokenBalancesTotal(tokenBalancesRes.total);
+        .then((tokenApprovalRes: IPagedTokenApprovalResponse) => {
+          setTokenApprovals(tokenApprovalRes.items);
+          setTokenApprovalsTotal(tokenApprovalRes.total);
         })
         .catch((err) => {
           reportFetchError(err);
@@ -121,53 +110,64 @@ export const TokensBalances: () => JSX.Element = () => {
     isMounted,
   ]);
 
-  const tokenBalanceColHeaders = [
-    t('key'),
-    t('balance'),
+  const tokenApprovalColHeaders = [
+    t('id'),
+    t('signingKey'),
+    t('operator'),
     t('pool'),
-    t('uri'),
-    t('connector'),
-    t('updated'),
+    t('protocolID'),
+    t('approved?'),
+    t('created'),
   ];
-  const tokenBalanceRecords: IDataTableRecord[] | undefined =
-    tokenBalances?.map((balance, idx) => ({
+  const tokenApprovalRecords: IDataTableRecord[] | undefined =
+    tokenApprovals?.map((approval, idx) => ({
       key: idx.toString(),
       columns: [
         {
-          value: <HashPopover address={balance.key} />,
+          value: <HashPopover address={approval.localId} />,
         },
         {
-          value: <FFTableText color="primary" text={balance.balance} />,
+          value: <HashPopover address={approval.key} />,
         },
         {
-          value: <HashPopover address={balance.pool} />,
+          value: <HashPopover address={approval.operator} />,
         },
         {
-          value: <HashPopover address={balance.uri} />,
+          value: <HashPopover address={approval.pool} />,
         },
         {
-          value: <FFTableText color="primary" text={balance.connector} />,
+          value: <HashPopover address={approval.protocolId} />,
         },
         {
           value: (
-            <FFTableText color="secondary" text={getFFTime(balance.updated)} />
+            <FFTableText
+              color="primary"
+              text={
+                approval.approved
+                  ? t('yes').toUpperCase()
+                  : t('no').toUpperCase()
+              }
+            />
+          ),
+        },
+        {
+          value: (
+            <FFTableText color="secondary" text={getFFTime(approval.created)} />
           ),
         },
       ],
       onClick: () => {
-        setViewBalance(balance);
-        // Since a key can have transfers in multiple pools, the slide ID must be a string
-        // with the following structure: <key>||<poolID>
-        setSlideSearchParam([balance.key, balance.pool].join(KEY_POOL_DELIM));
+        setViewApproval(approval);
+        setSlideSearchParam(approval.localId);
       },
     }));
 
   return (
     <>
       <Header
-        title={t('balances')}
+        title={t('approvals')}
         subtitle={t('tokens')}
-        showRefreshBtn={hasTransferEvent(newEvents)}
+        showRefreshBtn={hasApprovalEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
       <Grid container px={DEFAULT_PADDING}>
@@ -191,11 +191,11 @@ export const TokensBalances: () => JSX.Element = () => {
             stickyHeader={true}
             minHeight="300px"
             maxHeight="calc(100vh - 340px)"
-            records={tokenBalanceRecords}
-            columnHeaders={tokenBalanceColHeaders}
+            records={tokenApprovalRecords}
+            columnHeaders={tokenApprovalColHeaders}
             paginate={true}
-            emptyStateText={t('noTokenBalancesToDisplay')}
-            dataTotal={tokenBalancesTotal}
+            emptyStateText={t('noTokenApprovalsToDisplay')}
+            dataTotal={tokenApprovalsTotal}
             currentPage={currentPage}
             rowsPerPage={rowsPerPage}
           />
@@ -207,15 +207,15 @@ export const TokensBalances: () => JSX.Element = () => {
           onClose={() => {
             setFilterAnchor(null);
           }}
-          fields={BalanceFilters}
+          fields={ApprovalFilters}
         />
       )}
-      {viewBalance && (
-        <BalanceSlide
-          balance={viewBalance}
-          open={!!viewBalance}
+      {viewApproval && (
+        <ApprovalSlide
+          approval={viewApproval}
+          open={!!viewApproval}
           onClose={() => {
-            setViewBalance(undefined);
+            setViewApproval(undefined);
             setSlideSearchParam(null);
           }}
         />

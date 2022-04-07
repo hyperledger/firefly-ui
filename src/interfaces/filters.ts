@@ -31,6 +31,21 @@ export enum TimeFilterEnum {
 
 export const ApiFilters = ['id', 'name', 'interface'];
 
+export const ApprovalFilters = [
+  'localid',
+  'pool',
+  'connector',
+  'namespace',
+  'key',
+  'operator',
+  'approved',
+  'protocolid',
+  'created',
+  'tx.type',
+  'tx.id',
+  'blockchainevent',
+];
+
 export const BalanceFilters = [
   'pool',
   'tokenindex',
@@ -131,6 +146,16 @@ export const MessageFilters = [
   'sequence',
   'txtype',
   'batch',
+];
+
+export const NamespaceFilters = [
+  'id',
+  'message',
+  'type',
+  'name',
+  'description',
+  'created',
+  'confirmed',
 ];
 
 export const OperationFilters = [

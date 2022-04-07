@@ -32,6 +32,7 @@ export const TokensNav = () => {
   const transfersPath = FF_NAV_PATHS.tokensTransfersPath(selectedNamespace);
   const poolsPath = FF_NAV_PATHS.tokensPoolsPath(selectedNamespace);
   const balancesPath = FF_NAV_PATHS.tokensBalancesPath(selectedNamespace);
+  const approvalsPath = FF_NAV_PATHS.tokensApprovalsPath(selectedNamespace);
 
   const navItems: INavItem[] = [
     {
@@ -53,6 +54,11 @@ export const TokensNav = () => {
       name: t('balances'),
       action: () => navigate(balancesPath),
       itemIsActive: pathname === balancesPath,
+    },
+    {
+      name: t('approvals'),
+      action: () => navigate(approvalsPath),
+      itemIsActive: pathname === approvalsPath,
     },
   ];
 

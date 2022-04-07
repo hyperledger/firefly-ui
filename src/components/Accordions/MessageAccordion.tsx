@@ -87,7 +87,7 @@ export const MessageAccordion: React.FC<Props> = ({
           />
         </AccordionSummary>
         <AccordionDetails>
-          <Grid container item direction="row" pt={DEFAULT_PADDING}>
+          <Grid container item direction="row">
             {accInfo.map((info, idx) => (
               <Grid key={idx} item xs={4} pb={1} justifyContent="flex-start">
                 <FFAccordionText

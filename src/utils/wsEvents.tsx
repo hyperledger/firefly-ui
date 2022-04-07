@@ -75,6 +75,12 @@ export const hasTransferEvent = (events: INewEventSet) => {
     events[FF_EVENTS.TOKEN_TRANSFER_FAILED]
   );
 };
+export const hasApprovalEvent = (events: INewEventSet) => {
+  return (
+    events[FF_EVENTS.TOKEN_APPROVAL_CONFIRMED] ||
+    events[FF_EVENTS.TOKEN_APPROVAL_OP_FAILED]
+  );
+};
 
 export const hasTxEvent = (events: INewEventSet) => {
   return events[FF_EVENTS.TX_SUBMITTED];

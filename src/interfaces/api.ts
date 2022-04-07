@@ -216,11 +216,11 @@ export interface IMetricType {
 
 export interface INamespace {
   id: string;
+  message?: string;
   name: string;
   description: string;
   type: string;
   created: string;
-  confirmed: string;
 }
 
 export interface INode {
@@ -346,6 +346,13 @@ export interface IPagedMessageResponse {
   total: number;
 }
 
+export interface IPagesNamespaceResponse {
+  pageParam: number;
+  count: number;
+  items: INamespace[];
+  total: number;
+}
+
 export interface IPagedNodeResponse {
   pageParam: number;
   count: number;
@@ -371,6 +378,13 @@ export interface IPagedSubscriptionsResponse {
   pageParam: number;
   count: number;
   items: ISubscription[];
+  total: number;
+}
+
+export interface IPagedTokenApprovalResponse {
+  pageParam: number;
+  count: number;
+  items: ITokenApproval[];
   total: number;
 }
 

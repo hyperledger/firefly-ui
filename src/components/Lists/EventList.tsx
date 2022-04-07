@@ -35,6 +35,7 @@ export const EventList: React.FC<Props> = ({ event, showTxLink = true }) => {
           button: (
             <>
               {FF_EVENTS_CATEGORY_MAP[event.type].referenceIDButton(
+                selectedNamespace,
                 event.reference
               )}
               <FFCopyButton value={event.reference} />
