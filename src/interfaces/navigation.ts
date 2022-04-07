@@ -32,6 +32,7 @@ export const DATATYPES_PATH = 'datatypes';
 export const DOCS_PATH = 'https://hyperledger.github.io/firefly/';
 export const EVENTS_PATH = 'events';
 export const FILE_EXPLORER_PATH = 'fileExplorer';
+export const GROUPS_PATH = 'groups';
 export const HOME_PATH = 'home';
 export const IDENTITIES_PATH = 'identities';
 export const INTERFACES_PATH = 'interfaces';
@@ -107,6 +108,8 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${DATATYPES_PATH}${
       datatypeID ? `?filters=id==${datatypeID}&slide=${datatypeID}` : ''
     }`,
+  offchainGroupsPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${GROUPS_PATH}`,
   // Tokens
   tokensPath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}`,
   tokensTransfersPath: (ns: string, poolID?: string) =>
@@ -131,12 +134,18 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}/${BALANCES_PATH}?filters=pool==${poolID}`,
   // Network
   networkPath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}`,
-  networkOrgsPath: (ns: string) =>
-    `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}/${ORGANIZATIONS_PATH}`,
-  networkNodesPath: (ns: string) =>
-    `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}/${NODES_PATH}`,
-  networkIdentitiesPath: (ns: string) =>
-    `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}/${IDENTITIES_PATH}`,
+  networkOrgsPath: (ns: string, slideID?: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}/${ORGANIZATIONS_PATH}${
+      slideID ? '?slide=' + slideID : ''
+    }`,
+  networkNodesPath: (ns: string, slideID?: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}/${NODES_PATH}${
+      slideID ? '?slide=' + slideID : ''
+    }`,
+  networkIdentitiesPath: (ns: string, slideID?: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${NETWORK_PATH}/${IDENTITIES_PATH}${
+      slideID ? '?slide=' + slideID : ''
+    }`,
   // My Node
   myNodePath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${MY_NODES_PATH}`,
   myNodeSubscriptionsPath: (ns: string) =>

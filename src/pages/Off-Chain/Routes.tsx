@@ -3,6 +3,7 @@ import { NAMESPACES_PATH } from '../../interfaces';
 import { OffChainDashboard } from './views/Dashboard';
 import { OffChainData } from './views/Data';
 import { OffChainDataTypes } from './views/DataTypes';
+import { OffChainGroups } from './views/Groups';
 import { OffChainMessages } from './views/Messages';
 
 export const OffChainRoutes: RouteObject = {
@@ -20,6 +21,10 @@ export const OffChainRoutes: RouteObject = {
     {
       path: 'data',
       element: <OffChainData />,
+    },
+    {
+      path: 'groups',
+      element: <OffChainGroups />,
     },
     {
       path: 'datatypes',

@@ -88,6 +88,15 @@ export const EventFilters = [
   'created',
 ];
 
+export const GroupFilters = [
+  'hash',
+  'message',
+  'namespace',
+  'description',
+  'ledger',
+  'created',
+];
+
 export const IdentityFilters = [
   'id',
   'did',

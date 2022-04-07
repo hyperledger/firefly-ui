@@ -133,20 +133,35 @@ export interface IGenericPagedResponse {
   total: number;
 }
 
+export interface IGroup {
+  namespace: string;
+  name: string;
+  members: IGroupMember[];
+  message: string;
+  hash: string;
+  created: string;
+}
+
+export interface IGroupMember {
+  identity: string;
+  node: string;
+}
+
 export interface IIdentity {
   id: string;
   did: string;
   type: string;
-  parent?: string;
   namespace: string;
+  parent?: string;
   name: string;
   messages: {
     claim: string;
-    verification: string | null;
-    update: string | null;
+    verification: null | string;
+    update: null | string;
   };
   created: string;
   updated: string;
+  verifiers: IVerifier[];
 }
 
 export interface IMessage {
@@ -189,6 +204,7 @@ export type IMessageTransaction = ITransaction;
 
 export interface IMetric {
   count: string;
+  isCapped: boolean;
   timestamp: string;
   types: IMetricType[];
 }
@@ -306,6 +322,13 @@ export interface IPagedFireFlyApiResponse {
   pageParam: number;
   count: number;
   items: IFireflyApi[];
+  total: number;
+}
+
+export interface IPagedGroupResponse {
+  pageParam: number;
+  count: number;
+  items: IGroup[];
   total: number;
 }
 
@@ -510,4 +533,9 @@ export interface ITxStatus {
       transactionIndex?: string;
     };
   }[];
+}
+
+export interface IVerifier {
+  type: string;
+  value: string;
 }

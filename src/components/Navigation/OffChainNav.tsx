@@ -31,6 +31,7 @@ export const OffChainNav = () => {
   const offchainPath = FF_NAV_PATHS.offchainPath(selectedNamespace);
   const messagesPath = FF_NAV_PATHS.offchainMessagesPath(selectedNamespace);
   const dataPath = FF_NAV_PATHS.offchainDataPath(selectedNamespace);
+  const groupsPath = FF_NAV_PATHS.offchainGroupsPath(selectedNamespace);
   const datatypesPath = FF_NAV_PATHS.offchainDatatypesPath(selectedNamespace);
 
   const navItems: INavItem[] = [
@@ -48,6 +49,11 @@ export const OffChainNav = () => {
       name: t('data'),
       action: () => navigate(dataPath),
       itemIsActive: pathname === dataPath,
+    },
+    {
+      name: t('groups'),
+      action: () => navigate(groupsPath),
+      itemIsActive: pathname === groupsPath,
     },
     {
       name: t('datatypes'),

@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Chip, Grid } from '@mui/material';
+import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FilterButton } from '../../../components/Filters/FilterButton';
@@ -22,37 +22,41 @@ import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
-import { IdentitySlide } from '../../../components/Slides/IdentitySlide';
+import { GroupSlide } from '../../../components/Slides/GroupSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
+import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   FF_Paths,
+  GroupFilters,
   IDataTableRecord,
-  IdentityFilters,
-  IIdentity,
-  INode,
-  IPagedNodeResponse,
+  IGroup,
+  IPagedGroupResponse,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime } from '../../../utils';
+import { hasOffchainEvent } from '../../../utils/wsEvents';
 
-export const NetworkNodes: () => JSX.Element = () => {
-  const { nodeName } = useContext(ApplicationContext);
+export const OffChainGroups: () => JSX.Element = () => {
+  const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
+    useContext(ApplicationContext);
+  const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
-  const { setSlideSearchParam, slideID } = useContext(SlideContext);
+  const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
-  // Nodes
-  const [nodes, setNodes] = useState<INode[]>();
-  // Node total
-  const [nodeTotal, setNodeTotal] = useState(0);
-  const [viewIdentity, setViewIdentity] = useState<string>();
+
+  // Data
+  const [groups, setGroups] = useState<IGroup[]>();
+  // Data total
+  const [groupTotal, setGroupTotal] = useState(0);
+  const [viewGroup, setViewGroup] = useState<IGroup | undefined>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
@@ -64,100 +68,95 @@ export const NetworkNodes: () => JSX.Element = () => {
   }, []);
 
   useEffect(() => {
-    if (isMounted && slideID) {
-      if (slideID.startsWith('did:firefly')) {
-        setViewIdentity(slideID);
-      } else {
-        fetchCatcher(
-          `${FF_Paths.apiPrefix}/${FF_Paths.networkNodeById(slideID)}`
-        )
-          .then((nodeRes: IIdentity) => {
-            setViewIdentity(nodeRes.did);
-          })
-          .catch((err) => {
-            reportFetchError(err);
-          });
-      }
-    }
+    isMounted &&
+      slideID &&
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.groupsById(
+          slideID
+        )}`
+      )
+        .then((groupRes: IGroup) => {
+          setViewGroup(groupRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
   }, [slideID, isMounted]);
 
-  // Nodes
+  // Group
   useEffect(() => {
     isMounted &&
+      dateFilter &&
       fetchCatcher(
-        `${FF_Paths.apiPrefix}/${
-          FF_Paths.networkNodes
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${
+          FF_Paths.groups
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          filterString ?? ''
-        }&sort=created`
+          dateFilter.filterString
+        }${filterString ?? ''}`
       )
-        .then((nodeRes: IPagedNodeResponse) => {
+        .then((groupRes: IPagedGroupResponse) => {
           if (isMounted) {
-            setNodes(nodeRes.items);
-            setNodeTotal(nodeRes.total);
+            setGroups(groupRes.items);
+            setGroupTotal(groupRes.total);
           }
         })
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [rowsPerPage, currentPage, filterString, reportFetchError, isMounted]);
+  }, [
+    rowsPerPage,
+    currentPage,
+    selectedNamespace,
+    dateFilter,
+    filterString,
+    lastRefreshTime,
+    isMounted,
+  ]);
 
-  const nodeColHeaders = [
+  const groupColHeaders = [
+    t('groupHash'),
     t('name'),
-    t('nodeID'),
-    t('orgOwner'),
-    t('messageID'),
+    t('numberOfMembers'),
     t('created'),
-    t(''),
   ];
 
-  const nodeRecords: IDataTableRecord[] | undefined = nodes?.map((node) => {
-    return {
-      key: node.id,
+  const groupRecords: IDataTableRecord[] | undefined = groups?.map(
+    (g, idx) => ({
+      key: idx.toString(),
       columns: [
         {
-          value: <FFTableText color="primary" text={node.name} />,
+          value: <HashPopover address={g.hash}></HashPopover>,
         },
         {
-          value: <HashPopover shortHash={true} address={node.id} />,
-        },
-        {
-          value: <HashPopover address={node.did} />,
-        },
-        {
-          value: <HashPopover shortHash={true} address={node.messages.claim} />,
-        },
-        {
-          value: (
-            <FFTableText
-              color="secondary"
-              text={getFFTime(node.created, true)}
-            />
+          value: g.name.length ? (
+            <FFTableText color="primary" text={g.name} />
+          ) : (
+            <FFTableText color="secondary" text={t('noNameSpecified')} />
           ),
         },
         {
-          value:
-            nodeName === node.name ? (
-              <Chip color="success" label={t('yourNode')}></Chip>
-            ) : (
-              ''
-            ),
+          value: (
+            <FFTableText color="primary" text={g.members.length.toString()} />
+          ),
+        },
+        {
+          value: <FFTableText color="secondary" text={getFFTime(g.created)} />,
         },
       ],
       onClick: () => {
-        setViewIdentity(node.did);
-        setSlideSearchParam(node.did);
+        setViewGroup(g);
+        setSlideSearchParam(g.hash);
       },
-    };
-  });
+    })
+  );
 
   return (
     <>
       <Header
-        title={t('nodes')}
-        subtitle={t('network')}
-        noDateFilter
-        noNsFilter
+        title={t('groups')}
+        subtitle={t('offChain')}
+        showRefreshBtn={hasOffchainEvent(newEvents)}
+        onRefresh={clearNewEvents}
       ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid container item wrap="nowrap" direction="column">
@@ -180,11 +179,11 @@ export const NetworkNodes: () => JSX.Element = () => {
             stickyHeader={true}
             minHeight="300px"
             maxHeight="calc(100vh - 340px)"
-            records={nodeRecords}
-            columnHeaders={nodeColHeaders}
+            records={groupRecords}
+            columnHeaders={groupColHeaders}
             paginate={true}
-            emptyStateText={t('noNodesToDisplay')}
-            dataTotal={nodeTotal}
+            emptyStateText={t('noGroupsToDisplay')}
+            dataTotal={groupTotal}
             currentPage={currentPage}
             rowsPerPage={rowsPerPage}
           />
@@ -196,15 +195,15 @@ export const NetworkNodes: () => JSX.Element = () => {
           onClose={() => {
             setFilterAnchor(null);
           }}
-          fields={IdentityFilters}
+          fields={GroupFilters}
         />
       )}
-      {viewIdentity && (
-        <IdentitySlide
-          did={viewIdentity}
-          open={!!viewIdentity}
+      {viewGroup && (
+        <GroupSlide
+          group={viewGroup}
+          open={!!viewGroup}
           onClose={() => {
-            setViewIdentity(undefined);
+            setViewGroup(undefined);
             setSlideSearchParam(null);
           }}
         />

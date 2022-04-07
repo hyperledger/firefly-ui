@@ -113,6 +113,8 @@ export const FF_Paths = {
     `/transactions/${txId}/operations`,
   transactionByIdStatus: (txId: string) => `/transactions/${txId}/status`,
   // Network
+  networkIdentities: '/network/identities',
+  networkIdentitiesByDID: (did: string) => `/network/identities/${did}`,
   networkNodes: '/network/nodes',
   networkNodeById: (id: string) => `/network/nodes/${id}`,
   networkNodeSelf: '/network/self',

@@ -6,8 +6,6 @@ import {
   AccordionSummary,
   Grid,
   IconButton,
-  Modal,
-  Paper,
 } from '@mui/material';
 import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -37,7 +35,6 @@ export const MessageDataAccordion: React.FC<Props> = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState<boolean>(isOpen);
-  const [openDataModal, setOpenDataModal] = useState(false);
 
   const accInfo: IDataWithHeader[] = [
     {
@@ -122,30 +119,6 @@ export const MessageDataAccordion: React.FC<Props> = ({
           </Grid>
         </AccordionDetails>
       </Accordion>
-      <Modal
-        open={openDataModal}
-        onClose={() => setOpenDataModal(false)}
-        sx={{ wordWrap: 'break-word' }}
-      >
-        <Paper sx={modalStyle} elevation={0}>
-          <FFJsonViewer json={data.value} />
-        </Paper>
-      </Modal>
     </>
   );
-};
-
-const modalStyle = {
-  position: 'absolute' as const,
-  overflow: 'auto',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '40%',
-  height: '50%',
-  backgroundColor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
-  wordWrap: 'break-word',
 };

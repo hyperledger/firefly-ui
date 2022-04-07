@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { IEvent } from '../../interfaces';
+import { FF_EVENTS_CATEGORY_MAP, IEvent } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { TxButton } from '../Buttons/TxButton';
@@ -25,9 +25,21 @@ export const EventList: React.FC<Props> = ({ event, showTxLink = true }) => {
     if (event) {
       setDataList([
         {
-          label: t('id'),
+          label: t('eventID'),
           value: <FFListText color="primary" text={event.id} />,
           button: <FFCopyButton value={event.id} />,
+        },
+        {
+          label: t(FF_EVENTS_CATEGORY_MAP[event.type].referenceIDName),
+          value: <FFListText color="primary" text={event.reference} />,
+          button: (
+            <>
+              {FF_EVENTS_CATEGORY_MAP[event.type].referenceIDButton(
+                event.reference
+              )}
+              <FFCopyButton value={event.reference} />
+            </>
+          ),
         },
         {
           label: t('transactionID'),
@@ -40,11 +52,6 @@ export const EventList: React.FC<Props> = ({ event, showTxLink = true }) => {
               <FFCopyButton value={event.tx} />
             </>
           ),
-        },
-        {
-          label: t('referenceID'),
-          value: <FFListText color="primary" text={event.reference} />,
-          button: <FFCopyButton value={event.reference} />,
         },
         {
           label: t('created'),

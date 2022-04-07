@@ -1,6 +1,6 @@
-import { InputAdornment, TextField, useTheme } from '@mui/material';
+import { useTheme } from '@mui/material';
 import ReactJson from 'react-json-view';
-import { FFCopyButton } from '../Buttons/CopyButton';
+import { FFTextField } from '../Inputs/FFTextField';
 
 interface Props {
   json: object | string;
@@ -37,18 +37,6 @@ export const FFJsonViewer: React.FC<Props> = ({ json }) => {
       name={false}
     />
   ) : (
-    <TextField
-      multiline
-      defaultValue={json}
-      value={json}
-      InputProps={{
-        endAdornment: (
-          <InputAdornment position="end">
-            {typeof json === 'string' && <FFCopyButton value={json} />}
-          </InputAdornment>
-        ),
-      }}
-      fullWidth
-    />
+    <FFTextField hasCopyBtn defaultValue={json as string} label={''} />
   );
 };
