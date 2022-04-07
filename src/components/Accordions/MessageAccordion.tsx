@@ -14,7 +14,6 @@ import {
   IDataWithHeader,
   IMessage,
 } from '../../interfaces';
-import { DEFAULT_PADDING } from '../../theme';
 import { getFFTime } from '../../utils';
 import { LaunchButton } from '../Buttons/LaunchButton';
 import { MsgStatusChip } from '../Chips/MsgStatusChip';

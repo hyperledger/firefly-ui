@@ -22,29 +22,27 @@ import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
-import { IdentitySlide } from '../../../components/Slides/IdentitySlide';
+import { NamespaceSlide } from '../../../components/Slides/NamespaceSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
-import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   FF_Paths,
   IDataTableRecord,
-  IdentityFilters,
-  IIdentity,
-  IPagedIdentityResponse,
+  INamespace,
+  IPagesNamespaceResponse,
+  NamespaceFilters,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime } from '../../../utils';
 import { hasIdentityEvent } from '../../../utils/wsEvents';
 
-export const NetworkIdentities: () => JSX.Element = () => {
+export const NetworkNamespaces: () => JSX.Element = () => {
   const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
     useContext(ApplicationContext);
-  const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
   const { setSlideSearchParam, slideID } = useContext(SlideContext);
@@ -52,9 +50,9 @@ export const NetworkIdentities: () => JSX.Element = () => {
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
 
-  const [identities, setIdentities] = useState<IIdentity[]>();
-  const [identitiesTotal, setIdentitiesTotal] = useState(0);
-  const [viewIdentity, setViewIdentity] = useState<string>();
+  const [namespaces, setNamespaces] = useState<INamespace[]>();
+  const [nsTotal, setNsTotal] = useState(0);
+  const [viewNs, setViewNs] = useState<INamespace>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
@@ -66,40 +64,28 @@ export const NetworkIdentities: () => JSX.Element = () => {
   }, []);
 
   useEffect(() => {
-    if (isMounted && slideID) {
-      if (slideID.startsWith('did:firefly')) {
-        setViewIdentity(slideID);
-      } else {
-        fetchCatcher(
-          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.identitiesById(
-            slideID
-          )}`
-        )
-          .then((idRes: IIdentity) => {
-            setViewIdentity(idRes.did);
-          })
-          .catch((err) => {
-            reportFetchError(err);
-          });
-      }
-    }
+    isMounted && slideID;
+    fetchCatcher(`${FF_Paths.nsPrefix}?id=${slideID}`)
+      .then((nsRes: INamespace[]) => {
+        isMounted && nsRes.length === 1 && setViewNs(nsRes[0]);
+      })
+      .catch((err) => {
+        reportFetchError(err);
+      });
   }, [slideID, isMounted]);
 
-  // Identities
+  // Namespaces
   useEffect(() => {
     isMounted &&
-      dateFilter &&
       fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${
-          FF_Paths.identities
-        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          filterString ?? ''
-        }&sort=created`
+        `${FF_Paths.nsPrefix}?limit=${rowsPerPage}&count&skip=${
+          rowsPerPage * currentPage
+        }${filterString ?? ''}&sort=created`
       )
-        .then((identityRes: IPagedIdentityResponse) => {
+        .then((nsRes: IPagesNamespaceResponse) => {
           if (isMounted) {
-            setIdentities(identityRes.items);
-            setIdentitiesTotal(identityRes.total);
+            setNamespaces(nsRes.items);
+            setNsTotal(nsRes.total);
           }
         })
         .catch((err) => {
@@ -109,52 +95,56 @@ export const NetworkIdentities: () => JSX.Element = () => {
     rowsPerPage,
     currentPage,
     selectedNamespace,
-    dateFilter,
     filterString,
     lastRefreshTime,
     isMounted,
   ]);
 
-  const idColHeaders = [
+  const nsColHeaders = [
     t('name'),
-    t('id'),
-    t('did'),
+    t('description'),
     t('type'),
-    t('parent'),
-    t('updated'),
+    t('id'),
+    t('message'),
+    t('created'),
   ];
-  const idRecords: IDataTableRecord[] | undefined = identities?.map((id) => {
+  const nsRecords: IDataTableRecord[] | undefined = namespaces?.map((ns) => {
     return {
-      key: id.id,
+      key: ns.id,
       columns: [
         {
-          value: <FFTableText color="primary" text={id.name} />,
+          value: <FFTableText color="primary" text={ns.name} />,
         },
         {
-          value: <HashPopover shortHash={true} address={id.id} />,
+          value: (
+            <FFTableText
+              color="secondary"
+              text={ns.description.length ? ns.description : t('noDescription')}
+            />
+          ),
         },
         {
-          value: <HashPopover address={id.did} />,
+          value: <FFTableText color="primary" text={ns.type} />,
         },
         {
-          value: <FFTableText color="primary" text={id.type} />,
+          value: <HashPopover address={ns.id} />,
         },
         {
-          value: id.parent ? (
-            <HashPopover address={id.parent} />
+          value: ns.message ? (
+            <HashPopover address={ns.message} />
           ) : (
-            <FFTableText color="secondary" text={t('noParentForIdentity')} />
+            <FFTableText color="secondary" text={t('noMessageID')} />
           ),
         },
         {
           value: (
-            <FFTableText color="secondary" text={getFFTime(id.updated, true)} />
+            <FFTableText color="secondary" text={getFFTime(ns.created, true)} />
           ),
         },
       ],
       onClick: () => {
-        setViewIdentity(id.did);
-        setSlideSearchParam(id.did);
+        setViewNs(ns);
+        setSlideSearchParam(ns.id);
       },
     };
   });
@@ -162,7 +152,7 @@ export const NetworkIdentities: () => JSX.Element = () => {
   return (
     <>
       <Header
-        title={t('identities')}
+        title={t('namespaces')}
         subtitle={t('network')}
         noDateFilter
         showRefreshBtn={hasIdentityEvent(newEvents)}
@@ -189,11 +179,11 @@ export const NetworkIdentities: () => JSX.Element = () => {
             stickyHeader={true}
             minHeight="300px"
             maxHeight="calc(100vh - 340px)"
-            records={idRecords}
-            columnHeaders={idColHeaders}
+            records={nsRecords}
+            columnHeaders={nsColHeaders}
             paginate={true}
-            emptyStateText={t('noIdentitiesInNs')}
-            dataTotal={identitiesTotal}
+            emptyStateText={t('noNamespaces')}
+            dataTotal={nsTotal}
             currentPage={currentPage}
             rowsPerPage={rowsPerPage}
           />
@@ -205,15 +195,15 @@ export const NetworkIdentities: () => JSX.Element = () => {
           onClose={() => {
             setFilterAnchor(null);
           }}
-          fields={IdentityFilters}
+          fields={NamespaceFilters}
         />
       )}
-      {viewIdentity && (
-        <IdentitySlide
-          did={viewIdentity}
-          open={!!viewIdentity}
+      {viewNs && (
+        <NamespaceSlide
+          ns={viewNs}
+          open={!!viewNs}
           onClose={() => {
-            setViewIdentity(undefined);
+            setViewNs(undefined);
             setSlideSearchParam(null);
           }}
         />

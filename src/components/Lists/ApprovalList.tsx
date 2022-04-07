@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { ITokenApproval } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export const ApprovalList: React.FC<Props> = ({ approval }) => {
+  const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
   const [dataList, setDataList] = useState<IDataListItem[]>(FFSkeletonList);
 
@@ -40,7 +42,7 @@ export const ApprovalList: React.FC<Props> = ({ approval }) => {
           value: <FFListText color="primary" text={approval.pool} />,
           button: (
             <>
-              <PoolButton poolID={approval.pool} />
+              <PoolButton poolID={approval.pool} ns={selectedNamespace} />
               <FFCopyButton value={approval.pool} />
             </>
           ),

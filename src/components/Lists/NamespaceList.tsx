@@ -1,5 +1,6 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { INamespace } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
@@ -14,6 +15,7 @@ interface Props {
 }
 
 export const NamespaceList: React.FC<Props> = ({ ns }) => {
+  const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
   const [dataList, setDataList] = useState<IDataListItem[]>(FFSkeletonList);
 
@@ -47,7 +49,7 @@ export const NamespaceList: React.FC<Props> = ({ ns }) => {
           ),
           button: ns.message ? (
             <>
-              <MsgButton msgID={ns.message} />
+              <MsgButton msgID={ns.message} ns={selectedNamespace} />
               <FFCopyButton value={ns.message} />
             </>
           ) : (
