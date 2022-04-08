@@ -1,5 +1,6 @@
 import { RouteObject } from 'react-router-dom';
 import { NAMESPACES_PATH } from '../../interfaces';
+import { OffChainBatches } from './views/Batches';
 import { OffChainDashboard } from './views/Dashboard';
 import { OffChainData } from './views/Data';
 import { OffChainDataTypes } from './views/DataTypes';
@@ -23,12 +24,16 @@ export const OffChainRoutes: RouteObject = {
       element: <OffChainData />,
     },
     {
-      path: 'groups',
-      element: <OffChainGroups />,
+      path: 'batches',
+      element: <OffChainBatches />,
     },
     {
       path: 'datatypes',
       element: <OffChainDataTypes />,
+    },
+    {
+      path: 'groups',
+      element: <OffChainGroups />,
     },
   ],
 };

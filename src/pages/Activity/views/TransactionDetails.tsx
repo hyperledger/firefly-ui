@@ -159,9 +159,7 @@ export const TransactionDetails: () => JSX.Element = () => {
     headerText: t('blockchainOperations'),
     headerComponent: (
       <IconButton
-        onClick={() =>
-          navigate(FF_NAV_PATHS.activityOpPath(selectedNamespace, tx?.id))
-        }
+        onClick={() => navigate(FF_NAV_PATHS.activityOpPath(selectedNamespace))}
       >
         <ArrowForwardIcon />
       </IconButton>

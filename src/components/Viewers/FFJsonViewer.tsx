@@ -1,4 +1,3 @@
-import { useTheme } from '@mui/material';
 import ReactJson from 'react-json-view';
 import { FFTextField } from '../Inputs/FFTextField';
 
@@ -17,7 +16,6 @@ const isValidJson = (obj: object) => {
 };
 
 export const FFJsonViewer: React.FC<Props> = ({ json }) => {
-  const theme = useTheme();
   const handleCopy = (copy: any) => {
     navigator.clipboard.writeText(JSON.stringify(copy.src, null, '\t'));
   };
@@ -26,10 +24,10 @@ export const FFJsonViewer: React.FC<Props> = ({ json }) => {
     <ReactJson
       theme={'pop'}
       style={{
-        backgroundColor: theme.palette.background.paper,
-        fontSize: '14px',
+        backgroundColor: 'transparent',
+        fontSize: '12px',
       }}
-      collapseStringsAfterLength={50}
+      collapseStringsAfterLength={45}
       enableClipboard={handleCopy}
       displayDataTypes={false}
       displayObjectSize={false}

@@ -57,6 +57,22 @@ export const BalanceFilters = [
   'updated',
 ];
 
+export const BatchFilters = [
+  'id',
+  'namespace',
+  'type',
+  'author',
+  'key',
+  'group',
+  'hash',
+  'payloadref',
+  'created',
+  'confirmed',
+  'tx.type',
+  'tx.id',
+  'node',
+];
+
 export const BlockchainEventFilters = [
   'id',
   'source',

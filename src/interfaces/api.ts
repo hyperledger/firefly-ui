@@ -8,6 +8,24 @@ import {
   OperationStatus,
 } from './enums';
 
+export interface IBatch {
+  id: string;
+  type: string;
+  namespace: string;
+  node: string;
+  author: string;
+  key: string;
+  group: null | string;
+  created: string;
+  hash: string;
+  manifest: any;
+  tx?: {
+    type: string;
+    id: string;
+  };
+  confirmed: string | null;
+}
+
 export interface IBlockchainEvent {
   id: string;
   sequence: number;
@@ -18,8 +36,8 @@ export interface IBlockchainEvent {
   output?: any;
   info?: any;
   timestamp: string;
-  tx: {
-    type: FF_TX;
+  tx?: {
+    type?: FF_TX;
     id?: string;
   };
 }
@@ -276,6 +294,13 @@ export interface IOrganization {
   updated: string;
 }
 
+export interface IPagedBatchResponse {
+  pageParam: number;
+  count: number;
+  items: IBatch[];
+  total: number;
+}
+
 export interface IPagedBlockchainEventResponse {
   pageParam: number;
   count: number;
@@ -458,10 +483,7 @@ export interface ITokenApproval {
   namespace: string;
   protocolId: string;
   created: string;
-  tx: {
-    type: string;
-    id?: string;
-  };
+  tx?: ITx;
   blockchainEvent: string;
 }
 
@@ -491,10 +513,7 @@ export interface ITokenPool {
   message: string;
   state: 'confirmed' | 'pending';
   created: string;
-  tx: {
-    type: string;
-    id?: string;
-  };
+  tx?: ITx;
   info?: any;
 }
 
@@ -513,10 +532,7 @@ export interface ITokenTransfer {
   message: string;
   messageHash: string;
   created: string;
-  tx: {
-    type: string;
-    id?: string;
-  };
+  tx?: ITx;
   blockchainEvent: string;
 }
 
@@ -526,6 +542,11 @@ export interface ITransaction {
   type: FF_TX;
   created: string;
   blockchainIds?: string[];
+}
+
+export interface ITx {
+  type?: string;
+  id?: string;
 }
 
 export interface ITxStatus {

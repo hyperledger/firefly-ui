@@ -32,7 +32,7 @@ export const PoolList: React.FC<Props> = ({ pool }) => {
         },
         {
           label: t('transactionID'),
-          value: pool.tx.id ? (
+          value: pool.tx?.id ? (
             <FFListText color="primary" text={pool.tx.id} />
           ) : (
             <FFListText
@@ -40,7 +40,7 @@ export const PoolList: React.FC<Props> = ({ pool }) => {
               text={t('transactionIDUnavailable')}
             />
           ),
-          button: pool.tx.id ? (
+          button: pool.tx?.id ? (
             <>
               <TxButton ns={selectedNamespace} txID={pool.tx.id} />
               <FFCopyButton value={pool.tx.id} />

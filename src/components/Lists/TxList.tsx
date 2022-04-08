@@ -10,7 +10,6 @@ import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { TxButton } from '../Buttons/TxButton';
 import { TxStatusChip } from '../Chips/TxStatusChip';
-import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { HashPopover } from '../Popovers/HashPopover';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
@@ -85,6 +84,10 @@ export const TxList: React.FC<Props> = ({
           value: <FFListText color="primary" text={type.id} />,
           button: (
             <>
+              {FF_TX_STATUS_CATEGORY_MAP[type.type]?.referenceIDButton(
+                selectedNamespace,
+                type.id
+              )}
               <FFCopyButton value={type.id} />
             </>
           ),
@@ -95,17 +98,11 @@ export const TxList: React.FC<Props> = ({
 
   return (
     <>
-      {!tx || !txStatus ? (
-        <FFCircleLoader color="warning" />
-      ) : (
-        <>
-          {dataList.map((d, idx) => (
-            <FFListItem key={idx} item={d} />
-          ))}
-          {txDetails?.map(
-            (d) => d !== undefined && <FFListItem key={d.label} item={d} />
-          )}
-        </>
+      {dataList.map((d, idx) => (
+        <FFListItem key={idx} item={d} />
+      ))}
+      {txDetails?.map(
+        (d) => d !== undefined && <FFListItem key={d.label} item={d} />
       )}
     </>
   );

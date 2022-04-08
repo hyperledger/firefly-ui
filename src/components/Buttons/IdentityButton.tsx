@@ -4,6 +4,7 @@ import { useContext } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { FF_NAV_PATHS } from '../../interfaces';
+import { FFColors } from '../../theme';
 
 type Props = {
   did?: string;
@@ -26,6 +27,7 @@ export const IdentityButton: React.FC<Props> = ({ did, nodeID }) => {
 
   return (
     <IconButton
+      sx={{ backgroundColor: FFColors.Purple }}
       onClick={(e) => {
         e.stopPropagation();
         did

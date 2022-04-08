@@ -41,7 +41,7 @@ export const TransferList: React.FC<Props> = ({
         },
         {
           label: t('transactionID'),
-          value: transfer.tx.id ? (
+          value: transfer.tx?.id ? (
             <FFListText color="primary" text={transfer.tx.id} />
           ) : (
             <FFListText
@@ -49,7 +49,7 @@ export const TransferList: React.FC<Props> = ({
               text={t('transactionIDUnavailable')}
             />
           ),
-          button: transfer.tx.id ? (
+          button: transfer.tx?.id ? (
             <>
               {showTxLink && (
                 <TxButton ns={selectedNamespace} txID={transfer.tx.id} />

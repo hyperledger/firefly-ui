@@ -27,6 +27,7 @@ export const ACTIVITY_PATH = 'activity';
 export const APIS_PATH = 'apis';
 export const APPROVALS_PATH = 'approvals';
 export const BALANCES_PATH = 'balances';
+export const BATCHES_PATH = 'batches';
 export const BLOCKCHAIN_PATH = 'blockchain';
 export const DATA_PATH = 'data';
 export const DATATYPES_PATH = 'datatypes';
@@ -68,9 +69,9 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}/${txID}`,
   activityTxDetailPathWithSlide: (ns: string, txID: string, slideID: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}/${txID}?slide=${slideID}`,
-  activityOpPath: (ns: string, txID?: string) =>
+  activityOpPath: (ns: string, opID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}${
-      txID ? `?filters=tx==${txID}` : ''
+      opID ? `?slide=${opID}` : ''
     }`,
   activityOpErrorPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}?filters=error=!=`,
@@ -108,6 +109,10 @@ export const FF_NAV_PATHS = {
   offchainDatatypesPath: (ns: string, datatypeID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${DATATYPES_PATH}${
       datatypeID ? `?filters=id==${datatypeID}&slide=${datatypeID}` : ''
+    }`,
+  offchainBatchesPath: (ns: string, batchID?: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${BATCHES_PATH}${
+      batchID ? `?slide=${batchID}` : ''
     }`,
   offchainGroupsPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${GROUPS_PATH}`,
