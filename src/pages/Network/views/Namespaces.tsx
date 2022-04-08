@@ -155,6 +155,7 @@ export const NetworkNamespaces: () => JSX.Element = () => {
         title={t('namespaces')}
         subtitle={t('network')}
         noDateFilter
+        noNsFilter
         showRefreshBtn={hasIdentityEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
