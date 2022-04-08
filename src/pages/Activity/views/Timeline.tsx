@@ -185,10 +185,11 @@ export const ActivityTimeline: () => JSX.Element = () => {
               setViewTx(tx);
               setSlideSearchParam(tx?.id);
             }}
-            link={FF_NAV_PATHS.activityTxDetailPath(
-              selectedNamespace,
-              event?.tx
-            )}
+            link={
+              event.tx
+                ? FF_NAV_PATHS.activityTxDetailPath(selectedNamespace, event.tx)
+                : FF_NAV_PATHS.activityEventsPath(selectedNamespace, event.id)
+            }
             {...{ event }}
           />
         ),

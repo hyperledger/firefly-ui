@@ -59,9 +59,9 @@ export const FF_NAV_PATHS = {
   // Activity
   activityTimelinePath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}`,
-  activityEventsPath: (ns: string, txID?: string) =>
+  activityEventsPath: (ns: string, eventID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${EVENTS_PATH}${
-      txID ? `?filters=tx==${txID}` : ''
+      eventID ? `?slide=${eventID}` : ''
     }`,
   activityTxPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}`,
@@ -90,10 +90,8 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${INTERFACES_PATH}${
       interfaceID ? `?slide=${interfaceID}` : ''
     }`,
-  blockchainListenersPath: (ns: string, interfaceID?: string) =>
-    `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${LISTENERS_PATH}${
-      interfaceID ? `?filters=interface==${interfaceID}` : ''
-    }`,
+  blockchainListenersPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${LISTENERS_PATH}`,
   blockchainListenersSinglePath: (ns: string, listenerID: string) =>
     `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}/${LISTENERS_PATH}${`?slide=${listenerID}`}`,
   // Off-Chain
@@ -104,11 +102,11 @@ export const FF_NAV_PATHS = {
     }`,
   offchainDataPath: (ns: string, dataID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${DATA_PATH}${
-      dataID ? `?slide=${dataID}&filters=id=${dataID}` : ''
+      dataID ? `?slide=${dataID}` : ''
     }`,
   offchainDatatypesPath: (ns: string, datatypeID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${DATATYPES_PATH}${
-      datatypeID ? `?filters=id==${datatypeID}&slide=${datatypeID}` : ''
+      datatypeID ? `?slide=${datatypeID}` : ''
     }`,
   offchainBatchesPath: (ns: string, batchID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${BATCHES_PATH}${

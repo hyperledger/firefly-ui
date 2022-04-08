@@ -76,6 +76,7 @@ export const TransactionAccordion: React.FC<Props> = ({
                     selectedNamespace,
                     tx.id
                   )}
+                  noColor
                 />
               </>
             }

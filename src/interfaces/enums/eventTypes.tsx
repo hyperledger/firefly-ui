@@ -1,5 +1,5 @@
 import { t } from 'i18next';
-import { EventReferenceButton } from '../../components/Buttons/EventReferenceButton';
+import { LaunchButton } from '../../components/Buttons/LaunchButton';
 import { FFColors } from '../../theme';
 import { getShortHash } from '../../utils';
 import { IEvent } from '../api';
@@ -75,16 +75,14 @@ export const FF_EVENTS_CATEGORY_MAP: {
     nicename: 'blockchainEventReceived',
     enrichedEventKey: 'blockchainevent',
     enrichedEventString: (event: IEvent): string =>
-      `${event.blockchainevent?.name}${
-        event.blockchainevent?.protocolId
-          ? ', Protocol ID=' + getShortHash(event.blockchainevent?.protocolId)
+      `${event.blockchainEvent?.name}${
+        event.blockchainEvent?.protocolId
+          ? ', Protocol ID=' + getShortHash(event.blockchainEvent?.protocolId)
           : ''
       }`,
     referenceIDName: 'blockchainEventID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton
-        link={FF_NAV_PATHS.blockchainEventsPath(ns, refID)}
-      />
+      <LaunchButton link={FF_NAV_PATHS.blockchainEventsPath(ns, refID)} />
     ),
   },
   [FF_EVENTS.CONTRACT_API_CONFIRMED]: {
@@ -100,7 +98,7 @@ export const FF_EVENTS_CATEGORY_MAP: {
       }`,
     referenceIDName: 'apiID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton link={FF_NAV_PATHS.blockchainApisPath(ns, refID)} />
+      <LaunchButton link={FF_NAV_PATHS.blockchainApisPath(ns, refID)} />
     ),
   },
   [FF_EVENTS.CONTRACT_INTERFACE_CONFIRMED]: {
@@ -116,9 +114,7 @@ export const FF_EVENTS_CATEGORY_MAP: {
       }`,
     referenceIDName: 'interfaceID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton
-        link={FF_NAV_PATHS.blockchainInterfacesPath(ns, refID)}
-      />
+      <LaunchButton link={FF_NAV_PATHS.blockchainInterfacesPath(ns, refID)} />
     ),
   },
   [FF_EVENTS.DATATYPE_CONFIRMED]: {
@@ -136,9 +132,7 @@ export const FF_EVENTS_CATEGORY_MAP: {
       }`,
     referenceIDName: 'datatypeID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton
-        link={FF_NAV_PATHS.offchainDatatypesPath(ns, refID)}
-      />
+      <LaunchButton link={FF_NAV_PATHS.offchainDatatypesPath(ns, refID)} />
     ),
   },
   [FF_EVENTS.IDENTITY_CONFIRMED]: {
@@ -152,9 +146,7 @@ export const FF_EVENTS_CATEGORY_MAP: {
       }${event.identity?.type ? ', Type=' + event.identity?.type : ''}`,
     referenceIDName: 'identityID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton
-        link={FF_NAV_PATHS.networkIdentitiesPath(ns, refID)}
-      />
+      <LaunchButton link={FF_NAV_PATHS.networkIdentitiesPath(ns, refID)} />
     ),
   },
   [FF_EVENTS.IDENTITY_UPDATED]: {
@@ -168,9 +160,7 @@ export const FF_EVENTS_CATEGORY_MAP: {
       }${event.identity?.type ? ', Type=' + event.identity?.type : ''}`,
     referenceIDName: 'identityID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton
-        link={FF_NAV_PATHS.networkIdentitiesPath(ns, refID)}
-      />
+      <LaunchButton link={FF_NAV_PATHS.networkIdentitiesPath(ns, refID)} />
     ),
   },
   [FF_EVENTS.NS_CONFIRMED]: {
@@ -186,9 +176,7 @@ export const FF_EVENTS_CATEGORY_MAP: {
       }`,
     referenceIDName: 'nsID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton
-        link={FF_NAV_PATHS.networkNamespacesPath(ns, refID)}
-      />
+      <LaunchButton link={FF_NAV_PATHS.networkNamespacesPath(ns, refID)} />
     ),
   },
   // Message Events
@@ -206,9 +194,7 @@ export const FF_EVENTS_CATEGORY_MAP: {
       }`,
     referenceIDName: 'messageID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton
-        link={FF_NAV_PATHS.offchainMessagesPath(ns, refID)}
-      />
+      <LaunchButton link={FF_NAV_PATHS.offchainMessagesPath(ns, refID)} />
     ),
   },
   [FF_EVENTS.MSG_REJECTED]: {
@@ -225,9 +211,7 @@ export const FF_EVENTS_CATEGORY_MAP: {
       }`,
     referenceIDName: 'messageID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton
-        link={FF_NAV_PATHS.offchainMessagesPath(ns, refID)}
-      />
+      <LaunchButton link={FF_NAV_PATHS.offchainMessagesPath(ns, refID)} />
     ),
   },
   [FF_EVENTS.TX_SUBMITTED]: {
@@ -245,9 +229,7 @@ export const FF_EVENTS_CATEGORY_MAP: {
         : t('transactionSubmitted'),
     referenceIDName: 'transactionID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton
-        link={FF_NAV_PATHS.activityTxDetailPath(ns, refID)}
-      />
+      <LaunchButton link={FF_NAV_PATHS.activityTxDetailPath(ns, refID)} />
     ),
   },
   // Token Events
@@ -264,9 +246,7 @@ export const FF_EVENTS_CATEGORY_MAP: {
       }${event.tokenPool?.type ? ', Type=' + event.tokenPool?.type : ''}`,
     referenceIDName: 'poolID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton
-        link={FF_NAV_PATHS.tokensPoolDetailsPath(ns, refID)}
-      />
+      <LaunchButton link={FF_NAV_PATHS.tokensPoolDetailsPath(ns, refID)} />
     ),
   },
   [FF_EVENTS.TOKEN_APPROVAL_CONFIRMED]: {
@@ -280,9 +260,7 @@ export const FF_EVENTS_CATEGORY_MAP: {
       )}, Operator=${getShortHash(event.tokenApproval?.operator ?? '')}`,
     referenceIDName: 'approvalID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton
-        link={FF_NAV_PATHS.tokensApprovalsPath(ns, refID)}
-      />
+      <LaunchButton link={FF_NAV_PATHS.tokensApprovalsPath(ns, refID)} />
     ),
   },
   [FF_EVENTS.TOKEN_APPROVAL_OP_FAILED]: {
@@ -296,9 +274,7 @@ export const FF_EVENTS_CATEGORY_MAP: {
       )}, Operator=${getShortHash(event.tokenApproval?.operator ?? '')}`,
     referenceIDName: 'approvalID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton
-        link={FF_NAV_PATHS.tokensApprovalsPath(ns, refID)}
-      />
+      <LaunchButton link={FF_NAV_PATHS.tokensApprovalsPath(ns, refID)} />
     ),
   },
   [FF_EVENTS.TOKEN_TRANSFER_CONFIRMED]: {
@@ -325,9 +301,7 @@ export const FF_EVENTS_CATEGORY_MAP: {
       )}`,
     referenceIDName: 'transferID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton
-        link={FF_NAV_PATHS.tokensTransfersPathLocalID(ns, refID)}
-      />
+      <LaunchButton link={FF_NAV_PATHS.tokensTransfersPathLocalID(ns, refID)} />
     ),
   },
   [FF_EVENTS.TOKEN_TRANSFER_FAILED]: {
@@ -339,9 +313,7 @@ export const FF_EVENTS_CATEGORY_MAP: {
       `${t('event')} ID=${event.id}`,
     referenceIDName: 'transferID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton
-        link={FF_NAV_PATHS.tokensTransfersPathLocalID(ns, refID)}
-      />
+      <LaunchButton link={FF_NAV_PATHS.tokensTransfersPathLocalID(ns, refID)} />
     ),
   },
 };

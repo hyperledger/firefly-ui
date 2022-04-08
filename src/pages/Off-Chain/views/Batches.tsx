@@ -140,13 +140,17 @@ export const OffChainBatches: () => JSX.Element = () => {
           value: <HashPopover shortHash address={batch.hash}></HashPopover>,
         },
         {
-          value: <HashPopover shortHash address={batch.node}></HashPopover>,
+          value: batch.node ? (
+            <HashPopover shortHash address={batch.node}></HashPopover>
+          ) : (
+            <FFTableText color="secondary" text={t('noNode')} />
+          ),
         },
         {
           value: batch.group ? (
             <HashPopover shortHash address={batch.group}></HashPopover>
           ) : (
-            <FFTableText color="secondary" text={t('---')} />
+            <FFTableText color="secondary" text={t('noGroup')} />
           ),
         },
         {

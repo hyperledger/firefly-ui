@@ -14,14 +14,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Grid, IconButton } from '@mui/material';
+import { Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
 import { useNavigate } from 'react-router-dom';
+import { FFArrowButton } from '../../../components/Buttons/FFArrowButton';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
@@ -323,11 +323,7 @@ export const TokensDashboard: () => JSX.Element = () => {
   const mediumCards: IFireFlyCard[] = [
     {
       headerText: t('tokenTransferTypes'),
-      headerComponent: (
-        <IconButton onClick={() => navigate(TRANSFERS_PATH)}>
-          <ArrowForwardIcon />
-        </IconButton>
-      ),
+      headerComponent: <FFArrowButton link={TRANSFERS_PATH} />,
       component: (
         <Histogram
           height={'100%'}
@@ -344,11 +340,7 @@ export const TokensDashboard: () => JSX.Element = () => {
     },
     {
       headerText: t('accountBalances'),
-      headerComponent: (
-        <IconButton onClick={() => navigate(BALANCES_PATH)}>
-          <ArrowForwardIcon />
-        </IconButton>
-      ),
+      headerComponent: <FFArrowButton link={BALANCES_PATH} />,
       component: (
         <MediumCardTable
           records={tokenAccountRecords}
@@ -360,11 +352,7 @@ export const TokensDashboard: () => JSX.Element = () => {
     },
     {
       headerText: t('tokenPools'),
-      headerComponent: (
-        <IconButton onClick={() => navigate(POOLS_PATH)}>
-          <ArrowForwardIcon />
-        </IconButton>
-      ),
+      headerComponent: <FFArrowButton link={POOLS_PATH} />,
       component: (
         <MediumCardTable
           records={tokenPoolRecords}
@@ -572,11 +560,7 @@ export const TokensDashboard: () => JSX.Element = () => {
           </Grid>
           <DataTable
             header={t('recentTokenTransfers')}
-            headerBtn={
-              <IconButton onClick={() => navigate(TRANSFERS_PATH)}>
-                <ArrowForwardIcon />
-              </IconButton>
-            }
+            headerBtn={<FFArrowButton link={TRANSFERS_PATH} />}
             onHandleCurrPageChange={(currentPage: number) =>
               setCurrentPage(currentPage)
             }

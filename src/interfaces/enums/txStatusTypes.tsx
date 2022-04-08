@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { EventReferenceButton } from '../../components/Buttons/EventReferenceButton';
+import { LaunchButton } from '../../components/Buttons/LaunchButton';
 import { FFColors } from '../../theme';
 import { FF_NAV_PATHS } from '../navigation';
 
@@ -44,7 +44,7 @@ export const FF_TX_STATUS_CATEGORY_MAP: {
     color: FFColors.Yellow,
     nicename: 'operation',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton link={FF_NAV_PATHS.activityOpPath(ns, refID)} />
+      <LaunchButton link={FF_NAV_PATHS.activityOpPath(ns, refID)} />
     ),
   },
   [FF_TX_STATUS.BLOCKCHAIN_EVENT]: {
@@ -52,9 +52,7 @@ export const FF_TX_STATUS_CATEGORY_MAP: {
     color: FFColors.Yellow,
     nicename: 'blockchainEvent',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton
-        link={FF_NAV_PATHS.blockchainEventsPath(ns, refID)}
-      />
+      <LaunchButton link={FF_NAV_PATHS.blockchainEventsPath(ns, refID)} />
     ),
   },
   [FF_TX_STATUS.BATCH]: {
@@ -62,9 +60,7 @@ export const FF_TX_STATUS_CATEGORY_MAP: {
     color: FFColors.Yellow,
     nicename: 'batch',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton
-        link={FF_NAV_PATHS.offchainBatchesPath(ns, refID)}
-      />
+      <LaunchButton link={FF_NAV_PATHS.offchainBatchesPath(ns, refID)} />
     ),
   },
   [FF_TX_STATUS.TOKEN_POOL]: {
@@ -72,9 +68,7 @@ export const FF_TX_STATUS_CATEGORY_MAP: {
     color: FFColors.Yellow,
     nicename: 'tokenPool',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton
-        link={FF_NAV_PATHS.tokensPoolDetailsPath(ns, refID)}
-      />
+      <LaunchButton link={FF_NAV_PATHS.tokensPoolDetailsPath(ns, refID)} />
     ),
   },
   [FF_TX_STATUS.TOKEN_TRANSFER]: {
@@ -82,9 +76,7 @@ export const FF_TX_STATUS_CATEGORY_MAP: {
     color: FFColors.Yellow,
     nicename: 'tokenTransfer',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton
-        link={FF_NAV_PATHS.tokensTransfersPathLocalID(ns, refID)}
-      />
+      <LaunchButton link={FF_NAV_PATHS.tokensTransfersPathLocalID(ns, refID)} />
     ),
   },
   [FF_TX_STATUS.TOKEN_APPROVAL]: {
@@ -92,9 +84,7 @@ export const FF_TX_STATUS_CATEGORY_MAP: {
     color: FFColors.Yellow,
     nicename: 'tokenApproval',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <EventReferenceButton
-        link={FF_NAV_PATHS.tokensApprovalsPath(ns, refID)}
-      />
+      <LaunchButton link={FF_NAV_PATHS.tokensApprovalsPath(ns, refID)} />
     ),
   },
 };

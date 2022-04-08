@@ -14,13 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Grid, IconButton, Paper, Typography } from '@mui/material';
+import { Grid, Paper, Typography } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate, useParams } from 'react-router-dom';
+import { useLocation, useParams } from 'react-router-dom';
 import { FFBreadcrumb } from '../../../components/Breadcrumbs/FFBreadcrumb';
 import { FFCopyButton } from '../../../components/Buttons/CopyButton';
+import { FFArrowButton } from '../../../components/Buttons/FFArrowButton';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { OpCardWrapper } from '../../../components/Cards/EventCards/OpCardWrapper';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
@@ -51,7 +51,6 @@ export const TransactionDetails: () => JSX.Element = () => {
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const location = useLocation();
   const [isMounted, setIsMounted] = useState(false);
 
@@ -79,12 +78,12 @@ export const TransactionDetails: () => JSX.Element = () => {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?id=${slideID}`
       ).then((eventRes: IEvent[]) => {
-        isMounted && eventRes.length > 0 && setViewEvent(eventRes[0]);
+        isMounted && eventRes.length === 1 && setViewEvent(eventRes[0]);
       });
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}?id=${slideID}`
       ).then((opRes: IOperation[]) => {
-        isMounted && opRes.length > 0 && setViewOp(opRes[0]);
+        isMounted && opRes.length === 1 && setViewOp(opRes[0]);
       });
     }
   }, [slideID, isMounted]);
@@ -158,11 +157,7 @@ export const TransactionDetails: () => JSX.Element = () => {
   const operationsCard: IFireFlyCard = {
     headerText: t('blockchainOperations'),
     headerComponent: (
-      <IconButton
-        onClick={() => navigate(FF_NAV_PATHS.activityOpPath(selectedNamespace))}
-      >
-        <ArrowForwardIcon />
-      </IconButton>
+      <FFArrowButton link={FF_NAV_PATHS.activityOpPath(selectedNamespace)} />
     ),
     component: (
       <>
@@ -189,13 +184,9 @@ export const TransactionDetails: () => JSX.Element = () => {
   const networkEventsCard: IFireFlyCard = {
     headerText: t('events'),
     headerComponent: (
-      <IconButton
-        onClick={() =>
-          navigate(FF_NAV_PATHS.activityEventsPath(selectedNamespace, tx?.id))
-        }
-      >
-        <ArrowForwardIcon />
-      </IconButton>
+      <FFArrowButton
+        link={FF_NAV_PATHS.activityEventsPath(selectedNamespace)}
+      />
     ),
     component: (
       <>

@@ -15,6 +15,7 @@ import {
 } from '../../interfaces';
 import { DEFAULT_PADDING } from '../../theme';
 import { getFFTime } from '../../utils';
+import { DownloadJsonButton } from '../Buttons/DownloadJsonButton';
 import { LaunchButton } from '../Buttons/LaunchButton';
 import { HashPopover } from '../Popovers/HashPopover';
 import { FFJsonViewer } from '../Viewers/FFJsonViewer';
@@ -67,37 +68,34 @@ export const BlockchainEventAccordion: React.FC<Props> = ({
             />
           }
           rightContent={
-            <LaunchButton
-              link={FF_NAV_PATHS.blockchainEventsPath(selectedNamespace, be.id)}
-            />
+            <>
+              <DownloadJsonButton
+                jsonString={JSON.stringify({
+                  info: be.info,
+                  output: be.output,
+                })}
+                filename={`${be.id}.json`}
+              />
+              <LaunchButton
+                link={FF_NAV_PATHS.blockchainEventsPath(
+                  selectedNamespace,
+                  be.id
+                )}
+                noColor
+              />
+            </>
           }
         />
       </AccordionSummary>
       <AccordionDetails>
-        {be.info && (
-          <Grid container item direction="column" pb={2}>
-            <FFAccordionText
-              color="primary"
-              text={t('info')}
-              padding
-              isHeader
-            />
-            <FFJsonViewer json={be.info} />
-          </Grid>
-        )}
-        {be.output && (
-          <Grid container item direction="column">
-            <FFAccordionText
-              color="primary"
-              text={t('output')}
-              padding
-              isHeader
-            />
-            <Grid item>
-              <FFJsonViewer json={be.output} />
-            </Grid>
-          </Grid>
-        )}
+        <Grid container item direction="column" pb={2}>
+          <FFJsonViewer
+            json={{
+              info: be.info,
+              output: be.output,
+            }}
+          />
+        </Grid>
         <Grid container item direction="row" pt={DEFAULT_PADDING}>
           {accInfo.map((info, idx) => (
             <Grid key={idx} item xs={4} pb={1} justifyContent="flex-start">

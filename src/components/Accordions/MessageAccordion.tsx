@@ -80,7 +80,8 @@ export const MessageAccordion: React.FC<Props> = ({
                     selectedNamespace,
                     message.header.id
                   )}
-                ></LaunchButton>
+                  noColor
+                />
               </>
             }
           />

@@ -1,10 +1,9 @@
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Grid, IconButton, Typography } from '@mui/material';
+import { Grid, Typography } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
+import { FFArrowButton } from '../../../components/Buttons/FFArrowButton';
 import { EmptyStateCard } from '../../../components/Cards/EmptyStateCard';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { SkeletonCard } from '../../../components/Cards/EventCards/SkeletonCard';
@@ -65,7 +64,6 @@ export const HomeDashboard: () => JSX.Element = () => {
   const { dateFilter } = useContext(DateFilterContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
-  const navigate = useNavigate();
   const [isMounted, setIsMounted] = useState(false);
   const [viewTx, setViewTx] = useState<ITransaction>();
   const [viewEvent, setViewEvent] = useState<IEvent>();
@@ -291,13 +289,9 @@ export const HomeDashboard: () => JSX.Element = () => {
   const mediumCards: IFireFlyCard[] = [
     {
       headerComponent: (
-        <IconButton
-          onClick={() =>
-            navigate(FF_NAV_PATHS.activityTimelinePath(selectedNamespace))
-          }
-        >
-          <ArrowForwardIcon />
-        </IconButton>
+        <FFArrowButton
+          link={FF_NAV_PATHS.activityTimelinePath(selectedNamespace)}
+        />
       ),
       headerText: t('activity'),
       component: (
@@ -316,22 +310,14 @@ export const HomeDashboard: () => JSX.Element = () => {
     },
     {
       headerComponent: (
-        <IconButton
-          onClick={() => navigate(FF_NAV_PATHS.networkPath(selectedNamespace))}
-        >
-          <ArrowForwardIcon />
-        </IconButton>
+        <FFArrowButton link={FF_NAV_PATHS.networkPath(selectedNamespace)} />
       ),
       headerText: t('networkMap'),
       component: <NetworkMap size="small"></NetworkMap>,
     },
     {
       headerComponent: (
-        <IconButton
-          onClick={() => navigate(FF_NAV_PATHS.myNodePath(selectedNamespace))}
-        >
-          <ArrowForwardIcon />
-        </IconButton>
+        <FFArrowButton link={FF_NAV_PATHS.myNodePath(selectedNamespace)} />
       ),
       headerText: t('myNode'),
       component: (
@@ -411,13 +397,9 @@ export const HomeDashboard: () => JSX.Element = () => {
     {
       headerText: t('myRecentTransactions'),
       headerComponent: (
-        <IconButton
-          onClick={() =>
-            navigate(FF_NAV_PATHS.activityTimelinePath(selectedNamespace))
-          }
-        >
-          <ArrowForwardIcon />
-        </IconButton>
+        <FFArrowButton
+          link={FF_NAV_PATHS.activityTimelinePath(selectedNamespace)}
+        />
       ),
       component: (
         <>
@@ -442,18 +424,18 @@ export const HomeDashboard: () => JSX.Element = () => {
                       key={idx}
                     >
                       <EventCardWrapper
-                        onHandleViewEvent={(event: IEvent) => {
-                          setViewEvent(event);
-                          setSlideSearchParam(event.id);
-                        }}
                         onHandleViewTx={(tx: ITransaction) => {
                           setViewTx(tx);
                           setSlideSearchParam(tx.id);
                         }}
-                        link={FF_NAV_PATHS.activityTxDetailPath(
-                          selectedNamespace,
+                        link={
                           event.tx
-                        )}
+                            ? FF_NAV_PATHS.activityTxDetailPath(
+                                selectedNamespace,
+                                event.tx
+                              )
+                            : FF_NAV_PATHS.activityTxPath(selectedNamespace)
+                        }
                         {...{ event }}
                       />
                       <Grid sx={{ padding: '1px' }} />
@@ -468,13 +450,9 @@ export const HomeDashboard: () => JSX.Element = () => {
     {
       headerText: t('recentNetworkEvents'),
       headerComponent: (
-        <IconButton
-          onClick={() =>
-            navigate(FF_NAV_PATHS.activityTimelinePath(selectedNamespace))
-          }
-        >
-          <ArrowForwardIcon />
-        </IconButton>
+        <FFArrowButton
+          link={FF_NAV_PATHS.activityTimelinePath(selectedNamespace)}
+        />
       ),
       component: (
         <>
@@ -503,15 +481,18 @@ export const HomeDashboard: () => JSX.Element = () => {
                           setViewEvent(event);
                           setSlideSearchParam(event.id);
                         }}
-                        onHandleViewTx={(tx: ITransaction) => {
-                          setViewTx(tx);
-                          setSlideSearchParam(tx.id);
-                        }}
-                        link={FF_NAV_PATHS.activityTxDetailPathWithSlide(
-                          selectedNamespace,
-                          event.tx,
-                          event.id
-                        )}
+                        link={
+                          event.tx
+                            ? FF_NAV_PATHS.activityTxDetailPathWithSlide(
+                                selectedNamespace,
+                                event.tx,
+                                event.id
+                              )
+                            : FF_NAV_PATHS.activityEventsPath(
+                                selectedNamespace,
+                                event.id
+                              )
+                        }
                         {...{ event }}
                       />
                       <Grid sx={{ padding: '1px' }} />

@@ -12,7 +12,7 @@ export interface IBatch {
   id: string;
   type: string;
   namespace: string;
-  node: string;
+  node?: string;
   author: string;
   key: string;
   group: null | string;
@@ -106,12 +106,12 @@ export interface IEvent {
   namespace: string;
   reference: string;
   created: string;
-  tx: string;
-  blockchainevent?: IBlockchainEvent;
+  tx?: string;
+  blockchainEvent?: IBlockchainEvent;
   contractAPI?: IFireflyApi;
   contractInterface?: IContractInterface;
   datatype?: IDatatype;
-  identity?: IOrganization;
+  identity?: IIdentity;
   message?: IMessage;
   namespaceDetails?: INamespace;
   tokenApproval?: ITokenApproval;

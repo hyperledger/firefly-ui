@@ -35,13 +35,15 @@ export const BatchList: React.FC<Props> = ({ batch }) => {
           button: <FFCopyButton value={batch.hash} />,
         },
         {
-          label: t('node'),
-          value: <FFListText color="primary" text={batch.node} />,
-          button: (
+          label: batch.node ? t('node') : '',
+          value: batch.node && <FFListText color="primary" text={batch.node} />,
+          button: batch.node ? (
             <>
               <IdentityButton nodeID={batch.node} />
               <FFCopyButton value={batch.node} />
             </>
+          ) : (
+            <></>
           ),
         },
         {

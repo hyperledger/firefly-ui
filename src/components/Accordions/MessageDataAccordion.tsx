@@ -15,6 +15,7 @@ import { FF_NAV_PATHS, IData, IDataWithHeader } from '../../interfaces';
 import { DEFAULT_PADDING } from '../../theme';
 import { getFFTime } from '../../utils';
 import { DownloadButton } from '../Buttons/DownloadButton';
+import { DownloadJsonButton } from '../Buttons/DownloadJsonButton';
 import { HashPopover } from '../Popovers/HashPopover';
 import { FFJsonViewer } from '../Viewers/FFJsonViewer';
 import { FFAccordionHeader } from './FFAccordionHeader';
@@ -65,11 +66,16 @@ export const MessageDataAccordion: React.FC<Props> = ({
             leftContent={<HashPopover address={data.id} />}
             rightContent={
               <>
-                {data.blob && (
+                {data.blob ? (
                   <DownloadButton
                     isBlob
                     url={data.id}
                     filename={data.blob.name}
+                  />
+                ) : (
+                  <DownloadJsonButton
+                    jsonString={JSON.stringify(data.value)}
+                    filename={`${data.id}.json`}
                   />
                 )}
                 {showLink && (
