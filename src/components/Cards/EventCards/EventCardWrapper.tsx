@@ -14,7 +14,7 @@ interface Props {
   event: IEvent;
   link?: string;
   linkState?: any;
-  onHandleViewEvent: any;
+  onHandleViewEvent?: any;
   onHandleViewTx?: any;
 }
 
@@ -30,7 +30,7 @@ export const EventCardWrapper = ({
     <>
       <BaseCard
         onClick={
-          event.transaction
+          onHandleViewTx
             ? () => onHandleViewTx(event.transaction)
             : () => onHandleViewEvent(event)
         }

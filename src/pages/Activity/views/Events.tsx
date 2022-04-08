@@ -197,8 +197,10 @@ export const ActivityEvents: () => JSX.Element = () => {
           ),
         },
         {
-          value: (
+          value: event.tx ? (
             <HashPopover shortHash={true} address={event.tx}></HashPopover>
+          ) : (
+            <FFTableText color="secondary" text={t('noTransaction')} />
           ),
         },
         {

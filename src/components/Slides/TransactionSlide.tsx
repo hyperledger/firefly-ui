@@ -20,7 +20,6 @@ import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import {
-  FF_NAV_PATHS,
   IBlockchainEvent,
   IOperation,
   ITransaction,
@@ -138,13 +137,7 @@ export const TransactionSlide: React.FC<Props> = ({
           {/* Operations */}
           {txOperations?.length > 0 && (
             <>
-              <SlideSectionHeader
-                clickPath={`${FF_NAV_PATHS.activityOpPath(
-                  selectedNamespace,
-                  transaction.id
-                )}`}
-                title={t('recentOperations')}
-              />
+              <SlideSectionHeader title={t('recentOperations')} />
               <Grid container item>
                 {txOperations?.map((op, idx) => (
                   <Grid width={'100%'} item pb={1}>

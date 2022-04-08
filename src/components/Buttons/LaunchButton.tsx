@@ -1,16 +1,22 @@
 import { Launch } from '@mui/icons-material';
-import { IconButton, Link } from '@mui/material';
+import { IconButton } from '@mui/material';
+import { useNavigate } from 'react-router-dom';
+import { FFColors } from '../../theme';
 
 interface Props {
   link: string;
+  noColor?: boolean;
 }
 
-export const LaunchButton: React.FC<Props> = ({ link }) => {
+export const LaunchButton: React.FC<Props> = ({ link, noColor = false }) => {
+  const navigate = useNavigate();
+
   return (
-    <Link href={`/ui${link}`} underline="always">
-      <IconButton>
-        <Launch />
-      </IconButton>
-    </Link>
+    <IconButton
+      sx={{ backgroundColor: noColor ? undefined : FFColors.Purple }}
+      onClick={() => navigate(link)}
+    >
+      <Launch />
+    </IconButton>
   );
 };

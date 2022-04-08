@@ -127,7 +127,7 @@ export const TokensBalances: () => JSX.Element = () => {
     t('pool'),
     t('uri'),
     t('connector'),
-    t('updates'),
+    t('updated'),
   ];
   const tokenBalanceRecords: IDataTableRecord[] | undefined =
     tokenBalances?.map((balance, idx) => ({

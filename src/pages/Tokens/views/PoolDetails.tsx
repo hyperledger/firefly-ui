@@ -14,14 +14,14 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Grid, IconButton, Paper, Typography } from '@mui/material';
+import { Grid, Paper, Typography } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
-import { useNavigate, useParams } from 'react-router-dom';
+import { useParams } from 'react-router-dom';
 import { FFBreadcrumb } from '../../../components/Breadcrumbs/FFBreadcrumb';
 import { FFCopyButton } from '../../../components/Buttons/CopyButton';
+import { FFArrowButton } from '../../../components/Buttons/FFArrowButton';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { Header } from '../../../components/Header';
 import { PoolList } from '../../../components/Lists/PoolList';
@@ -64,7 +64,6 @@ export const PoolDetails: () => JSX.Element = () => {
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { poolID } = useParams<{ poolID: string }>();
   // Pools
   const [pool, setPool] = useState<ITokenPool>();
@@ -201,15 +200,9 @@ export const PoolDetails: () => JSX.Element = () => {
   const accountsCard = {
     headerText: t('accountsInPool'),
     headerComponent: pool && (
-      <IconButton
-        onClick={() =>
-          navigate(
-            FF_NAV_PATHS.tokensBalancesPathByPool(selectedNamespace, pool.id)
-          )
-        }
-      >
-        <ArrowForwardIcon />
-      </IconButton>
+      <FFArrowButton
+        link={FF_NAV_PATHS.tokensBalancesPathByPool(selectedNamespace, pool.id)}
+      />
     ),
     component: (
       <MediumCardTable
@@ -386,18 +379,12 @@ export const PoolDetails: () => JSX.Element = () => {
             rowsPerPage={rowsPerPage}
             dashboardSize
             headerBtn={
-              <IconButton
-                onClick={() =>
-                  navigate(
-                    FF_NAV_PATHS.tokensTransfersPath(
-                      selectedNamespace,
-                      pool?.id
-                    )
-                  )
-                }
-              >
-                <ArrowForwardIcon />
-              </IconButton>
+              <FFArrowButton
+                link={FF_NAV_PATHS.tokensTransfersPath(
+                  selectedNamespace,
+                  pool?.id
+                )}
+              />
             }
           />
         </Grid>

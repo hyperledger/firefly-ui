@@ -62,6 +62,7 @@ export const ApiAccordion: React.FC<Props> = ({ api, isOpen = false }) => {
                 selectedNamespace,
                 api.name
               )}
+              noColor
             />
           }
         />

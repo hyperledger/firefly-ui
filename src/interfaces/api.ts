@@ -8,6 +8,24 @@ import {
   OperationStatus,
 } from './enums';
 
+export interface IBatch {
+  id: string;
+  type: string;
+  namespace: string;
+  node?: string;
+  author: string;
+  key: string;
+  group: null | string;
+  created: string;
+  hash: string;
+  manifest: any;
+  tx?: {
+    type: string;
+    id: string;
+  };
+  confirmed: string | null;
+}
+
 export interface IBlockchainEvent {
   id: string;
   sequence: number;
@@ -18,8 +36,8 @@ export interface IBlockchainEvent {
   output?: any;
   info?: any;
   timestamp: string;
-  tx: {
-    type: FF_TX;
+  tx?: {
+    type?: FF_TX;
     id?: string;
   };
 }
@@ -88,12 +106,12 @@ export interface IEvent {
   namespace: string;
   reference: string;
   created: string;
-  tx: string;
-  blockchainevent?: IBlockchainEvent;
+  tx?: string;
+  blockchainEvent?: IBlockchainEvent;
   contractAPI?: IFireflyApi;
   contractInterface?: IContractInterface;
   datatype?: IDatatype;
-  identity?: IOrganization;
+  identity?: IIdentity;
   message?: IMessage;
   namespaceDetails?: INamespace;
   tokenApproval?: ITokenApproval;
@@ -133,20 +151,35 @@ export interface IGenericPagedResponse {
   total: number;
 }
 
+export interface IGroup {
+  namespace: string;
+  name: string;
+  members: IGroupMember[];
+  message: string;
+  hash: string;
+  created: string;
+}
+
+export interface IGroupMember {
+  identity: string;
+  node: string;
+}
+
 export interface IIdentity {
   id: string;
   did: string;
   type: string;
-  parent?: string;
   namespace: string;
+  parent?: string;
   name: string;
   messages: {
     claim: string;
-    verification: string | null;
-    update: string | null;
+    verification: null | string;
+    update: null | string;
   };
   created: string;
   updated: string;
+  verifiers: IVerifier[];
 }
 
 export interface IMessage {
@@ -189,6 +222,7 @@ export type IMessageTransaction = ITransaction;
 
 export interface IMetric {
   count: string;
+  isCapped: boolean;
   timestamp: string;
   types: IMetricType[];
 }
@@ -200,11 +234,11 @@ export interface IMetricType {
 
 export interface INamespace {
   id: string;
+  message?: string;
   name: string;
   description: string;
   type: string;
   created: string;
-  confirmed: string;
 }
 
 export interface INode {
@@ -260,6 +294,13 @@ export interface IOrganization {
   updated: string;
 }
 
+export interface IPagedBatchResponse {
+  pageParam: number;
+  count: number;
+  items: IBatch[];
+  total: number;
+}
+
 export interface IPagedBlockchainEventResponse {
   pageParam: number;
   count: number;
@@ -309,6 +350,13 @@ export interface IPagedFireFlyApiResponse {
   total: number;
 }
 
+export interface IPagedGroupResponse {
+  pageParam: number;
+  count: number;
+  items: IGroup[];
+  total: number;
+}
+
 export interface IPagedIdentityResponse {
   pageParam: number;
   count: number;
@@ -320,6 +368,13 @@ export interface IPagedMessageResponse {
   pageParam: number;
   count: number;
   items: IMessage[];
+  total: number;
+}
+
+export interface IPagesNamespaceResponse {
+  pageParam: number;
+  count: number;
+  items: INamespace[];
   total: number;
 }
 
@@ -348,6 +403,13 @@ export interface IPagedSubscriptionsResponse {
   pageParam: number;
   count: number;
   items: ISubscription[];
+  total: number;
+}
+
+export interface IPagedTokenApprovalResponse {
+  pageParam: number;
+  count: number;
+  items: ITokenApproval[];
   total: number;
 }
 
@@ -421,10 +483,7 @@ export interface ITokenApproval {
   namespace: string;
   protocolId: string;
   created: string;
-  tx: {
-    type: string;
-    id?: string;
-  };
+  tx?: ITx;
   blockchainEvent: string;
 }
 
@@ -454,10 +513,7 @@ export interface ITokenPool {
   message: string;
   state: 'confirmed' | 'pending';
   created: string;
-  tx: {
-    type: string;
-    id?: string;
-  };
+  tx?: ITx;
   info?: any;
 }
 
@@ -476,10 +532,7 @@ export interface ITokenTransfer {
   message: string;
   messageHash: string;
   created: string;
-  tx: {
-    type: string;
-    id?: string;
-  };
+  tx?: ITx;
   blockchainEvent: string;
 }
 
@@ -489,6 +542,11 @@ export interface ITransaction {
   type: FF_TX;
   created: string;
   blockchainIds?: string[];
+}
+
+export interface ITx {
+  type?: string;
+  id?: string;
 }
 
 export interface ITxStatus {
@@ -510,4 +568,9 @@ export interface ITxStatus {
       transactionIndex?: string;
     };
   }[];
+}
+
+export interface IVerifier {
+  type: string;
+  value: string;
 }

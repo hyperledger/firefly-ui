@@ -32,6 +32,7 @@ export const NetworkNav = () => {
   const orgPath = FF_NAV_PATHS.networkOrgsPath(selectedNamespace);
   const nodePath = FF_NAV_PATHS.networkNodesPath(selectedNamespace);
   const identitiesPath = FF_NAV_PATHS.networkIdentitiesPath(selectedNamespace);
+  const namespacesPath = FF_NAV_PATHS.networkNamespacesPath(selectedNamespace);
 
   const navItems: INavItem[] = [
     {
@@ -53,6 +54,11 @@ export const NetworkNav = () => {
       name: t('identities'),
       action: () => navigate(identitiesPath),
       itemIsActive: pathname === identitiesPath,
+    },
+    {
+      name: t('namespaces'),
+      action: () => navigate(namespacesPath),
+      itemIsActive: pathname === namespacesPath,
     },
   ];
 

@@ -1,6 +1,5 @@
-import { InputAdornment, TextField, useTheme } from '@mui/material';
 import ReactJson from 'react-json-view';
-import { FFCopyButton } from '../Buttons/CopyButton';
+import { FFTextField } from '../Inputs/FFTextField';
 
 interface Props {
   json: object | string;
@@ -17,7 +16,6 @@ const isValidJson = (obj: object) => {
 };
 
 export const FFJsonViewer: React.FC<Props> = ({ json }) => {
-  const theme = useTheme();
   const handleCopy = (copy: any) => {
     navigator.clipboard.writeText(JSON.stringify(copy.src, null, '\t'));
   };
@@ -26,10 +24,10 @@ export const FFJsonViewer: React.FC<Props> = ({ json }) => {
     <ReactJson
       theme={'pop'}
       style={{
-        backgroundColor: theme.palette.background.paper,
-        fontSize: '14px',
+        backgroundColor: 'transparent',
+        fontSize: '12px',
       }}
-      collapseStringsAfterLength={50}
+      collapseStringsAfterLength={45}
       enableClipboard={handleCopy}
       displayDataTypes={false}
       displayObjectSize={false}
@@ -37,18 +35,6 @@ export const FFJsonViewer: React.FC<Props> = ({ json }) => {
       name={false}
     />
   ) : (
-    <TextField
-      multiline
-      defaultValue={json}
-      value={json}
-      InputProps={{
-        endAdornment: (
-          <InputAdornment position="end">
-            {typeof json === 'string' && <FFCopyButton value={json} />}
-          </InputAdornment>
-        ),
-      }}
-      fullWidth
-    />
+    <FFTextField hasCopyBtn defaultValue={json as string} label={''} />
   );
 };

@@ -22,10 +22,12 @@ import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
+import { IdentitySlide } from '../../../components/Slides/IdentitySlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { FilterContext } from '../../../contexts/FilterContext';
+import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   FF_Paths,
@@ -41,6 +43,7 @@ export const NetworkOrganizations: () => JSX.Element = () => {
   const { orgName } = useContext(ApplicationContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
+  const { setSlideSearchParam, slideID } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
@@ -49,6 +52,8 @@ export const NetworkOrganizations: () => JSX.Element = () => {
   const [orgs, setOrgs] = useState<IOrganization[]>();
   // Org total
   const [orgTotal, setOrgTotal] = useState(0);
+
+  const [viewIdentity, setViewIdentity] = useState<string>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
@@ -58,6 +63,10 @@ export const NetworkOrganizations: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
+
+  useEffect(() => {
+    isMounted && slideID && setViewIdentity(slideID);
+  }, [slideID, isMounted]);
 
   // Organizations
   useEffect(() => {
@@ -125,6 +134,10 @@ export const NetworkOrganizations: () => JSX.Element = () => {
             ),
         },
       ],
+      onClick: () => {
+        setViewIdentity(org.did);
+        setSlideSearchParam(org.did);
+      },
     };
   });
 
@@ -174,6 +187,16 @@ export const NetworkOrganizations: () => JSX.Element = () => {
             setFilterAnchor(null);
           }}
           fields={IdentityFilters}
+        />
+      )}
+      {viewIdentity && (
+        <IdentitySlide
+          did={viewIdentity}
+          open={!!viewIdentity}
+          onClose={() => {
+            setViewIdentity(undefined);
+            setSlideSearchParam(null);
+          }}
         />
       )}
     </>

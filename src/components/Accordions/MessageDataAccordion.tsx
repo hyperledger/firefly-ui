@@ -6,8 +6,6 @@ import {
   AccordionSummary,
   Grid,
   IconButton,
-  Modal,
-  Paper,
 } from '@mui/material';
 import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
@@ -17,6 +15,7 @@ import { FF_NAV_PATHS, IData, IDataWithHeader } from '../../interfaces';
 import { DEFAULT_PADDING } from '../../theme';
 import { getFFTime } from '../../utils';
 import { DownloadButton } from '../Buttons/DownloadButton';
+import { DownloadJsonButton } from '../Buttons/DownloadJsonButton';
 import { HashPopover } from '../Popovers/HashPopover';
 import { FFJsonViewer } from '../Viewers/FFJsonViewer';
 import { FFAccordionHeader } from './FFAccordionHeader';
@@ -37,7 +36,6 @@ export const MessageDataAccordion: React.FC<Props> = ({
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [expanded, setExpanded] = useState<boolean>(isOpen);
-  const [openDataModal, setOpenDataModal] = useState(false);
 
   const accInfo: IDataWithHeader[] = [
     {
@@ -68,11 +66,16 @@ export const MessageDataAccordion: React.FC<Props> = ({
             leftContent={<HashPopover address={data.id} />}
             rightContent={
               <>
-                {data.blob && (
+                {data.blob ? (
                   <DownloadButton
                     isBlob
                     url={data.id}
                     filename={data.blob.name}
+                  />
+                ) : (
+                  <DownloadJsonButton
+                    jsonString={JSON.stringify(data.value)}
+                    filename={`${data.id}.json`}
                   />
                 )}
                 {showLink && (
@@ -122,30 +125,6 @@ export const MessageDataAccordion: React.FC<Props> = ({
           </Grid>
         </AccordionDetails>
       </Accordion>
-      <Modal
-        open={openDataModal}
-        onClose={() => setOpenDataModal(false)}
-        sx={{ wordWrap: 'break-word' }}
-      >
-        <Paper sx={modalStyle} elevation={0}>
-          <FFJsonViewer json={data.value} />
-        </Paper>
-      </Modal>
     </>
   );
-};
-
-const modalStyle = {
-  position: 'absolute' as const,
-  overflow: 'auto',
-  top: '50%',
-  left: '50%',
-  transform: 'translate(-50%, -50%)',
-  width: '40%',
-  height: '50%',
-  backgroundColor: 'background.paper',
-  border: '2px solid #000',
-  boxShadow: 24,
-  p: 4,
-  wordWrap: 'break-word',
 };

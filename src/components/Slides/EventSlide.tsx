@@ -22,21 +22,26 @@ import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import {
   FF_EVENTS_CATEGORY_MAP,
-  FF_NAV_PATHS,
   FF_Paths,
   IData,
   IEvent,
 } from '../../interfaces';
 import { DEFAULT_PADDING } from '../../theme';
 import { fetchCatcher } from '../../utils';
-import { ApiAccordion } from '../Accordions/ApiAccordion';
 import { BlockchainEventAccordion } from '../Accordions/BlockchainEventAccordion';
 import { JsonViewAccordion } from '../Accordions/JsonViewerAccordion';
 import { MessageAccordion } from '../Accordions/MessageAccordion';
 import { MessageDataAccordion } from '../Accordions/MessageDataAccordion';
 import { TransactionAccordion } from '../Accordions/TransactionAccordion';
+import { ApiList } from '../Lists/ApiList';
+import { ApprovalList } from '../Lists/ApprovalList';
 import { EventList } from '../Lists/EventList';
+import { IdentityList } from '../Lists/IdentityList';
+import { InterfaceList } from '../Lists/InterfaceList';
+import { NamespaceList } from '../Lists/NamespaceList';
+import { PoolList } from '../Lists/PoolList';
 import { TransferList } from '../Lists/TransferList';
+import { TxList } from '../Lists/TxList';
 import { DisplaySlide } from './DisplaySlide';
 import { SlideHeader } from './SlideHeader';
 import { SlideSectionHeader } from './SlideSectionHeader';
@@ -109,13 +114,13 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
             <EventList event={event} showTxLink={txID !== event.tx} />
           </Grid>
           {/* Blockchain event */}
-          {enrichedEvent && enrichedEvent['blockchainevent'] && (
+          {enrichedEvent && enrichedEvent['blockchainEvent'] && (
             <>
               <SlideSectionHeader title={t('blockchainEvent')} />
               <Grid container item>
                 <BlockchainEventAccordion
                   isOpen
-                  be={enrichedEvent.blockchainevent}
+                  be={enrichedEvent.blockchainEvent}
                 />
               </Grid>
             </>
@@ -125,10 +130,20 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
             <>
               <SlideSectionHeader title={t('contractAPI')} />
               <Grid container item>
-                <ApiAccordion isOpen api={enrichedEvent.contractAPI} />
+                <ApiList api={enrichedEvent.contractAPI} />
               </Grid>
             </>
           )}
+          {/* Contract Interface */}
+          {enrichedEvent && enrichedEvent['contractInterface'] && (
+            <>
+              <SlideSectionHeader title={t('contractInterface')} />
+              <Grid container item>
+                <InterfaceList cInterface={enrichedEvent.contractInterface} />
+              </Grid>
+            </>
+          )}
+          {/* Datatype */}
           {enrichedEvent && enrichedEvent['datatype'] && (
             <>
               <SlideSectionHeader title={t('datatype')} />
@@ -141,12 +156,21 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
               </Grid>
             </>
           )}
+          {/* Identity */}
+          {enrichedEvent && enrichedEvent['identity'] && (
+            <>
+              <SlideSectionHeader title={t('identity')} />
+              <Grid container item>
+                <IdentityList identity={enrichedEvent.identity} />
+              </Grid>
+            </>
+          )}
           {/* Message */}
           {enrichedEvent && enrichedEvent['message'] && (
             <>
               <SlideSectionHeader title={t('message')} />
               <Grid container item>
-                <MessageAccordion message={enrichedEvent?.message} />
+                <MessageAccordion message={enrichedEvent.message} />
               </Grid>
             </>
           )}
@@ -161,17 +185,39 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
               </Grid>
             </>
           )}
+          {/* Namespace */}
+          {enrichedEvent && enrichedEvent['namespaceDetails'] && (
+            <>
+              <SlideSectionHeader title={t('namespaceDetails')} />
+              <Grid container item>
+                <NamespaceList ns={enrichedEvent.namespaceDetails} />
+              </Grid>
+            </>
+          )}
+          {/* Token Approval */}
+          {enrichedEvent && enrichedEvent['tokenApproval'] && (
+            <>
+              <SlideSectionHeader title={t('tokenApproval')} />
+              <Grid container item>
+                <ApprovalList approval={enrichedEvent.tokenApproval} />
+              </Grid>
+            </>
+          )}
+          {/* Token Pool */}
+          {enrichedEvent && enrichedEvent['tokenPool'] && (
+            <>
+              <SlideSectionHeader title={t('tokenPool')} />
+              <Grid container item>
+                <PoolList pool={enrichedEvent.tokenPool} />
+              </Grid>
+            </>
+          )}
           {/* Transaction */}
           {enrichedEvent && enrichedEvent['transaction'] && (
             <>
-              <SlideSectionHeader
-                clickPath={FF_NAV_PATHS.activityTxDetailPath(
-                  selectedNamespace,
-                  enrichedEvent.transaction.id
-                )}
-                title={t('transaction')}
-              />
+              <SlideSectionHeader title={t('transaction')} />
               <Grid container item>
+                <TxList tx={enrichedEvent.transaction} />
                 <TransactionAccordion isOpen tx={enrichedEvent?.transaction} />
               </Grid>
             </>
@@ -183,10 +229,6 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
                 title={`${t(
                   'tokenTransfer'
                 )} - ${enrichedEvent.tokenTransfer.type.toUpperCase()}`}
-                clickPath={FF_NAV_PATHS.tokensTransfersPathLocalID(
-                  selectedNamespace,
-                  enrichedEvent.tokenTransfer.localId
-                )}
               />
               <Grid container item>
                 <TransferList transfer={enrichedEvent?.tokenTransfer} />

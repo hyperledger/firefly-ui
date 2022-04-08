@@ -61,7 +61,7 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
   useEffect(() => {
     // Transaction Status
     isMounted &&
-      transfer.tx.id &&
+      transfer.tx?.id &&
       fetchCatcher(
         `${
           FF_Paths.nsPrefix
@@ -75,7 +75,7 @@ export const TransferSlide: React.FC<Props> = ({ transfer, open, onClose }) => {
         });
     // Transfer Blockchain Event
     isMounted &&
-      transfer.tx.id &&
+      transfer.tx?.id &&
       fetchCatcher(
         `${
           FF_Paths.nsPrefix

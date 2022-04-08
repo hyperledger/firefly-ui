@@ -2,6 +2,7 @@ import { RouteObject } from 'react-router-dom';
 import { NAMESPACES_PATH } from '../../interfaces';
 import { NetworkMapDashboard } from './views/Dashboard';
 import { NetworkIdentities } from './views/Identities';
+import { NetworkNamespaces } from './views/Namespaces';
 import { NetworkNodes } from './views/Nodes';
 import { NetworkOrganizations } from './views/Organizations';
 
@@ -24,6 +25,10 @@ export const NetworkRoutes: RouteObject = {
     {
       path: 'identities',
       element: <NetworkIdentities />,
+    },
+    {
+      path: 'namespaces',
+      element: <NetworkNamespaces />,
     },
   ],
 };

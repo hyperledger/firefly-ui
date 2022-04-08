@@ -24,6 +24,7 @@ export interface IHistTransferBucket {
   [TransferCategoryEnum.MINT]: number;
   [TransferCategoryEnum.BURN]: number;
   [TransferCategoryEnum.TRANSFER]: number;
+  isCapped: number;
 }
 
 export interface IHistTransferTimeMap {

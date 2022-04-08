@@ -1,7 +1,9 @@
 import { t } from 'i18next';
+import { LaunchButton } from '../../components/Buttons/LaunchButton';
 import { FFColors } from '../../theme';
 import { getShortHash } from '../../utils';
 import { IEvent } from '../api';
+import { FF_NAV_PATHS } from '../navigation';
 
 export type INewEventSet = {
   [key in FF_EVENTS]: boolean;
@@ -11,6 +13,7 @@ export interface IHistEventBucket {
   [EventCategoryEnum.BLOCKCHAIN]: number;
   [EventCategoryEnum.MESSAGES]: number;
   [EventCategoryEnum.TOKENS]: number;
+  isCapped: number;
 }
 
 export interface IHistEventTimeMap {
@@ -50,6 +53,8 @@ interface IEventCategory {
   enrichedEventKey: string;
   enrichedEventString: (key: any) => string;
   nicename: string;
+  referenceIDName: string;
+  referenceIDButton: (ns: string, refID: string) => JSX.Element;
 }
 
 export const getEnrichedEventText = (event: IEvent) => {
@@ -70,11 +75,15 @@ export const FF_EVENTS_CATEGORY_MAP: {
     nicename: 'blockchainEventReceived',
     enrichedEventKey: 'blockchainevent',
     enrichedEventString: (event: IEvent): string =>
-      `${event.blockchainevent?.name}${
-        event.blockchainevent?.protocolId
-          ? ', Protocol ID=' + getShortHash(event.blockchainevent?.protocolId)
+      `${event.blockchainEvent?.name}${
+        event.blockchainEvent?.protocolId
+          ? ', Protocol ID=' + getShortHash(event.blockchainEvent?.protocolId)
           : ''
       }`,
+    referenceIDName: 'blockchainEventID',
+    referenceIDButton: (ns: string, refID: string): JSX.Element => (
+      <LaunchButton link={FF_NAV_PATHS.blockchainEventsPath(ns, refID)} />
+    ),
   },
   [FF_EVENTS.CONTRACT_API_CONFIRMED]: {
     category: EventCategoryEnum.BLOCKCHAIN,
@@ -87,6 +96,10 @@ export const FF_EVENTS_CATEGORY_MAP: {
           ? ', Address=' + getShortHash(event.contractAPI?.location?.address)
           : ''
       }`,
+    referenceIDName: 'apiID',
+    referenceIDButton: (ns: string, refID: string): JSX.Element => (
+      <LaunchButton link={FF_NAV_PATHS.blockchainApisPath(ns, refID)} />
+    ),
   },
   [FF_EVENTS.CONTRACT_INTERFACE_CONFIRMED]: {
     category: EventCategoryEnum.BLOCKCHAIN,
@@ -99,6 +112,10 @@ export const FF_EVENTS_CATEGORY_MAP: {
           ? ', Version=' + event.contractInterface?.version
           : ''
       }`,
+    referenceIDName: 'interfaceID',
+    referenceIDButton: (ns: string, refID: string): JSX.Element => (
+      <LaunchButton link={FF_NAV_PATHS.blockchainInterfacesPath(ns, refID)} />
+    ),
   },
   [FF_EVENTS.DATATYPE_CONFIRMED]: {
     category: EventCategoryEnum.BLOCKCHAIN,
@@ -113,6 +130,10 @@ export const FF_EVENTS_CATEGORY_MAP: {
           ? ', Validator=' + event.datatype?.validator
           : ''
       }`,
+    referenceIDName: 'datatypeID',
+    referenceIDButton: (ns: string, refID: string): JSX.Element => (
+      <LaunchButton link={FF_NAV_PATHS.offchainDatatypesPath(ns, refID)} />
+    ),
   },
   [FF_EVENTS.IDENTITY_CONFIRMED]: {
     category: EventCategoryEnum.BLOCKCHAIN,
@@ -123,6 +144,10 @@ export const FF_EVENTS_CATEGORY_MAP: {
       `${event.identity?.name}${
         event.identity?.did ? ', DID=' + event.identity?.did : ''
       }${event.identity?.type ? ', Type=' + event.identity?.type : ''}`,
+    referenceIDName: 'identityID',
+    referenceIDButton: (ns: string, refID: string): JSX.Element => (
+      <LaunchButton link={FF_NAV_PATHS.networkIdentitiesPath(ns, refID)} />
+    ),
   },
   [FF_EVENTS.IDENTITY_UPDATED]: {
     category: EventCategoryEnum.BLOCKCHAIN,
@@ -133,6 +158,10 @@ export const FF_EVENTS_CATEGORY_MAP: {
       `${event.identity?.name}${
         event.identity?.did ? ', DID=' + event.identity?.did : ''
       }${event.identity?.type ? ', Type=' + event.identity?.type : ''}`,
+    referenceIDName: 'identityID',
+    referenceIDButton: (ns: string, refID: string): JSX.Element => (
+      <LaunchButton link={FF_NAV_PATHS.networkIdentitiesPath(ns, refID)} />
+    ),
   },
   [FF_EVENTS.NS_CONFIRMED]: {
     category: EventCategoryEnum.BLOCKCHAIN,
@@ -145,6 +174,10 @@ export const FF_EVENTS_CATEGORY_MAP: {
           ? ', Type=' + event.namespaceDetails?.type
           : ''
       }`,
+    referenceIDName: 'nsID',
+    referenceIDButton: (ns: string, refID: string): JSX.Element => (
+      <LaunchButton link={FF_NAV_PATHS.networkNamespacesPath(ns, refID)} />
+    ),
   },
   // Message Events
   [FF_EVENTS.MSG_CONFIRMED]: {
@@ -159,6 +192,10 @@ export const FF_EVENTS_CATEGORY_MAP: {
       }]${
         event.message?.header.tag ? ', Tag=' + event.message?.header.tag : ''
       }`,
+    referenceIDName: 'messageID',
+    referenceIDButton: (ns: string, refID: string): JSX.Element => (
+      <LaunchButton link={FF_NAV_PATHS.offchainMessagesPath(ns, refID)} />
+    ),
   },
   [FF_EVENTS.MSG_REJECTED]: {
     category: EventCategoryEnum.MESSAGES,
@@ -172,6 +209,10 @@ export const FF_EVENTS_CATEGORY_MAP: {
       }]${
         event.message?.header.tag ? ', Tag=' + event.message?.header.tag : ''
       }`,
+    referenceIDName: 'messageID',
+    referenceIDButton: (ns: string, refID: string): JSX.Element => (
+      <LaunchButton link={FF_NAV_PATHS.offchainMessagesPath(ns, refID)} />
+    ),
   },
   [FF_EVENTS.TX_SUBMITTED]: {
     category: EventCategoryEnum.MESSAGES,
@@ -186,6 +227,10 @@ export const FF_EVENTS_CATEGORY_MAP: {
             ?.map((bid) => getShortHash(bid))
             .join(', ')}]`
         : t('transactionSubmitted'),
+    referenceIDName: 'transactionID',
+    referenceIDButton: (ns: string, refID: string): JSX.Element => (
+      <LaunchButton link={FF_NAV_PATHS.activityTxDetailPath(ns, refID)} />
+    ),
   },
   // Token Events
   [FF_EVENTS.TOKEN_POOL_CONFIRMED]: {
@@ -199,6 +244,10 @@ export const FF_EVENTS_CATEGORY_MAP: {
           ? ', Connector=' + event.tokenPool?.connector
           : ''
       }${event.tokenPool?.type ? ', Type=' + event.tokenPool?.type : ''}`,
+    referenceIDName: 'poolID',
+    referenceIDButton: (ns: string, refID: string): JSX.Element => (
+      <LaunchButton link={FF_NAV_PATHS.tokensPoolDetailsPath(ns, refID)} />
+    ),
   },
   [FF_EVENTS.TOKEN_APPROVAL_CONFIRMED]: {
     category: EventCategoryEnum.TOKENS,
@@ -209,6 +258,10 @@ export const FF_EVENTS_CATEGORY_MAP: {
       `Key=${getShortHash(
         event.tokenApproval?.key ?? ''
       )}, Operator=${getShortHash(event.tokenApproval?.operator ?? '')}`,
+    referenceIDName: 'approvalID',
+    referenceIDButton: (ns: string, refID: string): JSX.Element => (
+      <LaunchButton link={FF_NAV_PATHS.tokensApprovalsPath(ns, refID)} />
+    ),
   },
   [FF_EVENTS.TOKEN_APPROVAL_OP_FAILED]: {
     category: EventCategoryEnum.TOKENS,
@@ -219,6 +272,10 @@ export const FF_EVENTS_CATEGORY_MAP: {
       `Key=${getShortHash(
         event.tokenApproval?.key ?? ''
       )}, Operator=${getShortHash(event.tokenApproval?.operator ?? '')}`,
+    referenceIDName: 'approvalID',
+    referenceIDButton: (ns: string, refID: string): JSX.Element => (
+      <LaunchButton link={FF_NAV_PATHS.tokensApprovalsPath(ns, refID)} />
+    ),
   },
   [FF_EVENTS.TOKEN_TRANSFER_CONFIRMED]: {
     category: EventCategoryEnum.TOKENS,
@@ -242,6 +299,10 @@ export const FF_EVENTS_CATEGORY_MAP: {
       }, Amount=${event.tokenTransfer?.amount ?? ''}, Signer=${getShortHash(
         event.tokenTransfer?.key ?? ''
       )}`,
+    referenceIDName: 'transferID',
+    referenceIDButton: (ns: string, refID: string): JSX.Element => (
+      <LaunchButton link={FF_NAV_PATHS.tokensTransfersPathLocalID(ns, refID)} />
+    ),
   },
   [FF_EVENTS.TOKEN_TRANSFER_FAILED]: {
     category: EventCategoryEnum.TOKENS,
@@ -250,5 +311,9 @@ export const FF_EVENTS_CATEGORY_MAP: {
     enrichedEventKey: 'tokenTransfer',
     enrichedEventString: (event: IEvent): string =>
       `${t('event')} ID=${event.id}`,
+    referenceIDName: 'transferID',
+    referenceIDButton: (ns: string, refID: string): JSX.Element => (
+      <LaunchButton link={FF_NAV_PATHS.tokensTransfersPathLocalID(ns, refID)} />
+    ),
   },
 };

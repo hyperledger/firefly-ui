@@ -77,6 +77,7 @@ export const ListenerAccordion: React.FC<Props> = ({
                 selectedNamespace,
                 listener.id
               )}
+              noColor
             />
           }
         />

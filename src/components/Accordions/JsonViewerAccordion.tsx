@@ -6,6 +6,7 @@ import {
   Grid,
 } from '@mui/material';
 import { useState } from 'react';
+import { DownloadJsonButton } from '../Buttons/DownloadJsonButton';
 import { FFJsonViewer } from '../Viewers/FFJsonViewer';
 import { FFAccordionHeader } from './FFAccordionHeader';
 import { FFAccordionText } from './FFAccordionText';
@@ -14,12 +15,14 @@ interface Props {
   header: string;
   json: object;
   isOpen?: boolean;
+  filename?: string;
 }
 
 export const JsonViewAccordion: React.FC<Props> = ({
   header,
   json,
   isOpen = false,
+  filename,
 }) => {
   const [expanded, setExpanded] = useState<boolean>(isOpen);
 
@@ -33,6 +36,16 @@ export const JsonViewAccordion: React.FC<Props> = ({
         <FFAccordionHeader
           leftContent={
             <FFAccordionText color="primary" text={header} isHeader />
+          }
+          rightContent={
+            filename ? (
+              <DownloadJsonButton
+                filename={filename}
+                jsonString={JSON.stringify(json)}
+              />
+            ) : (
+              <></>
+            )
           }
         />
       </AccordionSummary>

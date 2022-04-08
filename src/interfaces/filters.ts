@@ -31,6 +31,21 @@ export enum TimeFilterEnum {
 
 export const ApiFilters = ['id', 'name', 'interface'];
 
+export const ApprovalFilters = [
+  'localid',
+  'pool',
+  'connector',
+  'namespace',
+  'key',
+  'operator',
+  'approved',
+  'protocolid',
+  'created',
+  'tx.type',
+  'tx.id',
+  'blockchainevent',
+];
+
 export const BalanceFilters = [
   'pool',
   'tokenindex',
@@ -40,6 +55,22 @@ export const BalanceFilters = [
   'key',
   'balance',
   'updated',
+];
+
+export const BatchFilters = [
+  'id',
+  'namespace',
+  'type',
+  'author',
+  'key',
+  'group',
+  'hash',
+  'payloadref',
+  'created',
+  'confirmed',
+  'tx.type',
+  'tx.id',
+  'node',
 ];
 
 export const BlockchainEventFilters = [
@@ -88,6 +119,15 @@ export const EventFilters = [
   'created',
 ];
 
+export const GroupFilters = [
+  'hash',
+  'message',
+  'namespace',
+  'description',
+  'ledger',
+  'created',
+];
+
 export const IdentityFilters = [
   'id',
   'did',
@@ -122,6 +162,16 @@ export const MessageFilters = [
   'sequence',
   'txtype',
   'batch',
+];
+
+export const NamespaceFilters = [
+  'id',
+  'message',
+  'type',
+  'name',
+  'description',
+  'created',
+  'confirmed',
 ];
 
 export const OperationFilters = [

@@ -14,14 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Grid, IconButton } from '@mui/material';
+import { Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useNavigate } from 'react-router-dom';
 import { DownloadButton } from '../../../components/Buttons/DownloadButton';
+import { FFArrowButton } from '../../../components/Buttons/FFArrowButton';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
@@ -77,7 +76,6 @@ export const OffChainDashboard: () => JSX.Element = () => {
   const { dateFilter } = useContext(DateFilterContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
-  const navigate = useNavigate();
   const [isMounted, setIsMounted] = useState(false);
   // Small cards
   // Message count
@@ -264,11 +262,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
   const mediumCards: IFireFlyCard[] = [
     {
       headerText: t('recentMessages'),
-      headerComponent: (
-        <IconButton onClick={() => navigate(MESSAGES_PATH)}>
-          <ArrowForwardIcon />
-        </IconButton>
-      ),
+      headerComponent: <FFArrowButton link={MESSAGES_PATH} />,
       component: (
         <Histogram
           height={'100%'}
@@ -285,11 +279,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
     },
     {
       headerText: t('recentData'),
-      headerComponent: (
-        <IconButton onClick={() => navigate(DATA_PATH)}>
-          <ArrowForwardIcon />
-        </IconButton>
-      ),
+      headerComponent: <FFArrowButton link={DATA_PATH} />,
       component: (
         <MediumCardTable
           records={dataRecords}
@@ -301,11 +291,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
     },
     {
       headerText: t('datatypes'),
-      headerComponent: (
-        <IconButton onClick={() => navigate(DATATYPES_PATH)}>
-          <ArrowForwardIcon />
-        </IconButton>
-      ),
+      headerComponent: <FFArrowButton link={DATATYPES_PATH} />,
       component: (
         <MediumCardTable
           records={dtRecords}
@@ -544,11 +530,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
             currentPage={currentPage}
             rowsPerPage={rowsPerPage}
             dashboardSize
-            headerBtn={
-              <IconButton onClick={() => navigate(MESSAGES_PATH)}>
-                <ArrowForwardIcon />
-              </IconButton>
-            }
+            headerBtn={<FFArrowButton link={MESSAGES_PATH} />}
           />
         </Grid>
       </Grid>

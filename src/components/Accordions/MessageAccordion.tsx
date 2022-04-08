@@ -14,7 +14,6 @@ import {
   IDataWithHeader,
   IMessage,
 } from '../../interfaces';
-import { DEFAULT_PADDING } from '../../theme';
 import { getFFTime } from '../../utils';
 import { LaunchButton } from '../Buttons/LaunchButton';
 import { MsgStatusChip } from '../Chips/MsgStatusChip';
@@ -81,13 +80,14 @@ export const MessageAccordion: React.FC<Props> = ({
                     selectedNamespace,
                     message.header.id
                   )}
-                ></LaunchButton>
+                  noColor
+                />
               </>
             }
           />
         </AccordionSummary>
         <AccordionDetails>
-          <Grid container item direction="row" pt={DEFAULT_PADDING}>
+          <Grid container item direction="row">
             {accInfo.map((info, idx) => (
               <Grid key={idx} item xs={4} pb={1} justifyContent="flex-start">
                 <FFAccordionText

@@ -14,11 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ArrowForwardIcon from '@mui/icons-material/ArrowForward';
-import { Grid, IconButton, Typography } from '@mui/material';
+import { Grid, Typography } from '@mui/material';
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
 import { DEFAULT_PADDING } from '../../theme';
+import { FFArrowButton } from '../Buttons/FFArrowButton';
 
 interface Props {
   clickPath?: string;
@@ -26,8 +25,6 @@ interface Props {
 }
 
 export const SlideSectionHeader: React.FC<Props> = ({ clickPath, title }) => {
-  const navigate = useNavigate();
-
   return (
     <Grid
       container
@@ -49,9 +46,7 @@ export const SlideSectionHeader: React.FC<Props> = ({ clickPath, title }) => {
       </Grid>
       {clickPath && (
         <Grid item xs={6} container justifyContent="flex-end">
-          <IconButton onClick={() => navigate(clickPath)}>
-            <ArrowForwardIcon />
-          </IconButton>
+          <FFArrowButton link={clickPath} />
         </Grid>
       )}
     </Grid>
