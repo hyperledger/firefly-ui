@@ -14,16 +14,15 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid, Typography } from '@mui/material';
+import { Box, Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { Diagram } from '../../../components/Charts/Diagram';
 import { Header } from '../../../components/Header';
-import { FFTextField } from '../../../components/Inputs/FFTextField';
-import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import { FF_Paths, INode, IOrganization } from '../../../interfaces';
-import { DEFAULT_PADDING, DEFAULT_SPACING } from '../../../theme';
+import { DEFAULT_PADDING } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
 
 export const MyNodeDashboard: () => JSX.Element = () => {
@@ -63,51 +62,6 @@ export const MyNodeDashboard: () => JSX.Element = () => {
     }
   }, [nodeID, orgID, isMounted]);
 
-  const nodeInputs = [
-    {
-      defaultValue: node?.name ?? '',
-      label: t('name'),
-    },
-    {
-      defaultValue: node?.did ?? '',
-      label: t('did'),
-    },
-    {
-      defaultValue: node?.id ?? '',
-      label: t('id'),
-    },
-  ];
-
-  const orgInputs = [
-    {
-      defaultValue: org?.name ?? '',
-      label: t('name'),
-    },
-    {
-      defaultValue: org?.did ?? '',
-      label: t('did'),
-    },
-    {
-      defaultValue: org?.id ?? '',
-      label: t('id'),
-    },
-  ];
-
-  const profileInputs = [
-    {
-      defaultValue: node?.profile.id ?? '',
-      label: t('endpointID'),
-    },
-    {
-      defaultValue: node?.profile.endpoint ?? '',
-      label: t('endpoint'),
-    },
-    {
-      defaultValue: node?.profile.cert ?? '',
-      label: t('certificate'),
-    },
-  ];
-
   return (
     <>
       <Header
@@ -117,89 +71,10 @@ export const MyNodeDashboard: () => JSX.Element = () => {
         noNsFilter
       ></Header>
       <Grid container px={DEFAULT_PADDING}>
-        <Grid
-          container
-          item
-          direction="column"
-          justifyContent="center"
-          alignItems="flex-start"
-        >
-          {!(node && org) ? (
-            <FFCircleLoader color="warning" />
-          ) : (
-            <>
-              {/* Node */}
-              <Grid item container spacing={DEFAULT_SPACING}>
-                {/* Node Title */}
-                <Grid item xs={12}>
-                  <Typography sx={{ fontWeight: 'bold' }} variant="h6">
-                    {t('node')}
-                  </Typography>
-                </Grid>
-                {/* Node Details */}
-                {nodeInputs.map((input, idx) => (
-                  <Grid key={idx} item xs={4}>
-                    <FFTextField
-                      key={input.defaultValue}
-                      defaultValue={input.defaultValue}
-                      label={input.label}
-                      hasCopyBtn
-                    />
-                  </Grid>
-                ))}
-              </Grid>
-              {/* Org */}
-              <Grid
-                item
-                container
-                spacing={DEFAULT_SPACING}
-                pt={DEFAULT_PADDING}
-              >
-                {/* Org Title */}
-                <Grid item xs={12}>
-                  <Typography sx={{ fontWeight: 'bold' }} variant="h6">
-                    {t('organization')}
-                  </Typography>
-                </Grid>
-                {/* Org Details */}
-                {orgInputs.map((input, idx) => (
-                  <Grid key={idx} item xs={4}>
-                    <FFTextField
-                      key={input.defaultValue}
-                      defaultValue={input.defaultValue}
-                      label={input.label}
-                      hasCopyBtn
-                    />
-                  </Grid>
-                ))}
-              </Grid>
-              {/* Data Exchange */}
-              <Grid
-                item
-                container
-                spacing={DEFAULT_SPACING}
-                pt={DEFAULT_PADDING}
-              >
-                {/* Profile Title */}
-                <Grid item xs={12}>
-                  <Typography sx={{ fontWeight: 'bold' }} variant="h6">
-                    {t('profile')}
-                  </Typography>
-                </Grid>
-                {/* Profile Details */}
-                {profileInputs.map((input, idx) => (
-                  <Grid key={idx} item xs={4}>
-                    <FFTextField
-                      key={input.defaultValue}
-                      defaultValue={input.defaultValue}
-                      label={input.label}
-                      hasCopyBtn
-                    />
-                  </Grid>
-                ))}
-              </Grid>
-            </>
-          )}
+        <Grid height="700px" container item wrap="nowrap" direction="column">
+          <Box height={'100%'}>
+            <Diagram data={[]} isLoading={false} />
+          </Box>
         </Grid>
       </Grid>
     </>
