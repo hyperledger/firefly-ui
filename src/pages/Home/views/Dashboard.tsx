@@ -33,8 +33,6 @@ import {
   ISmallCard,
   IStatus,
   ITransaction,
-  IWebsocketConnection,
-  IWebsocketStatus,
   OpCategoryEnum,
 } from '../../../interfaces';
 import { FF_Paths } from '../../../interfaces/constants';
@@ -89,7 +87,6 @@ export const HomeDashboard: () => JSX.Element = () => {
   const [recentEvents, setRecentEvents] = useState<IEvent[]>();
   const [isHistLoading, setIsHistLoading] = useState(false);
 
-  const [apps, setApps] = useState<IWebsocketConnection[]>();
   const [plugins, setPlugins] = useState<IStatus['plugins']>();
 
   const [isMyNodeLoading, setIsMyNodeLoading] = useState(true);
@@ -299,12 +296,10 @@ export const HomeDashboard: () => JSX.Element = () => {
       headerText: t('myNode'),
       component:
         !isMyNodeLoading &&
-        apps &&
-        apps.length > 0 &&
         plugins &&
         Object.keys(plugins ?? {}).length > 0 &&
         isMounted ? (
-          <MyNodeDiagram applications={apps} plugins={plugins} />
+          <MyNodeDiagram plugins={plugins} isSmall />
         ) : (
           <FFCircleLoader color="warning" height="100%" />
         ),
@@ -340,13 +335,6 @@ export const HomeDashboard: () => JSX.Element = () => {
   useEffect(() => {
     setIsMyNodeLoading(true);
     if (isMounted) {
-      fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.statusWebsockets}`)
-        .then((wsRes: IWebsocketStatus) => {
-          isMounted && setApps(wsRes.connections);
-        })
-        .catch((err) => {
-          reportFetchError(err);
-        });
       fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.status}`)
         .then((statusRes: IStatus) => {
           isMounted && setPlugins(statusRes.plugins);

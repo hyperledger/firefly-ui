@@ -20,19 +20,13 @@ import { useTranslation } from 'react-i18next';
 import { MyNodeDiagram } from '../../../components/Charts/MyNodeDiagram';
 import { Header } from '../../../components/Header';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
-import {
-  FF_Paths,
-  IStatus,
-  IWebsocketConnection,
-  IWebsocketStatus,
-} from '../../../interfaces';
+import { FF_Paths, IStatus } from '../../../interfaces';
 import { DEFAULT_PADDING } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
 
 export const MyNodeDashboard: () => JSX.Element = () => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
-  const [apps, setApps] = useState<IWebsocketConnection[]>();
   const [plugins, setPlugins] = useState<IStatus['plugins']>();
   const [isLoading, setIsLoading] = useState(true);
 
@@ -48,13 +42,6 @@ export const MyNodeDashboard: () => JSX.Element = () => {
   useEffect(() => {
     setIsLoading(true);
     if (isMounted) {
-      fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.statusWebsockets}`)
-        .then((wsRes: IWebsocketStatus) => {
-          isMounted && setApps(wsRes.connections);
-        })
-        .catch((err) => {
-          reportFetchError(err);
-        });
       fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.status}`)
         .then((statusRes: IStatus) => {
           isMounted && setPlugins(statusRes.plugins);
@@ -77,13 +64,9 @@ export const MyNodeDashboard: () => JSX.Element = () => {
       <Grid container px={DEFAULT_PADDING}>
         <Grid height="700px" container item wrap="nowrap" direction="column">
           {!isLoading &&
-            apps &&
-            apps.length > 0 &&
             plugins &&
             Object.keys(plugins ?? {}).length > 0 &&
-            isMounted && (
-              <MyNodeDiagram applications={apps} plugins={plugins} />
-            )}
+            isMounted && <MyNodeDiagram plugins={plugins} />}
         </Grid>
       </Grid>
     </>

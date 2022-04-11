@@ -5,7 +5,6 @@ import i18next from 'i18next';
 import React, { useContext, useEffect, useState } from 'react';
 import ReactFlow, {
   Edge,
-  MarkerType,
   Node,
   NodeTypes,
   Position,
@@ -14,7 +13,7 @@ import ReactFlow, {
   useNodesState,
 } from 'react-flow-renderer';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { IStatus, IWebsocketConnection } from '../../interfaces';
+import { IStatus } from '../../interfaces';
 import { DEFAULT_BORDER_RADIUS, FFColors } from '../../theme';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { DiagramFireFlyNode } from './DiagramFireFlyNode';
@@ -45,10 +44,13 @@ const edgeStyle = {
 const dagreGraph = new dagre.graphlib.Graph();
 dagreGraph.setDefaultEdgeLabel(() => ({}));
 
-const nodeWidth = 350;
-const nodeHeight = 25;
-
-const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
+const getLayoutedElements = (
+  nodes: Node[],
+  edges: Edge[],
+  isSmall: boolean
+) => {
+  const nodeWidth = isSmall ? 175 : 350;
+  const nodeHeight = 25;
   dagreGraph.setGraph({ rankdir: 'LR' });
 
   nodes.forEach((node) => {
@@ -86,24 +88,29 @@ const getLayoutedElements = (nodes: Node[], edges: Edge[]) => {
 };
 
 const makeInitialNodes = (
-  applications: any[],
+  applications: IStatus['plugins'],
   plugins: IStatus['plugins'],
   nodeName: string
 ) => {
   let nodes: Node[] = [];
   // Applications (Left side)
-  nodes = nodes.concat(
-    applications.map((a, idx) => {
-      return {
-        id: `${APP_PREFIX}${idx}`,
-        sourcePosition: Position.Right,
-        type: 'input',
-        style: nodeStyle,
-        data: { label: a.remoteAddress },
-        position,
-      };
-    })
-  );
+  Object.entries(applications).map(([k, v]) => {
+    // Only show events on left side
+    if (k === 'events') {
+      nodes = nodes.concat(
+        v.map((plugin, idx) => {
+          return {
+            id: `${APP_PREFIX}${k}_${idx}`,
+            sourcePosition: Position.Right,
+            type: 'input',
+            style: nodeStyle,
+            data: { label: plugin.name ? plugin.name : plugin.pluginType },
+            position,
+          };
+        })
+      );
+    }
+  });
   // Firefly
   nodes.push({
     type: 'fireflyNode',
@@ -114,85 +121,104 @@ const makeInitialNodes = (
     data: {
       applications,
       plugins,
-      label: i18next.t('firefly'),
-      subtitle: nodeName,
+      nodeName,
     },
     position,
   });
   // Plugins (Right side)
   Object.entries(plugins).map(([k, v]) => {
-    nodes = nodes.concat(
-      v.map((plugin, idx) => {
-        return {
-          id: `${PLUGIN_PREFIX}${k}_${idx}`,
-          targetPosition: Position.Left,
-          type: 'output',
-          data: { label: plugin.connection },
-          position,
-          style: nodeStyle,
-        };
-      })
-    );
+    if (k !== 'events') {
+      nodes = nodes.concat(
+        v.map((plugin, idx) => {
+          return {
+            id: `${PLUGIN_PREFIX}${k}_${idx}`,
+            targetPosition: Position.Left,
+            type: 'output',
+            data: { label: plugin.name ? plugin.name : plugin.pluginType },
+            position,
+            style: nodeStyle,
+          };
+        })
+      );
+    }
   });
 
   return nodes;
 };
 
 const makeInitialEdges = (
-  applications: IWebsocketConnection[],
-  plugins: IStatus['plugins']
+  applications: IStatus['plugins'],
+  plugins: IStatus['plugins'],
+  isSmall: boolean
 ) => {
   let edges: Edge[] = [];
 
   // Apps
-  edges = edges.concat(
-    applications.map((_, idx): Edge => {
-      return {
-        id: `${APP_PREFIX}${FF_NODE_PREFIX}${idx}`,
-        source: `${APP_PREFIX}${idx}`,
-        targetHandle: `${HANDLE_PREFIX}${APP_PREFIX}${idx}`,
-        target: FF_NODE_PREFIX,
-        style: edgeStyle,
-        markerEnd: {
-          type: MarkerType.ArrowClosed,
-          color: FFColors.Orange,
-        },
-        label: i18next.t('websocket'),
-        labelBgPadding: [8, 4],
-        labelBgBorderRadius: 4,
-        labelBgStyle: {
-          fill: '#1e242a',
-          fillOpacity: 0.97,
-        },
-        labelStyle: { fill: '#FFFFFF', fontWeight: 700 },
-      };
-    })
-  );
+  // Applications
+  Object.entries(applications).map(([k, v], pIdx) => {
+    // Only show events on left side
+    if (k === 'events') {
+      edges = edges.concat(
+        v.map((_, idx) => {
+          let edge: Edge = {
+            id: `${APP_PREFIX}${FF_NODE_PREFIX}${k}_${idx}`,
+            source: `${APP_PREFIX}${k}_${idx}`,
+            targetHandle: `${HANDLE_PREFIX}${APP_PREFIX}${pIdx}`,
+            target: FF_NODE_PREFIX,
+            style: edgeStyle,
+          };
+
+          if (!isSmall) {
+            edge = {
+              ...edge,
+              label: i18next.t(k),
+              labelBgPadding: [8, 4],
+              labelBgBorderRadius: 4,
+              labelBgStyle: {
+                fill: '#1e242a',
+                fillOpacity: 0.97,
+              },
+              labelStyle: { fill: '#FFFFFF', fontWeight: 700 },
+            };
+          }
+
+          return edge;
+        })
+      );
+    }
+  });
+
   // Plugins
   Object.entries(plugins).map(([k, v], pIdx) => {
-    edges = edges.concat(
-      v.map((_, idx) => {
-        return {
-          id: `${PLUGIN_PREFIX}${FF_NODE_PREFIX}${k}_${idx}`,
-          source: FF_NODE_PREFIX,
-          sourceHandle: `${HANDLE_PREFIX}${PLUGIN_PREFIX}${pIdx}`,
-          target: `${PLUGIN_PREFIX}${k}_${idx}`,
-          style: edgeStyle,
-          markerEnd: {
-            type: MarkerType.ArrowClosed,
-            color: FFColors.Orange,
-          },
-          label: i18next.t(k),
-          labelBgPadding: [8, 4],
-          labelBgBorderRadius: 4,
-          labelBgStyle: {
-            fill: '#1e242a',
-            fillOpacity: 0.97,
-          },
-          labelStyle: { fill: '#FFFFFF', fontWeight: 700 },
-        };
-      })
-    );
+    if (k !== 'events') {
+      edges = edges.concat(
+        v.map((_, idx) => {
+          let edge: Edge = {
+            id: `${PLUGIN_PREFIX}${FF_NODE_PREFIX}${k}_${idx}`,
+            source: FF_NODE_PREFIX,
+            sourceHandle: `${HANDLE_PREFIX}${PLUGIN_PREFIX}${pIdx}`,
+            target: `${PLUGIN_PREFIX}${k}_${idx}`,
+            style: edgeStyle,
+          };
+
+          if (!isSmall) {
+            edge = {
+              ...edge,
+              label: i18next.t(k),
+              labelBgPadding: [8, 4],
+              labelBgBorderRadius: 4,
+              labelBgStyle: {
+                fill: '#1e242a',
+                fillOpacity: 0.97,
+              },
+              labelStyle: { fill: '#FFFFFF', fontWeight: 700 },
+            };
+          }
+
+          return edge;
+        })
+      );
+    }
   });
 
   return edges;
@@ -203,11 +229,14 @@ const nodeTypes: NodeTypes = {
 };
 
 interface Props {
-  applications: IWebsocketConnection[];
   plugins: IStatus['plugins'];
+  isSmall?: boolean;
 }
 
-export const MyNodeDiagram: React.FC<Props> = ({ applications, plugins }) => {
+export const MyNodeDiagram: React.FC<Props> = ({
+  plugins,
+  isSmall = false,
+}) => {
   const { nodeName } = useContext(ApplicationContext);
   const [isMounted, setIsMounted] = useState(false);
 
@@ -219,19 +248,15 @@ export const MyNodeDiagram: React.FC<Props> = ({ applications, plugins }) => {
   }, []);
 
   const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-    makeInitialNodes(applications, plugins, nodeName),
-    makeInitialEdges(applications, plugins)
+    makeInitialNodes(plugins, plugins, nodeName),
+    makeInitialEdges(plugins, plugins, isSmall),
+    isSmall
   );
 
   const [nodes, , onNodesChange] = useNodesState(layoutedNodes);
   const [edges, , onEdgesChange] = useEdgesState(layoutedEdges);
 
-  if (
-    !plugins ||
-    !applications ||
-    applications.length === 0 ||
-    Object.keys(plugins ?? {}).length === 0
-  ) {
+  if (!plugins || Object.keys(plugins ?? {}).length === 0) {
     return (
       <Box
         borderRadius={DEFAULT_BORDER_RADIUS}
