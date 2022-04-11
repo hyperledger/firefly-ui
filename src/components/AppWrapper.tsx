@@ -91,7 +91,7 @@ export const AppWrapper: React.FC = () => {
 
   const setTimeSearchParam = (timeFilter: TimeFilterEnum) => {
     searchParams.set(TIME_QUERY_KEY, timeFilter);
-    setSearchParams(searchParams);
+    setSearchParams(searchParams, { replace: true });
     if (
       getTimeFilterObject(timeFilter).filterShortString !==
       dateFilter?.filterShortString
@@ -113,10 +113,10 @@ export const AppWrapper: React.FC = () => {
   const setSlideSearchParam = (slideID: string | null) => {
     if (slideID === null) {
       searchParams.delete(SLIDE_QUERY_KEY);
-      setSearchParams(searchParams);
+      setSearchParams(searchParams, { replace: true });
     } else {
       searchParams.set(SLIDE_QUERY_KEY, slideID);
-      setSearchParams(searchParams);
+      setSearchParams(searchParams, { replace: true });
       setSlideID(slideID);
     }
   };
@@ -129,7 +129,7 @@ export const AppWrapper: React.FC = () => {
 
   const addFilterToParams = (filter: string) => {
     searchParams.append(FILTERS_QUERY_KEY, filter);
-    setSearchParams(searchParams);
+    setSearchParams(searchParams, { replace: true });
     const filterArray = searchParams.getAll(FILTERS_QUERY_KEY);
     setFilterArray(filterArray);
     setFilterString(`&${filterArray.join('&')}`);
@@ -137,7 +137,7 @@ export const AppWrapper: React.FC = () => {
 
   const clearAllFilters = () => {
     searchParams.delete(FILTERS_QUERY_KEY);
-    setSearchParams(searchParams);
+    setSearchParams(searchParams, { replace: true });
     setFilterArray([]);
     setFilterString('');
   };
@@ -151,7 +151,7 @@ export const AppWrapper: React.FC = () => {
           searchParams.append(FILTERS_QUERY_KEY, f);
         }
       });
-      setSearchParams(searchParams);
+      setSearchParams(searchParams, { replace: true });
       const filterArray = searchParams.getAll(FILTERS_QUERY_KEY);
       setFilterArray(filterArray);
       setFilterString(`&${filterArray.join('&')}`);
