@@ -460,6 +460,7 @@ export interface IStatus {
     blockchain: IStatusPluginDetails[];
     database: IStatusPluginDetails[];
     dataExchange: IStatusPluginDetails[];
+    events: IStatusPluginDetails[];
     identity: IStatusPluginDetails[];
     sharedStorage: IStatusPluginDetails[];
     tokens: IStatusPluginDetails[];
@@ -467,7 +468,8 @@ export interface IStatus {
 }
 
 export interface IStatusPluginDetails {
-  connection: string;
+  name?: string;
+  pluginType: string;
 }
 
 export interface ISubscription {
