@@ -2,6 +2,7 @@ import { RouteObject } from 'react-router-dom';
 import { NAMESPACES_PATH } from '../../interfaces';
 import { MyNodeDashboard } from './views/Dashboard';
 import { MyNodeSubscriptions } from './views/Subscriptions';
+import { MyNodeWebsockets } from './views/Websockets';
 
 export const MyNodeRoutes: RouteObject = {
   path: `${NAMESPACES_PATH}/:namespace/myNode`,
@@ -14,6 +15,10 @@ export const MyNodeRoutes: RouteObject = {
     {
       path: 'subscriptions',
       element: <MyNodeSubscriptions />,
+    },
+    {
+      path: 'websockets',
+      element: <MyNodeWebsockets />,
     },
   ],
 };

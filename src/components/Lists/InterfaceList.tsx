@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { IContractInterface } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
-import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
 import { FFSkeletonList } from './FFSkeletonList';
@@ -54,15 +53,9 @@ export const InterfaceList: React.FC<Props> = ({ cInterface }) => {
 
   return (
     <>
-      {!cInterface ? (
-        <FFCircleLoader color="warning" />
-      ) : (
-        <>
-          {dataList.map((d, idx) => (
-            <FFListItem key={idx} item={d} />
-          ))}
-        </>
-      )}
+      {dataList.map((d, idx) => (
+        <FFListItem key={idx} item={d} />
+      ))}
     </>
   );
 };

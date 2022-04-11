@@ -17,22 +17,20 @@
 import { Grid } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ISubscription } from '../../interfaces';
+import { IWebsocketConnection } from '../../interfaces';
 import { DEFAULT_PADDING } from '../../theme';
 import { JsonViewAccordion } from '../Accordions/JsonViewerAccordion';
-import { SubList } from '../Lists/SubList';
-import { SubOptionsList } from '../Lists/SubOptionsList';
+import { WebsocketList } from '../Lists/WebsocketList';
 import { DisplaySlide } from './DisplaySlide';
 import { SlideHeader } from './SlideHeader';
-import { SlideSectionHeader } from './SlideSectionHeader';
 
 interface Props {
-  sub: ISubscription;
+  ws: IWebsocketConnection;
   open: boolean;
   onClose: () => void;
 }
 
-export const SubscriptionSlide: React.FC<Props> = ({ sub, open, onClose }) => {
+export const WebsocketSlide: React.FC<Props> = ({ ws, open, onClose }) => {
   const { t } = useTranslation();
 
   return (
@@ -40,26 +38,18 @@ export const SubscriptionSlide: React.FC<Props> = ({ sub, open, onClose }) => {
       <DisplaySlide open={open} onClose={onClose}>
         <Grid container direction="column" p={DEFAULT_PADDING}>
           {/* Header */}
-          <SlideHeader subtitle={t('subscription')} title={sub.name} />
+          <SlideHeader subtitle={t('websocket')} title={ws.remoteAddress} />
           {/* Data list */}
-          <Grid container item>
-            <SubList sub={sub} />
-          </Grid>
-          {/* Filter options */}
           <Grid container item pb={DEFAULT_PADDING}>
-            <SlideSectionHeader title={t('options')} />
-            <SubOptionsList options={sub.options} />
+            <WebsocketList ws={ws} />
           </Grid>
-
-          {sub.filter && (
-            <Grid container item pb={DEFAULT_PADDING}>
-              <JsonViewAccordion
-                isOpen
-                header={t('filter')}
-                json={sub.filter}
-              />
-            </Grid>
-          )}
+        </Grid>
+        <Grid container item>
+          <JsonViewAccordion
+            isOpen
+            header={t('subscriptions')}
+            json={ws.subscriptions}
+          />
         </Grid>
       </DisplaySlide>
     </>

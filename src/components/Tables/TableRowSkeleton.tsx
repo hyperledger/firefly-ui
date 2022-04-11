@@ -20,9 +20,13 @@ import { DEFAULT_BORDER_RADIUS } from '../../theme';
 
 interface Props {
   numColumns: number;
+  noSkeleton?: boolean;
 }
 
-export const TableRowSkeleton: React.FC<Props> = ({ numColumns }) => {
+export const TableRowSkeleton: React.FC<Props> = ({
+  numColumns,
+  noSkeleton = false,
+}) => {
   return (
     <TableRow
       sx={{
@@ -49,7 +53,7 @@ export const TableRowSkeleton: React.FC<Props> = ({ numColumns }) => {
               borderBottomColor: 'background.default',
             }}
           >
-            <Skeleton width="50%" />
+            {!noSkeleton && <Skeleton width="50%" />}
           </TableCell>
         );
       })}

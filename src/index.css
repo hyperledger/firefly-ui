@@ -19,3 +19,8 @@ pre {
   white-space: -o-pre-wrap;
   word-wrap: break-word;
 }
+
+/* Remove react flow watermark */
+.react-flow__attribution {
+  display: none;
+}

@@ -153,6 +153,17 @@ export const DataTable: React.FC<Props> = ({
                           />
                         );
                       })}
+                  {records &&
+                    rowsPerPage &&
+                    Array.from(Array(rowsPerPage - records?.length)).map(
+                      (_, idx) => (
+                        <TableRowSkeleton
+                          key={idx}
+                          numColumns={columnHeaders?.length ?? 1}
+                          noSkeleton
+                        />
+                      )
+                    )}
                 </TableBody>
               </Table>
             </TableContainer>

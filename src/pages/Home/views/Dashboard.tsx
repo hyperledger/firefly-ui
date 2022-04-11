@@ -1,4 +1,4 @@
-import { Grid, Typography } from '@mui/material';
+import { Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -10,9 +10,10 @@ import { SkeletonCard } from '../../../components/Cards/EventCards/SkeletonCard'
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
+import { MyNodeDiagram } from '../../../components/Charts/MyNodeDiagram';
 import { Header } from '../../../components/Header';
+import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { NetworkMap } from '../../../components/NetworkMap/NetworkMap';
-import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { EventSlide } from '../../../components/Slides/EventSlide';
 import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
@@ -25,14 +26,15 @@ import {
   FF_EVENTS_CATEGORY_MAP,
   FF_NAV_PATHS,
   FF_OP_CATEGORY_MAP,
-  IDataWithHeader,
   IEvent,
   IFireFlyCard,
   IGenericPagedResponse,
   IMetric,
-  INode,
   ISmallCard,
+  IStatus,
   ITransaction,
+  IWebsocketConnection,
+  IWebsocketStatus,
   OpCategoryEnum,
 } from '../../../interfaces';
 import { FF_Paths } from '../../../interfaces/constants';
@@ -51,16 +53,8 @@ import { hasAnyEvent } from '../../../utils/wsEvents';
 
 export const HomeDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
-  const {
-    newEvents,
-    lastRefreshTime,
-    clearNewEvents,
-    nodeID,
-    nodeName,
-    orgID,
-    orgName,
-    selectedNamespace,
-  } = useContext(ApplicationContext);
+  const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
+    useContext(ApplicationContext);
   const { dateFilter } = useContext(DateFilterContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
@@ -90,12 +84,22 @@ export const HomeDashboard: () => JSX.Element = () => {
   // Medium cards
   // Event types histogram
   const [eventHistData, setEventHistData] = useState<BarDatum[]>();
-  // My Node
-  const [myNode, setMyNode] = useState<INode>();
   // Table cards
   const [recentEventTxs, setRecentEventTxs] = useState<IEvent[]>();
   const [recentEvents, setRecentEvents] = useState<IEvent[]>();
   const [isHistLoading, setIsHistLoading] = useState(false);
+
+  const [apps, setApps] = useState<IWebsocketConnection[]>();
+  const [plugins, setPlugins] = useState<IStatus['plugins']>();
+
+  const [isMyNodeLoading, setIsMyNodeLoading] = useState(true);
+
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
 
   useEffect(() => {
     setIsMounted(true);
@@ -259,33 +263,6 @@ export const HomeDashboard: () => JSX.Element = () => {
         });
   }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
-  const myNodeDetailsList: IDataWithHeader[] = [
-    {
-      header: t('nodeName'),
-      data: nodeName,
-    },
-    {
-      header: t('nodeID'),
-      data: nodeID,
-    },
-    {
-      header: t('orgName'),
-      data: orgName,
-    },
-    {
-      header: t('orgID'),
-      data: orgID,
-    },
-    {
-      header: t('profile'),
-      data: myNode?.profile?.id,
-    },
-    {
-      header: t('profileEndpoint'),
-      data: myNode?.profile?.endpoint,
-    },
-  ];
-
   const mediumCards: IFireFlyCard[] = [
     {
       headerComponent: (
@@ -320,26 +297,17 @@ export const HomeDashboard: () => JSX.Element = () => {
         <FFArrowButton link={FF_NAV_PATHS.myNodePath(selectedNamespace)} />
       ),
       headerText: t('myNode'),
-      component: (
-        <Grid container item>
-          {myNodeDetailsList.map((data, idx) => (
-            <React.Fragment key={idx}>
-              <Grid
-                item
-                xs={6}
-                pb={2}
-                pr={idx % 2 === 0 ? 1 : 0}
-                pl={idx % 2 === 1 ? 1 : 0}
-              >
-                <Typography pb={1} noWrap variant="body2">
-                  {data.header}
-                </Typography>
-                <HashPopover address={data.data?.toString() ?? ''} />
-              </Grid>
-            </React.Fragment>
-          ))}
-        </Grid>
-      ),
+      component:
+        !isMyNodeLoading &&
+        apps &&
+        apps.length > 0 &&
+        plugins &&
+        Object.keys(plugins ?? {}).length > 0 &&
+        isMounted ? (
+          <MyNodeDiagram applications={apps} plugins={plugins} />
+        ) : (
+          <FFCircleLoader color="warning" height="100%" />
+        ),
     },
   ];
 
@@ -365,15 +333,30 @@ export const HomeDashboard: () => JSX.Element = () => {
           reportFetchError(err);
         })
         .finally(() => setIsHistLoading(false));
-      fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.networkNodeById(nodeID)}`)
-        .then((nodeRes: INode) => {
-          setMyNode(nodeRes);
+    }
+  }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
+
+  // useEffect for myNodeChart
+  useEffect(() => {
+    setIsMyNodeLoading(true);
+    if (isMounted) {
+      fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.statusWebsockets}`)
+        .then((wsRes: IWebsocketStatus) => {
+          isMounted && setApps(wsRes.connections);
         })
         .catch((err) => {
           reportFetchError(err);
         });
+      fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.status}`)
+        .then((statusRes: IStatus) => {
+          isMounted && setPlugins(statusRes.plugins);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+      setIsMyNodeLoading(false);
     }
-  }, [selectedNamespace, dateFilter, lastRefreshTime, nodeID, isMounted]);
+  }, [selectedNamespace, isMounted]);
 
   const skeletonList = () => (
     <>

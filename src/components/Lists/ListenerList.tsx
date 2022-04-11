@@ -5,7 +5,6 @@ import { IContractListener } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { InterfaceButton } from '../Buttons/InterfaceButton';
-import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
 import { FFListTimestamp } from './FFListTimestamp';
@@ -78,15 +77,9 @@ export const ListenerList: React.FC<Props> = ({ listener }) => {
 
   return (
     <>
-      {!listener ? (
-        <FFCircleLoader color="warning" />
-      ) : (
-        <>
-          {dataList.map((d, idx) => (
-            <FFListItem key={idx} item={d} />
-          ))}
-        </>
-      )}
+      {dataList.map((d, idx) => (
+        <FFListItem key={idx} item={d} />
+      ))}
     </>
   );
 };
