@@ -140,8 +140,8 @@ export const TransactionSlide: React.FC<Props> = ({
               <SlideSectionHeader title={t('recentOperations')} />
               <Grid container item>
                 {txOperations?.map((op, idx) => (
-                  <Grid width={'100%'} item pb={1}>
-                    <OperationAccordion key={idx} op={op} />
+                  <Grid width={'100%'} key={idx} item pb={1}>
+                    <OperationAccordion op={op} />
                   </Grid>
                 ))}
               </Grid>

@@ -100,7 +100,7 @@ const makeInitialNodes = (
         sourcePosition: Position.Right,
         type: 'input',
         style: nodeStyle,
-        data: { label: getShortHash(a.id) },
+        data: { label: a.remoteAddress },
         position,
       };
     })
