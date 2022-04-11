@@ -1,4 +1,5 @@
-import { Grid, Typography } from '@mui/material';
+import { ArrowForward } from '@mui/icons-material';
+import { Grid, IconButton, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { IFireFlyCard } from '../../interfaces';
 import { DEFAULT_BORDER_RADIUS } from '../../theme';
@@ -35,7 +36,27 @@ export const FireFlyCard: React.FC<Props> = ({
         <Grid item>
           <Typography sx={{ fontWeight: 'bold' }}>{card.headerText}</Typography>
         </Grid>
-        <Grid item>{card.headerComponent}</Grid>
+        {
+          <Grid item>
+            {card.headerComponent ? (
+              card.headerComponent
+            ) : (
+              // Fake icon button
+              <IconButton
+                sx={{
+                  color: 'background.paper',
+                  backgroundColor: 'background.paper',
+                  '&:disabled': {
+                    color: 'background.paper',
+                  },
+                }}
+                disabled
+              >
+                <ArrowForward />
+              </IconButton>
+            )}
+          </Grid>
+        }
       </Grid>
       <Grid
         container

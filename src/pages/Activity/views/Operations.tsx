@@ -186,7 +186,7 @@ export const ActivityOperations: () => JSX.Element = () => {
         value: <FFTableText color="primary" text={op.plugin} />,
       },
       {
-        value: <HashPopover shortHash={true} address={op.id}></HashPopover>,
+        value: <HashPopover address={op.id}></HashPopover>,
       },
       {
         value: <HashPopover shortHash={true} address={op.tx}></HashPopover>,

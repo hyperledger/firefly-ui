@@ -456,6 +456,18 @@ export interface IStatus {
   defaults: {
     namespace: string;
   };
+  plugins: {
+    blockchain: IStatusPluginDetails[];
+    database: IStatusPluginDetails[];
+    dataExchange: IStatusPluginDetails[];
+    identity: IStatusPluginDetails[];
+    sharedStorage: IStatusPluginDetails[];
+    tokens: IStatusPluginDetails[];
+  };
+}
+
+export interface IStatusPluginDetails {
+  connection: string;
 }
 
 export interface ISubscription {
@@ -573,4 +585,22 @@ export interface ITxStatus {
 export interface IVerifier {
   type: string;
   value: string;
+}
+
+export interface IWebsocketStatus {
+  enabled: boolean;
+  connections: IWebsocketConnection[];
+}
+
+export interface IWebsocketConnection {
+  id: string;
+  remoteAddress: string;
+  userAgent: string;
+  subscriptions: IWebsocketSubscriptions[];
+}
+
+export interface IWebsocketSubscriptions {
+  ephemeral: boolean;
+  namespace: string;
+  name?: string;
 }

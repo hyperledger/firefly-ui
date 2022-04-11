@@ -30,6 +30,7 @@ import { TransferSlide } from '../../../components/Slides/TransferSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { MediumCardTable } from '../../../components/Tables/MediumCardTable';
 import { DataTable } from '../../../components/Tables/Table';
+import { FFJsonViewer } from '../../../components/Viewers/FFJsonViewer';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
@@ -177,21 +178,16 @@ export const PoolDetails: () => JSX.Element = () => {
     },
   ];
 
-  const poolAccountsColHeaders = [t('key'), t('balance'), t('lastUpdated')];
+  const poolAccountsColHeaders = [t('key'), t('balance')];
   const poolAccountsRecords: IDataTableRecord[] | undefined = poolAccounts?.map(
     (account, idx) => ({
       key: idx.toString(),
       columns: [
         {
-          value: <HashPopover address={account.key} />,
+          value: <HashPopover shortHash address={account.key} />,
         },
         {
           value: <FFTableText color="primary" text={account.balance} />,
-        },
-        {
-          value: (
-            <FFTableText color="secondary" text={getFFTime(account.updated)} />
-          ),
         },
       ],
     })
@@ -212,6 +208,11 @@ export const PoolDetails: () => JSX.Element = () => {
         stickyHeader={true}
       ></MediumCardTable>
     ),
+  };
+
+  const infoCard = {
+    headerText: t('poolInfo'),
+    component: pool?.info && <FFJsonViewer json={pool?.info} />,
   };
 
   const tokenTransferColHeaders = [
@@ -295,7 +296,7 @@ export const PoolDetails: () => JSX.Element = () => {
           direction="row"
           justifyContent="flex-center"
           alignItems="flex-start"
-          xs={6}
+          xs={5}
           pr={DEFAULT_PADDING}
         >
           {/* Pool Card */}
@@ -338,17 +339,37 @@ export const PoolDetails: () => JSX.Element = () => {
         </Grid>
         {/* Right hand side */}
         <Grid
+          container
+          item
+          direction="row"
+          justifyContent="flex-start"
+          alignItems="flex-start"
+          xs={4}
+        >
+          {/* Transfers */}
+          <Grid
+            direction="row"
+            alignItems="center"
+            justifyContent="center"
+            container
+            item
+            height="100%"
+          >
+            <FireFlyCard height="100%" card={infoCard} />
+          </Grid>
+        </Grid>
+        <Grid
           pl={DEFAULT_PADDING}
           container
           item
           direction="row"
           justifyContent="flex-center"
           alignItems="flex-start"
-          xs={6}
+          xs={3}
         >
-          {/* Transfers */}
+          {/* Accounts */}
           <Grid
-            direction="column"
+            direction="row"
             alignItems="center"
             justifyContent="center"
             container

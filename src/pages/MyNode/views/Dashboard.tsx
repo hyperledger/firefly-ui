@@ -14,26 +14,29 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Grid } from '@mui/material';
+import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { Diagram } from '../../../components/Charts/Diagram';
+import { MyNodeDiagram } from '../../../components/Charts/MyNodeDiagram';
 import { Header } from '../../../components/Header';
-import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
-import { FF_Paths, INode, IOrganization } from '../../../interfaces';
+import {
+  FF_Paths,
+  IStatus,
+  IWebsocketConnection,
+  IWebsocketStatus,
+} from '../../../interfaces';
 import { DEFAULT_PADDING } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
 
 export const MyNodeDashboard: () => JSX.Element = () => {
-  const { nodeID, orgID } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
+  const [apps, setApps] = useState<IWebsocketConnection[]>();
+  const [plugins, setPlugins] = useState<IStatus['plugins']>();
+  const [isLoading, setIsLoading] = useState(true);
+
   const [isMounted, setIsMounted] = useState(false);
-  // Node
-  const [node, setNode] = useState<INode>();
-  // Org
-  const [org, setOrg] = useState<IOrganization>();
 
   useEffect(() => {
     setIsMounted(true);
@@ -42,25 +45,26 @@ export const MyNodeDashboard: () => JSX.Element = () => {
     };
   }, []);
 
-  // Nodes and Orgs
   useEffect(() => {
+    setIsLoading(true);
     if (isMounted) {
-      fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.networkNodeById(nodeID)}`)
-        .then((nodeRes: INode) => {
-          isMounted && setNode(nodeRes);
+      fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.statusWebsockets}`)
+        .then((wsRes: IWebsocketStatus) => {
+          isMounted && setApps(wsRes.connections);
         })
         .catch((err) => {
           reportFetchError(err);
         });
-      fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.networkOrgById(orgID)}`)
-        .then((orgRes: IOrganization) => {
-          isMounted && setOrg(orgRes);
+      fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.status}`)
+        .then((statusRes: IStatus) => {
+          isMounted && setPlugins(statusRes.plugins);
         })
         .catch((err) => {
           reportFetchError(err);
         });
+      setIsLoading(false);
     }
-  }, [nodeID, orgID, isMounted]);
+  }, [isMounted]);
 
   return (
     <>
@@ -72,9 +76,14 @@ export const MyNodeDashboard: () => JSX.Element = () => {
       ></Header>
       <Grid container px={DEFAULT_PADDING}>
         <Grid height="700px" container item wrap="nowrap" direction="column">
-          <Box height={'100%'}>
-            <Diagram data={[]} isLoading={false} />
-          </Box>
+          {!isLoading &&
+            apps &&
+            apps.length > 0 &&
+            plugins &&
+            Object.keys(plugins ?? {}).length > 0 &&
+            isMounted && (
+              <MyNodeDiagram applications={apps} plugins={plugins} />
+            )}
         </Grid>
       </Grid>
     </>

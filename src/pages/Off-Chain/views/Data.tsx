@@ -119,6 +119,7 @@ export const OffChainData: () => JSX.Element = () => {
     t('blobName'),
     t('blobSize'),
     t('created'),
+    t(''),
   ];
 
   const dataRecords: IDataTableRecord[] | undefined = data?.map((d) => ({

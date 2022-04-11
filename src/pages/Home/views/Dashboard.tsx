@@ -10,8 +10,9 @@ import { SkeletonCard } from '../../../components/Cards/EventCards/SkeletonCard'
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
-import { Diagram } from '../../../components/Charts/Diagram';
+import { MyNodeDiagram } from '../../../components/Charts/MyNodeDiagram';
 import { Header } from '../../../components/Header';
+import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { NetworkMap } from '../../../components/NetworkMap/NetworkMap';
 import { EventSlide } from '../../../components/Slides/EventSlide';
 import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
@@ -30,7 +31,10 @@ import {
   IGenericPagedResponse,
   IMetric,
   ISmallCard,
+  IStatus,
   ITransaction,
+  IWebsocketConnection,
+  IWebsocketStatus,
   OpCategoryEnum,
 } from '../../../interfaces';
 import { FF_Paths } from '../../../interfaces/constants';
@@ -84,6 +88,18 @@ export const HomeDashboard: () => JSX.Element = () => {
   const [recentEventTxs, setRecentEventTxs] = useState<IEvent[]>();
   const [recentEvents, setRecentEvents] = useState<IEvent[]>();
   const [isHistLoading, setIsHistLoading] = useState(false);
+
+  const [apps, setApps] = useState<IWebsocketConnection[]>();
+  const [plugins, setPlugins] = useState<IStatus['plugins']>();
+
+  const [isMyNodeLoading, setIsMyNodeLoading] = useState(true);
+
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
 
   useEffect(() => {
     setIsMounted(true);
@@ -281,7 +297,17 @@ export const HomeDashboard: () => JSX.Element = () => {
         <FFArrowButton link={FF_NAV_PATHS.myNodePath(selectedNamespace)} />
       ),
       headerText: t('myNode'),
-      component: <Diagram data={[]} isLoading={false} />,
+      component:
+        !isMyNodeLoading &&
+        apps &&
+        apps.length > 0 &&
+        plugins &&
+        Object.keys(plugins ?? {}).length > 0 &&
+        isMounted ? (
+          <MyNodeDiagram applications={apps} plugins={plugins} />
+        ) : (
+          <FFCircleLoader color="warning" height="100%" />
+        ),
     },
   ];
 
@@ -309,6 +335,28 @@ export const HomeDashboard: () => JSX.Element = () => {
         .finally(() => setIsHistLoading(false));
     }
   }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
+
+  // useEffect for myNodeChart
+  useEffect(() => {
+    setIsMyNodeLoading(true);
+    if (isMounted) {
+      fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.statusWebsockets}`)
+        .then((wsRes: IWebsocketStatus) => {
+          isMounted && setApps(wsRes.connections);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+      fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.status}`)
+        .then((statusRes: IStatus) => {
+          isMounted && setPlugins(statusRes.plugins);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+      setIsMyNodeLoading(false);
+    }
+  }, [selectedNamespace, isMounted]);
 
   const skeletonList = () => (
     <>

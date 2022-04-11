@@ -42,7 +42,7 @@ export const DataTableEmptyState: React.FC<Props> = ({
 }) => {
   return (
     <>
-      <Grid item xs={12} container mt={2}>
+      <Grid item xs={12} container>
         <TableContainer sx={{ whiteSpace: 'nowrap' }}>
           <Table stickyHeader={stickyHeader}>
             <TableHead>
@@ -70,7 +70,14 @@ export const DataTableEmptyState: React.FC<Props> = ({
             </TableHead>
           </Table>
         </TableContainer>
-        <Paper sx={{ height: '100%', width: '100%' }}>
+        <Paper
+          sx={{
+            height: '100%',
+            width: '100%',
+            backgroundColor: 'background.paper',
+          }}
+          elevation={0}
+        >
           <Grid
             container
             item

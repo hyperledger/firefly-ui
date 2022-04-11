@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IMessage } from '../../interfaces';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
+import { FF_NAV_PATHS, IMessage } from '../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../interfaces/enums/transactionTypes';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
+import { LaunchButton } from '../Buttons/LaunchButton';
 import { MsgStatusChip } from '../Chips/MsgStatusChip';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
@@ -16,6 +18,7 @@ interface Props {
 }
 
 export const MessageList: React.FC<Props> = ({ message }) => {
+  const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
   const [dataList, setDataList] = useState<IDataListItem[]>(FFSkeletonList);
 
@@ -71,6 +74,21 @@ export const MessageList: React.FC<Props> = ({ message }) => {
           button: message.header.topics ? (
             <FFCopyButton value={message.header.topics.toString()} />
           ) : undefined,
+        },
+        {
+          label: t('batchID'),
+          value: <FFListText color="primary" text={message.batch} />,
+          button: (
+            <>
+              <LaunchButton
+                link={FF_NAV_PATHS.offchainBatchesPath(
+                  selectedNamespace,
+                  message.batch
+                )}
+              />
+              <FFCopyButton value={message.batch} />
+            </>
+          ),
         },
         {
           label: t('status'),
