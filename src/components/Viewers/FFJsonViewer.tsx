@@ -22,7 +22,7 @@ export const FFJsonViewer: React.FC<Props> = ({ json }) => {
 
   return typeof json === 'object' && isValidJson(json) ? (
     <ReactJson
-      theme={'pop'}
+      theme={'eighties'}
       style={{
         backgroundColor: 'transparent',
         fontSize: '12px',
