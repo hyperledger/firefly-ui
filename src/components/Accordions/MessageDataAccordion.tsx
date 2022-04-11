@@ -102,7 +102,7 @@ export const MessageDataAccordion: React.FC<Props> = ({
             <Grid container item direction="column">
               <FFAccordionText
                 color="primary"
-                text={t('dataValue')}
+                text={data.blob ? t('dataBlob') : t('dataValue')}
                 padding
                 isHeader
               />

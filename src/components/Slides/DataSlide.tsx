@@ -19,7 +19,7 @@ import React from 'react';
 import { useTranslation } from 'react-i18next';
 import { IData } from '../../interfaces';
 import { DEFAULT_PADDING } from '../../theme';
-import { JsonViewAccordion } from '../Accordions/JsonViewerAccordion';
+import { DataViewAccordion } from '../Accordions/DataViewerAccordion';
 import { DataList } from '../Lists/DataList';
 import { DisplaySlide } from './DisplaySlide';
 import { SlideHeader } from './SlideHeader';
@@ -46,10 +46,10 @@ export const DataSlide: React.FC<Props> = ({ data, open, onClose }) => {
           {/* Value */}
           {data.value && (
             <Grid container item pb={DEFAULT_PADDING}>
-              <JsonViewAccordion
+              <DataViewAccordion
                 isOpen
-                header={t('dataValue')}
-                json={data.value}
+                header={data.blob ? t('dataBlob') : t('dataValue')}
+                data={data}
               />
             </Grid>
           )}
