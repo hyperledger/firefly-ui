@@ -72,7 +72,7 @@ export const NetworkMap: React.FC<Props> = ({ size }) => {
     left: number;
   }>();
   const [popoverNode, setPopoverNode] = useState<any>(undefined);
-  const [anchorEl, setAnchorEl] = React.useState(null);
+  const [anchorEl, setAnchorEl] = useState(null);
   const handleClick = (node: any, event: any) => {
     setAnchorPosition({
       top: node.x,
