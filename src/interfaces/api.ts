@@ -476,7 +476,11 @@ export interface ISubscription {
   name: string;
   transport: string;
   filter?: any;
-  options?: any;
+  options: {
+    firstEvent: string;
+    readAhead: number;
+    withData: boolean;
+  };
   created: string;
   updated: string | null;
 }

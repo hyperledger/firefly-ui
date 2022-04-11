@@ -8,7 +8,6 @@ import { MsgButton } from '../Buttons/MsgButton';
 import { PoolButton } from '../Buttons/PoolButton';
 import { TxButton } from '../Buttons/TxButton';
 import { TxStatusChip } from '../Chips/TxStatusChip';
-import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
 import { FFListTimestamp } from './FFListTimestamp';
@@ -130,14 +129,8 @@ export const TransferList: React.FC<Props> = ({
 
   return (
     <>
-      {!transfer ? (
-        <FFCircleLoader color="warning" />
-      ) : (
-        <>
-          {dataList.map(
-            (d, idx) => d.label !== '' && <FFListItem key={idx} item={d} />
-          )}
-        </>
+      {dataList.map(
+        (d, idx) => d.label !== '' && <FFListItem key={idx} item={d} />
       )}
     </>
   );

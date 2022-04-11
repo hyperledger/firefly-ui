@@ -7,7 +7,6 @@ import { FFCopyButton } from '../Buttons/CopyButton';
 import { MsgButton } from '../Buttons/MsgButton';
 import { TxButton } from '../Buttons/TxButton';
 import { PoolStatusChip } from '../Chips/PoolStatusChip';
-import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
 import { FFListTimestamp } from './FFListTimestamp';
@@ -29,6 +28,23 @@ export const PoolList: React.FC<Props> = ({ pool }) => {
           label: t('id'),
           value: <FFListText color="primary" text={pool.id} />,
           button: <FFCopyButton value={pool.id} />,
+        },
+        {
+          label: t('standard'),
+          value: (
+            <>
+              <FFListText
+                color="primary"
+                text={`${pool.standard} (${pool.type})`}
+              />
+            </>
+          ),
+          button: <FFCopyButton value={pool.standard} />,
+        },
+        {
+          label: t('connector'),
+          value: <FFListText color="primary" text={pool.connector} />,
+          button: <FFCopyButton value={pool.connector} />,
         },
         {
           label: t('transactionID'),
@@ -75,15 +91,9 @@ export const PoolList: React.FC<Props> = ({ pool }) => {
 
   return (
     <>
-      {!pool ? (
-        <FFCircleLoader color="warning" />
-      ) : (
-        <>
-          {dataList.map((d, idx) => (
-            <FFListItem key={idx} item={d} />
-          ))}
-        </>
-      )}
+      {dataList.map((d, idx) => (
+        <FFListItem key={idx} item={d} />
+      ))}
     </>
   );
 };

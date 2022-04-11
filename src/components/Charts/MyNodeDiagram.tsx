@@ -158,7 +158,7 @@ const makeInitialEdges = (
           type: MarkerType.ArrowClosed,
           color: FFColors.Orange,
         },
-        label: 'Websocket',
+        label: i18next.t('websocket'),
         labelBgPadding: [8, 4],
         labelBgBorderRadius: 4,
         labelBgStyle: {

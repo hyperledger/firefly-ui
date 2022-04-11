@@ -31,6 +31,8 @@ export const MyNodeNav = () => {
   const myNodePath = FF_NAV_PATHS.myNodePath(selectedNamespace);
   const myNodeSubscriptionsPath =
     FF_NAV_PATHS.myNodeSubscriptionsPath(selectedNamespace);
+  const myNodeWebsocketsPath =
+    FF_NAV_PATHS.myNodeWebsocketsPath(selectedNamespace);
 
   const navItems: INavItem[] = [
     {
@@ -42,6 +44,11 @@ export const MyNodeNav = () => {
       name: t('subscriptions'),
       action: () => navigate(myNodeSubscriptionsPath),
       itemIsActive: pathname === myNodeSubscriptionsPath,
+    },
+    {
+      name: t('websockets'),
+      action: () => navigate(myNodeWebsocketsPath),
+      itemIsActive: pathname === myNodeWebsocketsPath,
     },
   ];
 

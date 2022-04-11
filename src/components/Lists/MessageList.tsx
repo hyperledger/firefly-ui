@@ -7,7 +7,6 @@ import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { LaunchButton } from '../Buttons/LaunchButton';
 import { MsgStatusChip } from '../Chips/MsgStatusChip';
-import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
 import { FFListTimestamp } from './FFListTimestamp';
@@ -104,15 +103,9 @@ export const MessageList: React.FC<Props> = ({ message }) => {
 
   return (
     <>
-      {!message ? (
-        <FFCircleLoader color="warning" />
-      ) : (
-        <>
-          {dataList.map((d, idx) => (
-            <FFListItem key={idx} item={d} />
-          ))}
-        </>
-      )}
+      {dataList.map((d, idx) => (
+        <FFListItem key={idx} item={d} />
+      ))}
     </>
   );
 };

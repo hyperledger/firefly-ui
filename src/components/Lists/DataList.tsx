@@ -3,7 +3,6 @@ import { useTranslation } from 'react-i18next';
 import { IData } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
-import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
 import { FFListTimestamp } from './FFListTimestamp';
@@ -44,15 +43,9 @@ export const DataList: React.FC<Props> = ({ data }) => {
 
   return (
     <>
-      {!data ? (
-        <FFCircleLoader color="warning" />
-      ) : (
-        <>
-          {dataList.map((d, idx) => (
-            <FFListItem key={idx} item={d} />
-          ))}
-        </>
-      )}
+      {dataList.map((d, idx) => (
+        <FFListItem key={idx} item={d} />
+      ))}
     </>
   );
 };
