@@ -16,7 +16,6 @@ import ReactFlow, {
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { IStatus, IWebsocketConnection } from '../../interfaces';
 import { DEFAULT_BORDER_RADIUS, FFColors } from '../../theme';
-import { getShortHash } from '../../utils';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { DiagramFireFlyNode } from './DiagramFireFlyNode';
 
