@@ -51,7 +51,7 @@ npm run start
 - [YouTube Channel](https://www.youtube.com/playlist?list=PL0MZ85B_96CFVEdBNsHRoX_f15AJacZJD)
   - Check out the architecture series
 - [Architecture reference documentation](https://hyperledger.github.io/firefly/architecture/node_component_architecture.html)
-  - Still evolving, and open for feedback - let us know what you think [on Rocket Chat](https://chat.hyperledger.org/channel/firefly)
+  - Join the discussion [on Discord](http://discord.gg/hyperledger)
 
 ## Git repositories
 
