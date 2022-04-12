@@ -67,7 +67,7 @@ import {
 } from '../../../theme';
 import {
   fetchCatcher,
-  fetchWithCredentials,
+  fetchPool,
   getFFTime,
   jsNumberForAddress,
 } from '../../../utils';
@@ -133,24 +133,6 @@ export const TokensDashboard: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
-
-  const fetchPool = async (
-    namespace: string,
-    id: string
-  ): Promise<ITokenPool | undefined> => {
-    if (poolCache.has(id)) {
-      return poolCache.get(id);
-    }
-    const response = await fetchWithCredentials(
-      `/api/v1/namespaces/${namespace}/tokens/pools/${id}`
-    );
-    if (!response.ok) {
-      return undefined;
-    }
-    const pool: ITokenPool = await response.json();
-    poolCache.set(id, pool);
-    return pool;
-  };
 
   useEffect(() => {
     if (isMounted && slideID) {
@@ -434,7 +416,12 @@ export const TokensDashboard: () => JSX.Element = () => {
       )
         .then(async (balances: ITokenBalance[]) => {
           for (const balance of balances) {
-            const pool = await fetchPool(selectedNamespace, balance.pool);
+            const pool = await fetchPool(
+              selectedNamespace,
+              balance.pool,
+              poolCache,
+              setPoolCache
+            );
             const balanceWithPoolName = {
               ...balance,
               poolName: pool ? pool.name : balance.pool,

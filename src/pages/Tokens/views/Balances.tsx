@@ -36,11 +36,10 @@ import {
   IDataTableRecord,
   IPagedTokenBalanceResponse,
   ITokenBalance,
-  ITokenPool,
   ITokenBalanceWithPoolName,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, fetchWithCredentials, getFFTime } from '../../../utils';
+import { fetchCatcher, fetchPool, getFFTime } from '../../../utils';
 import { hasTransferEvent } from '../../../utils/wsEvents';
 import { PoolContext } from '../../../contexts/PoolContext';
 
@@ -73,24 +72,6 @@ export const TokensBalances: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
-
-  const fetchPool = async (
-    namespace: string,
-    id: string
-  ): Promise<ITokenPool | undefined> => {
-    if (poolCache.has(id)) {
-      return poolCache.get(id);
-    }
-    const response = await fetchWithCredentials(
-      `/api/v1/namespaces/${namespace}/tokens/pools/${id}`
-    );
-    if (!response.ok) {
-      return undefined;
-    }
-    const pool: ITokenPool = await response.json();
-    poolCache.set(id, pool);
-    return pool;
-  };
 
   useEffect(() => {
     if (isMounted && slideID) {
@@ -131,7 +112,12 @@ export const TokensBalances: () => JSX.Element = () => {
         .then(async (tokenBalancesRes: IPagedTokenBalanceResponse) => {
           setTokenBalancesTotal(tokenBalancesRes.total);
           for (const item of tokenBalancesRes.items) {
-            const pool = await fetchPool(selectedNamespace, item.pool);
+            const pool = await fetchPool(
+              selectedNamespace,
+              item.pool,
+              poolCache,
+              setPoolCache
+            );
             const balance = {
               ...item,
               poolName: pool ? pool.name : item.pool,

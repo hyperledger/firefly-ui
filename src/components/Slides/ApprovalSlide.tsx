@@ -17,7 +17,7 @@
 import { Grid } from '@mui/material';
 import React from 'react';
 import { useTranslation } from 'react-i18next';
-import { ITokenApproval } from '../../interfaces';
+import { ITokenApprovalWithPoolName } from '../../interfaces';
 import { DEFAULT_PADDING } from '../../theme';
 import { getShortHash } from '../../utils';
 import { ApprovalList } from '../Lists/ApprovalList';
@@ -25,7 +25,7 @@ import { DisplaySlide } from './DisplaySlide';
 import { SlideHeader } from './SlideHeader';
 
 interface Props {
-  approval: ITokenApproval;
+  approval: ITokenApprovalWithPoolName;
   open: boolean;
   onClose: () => void;
 }

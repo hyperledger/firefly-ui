@@ -505,6 +505,10 @@ export interface ITokenApproval {
   blockchainEvent: string;
 }
 
+export interface ITokenApprovalWithPoolName extends ITokenApproval {
+  poolName: string;
+}
+
 export interface ITokenBalance {
   pool: string;
   uri: string;

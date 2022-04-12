@@ -1,3 +1,6 @@
+import { Dispatch, SetStateAction } from 'react';
+import { ITokenPool } from '../interfaces';
+
 export const fetchWithCredentials = (
   resource: string,
   options?: RequestInit
@@ -47,4 +50,24 @@ export const summarizeFetchError = async (
     }
   }
   return message;
+};
+
+export const fetchPool = async (
+  namespace: string,
+  id: string,
+  poolCache: Map<string, ITokenPool>,
+  setPoolCache: Dispatch<SetStateAction<Map<string, ITokenPool>>>
+): Promise<ITokenPool | undefined> => {
+  if (poolCache.has(id)) {
+    return poolCache.get(id);
+  }
+  const response = await fetchWithCredentials(
+    `/api/v1/namespaces/${namespace}/tokens/pools/${id}`
+  );
+  if (!response.ok) {
+    return undefined;
+  }
+  const pool: ITokenPool = await response.json();
+  setPoolCache((poolCache) => new Map(poolCache.set(pool.id, pool)));
+  return pool;
 };

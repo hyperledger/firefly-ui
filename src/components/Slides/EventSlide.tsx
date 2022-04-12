@@ -25,9 +25,11 @@ import {
   FF_Paths,
   IData,
   IEvent,
+  ITokenApproval,
+  ITokenApprovalWithPoolName,
 } from '../../interfaces';
 import { DEFAULT_PADDING } from '../../theme';
-import { fetchCatcher } from '../../utils';
+import { fetchCatcher, fetchPool } from '../../utils';
 import { BlockchainEventAccordion } from '../Accordions/BlockchainEventAccordion';
 import { JsonViewAccordion } from '../Accordions/JsonViewerAccordion';
 import { MessageAccordion } from '../Accordions/MessageAccordion';
@@ -45,6 +47,7 @@ import { TxList } from '../Lists/TxList';
 import { DisplaySlide } from './DisplaySlide';
 import { SlideHeader } from './SlideHeader';
 import { SlideSectionHeader } from './SlideSectionHeader';
+import { PoolContext } from '../../contexts/PoolContext';
 
 interface Props {
   event: IEvent;
@@ -56,9 +59,12 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
   const { t } = useTranslation();
   const { selectedNamespace } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
+  const { poolCache, setPoolCache } = useContext(PoolContext);
   const [enrichedEvent, setEnrichedEvent] = useState<IEvent>();
   const [messageData, setMessageData] = useState<IData[]>();
   const { txID } = useParams<{ txID: string }>();
+  const [approvalWithName, setApprovalWithName] =
+    useState<ITokenApprovalWithPoolName>();
 
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
@@ -99,6 +105,31 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
           });
     }
   }, [enrichedEvent, isMounted]);
+
+  useEffect(() => {
+    if (enrichedEvent && isMounted && enrichedEvent['tokenApproval']) {
+      fetchPoolName(enrichedEvent.tokenApproval).then(
+        (approvalWithName: ITokenApprovalWithPoolName) => {
+          setApprovalWithName(approvalWithName);
+        }
+      );
+    }
+  }, [enrichedEvent, isMounted]);
+
+  const fetchPoolName = async (
+    approval: ITokenApproval
+  ): Promise<ITokenApprovalWithPoolName> => {
+    const pool = await fetchPool(
+      selectedNamespace,
+      approval.pool,
+      poolCache,
+      setPoolCache
+    );
+    return {
+      ...approval,
+      poolName: pool ? pool.name : approval.pool,
+    };
+  };
 
   return (
     <>
@@ -199,7 +230,7 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
             <>
               <SlideSectionHeader title={t('tokenApproval')} />
               <Grid container item>
-                <ApprovalList approval={enrichedEvent.tokenApproval} />
+                <ApprovalList approval={approvalWithName} />
               </Grid>
             </>
           )}
