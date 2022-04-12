@@ -515,6 +515,10 @@ export interface ITokenBalance {
   updated: string;
 }
 
+export interface ITokenBalanceWithPoolName extends ITokenBalance {
+  poolName: string;
+}
+
 export interface ITokenConnector {
   [key: string]: string;
 }

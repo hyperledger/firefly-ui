@@ -42,6 +42,7 @@ import {
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime, jsNumberForAddress } from '../../../utils';
 import { hasPoolEvent } from '../../../utils/wsEvents';
+import { PoolContext } from '../../../contexts/PoolContext';
 
 export const TokensPools: () => JSX.Element = () => {
   const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
@@ -50,6 +51,7 @@ export const TokensPools: () => JSX.Element = () => {
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
+  const { poolCache } = useContext(PoolContext);
   const { t } = useTranslation();
   const navigate = useNavigate();
   const [isMounted, setIsMounted] = useState(false);
@@ -57,7 +59,6 @@ export const TokensPools: () => JSX.Element = () => {
   const [tokenPools, setTokenPools] = useState<ITokenPool[]>();
   // Token pools totals
   const [tokenPoolsTotal, setTokenPoolsTotal] = useState(0);
-
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
@@ -67,6 +68,8 @@ export const TokensPools: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
+
+  console.log(poolCache);
 
   // Token pools
   useEffect(() => {

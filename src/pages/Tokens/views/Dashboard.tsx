@@ -34,6 +34,7 @@ import { MediumCardTable } from '../../../components/Tables/MediumCardTable';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { DateFilterContext } from '../../../contexts/DateFilterContext';
+import { PoolContext } from '../../../contexts/PoolContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
@@ -49,6 +50,7 @@ import {
   IPagedTokenTransferResponse,
   ISmallCard,
   ITokenBalance,
+  ITokenBalanceWithPoolName,
   ITokenPool,
   ITokenTransfer,
   POOLS_PATH,
@@ -63,7 +65,12 @@ import {
   DEFAULT_PAGE_LIMITS,
   DEFAULT_SPACING,
 } from '../../../theme';
-import { fetchCatcher, getFFTime, jsNumberForAddress } from '../../../utils';
+import {
+  fetchCatcher,
+  fetchWithCredentials,
+  getFFTime,
+  jsNumberForAddress,
+} from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -80,6 +87,7 @@ export const TokensDashboard: () => JSX.Element = () => {
   const { dateFilter } = useContext(DateFilterContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
+  const { poolCache, setPoolCache } = useContext(PoolContext);
   const navigate = useNavigate();
   const [isMounted, setIsMounted] = useState(false);
   // Small cards
@@ -100,7 +108,9 @@ export const TokensDashboard: () => JSX.Element = () => {
   // Transfer types histogram
   const [transferHistData, setTransferHistData] = useState<BarDatum[]>();
   // Token accounts
-  const [tokenBalances, setTokenBalances] = useState<ITokenBalance[]>();
+  const [tokenBalances, setTokenBalances] = useState<
+    ITokenBalanceWithPoolName[]
+  >([]);
   // Token pools
   const [tokenPools, setTokenPools] = useState<ITokenPool[]>();
   // Token transfers
@@ -123,6 +133,24 @@ export const TokensDashboard: () => JSX.Element = () => {
       setIsMounted(false);
     };
   }, []);
+
+  const fetchPool = async (
+    namespace: string,
+    id: string
+  ): Promise<ITokenPool | undefined> => {
+    if (poolCache.has(id)) {
+      return poolCache.get(id);
+    }
+    const response = await fetchWithCredentials(
+      `/api/v1/namespaces/${namespace}/tokens/pools/${id}`
+    );
+    if (!response.ok) {
+      return undefined;
+    }
+    const pool: ITokenPool = await response.json();
+    poolCache.set(id, pool);
+    return pool;
+  };
 
   useEffect(() => {
     if (isMounted && slideID) {
@@ -268,7 +296,7 @@ export const TokensDashboard: () => JSX.Element = () => {
           value: <HashPopover address={acct.key} />,
         },
         {
-          value: <HashPopover shortHash address={acct.pool} />,
+          value: <HashPopover shortHash address={acct.poolName} />,
         },
         {
           value: <FFTableText color="primary" text={acct.balance} />,
@@ -389,7 +417,14 @@ export const TokensDashboard: () => JSX.Element = () => {
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenPools}`
       )
         .then((pools: ITokenPool[]) => {
-          isMounted && setTokenPools(pools);
+          if (isMounted) {
+            setTokenPools(pools);
+            pools.map((pool) => {
+              setPoolCache(
+                (poolCache) => new Map(poolCache.set(pool.id, pool))
+              );
+            });
+          }
         })
         .catch((err) => {
           reportFetchError(err);
@@ -397,8 +432,19 @@ export const TokensDashboard: () => JSX.Element = () => {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenBalances}`
       )
-        .then((balances: ITokenBalance[]) => {
-          isMounted && setTokenBalances(balances);
+        .then(async (balances: ITokenBalance[]) => {
+          for (const balance of balances) {
+            const pool = await fetchPool(selectedNamespace, balance.pool);
+            const balanceWithPoolName = {
+              ...balance,
+              poolName: pool ? pool.name : balance.pool,
+            };
+            isMounted &&
+              setTokenBalances((tokenBalances) => [
+                ...tokenBalances,
+                balanceWithPoolName,
+              ]);
+          }
         })
         .catch((err) => {
           reportFetchError(err);
