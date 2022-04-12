@@ -30,11 +30,13 @@ import {
 } from './components/Snackbar/MessageSnackbar';
 import { ApplicationContext } from './contexts/ApplicationContext';
 import { SnackbarContext } from './contexts/SnackbarContext';
+import { PoolContext } from './contexts/PoolContext';
 import {
   FF_EVENTS,
   INamespace,
   INewEventSet,
   IStatus,
+  ITokenPool,
   NAMESPACES_PATH,
 } from './interfaces';
 import { FF_Paths } from './interfaces/constants';
@@ -61,6 +63,9 @@ const App: React.FC = () => {
   const [nodeID, setNodeID] = useState('');
   const [nodeName, setNodeName] = useState('');
   const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
+  const [poolCache, setPoolCache] = useState<Map<string, ITokenPool>>(
+    new Map()
+  );
   // Event Context
   const [newEvents, setNewEvents] = useState<INewEventSet>(makeNewEventMap());
   const [lastRefreshTime, setLastRefresh] = useState<string>(
@@ -191,18 +196,20 @@ const App: React.FC = () => {
           <SnackbarContext.Provider
             value={{ setMessage, setMessageType, reportFetchError }}
           >
-            <StyledEngineProvider injectFirst>
-              <ThemeProvider theme={theme}>
-                <CssBaseline>
-                  <Router />
-                  <MessageSnackbar
-                    {...{ message }}
-                    {...{ setMessage }}
-                    {...{ messageType }}
-                  />
-                </CssBaseline>
-              </ThemeProvider>
-            </StyledEngineProvider>
+            <PoolContext.Provider value={{ poolCache, setPoolCache }}>
+              <StyledEngineProvider injectFirst>
+                <ThemeProvider theme={theme}>
+                  <CssBaseline>
+                    <Router />
+                    <MessageSnackbar
+                      {...{ message }}
+                      {...{ setMessage }}
+                      {...{ messageType }}
+                    />
+                  </CssBaseline>
+                </ThemeProvider>
+              </StyledEngineProvider>
+            </PoolContext.Provider>
           </SnackbarContext.Provider>
         </ApplicationContext.Provider>
       );

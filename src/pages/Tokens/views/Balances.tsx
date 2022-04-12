@@ -36,10 +36,12 @@ import {
   IDataTableRecord,
   IPagedTokenBalanceResponse,
   ITokenBalance,
+  ITokenBalanceWithPoolName,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, getFFTime } from '../../../utils';
+import { fetchCatcher, fetchPool, getFFTime } from '../../../utils';
 import { hasTransferEvent } from '../../../utils/wsEvents';
+import { PoolContext } from '../../../contexts/PoolContext';
 
 export const KEY_POOL_DELIM = '||';
 
@@ -51,10 +53,13 @@ export const TokensBalances: () => JSX.Element = () => {
     useContext(FilterContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
+  const { poolCache, setPoolCache } = useContext(PoolContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
   // Token balances
-  const [tokenBalances, setTokenBalances] = useState<ITokenBalance[]>();
+  const [tokenBalances, setTokenBalances] = useState<
+    ITokenBalanceWithPoolName[]
+  >([]);
   // Token balances totals
   const [tokenBalancesTotal, setTokenBalancesTotal] = useState(0);
   const [viewBalance, setViewBalance] = useState<ITokenBalance>();
@@ -104,9 +109,21 @@ export const TokensBalances: () => JSX.Element = () => {
           dateFilter.filterString
         }${filterString ?? ''}`
       )
-        .then((tokenBalancesRes: IPagedTokenBalanceResponse) => {
-          setTokenBalances(tokenBalancesRes.items);
+        .then(async (tokenBalancesRes: IPagedTokenBalanceResponse) => {
           setTokenBalancesTotal(tokenBalancesRes.total);
+          for (const item of tokenBalancesRes.items) {
+            const pool = await fetchPool(
+              selectedNamespace,
+              item.pool,
+              poolCache,
+              setPoolCache
+            );
+            const balance = {
+              ...item,
+              poolName: pool ? pool.name : item.pool,
+            };
+            setTokenBalances((tokenBalances) => [...tokenBalances, balance]);
+          }
         })
         .catch((err) => {
           reportFetchError(err);
@@ -129,6 +146,7 @@ export const TokensBalances: () => JSX.Element = () => {
     t('connector'),
     t('updated'),
   ];
+
   const tokenBalanceRecords: IDataTableRecord[] | undefined =
     tokenBalances?.map((balance, idx) => ({
       key: idx.toString(),
@@ -140,7 +158,7 @@ export const TokensBalances: () => JSX.Element = () => {
           value: <FFTableText color="primary" text={balance.balance} />,
         },
         {
-          value: <HashPopover address={balance.pool} />,
+          value: <HashPopover address={balance.poolName} />,
         },
         {
           value: <HashPopover address={balance.uri} />,

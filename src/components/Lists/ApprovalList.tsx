@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { ITokenApproval } from '../../interfaces';
+import { ITokenApprovalWithPoolName } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { PoolButton } from '../Buttons/PoolButton';
@@ -11,7 +11,7 @@ import { FFListTimestamp } from './FFListTimestamp';
 import { FFSkeletonList } from './FFSkeletonList';
 
 interface Props {
-  approval?: ITokenApproval;
+  approval?: ITokenApprovalWithPoolName;
 }
 
 export const ApprovalList: React.FC<Props> = ({ approval }) => {
@@ -39,11 +39,11 @@ export const ApprovalList: React.FC<Props> = ({ approval }) => {
         },
         {
           label: t('pool'),
-          value: <FFListText color="primary" text={approval.pool} />,
+          value: <FFListText color="primary" text={approval.poolName} />,
           button: (
             <>
-              <PoolButton poolID={approval.pool} ns={selectedNamespace} />
-              <FFCopyButton value={approval.pool} />
+              <PoolButton poolID={approval.poolName} ns={selectedNamespace} />
+              <FFCopyButton value={approval.poolName} />
             </>
           ),
         },

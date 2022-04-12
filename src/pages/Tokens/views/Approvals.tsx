@@ -36,10 +36,12 @@ import {
   IDataTableRecord,
   IPagedTokenApprovalResponse,
   ITokenApproval,
+  ITokenApprovalWithPoolName,
 } from '../../../interfaces';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, getFFTime } from '../../../utils';
+import { fetchCatcher, fetchPool, getFFTime } from '../../../utils';
 import { hasApprovalEvent } from '../../../utils/wsEvents';
+import { PoolContext } from '../../../contexts/PoolContext';
 
 export const TokensApprovals: () => JSX.Element = () => {
   const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
@@ -49,13 +51,17 @@ export const TokensApprovals: () => JSX.Element = () => {
     useContext(FilterContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
+  const { poolCache, setPoolCache } = useContext(PoolContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
   // Token approvals
-  const [tokenApprovals, setTokenApprovals] = useState<ITokenApproval[]>();
+  const [tokenApprovals, setTokenApprovals] = useState<
+    ITokenApprovalWithPoolName[]
+  >([]);
   // Token approvals totals
   const [tokenApprovalsTotal, setTokenApprovalsTotal] = useState(0);
-  const [viewApproval, setViewApproval] = useState<ITokenApproval>();
+  const [viewApproval, setViewApproval] =
+    useState<ITokenApprovalWithPoolName>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
@@ -72,10 +78,21 @@ export const TokensApprovals: () => JSX.Element = () => {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenApprovals}?localid=${slideID}`
       )
-        .then((approvalRes: ITokenApproval[]) => {
-          isMounted &&
-            approvalRes.length === 1 &&
-            setViewApproval(approvalRes[0]);
+        .then(async (approvalRes: ITokenApproval[]) => {
+          if (isMounted && approvalRes.length === 1) {
+            const item = approvalRes[0];
+            const pool = await fetchPool(
+              selectedNamespace,
+              item.pool,
+              poolCache,
+              setPoolCache
+            );
+            const approvalWithPoolName: ITokenApprovalWithPoolName = {
+              ...item,
+              poolName: pool ? pool.name : item.pool,
+            };
+            setViewApproval(approvalWithPoolName);
+          }
         })
         .catch((err) => {
           reportFetchError(err);
@@ -93,8 +110,23 @@ export const TokensApprovals: () => JSX.Element = () => {
           dateFilter.filterString
         }${filterString ?? ''}`
       )
-        .then((tokenApprovalRes: IPagedTokenApprovalResponse) => {
-          setTokenApprovals(tokenApprovalRes.items);
+        .then(async (tokenApprovalRes: IPagedTokenApprovalResponse) => {
+          for (const item of tokenApprovalRes.items) {
+            const pool = await fetchPool(
+              selectedNamespace,
+              item.pool,
+              poolCache,
+              setPoolCache
+            );
+            const approval: ITokenApprovalWithPoolName = {
+              ...item,
+              poolName: pool ? pool.name : item.pool,
+            };
+            setTokenApprovals((tokenApprovals) => [
+              ...tokenApprovals,
+              approval,
+            ]);
+          }
           setTokenApprovalsTotal(tokenApprovalRes.total);
         })
         .catch((err) => {
@@ -133,7 +165,7 @@ export const TokensApprovals: () => JSX.Element = () => {
           value: <HashPopover address={approval.operator} />,
         },
         {
-          value: <HashPopover address={approval.pool} />,
+          value: <HashPopover address={approval.poolName} />,
         },
         {
           value: <HashPopover address={approval.protocolId} />,

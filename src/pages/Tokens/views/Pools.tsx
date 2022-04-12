@@ -57,7 +57,6 @@ export const TokensPools: () => JSX.Element = () => {
   const [tokenPools, setTokenPools] = useState<ITokenPool[]>();
   // Token pools totals
   const [tokenPoolsTotal, setTokenPoolsTotal] = useState(0);
-
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
