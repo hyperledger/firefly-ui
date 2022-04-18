@@ -28,7 +28,7 @@ export interface ISmallCard {
 }
 
 export interface IFireFlyCard {
-  headerComponent?: JSX.Element | string;
+  clickPath?: string;
   headerText: string;
   component: JSX.Element;
 }

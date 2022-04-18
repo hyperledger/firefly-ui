@@ -41,6 +41,7 @@ import {
   FF_TRANSFER_CATEGORY_MAP,
   IDataTableRecord,
   IFFBreadcrumb,
+  IFireFlyCard,
   IPagedTokenTransferResponse,
   ITokenBalance,
   ITokenPool,
@@ -193,13 +194,10 @@ export const PoolDetails: () => JSX.Element = () => {
     })
   );
 
-  const accountsCard = {
+  const accountsCard: IFireFlyCard = {
     headerText: t('accountsInPool'),
-    headerComponent: pool && (
-      <FFArrowButton
-        link={FF_NAV_PATHS.tokensBalancesPathByPool(selectedNamespace, pool.id)}
-      />
-    ),
+    clickPath:
+      pool && FF_NAV_PATHS.tokensBalancesPathByPool(selectedNamespace, pool.id),
     component: (
       <MediumCardTable
         records={poolAccountsRecords}

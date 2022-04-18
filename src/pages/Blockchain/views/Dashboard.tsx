@@ -289,7 +289,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
   const mediumCards: IFireFlyCard[] = [
     {
       headerText: t('recentBlockchainEvents'),
-      headerComponent: <FFArrowButton link={EVENTS_PATH} />,
+      clickPath: EVENTS_PATH,
       component: (
         <Histogram
           height={'100%'}
@@ -306,7 +306,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
     },
     {
       headerText: t('apis'),
-      headerComponent: <FFArrowButton link={APIS_PATH} />,
+      clickPath: APIS_PATH,
       component: (
         <MediumCardTable
           records={apiRecords}
@@ -317,7 +317,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
     },
     {
       headerText: t('contractListeners'),
-      headerComponent: <FFArrowButton link={LISTENERS_PATH} />,
+      clickPath: LISTENERS_PATH,
       component: (
         <MediumCardTable
           records={clRecords}

@@ -264,11 +264,7 @@ export const HomeDashboard: () => JSX.Element = () => {
 
   const mediumCards: IFireFlyCard[] = [
     {
-      headerComponent: (
-        <FFArrowButton
-          link={FF_NAV_PATHS.activityTimelinePath(selectedNamespace)}
-        />
-      ),
+      clickPath: FF_NAV_PATHS.activityTimelinePath(selectedNamespace),
       headerText: t('activity'),
       component: (
         <Histogram
@@ -285,16 +281,12 @@ export const HomeDashboard: () => JSX.Element = () => {
       ),
     },
     {
-      headerComponent: (
-        <FFArrowButton link={FF_NAV_PATHS.networkPath(selectedNamespace)} />
-      ),
+      clickPath: FF_NAV_PATHS.networkPath(selectedNamespace),
       headerText: t('networkMap'),
       component: <NetworkMap size="small"></NetworkMap>,
     },
     {
-      headerComponent: (
-        <FFArrowButton link={FF_NAV_PATHS.myNodePath(selectedNamespace)} />
-      ),
+      clickPath: FF_NAV_PATHS.myNodePath(selectedNamespace),
       headerText: t('myNode'),
       component:
         !isMyNodeLoading &&
@@ -369,11 +361,7 @@ export const HomeDashboard: () => JSX.Element = () => {
     // Recently submitted Transactions
     {
       headerText: t('myRecentTransactions'),
-      headerComponent: (
-        <FFArrowButton
-          link={FF_NAV_PATHS.activityTimelinePath(selectedNamespace)}
-        />
-      ),
+      clickPath: FF_NAV_PATHS.activityTimelinePath(selectedNamespace),
       component: (
         <>
           {recentEventTxs?.length === 0 ? (
@@ -422,11 +410,7 @@ export const HomeDashboard: () => JSX.Element = () => {
     // Recent Network Events
     {
       headerText: t('recentNetworkEvents'),
-      headerComponent: (
-        <FFArrowButton
-          link={FF_NAV_PATHS.activityTimelinePath(selectedNamespace)}
-        />
-      ),
+      clickPath: FF_NAV_PATHS.activityTimelinePath(selectedNamespace),
       component: (
         <>
           {recentEvents?.length === 0 ? (

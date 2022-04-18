@@ -329,7 +329,7 @@ export const TokensDashboard: () => JSX.Element = () => {
   const mediumCards: IFireFlyCard[] = [
     {
       headerText: t('tokenTransferTypes'),
-      headerComponent: <FFArrowButton link={TRANSFERS_PATH} />,
+      clickPath: TRANSFERS_PATH,
       component: (
         <Histogram
           height={'100%'}
@@ -346,7 +346,7 @@ export const TokensDashboard: () => JSX.Element = () => {
     },
     {
       headerText: t('accountBalances'),
-      headerComponent: <FFArrowButton link={BALANCES_PATH} />,
+      clickPath: BALANCES_PATH,
       component: (
         <MediumCardTable
           records={tokenAccountRecords}
@@ -357,7 +357,7 @@ export const TokensDashboard: () => JSX.Element = () => {
     },
     {
       headerText: t('tokenPools'),
-      headerComponent: <FFArrowButton link={POOLS_PATH} />,
+      clickPath: POOLS_PATH,
       component: (
         <MediumCardTable
           records={tokenPoolRecords}

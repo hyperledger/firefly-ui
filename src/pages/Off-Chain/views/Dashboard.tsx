@@ -259,7 +259,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
   const mediumCards: IFireFlyCard[] = [
     {
       headerText: t('recentMessages'),
-      headerComponent: <FFArrowButton link={MESSAGES_PATH} />,
+      clickPath: MESSAGES_PATH,
       component: (
         <Histogram
           height={'100%'}
@@ -276,7 +276,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
     },
     {
       headerText: t('recentData'),
-      headerComponent: <FFArrowButton link={DATA_PATH} />,
+      clickPath: DATA_PATH,
       component: (
         <MediumCardTable
           records={dataRecords}
@@ -287,7 +287,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
     },
     {
       headerText: t('datatypes'),
-      headerComponent: <FFArrowButton link={DATATYPES_PATH} />,
+      clickPath: DATATYPES_PATH,
       component: (
         <MediumCardTable
           records={dtRecords}

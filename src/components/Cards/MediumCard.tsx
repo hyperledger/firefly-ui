@@ -1,8 +1,8 @@
-import { ArrowForward } from '@mui/icons-material';
-import { Grid, IconButton, Typography } from '@mui/material';
+import { Grid, Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import { IFireFlyCard } from '../../interfaces';
 import { DEFAULT_BORDER_RADIUS } from '../../theme';
+import { FFArrowButton } from '../Buttons/FFArrowButton';
 
 type Props = {
   cardData: IFireFlyCard;
@@ -41,27 +41,7 @@ export const MediumCard: React.FC<Props> = ({ cardData }) => {
           <Typography sx={{ fontWeight: 'bold' }} noWrap>
             {cardData.headerText}
           </Typography>
-          {
-            <>
-              {cardData.headerComponent ? (
-                cardData.headerComponent
-              ) : (
-                // Fake icon button
-                <IconButton
-                  sx={{
-                    color: 'background.paper',
-                    backgroundColor: 'background.paper',
-                    '&:disabled': {
-                      color: 'background.paper',
-                    },
-                  }}
-                  disabled
-                >
-                  <ArrowForward />
-                </IconButton>
-              )}
-            </>
-          }
+          {cardData.clickPath && <FFArrowButton link={cardData.clickPath} />}
         </Grid>
         {/* Component */}
         <Grid

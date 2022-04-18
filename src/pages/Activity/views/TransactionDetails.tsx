@@ -20,7 +20,6 @@ import { useTranslation } from 'react-i18next';
 import { useLocation, useParams } from 'react-router-dom';
 import { FFBreadcrumb } from '../../../components/Breadcrumbs/FFBreadcrumb';
 import { FFCopyButton } from '../../../components/Buttons/CopyButton';
-import { FFArrowButton } from '../../../components/Buttons/FFArrowButton';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { OpCardWrapper } from '../../../components/Cards/EventCards/OpCardWrapper';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
@@ -156,9 +155,7 @@ export const TransactionDetails: () => JSX.Element = () => {
 
   const operationsCard: IFireFlyCard = {
     headerText: t('blockchainOperations'),
-    headerComponent: (
-      <FFArrowButton link={FF_NAV_PATHS.activityOpPath(selectedNamespace)} />
-    ),
+    clickPath: FF_NAV_PATHS.activityOpPath(selectedNamespace),
     component: (
       <>
         {!txOperations ? (
@@ -183,11 +180,7 @@ export const TransactionDetails: () => JSX.Element = () => {
 
   const networkEventsCard: IFireFlyCard = {
     headerText: t('events'),
-    headerComponent: (
-      <FFArrowButton
-        link={FF_NAV_PATHS.activityEventsPath(selectedNamespace)}
-      />
-    ),
+    clickPath: FF_NAV_PATHS.activityEventsPath(selectedNamespace),
     component: (
       <>
         {!txEvents ? (
