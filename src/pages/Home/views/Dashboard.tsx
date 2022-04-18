@@ -8,6 +8,7 @@ import { EmptyStateCard } from '../../../components/Cards/EmptyStateCard';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { SkeletonCard } from '../../../components/Cards/EventCards/SkeletonCard';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
+import { MediumCard } from '../../../components/Cards/MediumCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { MyNodeDiagram } from '../../../components/Charts/MyNodeDiagram';
@@ -517,21 +518,8 @@ export const HomeDashboard: () => JSX.Element = () => {
         </FFDashboardRowLayout>
         {/* Medium Cards */}
         <FFDashboardRowLayout>
-          {mediumCards.map((card) => {
-            return (
-              <Grid
-                key={card.headerText}
-                direction="column"
-                alignItems="center"
-                justifyContent="center"
-                container
-                item
-                md={12}
-                lg={4}
-              >
-                <FireFlyCard card={card} position="flex-start" />
-              </Grid>
-            );
+          {mediumCards.map((cardData) => {
+            return <MediumCard key={cardData.headerText} cardData={cardData} />;
           })}
         </FFDashboardRowLayout>
         {/* Tables */}

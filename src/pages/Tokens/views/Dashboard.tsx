@@ -14,7 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -22,7 +21,7 @@ import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
 import { useNavigate } from 'react-router-dom';
 import { FFArrowButton } from '../../../components/Buttons/FFArrowButton';
-import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
+import { MediumCard } from '../../../components/Cards/MediumCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { Header } from '../../../components/Header';
@@ -106,9 +105,8 @@ export const TokensDashboard: () => JSX.Element = () => {
   // Transfer types histogram
   const [transferHistData, setTransferHistData] = useState<BarDatum[]>();
   // Token accounts
-  const [tokenBalances, setTokenBalances] = useState<
-    ITokenBalanceWithPoolName[]
-  >([]);
+  const [tokenBalances, setTokenBalances] =
+    useState<ITokenBalanceWithPoolName[]>();
   // Token pools
   const [tokenPools, setTokenPools] = useState<ITokenPool[]>();
   // Token transfers
@@ -354,7 +352,6 @@ export const TokensDashboard: () => JSX.Element = () => {
           records={tokenAccountRecords}
           columnHeaders={tokenAccountsColHeaders}
           emptyMessage={t('noTokenAccounts')}
-          stickyHeader={true}
         ></MediumCardTable>
       ),
     },
@@ -366,7 +363,6 @@ export const TokensDashboard: () => JSX.Element = () => {
           records={tokenPoolRecords}
           columnHeaders={tokenPoolColHeaders}
           emptyMessage={t('noTokenPools')}
-          stickyHeader={true}
         ></MediumCardTable>
       ),
     },
@@ -425,10 +421,11 @@ export const TokensDashboard: () => JSX.Element = () => {
               poolName: pool ? pool.name : balance.pool,
             };
             isMounted &&
-              setTokenBalances((tokenBalances) => [
-                ...tokenBalances,
-                balanceWithPoolName,
-              ]);
+              setTokenBalances((tokenBalances) => {
+                return tokenBalances
+                  ? [...tokenBalances, balanceWithPoolName]
+                  : [balanceWithPoolName];
+              });
           }
         })
         .catch((err) => {
@@ -545,20 +542,8 @@ export const TokensDashboard: () => JSX.Element = () => {
         </FFDashboardRowLayout>
         {/* Medium Cards */}
         <FFDashboardRowLayout>
-          {mediumCards.map((card) => {
-            return (
-              <Grid
-                key={card.headerText}
-                direction="column"
-                justifyContent="center"
-                container
-                item
-                md={12}
-                lg={4}
-              >
-                <FireFlyCard card={card} position="flex-start" />
-              </Grid>
-            );
+          {mediumCards.map((cardData) => {
+            return <MediumCard key={cardData.headerText} cardData={cardData} />;
           })}
         </FFDashboardRowLayout>
         <DataTable

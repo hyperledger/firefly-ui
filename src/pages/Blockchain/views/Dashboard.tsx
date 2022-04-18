@@ -15,14 +15,14 @@
 // limitations under the License.
 
 import { Launch } from '@mui/icons-material';
-import { Grid, IconButton, Link } from '@mui/material';
+import { IconButton, Link } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DownloadButton } from '../../../components/Buttons/DownloadButton';
 import { FFArrowButton } from '../../../components/Buttons/FFArrowButton';
-import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
+import { MediumCard } from '../../../components/Cards/MediumCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { Header } from '../../../components/Header';
@@ -312,7 +312,6 @@ export const BlockchainDashboard: () => JSX.Element = () => {
           records={apiRecords}
           columnHeaders={apiColHeaders}
           emptyMessage={t('noApisToDisplay')}
-          stickyHeader={true}
         ></MediumCardTable>
       ),
     },
@@ -324,7 +323,6 @@ export const BlockchainDashboard: () => JSX.Element = () => {
           records={clRecords}
           columnHeaders={clColHeaders}
           emptyMessage={t('noContractListeners')}
-          stickyHeader={true}
         ></MediumCardTable>
       ),
     },
@@ -461,20 +459,8 @@ export const BlockchainDashboard: () => JSX.Element = () => {
         </FFDashboardRowLayout>
         {/* Medium Cards */}
         <FFDashboardRowLayout>
-          {mediumCards.map((card) => {
-            return (
-              <Grid
-                key={card.headerText}
-                direction="column"
-                justifyContent="center"
-                container
-                item
-                sm={12}
-                lg={4}
-              >
-                <FireFlyCard card={card} position="flex-start" />
-              </Grid>
-            );
+          {mediumCards.map((cardData) => {
+            return <MediumCard key={cardData.headerText} cardData={cardData} />;
           })}
         </FFDashboardRowLayout>
         <DataTable

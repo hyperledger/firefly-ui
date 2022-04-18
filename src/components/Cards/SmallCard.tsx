@@ -18,7 +18,6 @@ export const SmallCard: React.FC<Props> = ({ cardData }) => {
       sm={12}
       md={6}
       lg={3}
-      direction="column"
       alignItems="center"
       justifyContent="flex-end"
       container
@@ -40,7 +39,7 @@ export const SmallCard: React.FC<Props> = ({ cardData }) => {
           cardData.clickPath ? navigate(cardData.clickPath) : undefined
         }
       >
-        {/* Card header */}
+        {/* Header */}
         <Grid
           container
           alignItems="flex-end"
@@ -74,6 +73,7 @@ export const SmallCard: React.FC<Props> = ({ cardData }) => {
             />
           )}
         </Grid>
+        {/* Data */}
         <Grid
           container
           alignItems="flex-end"
@@ -81,6 +81,7 @@ export const SmallCard: React.FC<Props> = ({ cardData }) => {
             cardData.data.length > 1 ? 'space-evenly' : 'flex-start'
           }
           direction="row"
+          item
         >
           {cardData.data.map((data, idx) => {
             return (

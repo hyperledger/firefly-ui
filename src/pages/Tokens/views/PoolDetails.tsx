@@ -205,7 +205,6 @@ export const PoolDetails: () => JSX.Element = () => {
         records={poolAccountsRecords}
         columnHeaders={poolAccountsColHeaders}
         emptyMessage={t('noTokenAccounts')}
-        stickyHeader={true}
       ></MediumCardTable>
     ),
   };
