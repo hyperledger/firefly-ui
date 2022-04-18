@@ -20,7 +20,6 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
 import { useNavigate } from 'react-router-dom';
-import { FFArrowButton } from '../../../components/Buttons/FFArrowButton';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
@@ -554,7 +553,7 @@ export const TokensDashboard: () => JSX.Element = () => {
         </FFDashboardRowLayout>
         <DataTable
           header={t('recentTokenTransfers')}
-          headerBtn={<FFArrowButton link={TRANSFERS_PATH} />}
+          clickPath={TRANSFERS_PATH}
           onHandleCurrPageChange={(currentPage: number) =>
             setCurrentPage(currentPage)
           }

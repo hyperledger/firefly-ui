@@ -19,7 +19,6 @@ import { useTranslation } from 'react-i18next';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
-import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { SubscriptionSlide } from '../../../components/Slides/SubscriptionSlide';
@@ -139,15 +138,6 @@ export const MyNodeSubscriptions: () => JSX.Element = () => {
         showRefreshBtn={false}
       ></Header>
       <FFPageLayout>
-        <ChartTableHeader
-          filter={
-            <FilterButton
-              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
-                setFilterAnchor(e.currentTarget)
-              }
-            />
-          }
-        />
         <DataTable
           onHandleCurrPageChange={(currentPage: number) =>
             setCurrentPage(currentPage)
@@ -165,6 +155,13 @@ export const MyNodeSubscriptions: () => JSX.Element = () => {
           dataTotal={subscriptionsTotal}
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
+          filterButton={
+            <FilterButton
+              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                setFilterAnchor(e.currentTarget)
+              }
+            />
+          }
         />
       </FFPageLayout>
       {filterAnchor && (

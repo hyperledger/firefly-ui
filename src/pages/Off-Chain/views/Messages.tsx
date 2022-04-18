@@ -14,7 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -24,7 +23,6 @@ import { MsgStatusChip } from '../../../components/Chips/MsgStatusChip';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
-import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { MessageSlide } from '../../../components/Slides/MessageSlide';
@@ -47,7 +45,7 @@ import {
 } from '../../../interfaces';
 import { FF_MESSAGES_CATEGORY_MAP } from '../../../interfaces/enums';
 import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
-import { DEFAULT_HIST_HEIGHT, DEFAULT_PAGE_LIMITS } from '../../../theme';
+import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime, makeMsgHistogram } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -238,8 +236,16 @@ export const OffChainMessages: () => JSX.Element = () => {
         onRefresh={clearNewEvents}
       ></Header>
       <FFPageLayout>
-        <ChartTableHeader
-          filter={
+        <Histogram
+          colors={makeColorArray(FF_MESSAGES_CATEGORY_MAP)}
+          data={messageHistData}
+          indexBy="timestamp"
+          keys={makeKeyArray(FF_MESSAGES_CATEGORY_MAP)}
+          includeLegend={true}
+          emptyText={t('noMessages')}
+          isLoading={isHistLoading}
+          isEmpty={isHistogramEmpty(messageHistData ?? [])}
+          filterButton={
             <FilterButton
               onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
                 setFilterAnchor(e.currentTarget)
@@ -247,18 +253,6 @@ export const OffChainMessages: () => JSX.Element = () => {
             />
           }
         />
-        <Box height={DEFAULT_HIST_HEIGHT}>
-          <Histogram
-            colors={makeColorArray(FF_MESSAGES_CATEGORY_MAP)}
-            data={messageHistData}
-            indexBy="timestamp"
-            keys={makeKeyArray(FF_MESSAGES_CATEGORY_MAP)}
-            includeLegend={true}
-            emptyText={t('noMessages')}
-            isLoading={isHistLoading}
-            isEmpty={isHistogramEmpty(messageHistData ?? [])}
-          />
-        </Box>
         <DataTable
           onHandleCurrPageChange={(currentPage: number) =>
             setCurrentPage(currentPage)

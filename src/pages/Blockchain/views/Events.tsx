@@ -14,7 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -23,7 +22,6 @@ import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
-import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { BlockchainEventSlide } from '../../../components/Slides/BlockchainEventSlide';
@@ -45,11 +43,7 @@ import {
   IPagedBlockchainEventResponse,
 } from '../../../interfaces';
 import { FF_BE_CATEGORY_MAP } from '../../../interfaces/enums/blockchainEventTypes';
-import {
-  DEFAULT_HIST_HEIGHT,
-  DEFAULT_PAGE_LIMITS,
-  FFColors,
-} from '../../../theme';
+import { DEFAULT_PAGE_LIMITS, FFColors } from '../../../theme';
 import { fetchCatcher, getFFTime } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -207,8 +201,16 @@ export const BlockchainEvents: () => JSX.Element = () => {
         onRefresh={clearNewEvents}
       ></Header>
       <FFPageLayout>
-        <ChartTableHeader
-          filter={
+        <Histogram
+          colors={makeColorArray(FF_BE_CATEGORY_MAP)}
+          data={beHistData}
+          indexBy="timestamp"
+          keys={makeKeyArray(FF_BE_CATEGORY_MAP)}
+          includeLegend={true}
+          isLoading={isHistLoading}
+          emptyText={t('noBlockchainEvents')}
+          isEmpty={isHistogramEmpty(beHistData ?? [])}
+          filterButton={
             <FilterButton
               onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
                 setFilterAnchor(e.currentTarget)
@@ -216,18 +218,6 @@ export const BlockchainEvents: () => JSX.Element = () => {
             />
           }
         />
-        <Box height={DEFAULT_HIST_HEIGHT}>
-          <Histogram
-            colors={makeColorArray(FF_BE_CATEGORY_MAP)}
-            data={beHistData}
-            indexBy="timestamp"
-            keys={makeKeyArray(FF_BE_CATEGORY_MAP)}
-            includeLegend={true}
-            isLoading={isHistLoading}
-            emptyText={t('noBlockchainEvents')}
-            isEmpty={isHistogramEmpty(beHistData ?? [])}
-          />
-        </Box>
         <DataTable
           onHandleCurrPageChange={(currentPage: number) =>
             setCurrentPage(currentPage)

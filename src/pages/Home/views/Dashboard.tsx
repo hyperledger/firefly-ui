@@ -99,13 +99,6 @@ export const HomeDashboard: () => JSX.Element = () => {
   }, []);
 
   useEffect(() => {
-    setIsMounted(true);
-    return () => {
-      setIsMounted(false);
-    };
-  }, []);
-
-  useEffect(() => {
     if (isMounted && slideID) {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?id=${slideID}`

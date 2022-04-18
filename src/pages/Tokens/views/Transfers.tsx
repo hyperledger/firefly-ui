@@ -14,7 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box } from '@mui/system';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -23,7 +22,6 @@ import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
-import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { TransferSlide } from '../../../components/Slides/TransferSlide';
@@ -48,7 +46,7 @@ import {
   FF_TRANSFER_CATEGORY_MAP,
   TransferIconMap,
 } from '../../../interfaces/enums';
-import { DEFAULT_HIST_HEIGHT, DEFAULT_PAGE_LIMITS } from '../../../theme';
+import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -229,8 +227,16 @@ export const TokensTransfers: () => JSX.Element = () => {
         onRefresh={clearNewEvents}
       ></Header>
       <FFPageLayout>
-        <ChartTableHeader
-          filter={
+        <Histogram
+          colors={makeColorArray(FF_TRANSFER_CATEGORY_MAP)}
+          data={transferHistData}
+          indexBy="timestamp"
+          keys={makeKeyArray(FF_TRANSFER_CATEGORY_MAP)}
+          includeLegend={true}
+          emptyText={t('noTransfers')}
+          isLoading={isHistLoading}
+          isEmpty={isHistogramEmpty(transferHistData ?? [])}
+          filterButton={
             <FilterButton
               onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
                 setFilterAnchor(e.currentTarget)
@@ -238,18 +244,6 @@ export const TokensTransfers: () => JSX.Element = () => {
             />
           }
         />
-        <Box height={DEFAULT_HIST_HEIGHT}>
-          <Histogram
-            colors={makeColorArray(FF_TRANSFER_CATEGORY_MAP)}
-            data={transferHistData}
-            indexBy="timestamp"
-            keys={makeKeyArray(FF_TRANSFER_CATEGORY_MAP)}
-            includeLegend={true}
-            emptyText={t('noTransfers')}
-            isLoading={isHistLoading}
-            isEmpty={isHistogramEmpty(transferHistData ?? [])}
-          />
-        </Box>
         <DataTable
           onHandleCurrPageChange={(currentPage: number) =>
             setCurrentPage(currentPage)

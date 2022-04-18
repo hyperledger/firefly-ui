@@ -19,6 +19,7 @@ interface Props {
   isEmpty: boolean;
   keys: string[];
   isLoading: boolean;
+  filterButton?: JSX.Element;
 }
 
 export const getIsCappedColor = (lightMode: boolean) =>
@@ -34,6 +35,7 @@ export const Histogram: React.FC<Props> = ({
   isEmpty,
   keys,
   isLoading,
+  filterButton,
 }) => {
   const theme = useTheme();
   const [xAxisValues, setXAxisValues] = useState<(string | number)[]>([]);
@@ -93,114 +95,126 @@ export const Histogram: React.FC<Props> = ({
   };
 
   return (
-    <Box
-      borderRadius={DEFAULT_BORDER_RADIUS}
-      sx={{
-        width: '100%',
-        height: height ?? DEFAULT_HIST_HEIGHT,
-        backgroundColor: 'background.paper',
-      }}
-    >
-      {!data || isLoading ? (
-        <FFCircleLoader height="100%" color="warning"></FFCircleLoader>
-      ) : isEmpty ? (
-        <EmptyStateCard
-          height={height ?? DEFAULT_HIST_HEIGHT}
-          text={emptyText}
-        />
-      ) : (
-        <>
-          <Grid height="100%" width="100%">
-            <ResponsiveBar
-              data={data}
-              colors={colors}
-              keys={keys}
-              indexBy={indexBy}
-              margin={{ top: 10, right: 5, bottom: 60, left: 40 }}
-              padding={0.1}
-              valueScale={{ type: 'linear' }}
-              indexScale={{ type: 'band', round: true }}
-              axisTop={null}
-              axisRight={null}
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-              axisBottom={{
-                tickSize: 5,
-                tickPadding: 5,
-                tickRotation: 0,
-                format: (v) =>
-                  xAxisValues?.find((vts) => vts === v)
-                    ? dayjs(v).format('h:mm')
-                    : '',
-              }}
-              axisLeft={{
-                tickSize: 5,
-                tickPadding: 5,
-                tickRotation: 0,
-                tickValues: 5,
-              }}
-              legends={
-                includeLegend
-                  ? [
-                      {
-                        dataFrom: 'keys',
-                        anchor: 'bottom',
-                        direction: 'row',
-                        justify: false,
-                        translateX: 0,
-                        translateY: 50,
-                        itemsSpacing: 2,
-                        itemWidth: 100,
-                        itemHeight: 10,
-                        itemDirection: 'left-to-right',
-                        itemOpacity: 1,
-                        itemTextColor: theme.palette.text.primary,
-                        symbolSize: 15,
-                        symbolShape: 'circle',
+    <>
+      {filterButton && (
+        <Grid
+          container
+          alignItems="center"
+          direction="row"
+          justifyContent="flex-end"
+        >
+          {filterButton}
+        </Grid>
+      )}
+      <Box
+        borderRadius={DEFAULT_BORDER_RADIUS}
+        sx={{
+          width: '100%',
+          height: height ?? DEFAULT_HIST_HEIGHT,
+          backgroundColor: 'background.paper',
+        }}
+      >
+        {!data || isLoading ? (
+          <FFCircleLoader height="100%" color="warning"></FFCircleLoader>
+        ) : isEmpty ? (
+          <EmptyStateCard
+            height={height ?? DEFAULT_HIST_HEIGHT}
+            text={emptyText}
+          />
+        ) : (
+          <>
+            <Grid height="100%" width="100%">
+              <ResponsiveBar
+                data={data}
+                colors={colors}
+                keys={keys}
+                indexBy={indexBy}
+                margin={{ top: 10, right: 5, bottom: 60, left: 40 }}
+                padding={0.1}
+                valueScale={{ type: 'linear' }}
+                indexScale={{ type: 'band', round: true }}
+                axisTop={null}
+                axisRight={null}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                axisBottom={{
+                  tickSize: 5,
+                  tickPadding: 5,
+                  tickRotation: 0,
+                  format: (v) =>
+                    xAxisValues?.find((vts) => vts === v)
+                      ? dayjs(v).format('h:mm')
+                      : '',
+                }}
+                axisLeft={{
+                  tickSize: 5,
+                  tickPadding: 5,
+                  tickRotation: 0,
+                  tickValues: 5,
+                }}
+                legends={
+                  includeLegend
+                    ? [
+                        {
+                          dataFrom: 'keys',
+                          anchor: 'bottom',
+                          direction: 'row',
+                          justify: false,
+                          translateX: 0,
+                          translateY: 50,
+                          itemsSpacing: 2,
+                          itemWidth: 110,
+                          itemHeight: 10,
+                          itemDirection: 'left-to-right',
+                          itemOpacity: 1,
+                          itemTextColor: theme.palette.text.primary,
+                          symbolSize: 15,
+                          symbolShape: 'circle',
+                        },
+                      ]
+                    : undefined
+                }
+                motionConfig="stiff"
+                enableLabel={false}
+                role="application"
+                theme={{
+                  background: theme.palette.background.paper,
+                  axis: {
+                    ticks: {
+                      line: {
+                        stroke: theme.palette.background.default,
                       },
-                    ]
-                  : undefined
-              }
-              motionConfig="stiff"
-              enableLabel={false}
-              role="application"
-              theme={{
-                background: theme.palette.background.paper,
-                axis: {
-                  ticks: {
+                      text: {
+                        fill: theme.palette.text.disabled,
+                      },
+                    },
+                  },
+                  grid: {
                     line: {
                       stroke: theme.palette.background.default,
                     },
-                    text: {
-                      fill: theme.palette.text.disabled,
-                    },
                   },
-                },
-                grid: {
-                  line: {
-                    stroke: theme.palette.background.default,
-                  },
-                },
-              }}
-              // disable tooltip in favor of popover
-              tooltip={() => <></>}
-            />
-          </Grid>
-          {anchorEl && (
-            <Popover
-              open={open}
-              anchorEl={anchorEl}
-              anchorOrigin={{
-                vertical: 'center',
-                horizontal: 'center',
-              }}
-              style={{ pointerEvents: 'none' }}
-            >
-              {makePopoverContent()}
-            </Popover>
-          )}
-        </>
-      )}
-    </Box>
+                }}
+                // disable tooltip in favor of popover
+                tooltip={() => <></>}
+              />
+            </Grid>
+            {anchorEl && (
+              <Popover
+                open={open}
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: 'center',
+                  horizontal: 'center',
+                }}
+                style={{ pointerEvents: 'none' }}
+              >
+                {makePopoverContent()}
+              </Popover>
+            )}
+          </>
+        )}
+      </Box>
+    </>
   );
 };

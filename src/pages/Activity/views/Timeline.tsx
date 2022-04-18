@@ -15,7 +15,6 @@
 // limitations under the License.
 
 import { Grid } from '@mui/material';
-import { Box } from '@mui/system';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -26,7 +25,6 @@ import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
-import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { FFTimelineHeader } from '../../../components/Headers/TimelineHeader';
 import { EventSlide } from '../../../components/Slides/EventSlide';
 import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
@@ -36,7 +34,6 @@ import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
-import { hasAnyEvent } from '../../../utils/wsEvents';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
@@ -48,7 +45,7 @@ import {
   IPagedEventResponse,
   ITransaction,
 } from '../../../interfaces';
-import { DEFAULT_HIST_HEIGHT, DEFAULT_PADDING, FFColors } from '../../../theme';
+import { DEFAULT_PADDING, FFColors } from '../../../theme';
 import {
   fetchCatcher,
   fetchWithCredentials,
@@ -56,6 +53,7 @@ import {
 } from '../../../utils';
 import { isHistogramEmpty } from '../../../utils/charts';
 import { isOppositeTimelineEvent } from '../../../utils/timeline';
+import { hasAnyEvent } from '../../../utils/wsEvents';
 
 const ROWS_PER_PAGE = 25;
 
@@ -209,34 +207,28 @@ export const ActivityTimeline: () => JSX.Element = () => {
         showRefreshBtn={false}
       />
       <Grid container px={DEFAULT_PADDING} direction="column" spacing={2}>
-        <Grid item>
-          <ChartTableHeader
-            filter={
-              <FilterButton
-                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
-                  setFilterAnchor(e.currentTarget)
-                }
-              />
-            }
-          />
-          <Box height={DEFAULT_HIST_HEIGHT}>
-            <Histogram
-              colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
-              data={eventHistData}
-              indexBy="timestamp"
-              keys={[
-                EventCategoryEnum.BLOCKCHAIN,
-                EventCategoryEnum.MESSAGES,
-                EventCategoryEnum.TOKENS,
-              ]}
-              includeLegend={true}
-              isLoading={isHistLoading}
-              isEmpty={isHistogramEmpty(eventHistData ?? [])}
-              emptyText={t('noActivity')}
-              height="100%"
+        <Histogram
+          colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+          data={eventHistData}
+          indexBy="timestamp"
+          keys={[
+            EventCategoryEnum.BLOCKCHAIN,
+            EventCategoryEnum.MESSAGES,
+            EventCategoryEnum.TOKENS,
+          ]}
+          includeLegend={true}
+          isLoading={isHistLoading}
+          isEmpty={isHistogramEmpty(eventHistData ?? [])}
+          emptyText={t('noActivity')}
+          height="100%"
+          filterButton={
+            <FilterButton
+              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                setFilterAnchor(e.currentTarget)
+              }
             />
-          </Box>
-        </Grid>
+          }
+        />
         <Grid container justifyContent={'center'} direction="column" item>
           <FFTimelineHeader
             leftHeader={t('submittedByMe')}

@@ -28,6 +28,7 @@ import {
 import React from 'react';
 import { IDataTableRecord } from '../../interfaces/table';
 import { DEFAULT_PAGE_LIMITS } from '../../theme';
+import { FFArrowButton } from '../Buttons/FFArrowButton';
 import { DataTableEmptyState } from './TableEmptyState';
 import { DataTableRow } from './TableRow';
 import { TableRowSkeleton } from './TableRowSkeleton';
@@ -40,7 +41,7 @@ interface Props {
   minHeight?: string;
   maxHeight?: string;
   emptyStateText?: string;
-  headerBtn?: JSX.Element;
+  clickPath?: string;
   paginate?: boolean;
   onHandleCurrPageChange?: any;
   onHandleRowsPerPage?: any;
@@ -48,6 +49,7 @@ interface Props {
   rowsPerPage?: number;
   dataTotal?: number;
   dashboardSize?: boolean;
+  filterButton?: JSX.Element;
 }
 
 const NUM_SKELETON_ROWS = 10;
@@ -57,7 +59,7 @@ export const DataTable: React.FC<Props> = ({
   columnHeaders,
   stickyHeader,
   header,
-  headerBtn,
+  clickPath,
   minHeight,
   maxHeight,
   emptyStateText,
@@ -68,6 +70,7 @@ export const DataTable: React.FC<Props> = ({
   rowsPerPage,
   dataTotal,
   dashboardSize = false,
+  filterButton,
 }) => {
   const handleChangePage = (_event: unknown, newPage: number) => {
     if (currentPage && rowsPerPage && dataTotal) {
@@ -90,111 +93,119 @@ export const DataTable: React.FC<Props> = ({
 
   return (
     <>
-      <Grid item xs={12}>
-        {header && (
-          <Grid container alignItems={'center'}>
-            <Grid container item xs={6} justifyContent="flex-start">
-              <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
-                {header}
-              </Typography>
-            </Grid>
-            {headerBtn && (
-              <Grid container item xs={6} justifyContent="flex-end">
-                {headerBtn}
-              </Grid>
-            )}
-          </Grid>
-        )}
+      {header && (
+        <Grid
+          container
+          alignItems={'center'}
+          direction="row"
+          justifyContent={'space-between'}
+        >
+          <Typography variant="subtitle1" sx={{ fontWeight: 'bold' }}>
+            {header}
+          </Typography>
+          {clickPath && <FFArrowButton link={clickPath} />}
+        </Grid>
+      )}
+      {filterButton && (
+        <Grid
+          container
+          alignItems="center"
+          direction="row"
+          justifyContent="flex-end"
+        >
+          {filterButton}
+        </Grid>
+      )}
 
-        {records === undefined || records.length > 0 ? (
-          <>
-            <TableContainer
-              style={{ maxHeight, minHeight }}
-              sx={{ whiteSpace: 'nowrap' }}
-            >
-              <Table stickyHeader={stickyHeader}>
-                <TableHead>
-                  <TableRow>
-                    {columnHeaders?.map((header, index) => (
-                      <TableCell
+      {records === undefined || records.length > 0 ? (
+        <>
+          <TableContainer
+            style={{ maxHeight, minHeight }}
+            sx={{ whiteSpace: 'nowrap' }}
+          >
+            <Table stickyHeader={stickyHeader}>
+              <TableHead>
+                <TableRow>
+                  {columnHeaders?.map((header, index) => (
+                    <TableCell
+                      sx={{
+                        borderBottom: 0,
+                      }}
+                      key={index}
+                    >
+                      <Typography
                         sx={{
-                          borderBottom: 0,
+                          color: 'text.secondary',
+                          fontSize: 12,
+                          textTransform: 'uppercase',
                         }}
-                        key={index}
+                        noWrap
                       >
-                        <Typography
-                          sx={{
-                            color: 'text.secondary',
-                            fontSize: 12,
-                            textTransform: 'uppercase',
-                          }}
-                          noWrap
-                        >
-                          {header}
-                        </Typography>
-                      </TableCell>
-                    ))}
-                  </TableRow>
-                </TableHead>
-                <TableBody>
-                  {records
-                    ? records.map((record) => (
-                        <DataTableRow
-                          key={record.key}
-                          leftBorderColor={record.leftBorderColor}
-                          {...{ record }}
-                        />
-                      ))
-                    : Array.from(Array(NUM_SKELETON_ROWS)).map((_, idx) => {
-                        return (
-                          <TableRowSkeleton
-                            key={idx}
-                            numColumns={columnHeaders?.length ?? 1}
-                          />
-                        );
-                      })}
-                  {records &&
-                    rowsPerPage &&
-                    Array.from(Array(rowsPerPage - records?.length)).map(
-                      (_, idx) => (
+                        {header}
+                      </Typography>
+                    </TableCell>
+                  ))}
+                </TableRow>
+              </TableHead>
+              <TableBody>
+                {records
+                  ? records.map((record) => (
+                      <DataTableRow
+                        key={record.key}
+                        leftBorderColor={record.leftBorderColor}
+                        {...{ record }}
+                      />
+                    ))
+                  : Array.from(Array(NUM_SKELETON_ROWS)).map((_, idx) => {
+                      return (
                         <TableRowSkeleton
                           key={idx}
                           numColumns={columnHeaders?.length ?? 1}
-                          noSkeleton
                         />
-                      )
-                    )}
-                </TableBody>
-              </Table>
-            </TableContainer>
-            {paginate &&
-              handleChangePage !== undefined &&
-              handleChangeRowsPerPage !== undefined &&
-              currentPage !== undefined &&
-              rowsPerPage !== undefined &&
-              dataTotal !== undefined && (
-                <TablePagination
-                  component="div"
-                  count={dataTotal}
-                  rowsPerPage={rowsPerPage ?? 5}
-                  page={currentPage ?? 0}
-                  onPageChange={handleChangePage}
-                  onRowsPerPageChange={handleChangeRowsPerPage}
-                  rowsPerPageOptions={DEFAULT_PAGE_LIMITS}
-                  labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
-                  sx={{ color: 'text.secondary' }}
-                />
-              )}
-          </>
-        ) : (
-          <DataTableEmptyState
-            columnHeaders={columnHeaders ?? []}
-            message={emptyStateText}
-            stickyHeader={stickyHeader ?? false}
-            dashboardSize={dashboardSize}
-          ></DataTableEmptyState>
-        )}
-      </Grid>
+                      );
+                    })}
+                {/* Fill in empty rows */}
+                {records &&
+                  rowsPerPage &&
+                  Array.from(Array(rowsPerPage - records?.length)).map(
+                    (_, idx) => (
+                      <TableRowSkeleton
+                        key={idx}
+                        numColumns={columnHeaders?.length ?? 1}
+                        noSkeleton
+                      />
+                    )
+                  )}
+              </TableBody>
+            </Table>
+          </TableContainer>
+          {paginate &&
+            handleChangePage !== undefined &&
+            handleChangeRowsPerPage !== undefined &&
+            currentPage !== undefined &&
+            rowsPerPage !== undefined &&
+            dataTotal !== undefined && (
+              <TablePagination
+                component="div"
+                count={dataTotal}
+                rowsPerPage={rowsPerPage ?? DEFAULT_PAGE_LIMITS[0]}
+                page={currentPage ?? 0}
+                onPageChange={handleChangePage}
+                onRowsPerPageChange={handleChangeRowsPerPage}
+                rowsPerPageOptions={DEFAULT_PAGE_LIMITS}
+                labelDisplayedRows={({ from, to }) => `${from} - ${to}`}
+                sx={{ color: 'text.secondary' }}
+              />
+            )}
+        </>
+      ) : (
+        <DataTableEmptyState
+          columnHeaders={columnHeaders ?? []}
+          message={emptyStateText}
+          stickyHeader={stickyHeader ?? false}
+          dashboardSize={dashboardSize}
+        ></DataTableEmptyState>
+      )}
     </>
   );
 };

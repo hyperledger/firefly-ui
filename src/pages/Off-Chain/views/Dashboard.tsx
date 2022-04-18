@@ -19,7 +19,6 @@ import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DownloadButton } from '../../../components/Buttons/DownloadButton';
-import { FFArrowButton } from '../../../components/Buttons/FFArrowButton';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
@@ -491,7 +490,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
           dashboardSize
-          headerBtn={<FFArrowButton link={MESSAGES_PATH} />}
+          clickPath={MESSAGES_PATH}
         />
       </FFPageLayout>
       {viewData && (

@@ -21,7 +21,6 @@ import Jazzicon from 'react-jazzicon';
 import { useParams } from 'react-router-dom';
 import { FFBreadcrumb } from '../../../components/Breadcrumbs/FFBreadcrumb';
 import { FFCopyButton } from '../../../components/Buttons/CopyButton';
-import { FFArrowButton } from '../../../components/Buttons/FFArrowButton';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { Header } from '../../../components/Header';
 import { PoolList } from '../../../components/Lists/PoolList';
@@ -396,14 +395,10 @@ export const PoolDetails: () => JSX.Element = () => {
             currentPage={currentPage}
             rowsPerPage={rowsPerPage}
             dashboardSize
-            headerBtn={
-              <FFArrowButton
-                link={FF_NAV_PATHS.tokensTransfersPath(
-                  selectedNamespace,
-                  pool?.id
-                )}
-              />
-            }
+            clickPath={FF_NAV_PATHS.tokensTransfersPath(
+              selectedNamespace,
+              pool?.id
+            )}
           />
         </Grid>
       </Grid>

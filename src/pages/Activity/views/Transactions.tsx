@@ -14,7 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -24,7 +23,6 @@ import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
-import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
@@ -46,7 +44,7 @@ import {
   TransactionFilters,
 } from '../../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
-import { DEFAULT_HIST_HEIGHT, DEFAULT_PAGE_LIMITS } from '../../../theme';
+import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -209,8 +207,16 @@ export const ActivityTransactions: () => JSX.Element = () => {
         showRefreshBtn={hasTxEvent(newEvents)}
       ></Header>
       <FFPageLayout>
-        <ChartTableHeader
-          filter={
+        <Histogram
+          colors={makeColorArray(FF_TX_CATEGORY_MAP)}
+          data={txHistData}
+          indexBy="timestamp"
+          keys={makeKeyArray(FF_TX_CATEGORY_MAP)}
+          includeLegend={true}
+          emptyText={t('noTransactions')}
+          isLoading={isHistLoading}
+          isEmpty={isHistogramEmpty(txHistData ?? [])}
+          filterButton={
             <FilterButton
               onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
                 setFilterAnchor(e.currentTarget)
@@ -218,18 +224,6 @@ export const ActivityTransactions: () => JSX.Element = () => {
             />
           }
         />
-        <Box height={DEFAULT_HIST_HEIGHT}>
-          <Histogram
-            colors={makeColorArray(FF_TX_CATEGORY_MAP)}
-            data={txHistData}
-            indexBy="timestamp"
-            keys={makeKeyArray(FF_TX_CATEGORY_MAP)}
-            includeLegend={true}
-            emptyText={t('noTransactions')}
-            isLoading={isHistLoading}
-            isEmpty={isHistogramEmpty(txHistData ?? [])}
-          />
-        </Box>
         <DataTable
           onHandleCurrPageChange={(currentPage: number) =>
             setCurrentPage(currentPage)

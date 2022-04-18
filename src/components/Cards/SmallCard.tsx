@@ -85,7 +85,7 @@ export const SmallCard: React.FC<Props> = ({ cardData }) => {
         >
           {cardData.data.map((data, idx) => {
             return (
-              <Grid key={idx} item>
+              <Grid key={data.header ?? idx} item>
                 <Typography
                   noWrap
                   sx={{ fontSize: 12, textTransform: 'uppercase' }}

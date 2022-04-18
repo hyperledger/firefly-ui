@@ -22,7 +22,6 @@ import { DownloadButton } from '../../../components/Buttons/DownloadButton';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
-import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { ApiSlide } from '../../../components/Slides/ApiSlide';
@@ -184,15 +183,6 @@ export const BlockchainApis: () => JSX.Element = () => {
         onRefresh={clearNewEvents}
       ></Header>
       <FFPageLayout>
-        <ChartTableHeader
-          filter={
-            <FilterButton
-              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
-                setFilterAnchor(e.currentTarget)
-              }
-            />
-          }
-        />
         <DataTable
           onHandleCurrPageChange={(currentPage: number) =>
             setCurrentPage(currentPage)
@@ -210,6 +200,13 @@ export const BlockchainApis: () => JSX.Element = () => {
           dataTotal={apiTotal}
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
+          filterButton={
+            <FilterButton
+              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                setFilterAnchor(e.currentTarget)
+              }
+            />
+          }
         />
       </FFPageLayout>
       {filterAnchor && (

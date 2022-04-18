@@ -19,7 +19,6 @@ import { useTranslation } from 'react-i18next';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
-import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { DatatypeSlide } from '../../../components/Slides/DatatypeSlide';
@@ -164,15 +163,6 @@ export const OffChainDataTypes: () => JSX.Element = () => {
         onRefresh={clearNewEvents}
       ></Header>
       <FFPageLayout>
-        <ChartTableHeader
-          filter={
-            <FilterButton
-              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
-                setFilterAnchor(e.currentTarget)
-              }
-            />
-          }
-        />
         <DataTable
           onHandleCurrPageChange={(currentPage: number) =>
             setCurrentPage(currentPage)
@@ -190,6 +180,13 @@ export const OffChainDataTypes: () => JSX.Element = () => {
           dataTotal={datatypeTotal}
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
+          filterButton={
+            <FilterButton
+              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                setFilterAnchor(e.currentTarget)
+              }
+            />
+          }
         />
       </FFPageLayout>
       {filterAnchor && (

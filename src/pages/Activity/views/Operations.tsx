@@ -24,7 +24,6 @@ import { OpStatusChip } from '../../../components/Chips/OpStatusChip';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
-import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { OperationSlide } from '../../../components/Slides/OperationSlide';
@@ -209,15 +208,6 @@ export const ActivityOperations: () => JSX.Element = () => {
         onRefresh={clearNewEvents}
       ></Header>
       <FFPageLayout>
-        <ChartTableHeader
-          filter={
-            <FilterButton
-              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
-                setFilterAnchor(e.currentTarget)
-              }
-            />
-          }
-        />
         <Box height={DEFAULT_HIST_HEIGHT}>
           <Histogram
             colors={makeColorArray(FF_OP_CATEGORY_MAP)}
@@ -228,6 +218,13 @@ export const ActivityOperations: () => JSX.Element = () => {
             emptyText={t('noOperations')}
             isLoading={isHistLoading}
             isEmpty={isHistogramEmpty(opHistData ?? [])}
+            filterButton={
+              <FilterButton
+                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                  setFilterAnchor(e.currentTarget)
+                }
+              />
+            }
           />
         </Box>
         <DataTable
