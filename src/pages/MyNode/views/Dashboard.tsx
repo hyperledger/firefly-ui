@@ -14,14 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { MyNodeDiagram } from '../../../components/Charts/MyNodeDiagram';
 import { Header } from '../../../components/Header';
+import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import { FF_Paths, IStatus } from '../../../interfaces';
-import { DEFAULT_PADDING } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
 
 export const MyNodeDashboard: () => JSX.Element = () => {
@@ -61,14 +60,12 @@ export const MyNodeDashboard: () => JSX.Element = () => {
         noDateFilter
         noNsFilter
       ></Header>
-      <Grid container px={DEFAULT_PADDING}>
-        <Grid height="700px" container item wrap="nowrap" direction="column">
-          {!isLoading &&
-            plugins &&
-            Object.keys(plugins ?? {}).length > 0 &&
-            isMounted && <MyNodeDiagram plugins={plugins} />}
-        </Grid>
-      </Grid>
+      <FFPageLayout height="750px">
+        {!isLoading &&
+          plugins &&
+          Object.keys(plugins ?? {}).length > 0 &&
+          isMounted && <MyNodeDiagram plugins={plugins} />}
+      </FFPageLayout>
     </>
   );
 };

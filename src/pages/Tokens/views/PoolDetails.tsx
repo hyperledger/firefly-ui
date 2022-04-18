@@ -21,8 +21,7 @@ import Jazzicon from 'react-jazzicon';
 import { useParams } from 'react-router-dom';
 import { FFBreadcrumb } from '../../../components/Breadcrumbs/FFBreadcrumb';
 import { FFCopyButton } from '../../../components/Buttons/CopyButton';
-import { FFArrowButton } from '../../../components/Buttons/FFArrowButton';
-import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
+import { DetailsCard } from '../../../components/Cards/DetailsCard';
 import { Header } from '../../../components/Header';
 import { PoolList } from '../../../components/Lists/PoolList';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
@@ -41,6 +40,7 @@ import {
   FF_TRANSFER_CATEGORY_MAP,
   IDataTableRecord,
   IFFBreadcrumb,
+  IFireFlyCard,
   IPagedTokenTransferResponse,
   ITokenBalance,
   ITokenPool,
@@ -193,24 +193,20 @@ export const PoolDetails: () => JSX.Element = () => {
     })
   );
 
-  const accountsCard = {
+  const accountsCard: IFireFlyCard = {
     headerText: t('accountsInPool'),
-    headerComponent: pool && (
-      <FFArrowButton
-        link={FF_NAV_PATHS.tokensBalancesPathByPool(selectedNamespace, pool.id)}
-      />
-    ),
+    clickPath:
+      pool && FF_NAV_PATHS.tokensBalancesPathByPool(selectedNamespace, pool.id),
     component: (
       <MediumCardTable
         records={poolAccountsRecords}
         columnHeaders={poolAccountsColHeaders}
         emptyMessage={t('noTokenAccounts')}
-        stickyHeader={true}
       ></MediumCardTable>
     ),
   };
 
-  const infoCard = {
+  const infoCard: IFireFlyCard = {
     headerText: t('poolInfo'),
     component: pool?.info && <FFJsonViewer json={pool?.info} />,
   };
@@ -355,7 +351,7 @@ export const PoolDetails: () => JSX.Element = () => {
             item
             height="100%"
           >
-            <FireFlyCard height="100%" card={infoCard} />
+            <DetailsCard card={infoCard} />
           </Grid>
         </Grid>
         <Grid
@@ -376,10 +372,10 @@ export const PoolDetails: () => JSX.Element = () => {
             item
             height="100%"
           >
-            <FireFlyCard height="100%" card={accountsCard} />
+            <DetailsCard card={accountsCard} />
           </Grid>
         </Grid>
-        <Grid item pt={3} container>
+        <Grid item pt={3} container direction="row" justifyContent={'flex-end'}>
           <DataTable
             header={t('transfersInPool')}
             onHandleCurrPageChange={(currentPage: number) =>
@@ -399,14 +395,10 @@ export const PoolDetails: () => JSX.Element = () => {
             currentPage={currentPage}
             rowsPerPage={rowsPerPage}
             dashboardSize
-            headerBtn={
-              <FFArrowButton
-                link={FF_NAV_PATHS.tokensTransfersPath(
-                  selectedNamespace,
-                  pool?.id
-                )}
-              />
-            }
+            clickPath={FF_NAV_PATHS.tokensTransfersPath(
+              selectedNamespace,
+              pool?.id
+            )}
           />
         </Grid>
       </Grid>

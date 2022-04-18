@@ -64,6 +64,10 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${EVENTS_PATH}${
       eventID ? `?slide=${eventID}` : ''
     }`,
+  activityEventsPathWithTxFilter: (ns: string, txID: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${EVENTS_PATH}${
+      txID ? `?filters=tx==${txID}` : ''
+    }`,
   activityTxPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}`,
   activityTxDetailPath: (ns: string, txID: string) =>
@@ -73,6 +77,10 @@ export const FF_NAV_PATHS = {
   activityOpPath: (ns: string, opID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}${
       opID ? `?slide=${opID}` : ''
+    }`,
+  activityOpPathWithTxFilter: (ns: string, txID: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}${
+      txID ? `?filters=tx==${txID}` : ''
     }`,
   activityOpErrorPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}?filters=error=!=`,

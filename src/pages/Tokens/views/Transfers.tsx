@@ -14,8 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid } from '@mui/material';
-import { Box } from '@mui/system';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -24,7 +22,7 @@ import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
-import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
+import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { TransferSlide } from '../../../components/Slides/TransferSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
@@ -48,11 +46,7 @@ import {
   FF_TRANSFER_CATEGORY_MAP,
   TransferIconMap,
 } from '../../../interfaces/enums';
-import {
-  DEFAULT_HIST_HEIGHT,
-  DEFAULT_PADDING,
-  DEFAULT_PAGE_LIMITS,
-} from '../../../theme';
+import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -232,49 +226,43 @@ export const TokensTransfers: () => JSX.Element = () => {
         showRefreshBtn={hasTransferEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
-      <Grid container px={DEFAULT_PADDING}>
-        <Grid container item wrap="nowrap" direction="column">
-          <ChartTableHeader
-            filter={
-              <FilterButton
-                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
-                  setFilterAnchor(e.currentTarget)
-                }
-              />
-            }
-          />
-          <Box height={DEFAULT_HIST_HEIGHT}>
-            <Histogram
-              colors={makeColorArray(FF_TRANSFER_CATEGORY_MAP)}
-              data={transferHistData}
-              indexBy="timestamp"
-              keys={makeKeyArray(FF_TRANSFER_CATEGORY_MAP)}
-              includeLegend={true}
-              emptyText={t('noTransfers')}
-              isLoading={isHistLoading}
-              isEmpty={isHistogramEmpty(transferHistData ?? [])}
+      <FFPageLayout>
+        <Histogram
+          colors={makeColorArray(FF_TRANSFER_CATEGORY_MAP)}
+          data={transferHistData}
+          indexBy="timestamp"
+          keys={makeKeyArray(FF_TRANSFER_CATEGORY_MAP)}
+          includeLegend={true}
+          emptyText={t('noTransfers')}
+          isLoading={isHistLoading}
+          isEmpty={isHistogramEmpty(transferHistData ?? [])}
+          filterButton={
+            <FilterButton
+              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                setFilterAnchor(e.currentTarget)
+              }
             />
-          </Box>
-          <DataTable
-            onHandleCurrPageChange={(currentPage: number) =>
-              setCurrentPage(currentPage)
-            }
-            onHandleRowsPerPage={(rowsPerPage: number) =>
-              setRowsPerPage(rowsPerPage)
-            }
-            stickyHeader={true}
-            minHeight="300px"
-            maxHeight="calc(100vh - 340px)"
-            records={tokenTransferRecords}
-            columnHeaders={tokenTransferColHeaders}
-            paginate={true}
-            emptyStateText={t('noTokenTransfersToDisplay')}
-            dataTotal={tokenTransferTotal}
-            currentPage={currentPage}
-            rowsPerPage={rowsPerPage}
-          />
-        </Grid>
-      </Grid>
+          }
+        />
+        <DataTable
+          onHandleCurrPageChange={(currentPage: number) =>
+            setCurrentPage(currentPage)
+          }
+          onHandleRowsPerPage={(rowsPerPage: number) =>
+            setRowsPerPage(rowsPerPage)
+          }
+          stickyHeader={true}
+          minHeight="300px"
+          maxHeight="calc(100vh - 340px)"
+          records={tokenTransferRecords}
+          columnHeaders={tokenTransferColHeaders}
+          paginate={true}
+          emptyStateText={t('noTokenTransfersToDisplay')}
+          dataTotal={tokenTransferTotal}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+        />
+      </FFPageLayout>
       {filterAnchor && (
         <FilterModal
           anchor={filterAnchor}

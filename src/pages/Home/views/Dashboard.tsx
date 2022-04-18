@@ -3,15 +3,16 @@ import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { FFArrowButton } from '../../../components/Buttons/FFArrowButton';
 import { EmptyStateCard } from '../../../components/Cards/EmptyStateCard';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
-import { SkeletonCard } from '../../../components/Cards/EventCards/SkeletonCard';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { MyNodeDiagram } from '../../../components/Charts/MyNodeDiagram';
 import { Header } from '../../../components/Header';
+import { FFDashboardRowLayout } from '../../../components/Layouts/FFDashboardRowLayout';
+import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
+import { SkeletonCardList } from '../../../components/Lists/SkeletonCardList';
 import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { NetworkMap } from '../../../components/NetworkMap/NetworkMap';
 import { EventSlide } from '../../../components/Slides/EventSlide';
@@ -36,7 +37,6 @@ import {
   OpCategoryEnum,
 } from '../../../interfaces';
 import { FF_Paths } from '../../../interfaces/constants';
-import { DEFAULT_PADDING, DEFAULT_SPACING } from '../../../theme';
 import {
   fetchCatcher,
   makeEventHistogram,
@@ -90,13 +90,6 @@ export const HomeDashboard: () => JSX.Element = () => {
   const [plugins, setPlugins] = useState<IStatus['plugins']>();
 
   const [isMyNodeLoading, setIsMyNodeLoading] = useState(true);
-
-  useEffect(() => {
-    setIsMounted(true);
-    return () => {
-      setIsMounted(false);
-    };
-  }, []);
 
   useEffect(() => {
     setIsMounted(true);
@@ -262,11 +255,7 @@ export const HomeDashboard: () => JSX.Element = () => {
 
   const mediumCards: IFireFlyCard[] = [
     {
-      headerComponent: (
-        <FFArrowButton
-          link={FF_NAV_PATHS.activityTimelinePath(selectedNamespace)}
-        />
-      ),
+      clickPath: FF_NAV_PATHS.activityTimelinePath(selectedNamespace),
       headerText: t('activity'),
       component: (
         <Histogram
@@ -283,16 +272,12 @@ export const HomeDashboard: () => JSX.Element = () => {
       ),
     },
     {
-      headerComponent: (
-        <FFArrowButton link={FF_NAV_PATHS.networkPath(selectedNamespace)} />
-      ),
+      clickPath: FF_NAV_PATHS.networkPath(selectedNamespace),
       headerText: t('networkMap'),
       component: <NetworkMap size="small"></NetworkMap>,
     },
     {
-      headerComponent: (
-        <FFArrowButton link={FF_NAV_PATHS.myNodePath(selectedNamespace)} />
-      ),
+      clickPath: FF_NAV_PATHS.myNodePath(selectedNamespace),
       headerText: t('myNode'),
       component:
         !isMyNodeLoading &&
@@ -346,73 +331,38 @@ export const HomeDashboard: () => JSX.Element = () => {
     }
   }, [selectedNamespace, isMounted]);
 
-  const skeletonList = () => (
-    <>
-      {Array.from(Array(7)).map((_, idx) => (
-        <Grid
-          item
-          container
-          alignItems="flex-start"
-          justifyContent="flex-start"
-          key={idx}
-        >
-          <SkeletonCard />
-          <Grid sx={{ padding: '1px' }} />
-        </Grid>
-      ))}
-    </>
-  );
-
   const tableCards: IFireFlyCard[] = [
     // Recently submitted Transactions
     {
       headerText: t('myRecentTransactions'),
-      headerComponent: (
-        <FFArrowButton
-          link={FF_NAV_PATHS.activityTimelinePath(selectedNamespace)}
-        />
-      ),
+      clickPath: FF_NAV_PATHS.activityTimelinePath(selectedNamespace),
       component: (
         <>
           {recentEventTxs?.length === 0 ? (
             <EmptyStateCard text={t('noRecentTransactions')} />
+          ) : !recentEventTxs ? (
+            <SkeletonCardList numElements={7} />
           ) : (
-            <Grid
-              container
-              direction="column"
-              item
-              alignItems="flex-start"
-              justifyContent="flex-start"
-            >
-              {!recentEventTxs
-                ? skeletonList()
-                : recentEventTxs.map((event, idx) => (
-                    <Grid
-                      item
-                      container
-                      alignItems="flex-start"
-                      justifyContent="flex-start"
-                      key={idx}
-                    >
-                      <EventCardWrapper
-                        onHandleViewTx={(tx: ITransaction) => {
-                          setViewTx(tx);
-                          setSlideSearchParam(tx.id);
-                        }}
-                        link={
+            recentEventTxs.map((event) => (
+              <React.Fragment key={event.id}>
+                <EventCardWrapper
+                  onHandleViewTx={(tx: ITransaction) => {
+                    setViewTx(tx);
+                    setSlideSearchParam(tx.id);
+                  }}
+                  link={
+                    event.tx
+                      ? FF_NAV_PATHS.activityTxDetailPath(
+                          selectedNamespace,
                           event.tx
-                            ? FF_NAV_PATHS.activityTxDetailPath(
-                                selectedNamespace,
-                                event.tx
-                              )
-                            : FF_NAV_PATHS.activityTxPath(selectedNamespace)
-                        }
-                        {...{ event }}
-                      />
-                      <Grid sx={{ padding: '1px' }} />
-                    </Grid>
-                  ))}
-            </Grid>
+                        )
+                      : FF_NAV_PATHS.activityTxPath(selectedNamespace)
+                  }
+                  {...{ event }}
+                />
+                <Grid sx={{ padding: '1px' }} />
+              </React.Fragment>
+            ))
           )}
         </>
       ),
@@ -420,56 +370,38 @@ export const HomeDashboard: () => JSX.Element = () => {
     // Recent Network Events
     {
       headerText: t('recentNetworkEvents'),
-      headerComponent: (
-        <FFArrowButton
-          link={FF_NAV_PATHS.activityTimelinePath(selectedNamespace)}
-        />
-      ),
+      clickPath: FF_NAV_PATHS.activityTimelinePath(selectedNamespace),
       component: (
         <>
           {recentEvents?.length === 0 ? (
             <EmptyStateCard text={t('noRecentNetworkEvents')} />
+          ) : !recentEvents ? (
+            <SkeletonCardList numElements={7} />
           ) : (
-            <Grid
-              container
-              direction="column"
-              item
-              alignItems="flex-start"
-              justifyContent="flex-start"
-            >
-              {!recentEvents
-                ? skeletonList()
-                : recentEvents.map((event, idx) => (
-                    <Grid
-                      item
-                      container
-                      alignItems="flex-start"
-                      justifyContent="flex-start"
-                      key={idx}
-                    >
-                      <EventCardWrapper
-                        onHandleViewEvent={(event: IEvent) => {
-                          setViewEvent(event);
-                          setSlideSearchParam(event.id);
-                        }}
-                        link={
-                          event.tx
-                            ? FF_NAV_PATHS.activityTxDetailPathWithSlide(
-                                selectedNamespace,
-                                event.tx,
-                                event.id
-                              )
-                            : FF_NAV_PATHS.activityEventsPath(
-                                selectedNamespace,
-                                event.id
-                              )
-                        }
-                        {...{ event }}
-                      />
-                      <Grid sx={{ padding: '1px' }} />
-                    </Grid>
-                  ))}
-            </Grid>
+            recentEvents.map((event) => (
+              <React.Fragment key={event.id}>
+                <EventCardWrapper
+                  onHandleViewEvent={(event: IEvent) => {
+                    setViewEvent(event);
+                    setSlideSearchParam(event.id);
+                  }}
+                  link={
+                    event.tx
+                      ? FF_NAV_PATHS.activityTxDetailPathWithSlide(
+                          selectedNamespace,
+                          event.tx,
+                          event.id
+                        )
+                      : FF_NAV_PATHS.activityEventsPath(
+                          selectedNamespace,
+                          event.id
+                        )
+                  }
+                  {...{ event }}
+                />
+                <Grid sx={{ padding: '1px' }} />
+              </React.Fragment>
+            ))
           )}
         </>
       ),
@@ -502,92 +434,39 @@ export const HomeDashboard: () => JSX.Element = () => {
   return (
     <>
       <Header
-        title={'Dashboard'}
-        subtitle={'Home'}
+        title={t('dashboard')}
+        subtitle={t('home')}
         showRefreshBtn={hasAnyEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
-      <Grid container px={DEFAULT_PADDING}>
-        <Grid container item wrap="nowrap" direction="column">
-          {/* Small Cards */}
-          <Grid
-            spacing={DEFAULT_SPACING}
-            container
-            item
-            direction="row"
-            pb={DEFAULT_PADDING}
-          >
-            {smallCards.map((card) => {
-              return (
-                <Grid
-                  key={card.header}
-                  sm={12}
-                  md={12}
-                  lg={3}
-                  direction="column"
-                  alignItems="center"
-                  justifyContent="center"
-                  container
-                  item
-                >
-                  <SmallCard card={card} />
-                </Grid>
-              );
-            })}
-          </Grid>
-          {/* Medium Cards */}
-          <Grid
-            spacing={DEFAULT_SPACING}
-            container
-            justifyContent="center"
-            alignItems="center"
-            direction="row"
-            pb={DEFAULT_PADDING}
-          >
-            {mediumCards.map((card) => {
-              return (
-                <Grid
-                  key={card.headerText}
-                  direction="column"
-                  alignItems="center"
-                  justifyContent="center"
-                  container
-                  item
-                  md={12}
-                  lg={4}
-                >
-                  <FireFlyCard card={card} position="flex-start" />
-                </Grid>
-              );
-            })}
-          </Grid>
-          {/* Tables */}
-          <Grid
-            spacing={DEFAULT_SPACING}
-            container
-            item
-            direction="row"
-            pb={DEFAULT_PADDING}
-          >
-            {tableCards.map((card, idx) => {
-              return (
-                <Grid
-                  key={idx}
-                  direction="column"
-                  alignItems="center"
-                  justifyContent="center"
-                  container
-                  item
-                  sm={12}
-                  md={6}
-                >
-                  <FireFlyCard position="flex-start" key={idx} card={card} />
-                </Grid>
-              );
-            })}
-          </Grid>
-        </Grid>
-      </Grid>
+      <FFPageLayout>
+        {/* Small Cards */}
+        <FFDashboardRowLayout>
+          {smallCards.map((cardData) => {
+            return <SmallCard cardData={cardData} key={cardData.header} />;
+          })}
+        </FFDashboardRowLayout>
+        {/* Medium Cards */}
+        <FFDashboardRowLayout>
+          {mediumCards.map((cardData) => {
+            return (
+              <FireFlyCard
+                size="medium"
+                key={cardData.headerText}
+                cardData={cardData}
+              />
+            );
+          })}
+        </FFDashboardRowLayout>
+        {/* Tables */}
+        <FFDashboardRowLayout>
+          {tableCards.map((card) => {
+            return (
+              <FireFlyCard size="large" cardData={card} key={card.headerText} />
+            );
+          })}
+        </FFDashboardRowLayout>
+      </FFPageLayout>
       {viewTx && (
         <TransactionSlide
           transaction={viewTx}

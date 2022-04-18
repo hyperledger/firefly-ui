@@ -39,7 +39,6 @@ export const FFTimelineHeader: React.FC<Props> = ({
           container
           item
           justifyContent="center"
-          borderRight={`1px solid`}
           borderColor={'secondary.main'}
           height="100%"
           py="16px"
@@ -58,7 +57,6 @@ export const FFTimelineHeader: React.FC<Props> = ({
           container
           item
           justifyContent="center"
-          borderLeft={`1px solid`}
           borderColor={'secondary.main'}
           height="100%"
           py="16px"

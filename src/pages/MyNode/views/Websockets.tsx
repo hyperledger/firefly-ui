@@ -14,10 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Header } from '../../../components/Header';
+import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { WebsocketSlide } from '../../../components/Slides/WebsocketSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
@@ -30,7 +30,7 @@ import {
   IWebsocketConnection,
   IWebsocketStatus,
 } from '../../../interfaces';
-import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
+import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
 
 export const MyNodeWebsockets: () => JSX.Element = () => {
@@ -131,28 +131,26 @@ export const MyNodeWebsockets: () => JSX.Element = () => {
         noDateFilter
         showRefreshBtn={false}
       ></Header>
-      <Grid container px={DEFAULT_PADDING} pt={6}>
-        <Grid container item wrap="nowrap" direction="column">
-          <DataTable
-            onHandleCurrPageChange={(currentPage: number) =>
-              setCurrentPage(currentPage)
-            }
-            onHandleRowsPerPage={(rowsPerPage: number) =>
-              setRowsPerPage(rowsPerPage)
-            }
-            stickyHeader={true}
-            minHeight="300px"
-            maxHeight="calc(100vh - 340px)"
-            records={wsRecords}
-            columnHeaders={wsColHeaders}
-            paginate={true}
-            emptyStateText={t('noWebsocketConnectionsToDisplay')}
-            dataTotal={wsConnsTotal}
-            currentPage={currentPage}
-            rowsPerPage={rowsPerPage}
-          />
-        </Grid>
-      </Grid>
+      <FFPageLayout>
+        <DataTable
+          onHandleCurrPageChange={(currentPage: number) =>
+            setCurrentPage(currentPage)
+          }
+          onHandleRowsPerPage={(rowsPerPage: number) =>
+            setRowsPerPage(rowsPerPage)
+          }
+          stickyHeader={true}
+          minHeight="300px"
+          maxHeight="calc(100vh - 340px)"
+          records={wsRecords}
+          columnHeaders={wsColHeaders}
+          paginate={true}
+          emptyStateText={t('noWebsocketConnectionsToDisplay')}
+          dataTotal={wsConnsTotal}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+        />
+      </FFPageLayout>
       {viewWs && (
         <WebsocketSlide
           ws={viewWs}

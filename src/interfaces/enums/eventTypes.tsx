@@ -13,7 +13,7 @@ export interface IHistEventBucket {
   [EventCategoryEnum.BLOCKCHAIN]: number;
   [EventCategoryEnum.MESSAGES]: number;
   [EventCategoryEnum.TOKENS]: number;
-  isCapped: number;
+  Truncated: number;
 }
 
 export interface IHistEventTimeMap {

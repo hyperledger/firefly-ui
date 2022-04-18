@@ -20,7 +20,5 @@ export const makeColorArray = (map: { [key: string]: IBlockchainCategory }) => {
 };
 
 export const makeKeyArray = (map: { [key: string]: IBlockchainCategory }) => {
-  return Array.from(
-    new Set(Object.keys(map).map((k) => map[k]?.category)).add('isCapped')
-  );
+  return Array.from(new Set(Object.keys(map).map((k) => map[k]?.category)));
 };

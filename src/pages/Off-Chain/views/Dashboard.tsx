@@ -14,18 +14,18 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DownloadButton } from '../../../components/Buttons/DownloadButton';
-import { FFArrowButton } from '../../../components/Buttons/FFArrowButton';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { MsgStatusChip } from '../../../components/Chips/MsgStatusChip';
 import { Header } from '../../../components/Header';
+import { FFDashboardRowLayout } from '../../../components/Layouts/FFDashboardRowLayout';
+import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { DataSlide } from '../../../components/Slides/DataSlide';
 import { DatatypeSlide } from '../../../components/Slides/DatatypeSlide';
@@ -56,11 +56,7 @@ import {
   MESSAGES_PATH,
 } from '../../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
-import {
-  DEFAULT_PADDING,
-  DEFAULT_PAGE_LIMITS,
-  DEFAULT_SPACING,
-} from '../../../theme';
+import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime, makeMsgHistogram } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -262,7 +258,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
   const mediumCards: IFireFlyCard[] = [
     {
       headerText: t('recentMessages'),
-      headerComponent: <FFArrowButton link={MESSAGES_PATH} />,
+      clickPath: MESSAGES_PATH,
       component: (
         <Histogram
           height={'100%'}
@@ -279,25 +275,23 @@ export const OffChainDashboard: () => JSX.Element = () => {
     },
     {
       headerText: t('recentData'),
-      headerComponent: <FFArrowButton link={DATA_PATH} />,
+      clickPath: DATA_PATH,
       component: (
         <MediumCardTable
           records={dataRecords}
           columnHeaders={dataHeaders}
           emptyMessage={t('noRecentData')}
-          stickyHeader={true}
         ></MediumCardTable>
       ),
     },
     {
       headerText: t('datatypes'),
-      headerComponent: <FFArrowButton link={DATATYPES_PATH} />,
+      clickPath: DATATYPES_PATH,
       component: (
         <MediumCardTable
           records={dtRecords}
           columnHeaders={dtHeaders}
           emptyMessage={t('noDatatypes')}
-          stickyHeader={true}
         ></MediumCardTable>
       ),
     },
@@ -458,82 +452,47 @@ export const OffChainDashboard: () => JSX.Element = () => {
         showRefreshBtn={hasOffchainEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
-      <Grid container px={DEFAULT_PADDING}>
-        <Grid container item wrap="nowrap" direction="column">
-          {/* Small Cards */}
-          <Grid
-            spacing={DEFAULT_SPACING}
-            container
-            item
-            direction="row"
-            pb={DEFAULT_PADDING}
-          >
-            {smallCards.map((card) => {
-              return (
-                <Grid
-                  key={card.header}
-                  sm={12}
-                  md={6}
-                  lg={3}
-                  direction="column"
-                  alignItems="center"
-                  justifyContent="center"
-                  container
-                  item
-                >
-                  <SmallCard key={card.header} card={card} />
-                </Grid>
-              );
-            })}
-          </Grid>
-          {/* Medium Cards */}
-          <Grid
-            spacing={DEFAULT_SPACING}
-            container
-            justifyContent="center"
-            alignItems="flex-start"
-            direction="row"
-            pb={DEFAULT_PADDING}
-          >
-            {mediumCards.map((card) => {
-              return (
-                <Grid
-                  key={card.headerText}
-                  direction="column"
-                  justifyContent="center"
-                  container
-                  item
-                  md={12}
-                  lg={4}
-                >
-                  <FireFlyCard card={card} position="flex-start" />
-                </Grid>
-              );
-            })}
-          </Grid>
-          <DataTable
-            header={t('recentMessages')}
-            onHandleCurrPageChange={(currentPage: number) =>
-              setCurrentPage(currentPage)
-            }
-            onHandleRowsPerPage={(rowsPerPage: number) =>
-              setRowsPerPage(rowsPerPage)
-            }
-            stickyHeader={true}
-            minHeight="300px"
-            maxHeight="calc(100vh - 800px)"
-            records={msgRecords}
-            columnHeaders={msgColumnHeaders}
-            paginate={true}
-            emptyStateText={t('noMessagesToDisplay')}
-            dataTotal={messageTotal}
-            currentPage={currentPage}
-            rowsPerPage={rowsPerPage}
-            dashboardSize
-            headerBtn={<FFArrowButton link={MESSAGES_PATH} />}
-          />
-        </Grid>
-      </Grid>
+      <FFPageLayout>
+        {/* Small Cards */}
+        <FFDashboardRowLayout>
+          {smallCards.map((cardData) => {
+            return <SmallCard cardData={cardData} key={cardData.header} />;
+          })}
+        </FFDashboardRowLayout>
+        {/* Medium Cards */}
+        <FFDashboardRowLayout>
+          {mediumCards.map((cardData) => {
+            return (
+              <FireFlyCard
+                size="medium"
+                key={cardData.headerText}
+                cardData={cardData}
+              />
+            );
+          })}
+        </FFDashboardRowLayout>
+        <DataTable
+          header={t('recentMessages')}
+          onHandleCurrPageChange={(currentPage: number) =>
+            setCurrentPage(currentPage)
+          }
+          onHandleRowsPerPage={(rowsPerPage: number) =>
+            setRowsPerPage(rowsPerPage)
+          }
+          stickyHeader={true}
+          minHeight="300px"
+          maxHeight="calc(100vh - 800px)"
+          records={msgRecords}
+          columnHeaders={msgColumnHeaders}
+          paginate={true}
+          emptyStateText={t('noMessagesToDisplay')}
+          dataTotal={messageTotal}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+          dashboardSize
+          clickPath={MESSAGES_PATH}
+        />
+      </FFPageLayout>
       {viewData && (
         <DataSlide
           data={viewData}

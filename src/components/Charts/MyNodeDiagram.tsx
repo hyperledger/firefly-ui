@@ -1,5 +1,4 @@
-import { Typography } from '@mui/material';
-import { Box } from '@mui/system';
+import { Box } from '@mui/material';
 import dagre from 'dagre';
 import i18next from 'i18next';
 import React, { useContext, useEffect, useState } from 'react';
@@ -289,7 +288,6 @@ export const MyNodeDiagram: React.FC<Props> = ({
             />
           )}
         </ReactFlowProvider>
-        <Typography>done</Typography>
       </Box>
     );
   }

@@ -15,7 +15,6 @@
 // limitations under the License.
 
 import {
-  Grid,
   Table,
   TableBody,
   TableCell,
@@ -34,55 +33,52 @@ interface Props {
   records?: IDataTableRecord[];
   columnHeaders?: string[];
   emptyMessage: string;
-  stickyHeader?: boolean;
 }
 
 export const MediumCardTable: React.FC<Props> = ({
   records,
   columnHeaders,
   emptyMessage,
-  stickyHeader,
 }) => {
   return (
     <>
       {!records ? (
         <FFCircleLoader color="warning"></FFCircleLoader>
       ) : records.length ? (
-        <Grid item xs={12}>
-          <TableContainer sx={{ paddingTop: 2, whiteSpace: 'nowrap' }}>
-            <Table stickyHeader={stickyHeader}>
-              <TableHead>
-                <TableRow>
-                  {columnHeaders?.map((header, index) => (
-                    <TableCell
+        <TableContainer sx={{ whiteSpace: 'nowrap' }}>
+          <Table stickyHeader={true}>
+            <TableHead>
+              <TableRow>
+                {columnHeaders?.map((header, index) => (
+                  <TableCell
+                    sx={{
+                      paddingTop: 0,
+                      borderBottom: 0,
+                      backgroundColor: 'background.paper',
+                    }}
+                    key={index}
+                  >
+                    <Typography
+                      color="secondary"
                       sx={{
-                        borderBottom: 0,
-                        backgroundColor: 'background.paper',
+                        fontSize: 12,
+                        textTransform: 'uppercase',
                       }}
-                      key={index}
+                      noWrap
                     >
-                      <Typography
-                        color="secondary"
-                        sx={{
-                          fontSize: 12,
-                          textTransform: 'uppercase',
-                        }}
-                        noWrap
-                      >
-                        {header}
-                      </Typography>
-                    </TableCell>
-                  ))}
-                </TableRow>
-              </TableHead>
-              <TableBody>
-                {records?.map((record) => (
-                  <MediumCardTableRow key={record.key} {...{ record }} />
+                      {header}
+                    </Typography>
+                  </TableCell>
                 ))}
-              </TableBody>
-            </Table>
-          </TableContainer>
-        </Grid>
+              </TableRow>
+            </TableHead>
+            <TableBody>
+              {records?.map((record) => (
+                <MediumCardTableRow key={record.key} {...{ record }} />
+              ))}
+            </TableBody>
+          </Table>
+        </TableContainer>
       ) : (
         <EmptyStateCard text={emptyMessage} />
       )}

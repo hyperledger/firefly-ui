@@ -14,8 +14,8 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { Close } from '@mui/icons-material';
 import { IconButton, Modal, Paper, Slide, useTheme } from '@mui/material';
-import CloseIcon from 'mdi-react/CloseIcon';
 import React from 'react';
 import { DEFAULT_PADDING } from '../../theme';
 
@@ -53,7 +53,7 @@ export const DisplaySlide: React.FC<Props> = ({ children, open, onClose }) => {
               }}
               size="large"
             >
-              <CloseIcon />
+              <Close />
             </IconButton>
             {children}
           </Paper>

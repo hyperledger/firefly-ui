@@ -14,7 +14,7 @@ export const makeMsgHistogram = (histList: IMetric[]): BarDatum[] => {
       [MsgCategoryEnum.BROADCAST]: 0,
       [MsgCategoryEnum.DEFINITON]: 0,
       [MsgCategoryEnum.PRIVATE]: 0,
-      isCapped: 0,
+      Truncated: 0,
     };
     hist.types.map((type) => {
       switch (FF_MESSAGES_CATEGORY_MAP[type.type as FF_MESSAGES]?.category) {
@@ -34,7 +34,7 @@ export const makeMsgHistogram = (histList: IMetric[]): BarDatum[] => {
             timeMap[hist.timestamp][MsgCategoryEnum.PRIVATE] + +type.count;
           break;
       }
-      hist.isCapped && (timeMap[hist.timestamp].isCapped = 1);
+      hist.isCapped && (timeMap[hist.timestamp].Truncated = 1);
     });
   });
 

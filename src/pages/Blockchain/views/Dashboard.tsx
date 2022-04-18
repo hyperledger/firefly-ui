@@ -15,17 +15,18 @@
 // limitations under the License.
 
 import { Launch } from '@mui/icons-material';
-import { Grid, IconButton, Link } from '@mui/material';
+import { IconButton, Link } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DownloadButton } from '../../../components/Buttons/DownloadButton';
-import { FFArrowButton } from '../../../components/Buttons/FFArrowButton';
 import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { Header } from '../../../components/Header';
+import { FFDashboardRowLayout } from '../../../components/Layouts/FFDashboardRowLayout';
+import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { ApiSlide } from '../../../components/Slides/ApiSlide';
 import { BlockchainEventSlide } from '../../../components/Slides/BlockchainEventSlide';
@@ -56,12 +57,7 @@ import {
   LISTENERS_PATH,
 } from '../../../interfaces';
 import { FF_BE_CATEGORY_MAP } from '../../../interfaces/enums/blockchainEventTypes';
-import {
-  DEFAULT_PADDING,
-  DEFAULT_PAGE_LIMITS,
-  DEFAULT_SPACING,
-  FFColors,
-} from '../../../theme';
+import { DEFAULT_PAGE_LIMITS, FFColors } from '../../../theme';
 import { fetchCatcher, getFFTime } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -292,7 +288,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
   const mediumCards: IFireFlyCard[] = [
     {
       headerText: t('recentBlockchainEvents'),
-      headerComponent: <FFArrowButton link={EVENTS_PATH} />,
+      clickPath: EVENTS_PATH,
       component: (
         <Histogram
           height={'100%'}
@@ -309,25 +305,23 @@ export const BlockchainDashboard: () => JSX.Element = () => {
     },
     {
       headerText: t('apis'),
-      headerComponent: <FFArrowButton link={APIS_PATH} />,
+      clickPath: APIS_PATH,
       component: (
         <MediumCardTable
           records={apiRecords}
           columnHeaders={apiColHeaders}
           emptyMessage={t('noApisToDisplay')}
-          stickyHeader={true}
         ></MediumCardTable>
       ),
     },
     {
       headerText: t('contractListeners'),
-      headerComponent: <FFArrowButton link={LISTENERS_PATH} />,
+      clickPath: LISTENERS_PATH,
       component: (
         <MediumCardTable
           records={clRecords}
           columnHeaders={clColHeaders}
           emptyMessage={t('noContractListeners')}
-          stickyHeader={true}
         ></MediumCardTable>
       ),
     },
@@ -455,82 +449,47 @@ export const BlockchainDashboard: () => JSX.Element = () => {
         showRefreshBtn={hasBlockchainEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
-      <Grid container px={DEFAULT_PADDING}>
-        <Grid container item wrap="nowrap" direction="column">
-          {/* Small Cards */}
-          <Grid
-            spacing={DEFAULT_SPACING}
-            container
-            item
-            direction="row"
-            pb={DEFAULT_PADDING}
-          >
-            {smallCards.map((card) => {
-              return (
-                <Grid
-                  key={card.header}
-                  sm={12}
-                  md={6}
-                  lg={3}
-                  direction="column"
-                  alignItems="center"
-                  justifyContent="center"
-                  container
-                  item
-                >
-                  <SmallCard card={card} />
-                </Grid>
-              );
-            })}
-          </Grid>
-          {/* Medium Cards */}
-          <Grid
-            spacing={DEFAULT_SPACING}
-            container
-            justifyContent="center"
-            alignItems="flex-start"
-            direction="row"
-            pb={DEFAULT_PADDING}
-          >
-            {mediumCards.map((card) => {
-              return (
-                <Grid
-                  key={card.headerText}
-                  direction="column"
-                  justifyContent="center"
-                  container
-                  item
-                  sm={12}
-                  lg={4}
-                >
-                  <FireFlyCard card={card} position="flex-start" />
-                </Grid>
-              );
-            })}
-          </Grid>
-          <DataTable
-            header={t('recentBlockchainEvents')}
-            onHandleCurrPageChange={(currentPage: number) =>
-              setCurrentPage(currentPage)
-            }
-            onHandleRowsPerPage={(rowsPerPage: number) =>
-              setRowsPerPage(rowsPerPage)
-            }
-            stickyHeader={true}
-            minHeight="300px"
-            maxHeight="calc(100vh - 800px)"
-            records={beRecords}
-            columnHeaders={beColHeaders}
-            paginate={true}
-            emptyStateText={t('noBlockchainEvents')}
-            dataTotal={blockchainEventsTotal}
-            currentPage={currentPage}
-            rowsPerPage={rowsPerPage}
-            dashboardSize
-            headerBtn={<FFArrowButton link={EVENTS_PATH} />}
-          />
-        </Grid>
-      </Grid>
+      <FFPageLayout>
+        {/* Small Cards */}
+        <FFDashboardRowLayout>
+          {smallCards.map((cardData) => {
+            return <SmallCard cardData={cardData} key={cardData.header} />;
+          })}
+        </FFDashboardRowLayout>
+        {/* Medium Cards */}
+        <FFDashboardRowLayout>
+          {mediumCards.map((cardData) => {
+            return (
+              <FireFlyCard
+                size="medium"
+                key={cardData.headerText}
+                cardData={cardData}
+              />
+            );
+          })}
+        </FFDashboardRowLayout>
+        <DataTable
+          header={t('recentBlockchainEvents')}
+          onHandleCurrPageChange={(currentPage: number) =>
+            setCurrentPage(currentPage)
+          }
+          onHandleRowsPerPage={(rowsPerPage: number) =>
+            setRowsPerPage(rowsPerPage)
+          }
+          stickyHeader={true}
+          minHeight="300px"
+          maxHeight="calc(100vh - 800px)"
+          records={beRecords}
+          columnHeaders={beColHeaders}
+          paginate={true}
+          emptyStateText={t('noBlockchainEvents')}
+          dataTotal={blockchainEventsTotal}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+          dashboardSize
+          clickPath={EVENTS_PATH}
+        />
+      </FFPageLayout>
       {viewApi && (
         <ApiSlide
           api={viewApi}

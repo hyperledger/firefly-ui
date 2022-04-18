@@ -1,7 +1,7 @@
+import { DashboardOutlined } from '@mui/icons-material';
 import LaunchIcon from '@mui/icons-material/Launch';
 import MenuBookIcon from '@mui/icons-material/MenuBook';
 import { Drawer, List } from '@mui/material';
-import ViewDashboardOutlineIcon from 'mdi-react/ViewDashboardOutlineIcon';
 import { default as React, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -29,7 +29,7 @@ export const Navigation: React.FC = () => {
     <>
       <NavItem
         name={t('dashboard')}
-        icon={<ViewDashboardOutlineIcon />}
+        icon={<DashboardOutlined />}
         action={() => navigate(FF_NAV_PATHS.homePath(selectedNamespace))}
         itemIsActive={pathname === FF_NAV_PATHS.homePath(selectedNamespace)}
         isRoot

@@ -27,24 +27,22 @@ export const EventCardWrapper = ({
   const { t } = useTranslation();
 
   return (
-    <>
-      <BaseCard
-        onClick={
-          onHandleViewTx
-            ? () => onHandleViewTx(event.transaction)
-            : () => onHandleViewEvent(event)
-        }
-        title={
-          event.transaction
-            ? t(FF_TX_CATEGORY_MAP[event.transaction?.type]?.nicename)
-            : t(t(FF_EVENTS_CATEGORY_MAP[event.type]?.nicename))
-        }
-        description={getEnrichedEventText(event)}
-        timestamp={getFFTime(event.created)}
-        status={<HashPopover address={event.id} shortHash paper />}
-        color={FF_EVENTS_CATEGORY_MAP[event.type]?.color}
-        link={link}
-      />
-    </>
+    <BaseCard
+      onClick={
+        onHandleViewTx
+          ? () => onHandleViewTx(event.transaction)
+          : () => onHandleViewEvent(event)
+      }
+      title={
+        event.transaction
+          ? t(FF_TX_CATEGORY_MAP[event.transaction?.type]?.nicename)
+          : t(t(FF_EVENTS_CATEGORY_MAP[event.type]?.nicename))
+      }
+      description={getEnrichedEventText(event)}
+      timestamp={getFFTime(event.created)}
+      status={<HashPopover address={event.id} shortHash paper />}
+      color={FF_EVENTS_CATEGORY_MAP[event.type]?.color}
+      link={link}
+    />
   );
 };

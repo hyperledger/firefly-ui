@@ -14,13 +14,12 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
-import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
+import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { ApprovalSlide } from '../../../components/Slides/ApprovalSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
@@ -28,6 +27,7 @@ import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
+import { PoolContext } from '../../../contexts/PoolContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
@@ -38,10 +38,9 @@ import {
   ITokenApproval,
   ITokenApprovalWithPoolName,
 } from '../../../interfaces';
-import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
+import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, fetchPool, getFFTime } from '../../../utils';
 import { hasApprovalEvent } from '../../../utils/wsEvents';
-import { PoolContext } from '../../../contexts/PoolContext';
 
 export const TokensApprovals: () => JSX.Element = () => {
   const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
@@ -55,9 +54,8 @@ export const TokensApprovals: () => JSX.Element = () => {
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
   // Token approvals
-  const [tokenApprovals, setTokenApprovals] = useState<
-    ITokenApprovalWithPoolName[]
-  >([]);
+  const [tokenApprovals, setTokenApprovals] =
+    useState<ITokenApprovalWithPoolName[]>();
   // Token approvals totals
   const [tokenApprovalsTotal, setTokenApprovalsTotal] = useState(0);
   const [viewApproval, setViewApproval] =
@@ -122,10 +120,14 @@ export const TokensApprovals: () => JSX.Element = () => {
               ...item,
               poolName: pool ? pool.name : item.pool,
             };
-            setTokenApprovals((tokenApprovals) => [
-              ...tokenApprovals,
-              approval,
-            ]);
+            setTokenApprovals((tokenApprovals) => {
+              return tokenApprovals
+                ? [...tokenApprovals, approval]
+                : [approval];
+            });
+          }
+          if (tokenApprovalRes.items.length === 0) {
+            setTokenApprovals([]);
           }
           setTokenApprovalsTotal(tokenApprovalRes.total);
         })
@@ -202,37 +204,33 @@ export const TokensApprovals: () => JSX.Element = () => {
         showRefreshBtn={hasApprovalEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
-      <Grid container px={DEFAULT_PADDING}>
-        <Grid container item wrap="nowrap" direction="column">
-          <ChartTableHeader
-            filter={
-              <FilterButton
-                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
-                  setFilterAnchor(e.currentTarget)
-                }
-              />
-            }
-          />
-          <DataTable
-            onHandleCurrPageChange={(currentPage: number) =>
-              setCurrentPage(currentPage)
-            }
-            onHandleRowsPerPage={(rowsPerPage: number) =>
-              setRowsPerPage(rowsPerPage)
-            }
-            stickyHeader={true}
-            minHeight="300px"
-            maxHeight="calc(100vh - 340px)"
-            records={tokenApprovalRecords}
-            columnHeaders={tokenApprovalColHeaders}
-            paginate={true}
-            emptyStateText={t('noTokenApprovalsToDisplay')}
-            dataTotal={tokenApprovalsTotal}
-            currentPage={currentPage}
-            rowsPerPage={rowsPerPage}
-          />
-        </Grid>
-      </Grid>
+      <FFPageLayout>
+        <DataTable
+          onHandleCurrPageChange={(currentPage: number) =>
+            setCurrentPage(currentPage)
+          }
+          onHandleRowsPerPage={(rowsPerPage: number) =>
+            setRowsPerPage(rowsPerPage)
+          }
+          stickyHeader={true}
+          minHeight="300px"
+          maxHeight="calc(100vh - 340px)"
+          records={tokenApprovalRecords}
+          columnHeaders={tokenApprovalColHeaders}
+          paginate={true}
+          emptyStateText={t('noTokenApprovalsToDisplay')}
+          dataTotal={tokenApprovalsTotal}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+          filterButton={
+            <FilterButton
+              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                setFilterAnchor(e.currentTarget)
+              }
+            />
+          }
+        />
+      </FFPageLayout>
       {filterAnchor && (
         <FilterModal
           anchor={filterAnchor}

@@ -15,7 +15,6 @@
 // limitations under the License.
 
 import { Grid } from '@mui/material';
-import { Box } from '@mui/system';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -26,8 +25,8 @@ import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
-import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
 import { FFTimelineHeader } from '../../../components/Headers/TimelineHeader';
+import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { EventSlide } from '../../../components/Slides/EventSlide';
 import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { FFTimeline } from '../../../components/Timeline/FFTimeline';
@@ -36,7 +35,6 @@ import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
-import { hasAnyEvent } from '../../../utils/wsEvents';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
@@ -48,7 +46,7 @@ import {
   IPagedEventResponse,
   ITransaction,
 } from '../../../interfaces';
-import { DEFAULT_HIST_HEIGHT, DEFAULT_PADDING, FFColors } from '../../../theme';
+import { DEFAULT_PADDING, FFColors } from '../../../theme';
 import {
   fetchCatcher,
   fetchWithCredentials,
@@ -56,6 +54,7 @@ import {
 } from '../../../utils';
 import { isHistogramEmpty } from '../../../utils/charts';
 import { isOppositeTimelineEvent } from '../../../utils/timeline';
+import { hasAnyEvent } from '../../../utils/wsEvents';
 
 const ROWS_PER_PAGE = 25;
 
@@ -208,36 +207,35 @@ export const ActivityTimeline: () => JSX.Element = () => {
         subtitle={t('activity')}
         showRefreshBtn={false}
       />
-      <Grid container px={DEFAULT_PADDING} direction="column" spacing={2}>
-        <Grid item>
-          <ChartTableHeader
-            filter={
-              <FilterButton
-                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
-                  setFilterAnchor(e.currentTarget)
-                }
-              />
-            }
-          />
-          <Box height={DEFAULT_HIST_HEIGHT}>
-            <Histogram
-              colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
-              data={eventHistData}
-              indexBy="timestamp"
-              keys={[
-                EventCategoryEnum.BLOCKCHAIN,
-                EventCategoryEnum.MESSAGES,
-                EventCategoryEnum.TOKENS,
-              ]}
-              includeLegend={true}
-              isLoading={isHistLoading}
-              isEmpty={isHistogramEmpty(eventHistData ?? [])}
-              emptyText={t('noActivity')}
-              height="100%"
+      <FFPageLayout>
+        <Histogram
+          colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
+          data={eventHistData}
+          indexBy="timestamp"
+          keys={[
+            EventCategoryEnum.BLOCKCHAIN,
+            EventCategoryEnum.MESSAGES,
+            EventCategoryEnum.TOKENS,
+          ]}
+          includeLegend={true}
+          isLoading={isHistLoading}
+          isEmpty={isHistogramEmpty(eventHistData ?? [])}
+          emptyText={t('noActivity')}
+          filterButton={
+            <FilterButton
+              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                setFilterAnchor(e.currentTarget)
+              }
             />
-          </Box>
-        </Grid>
-        <Grid container justifyContent={'center'} direction="column" item>
+          }
+        />
+        <Grid
+          container
+          justifyContent={'center'}
+          direction="column"
+          item
+          pt={DEFAULT_PADDING}
+        >
           <FFTimelineHeader
             leftHeader={t('submittedByMe')}
             rightHeader={t('receivedFromEveryone')}
@@ -245,14 +243,14 @@ export const ActivityTimeline: () => JSX.Element = () => {
           <FFTimeline
             elements={buildTimelineElements(data)}
             emptyText={t('noTimelineEvents')}
-            height={'calc(100vh - 475px)'}
+            height={'calc(100vh - 425px)'}
             fetchMoreData={() => setIsVisible(isVisible + 1)}
             hasMoreData={hasNextPage}
             hasNewEvents={hasAnyEvent(newEvents)}
             fetchNewData={clearNewEvents}
           />
         </Grid>
-      </Grid>
+      </FFPageLayout>
       {filterAnchor && (
         <FilterModal
           anchor={filterAnchor}

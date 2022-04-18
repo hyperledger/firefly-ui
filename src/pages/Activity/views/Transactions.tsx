@@ -14,7 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -24,7 +23,7 @@ import { Histogram } from '../../../components/Charts/Histogram';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
-import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
+import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
@@ -45,11 +44,7 @@ import {
   TransactionFilters,
 } from '../../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
-import {
-  DEFAULT_HIST_HEIGHT,
-  DEFAULT_PADDING,
-  DEFAULT_PAGE_LIMITS,
-} from '../../../theme';
+import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -211,49 +206,43 @@ export const ActivityTransactions: () => JSX.Element = () => {
         onRefresh={clearNewEvents}
         showRefreshBtn={hasTxEvent(newEvents)}
       ></Header>
-      <Grid container px={DEFAULT_PADDING}>
-        <Grid container item wrap="nowrap" direction="column">
-          <ChartTableHeader
-            filter={
-              <FilterButton
-                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
-                  setFilterAnchor(e.currentTarget)
-                }
-              />
-            }
-          />
-          <Box height={DEFAULT_HIST_HEIGHT}>
-            <Histogram
-              colors={makeColorArray(FF_TX_CATEGORY_MAP)}
-              data={txHistData}
-              indexBy="timestamp"
-              keys={makeKeyArray(FF_TX_CATEGORY_MAP)}
-              includeLegend={true}
-              emptyText={t('noTransactions')}
-              isLoading={isHistLoading}
-              isEmpty={isHistogramEmpty(txHistData ?? [])}
+      <FFPageLayout>
+        <Histogram
+          colors={makeColorArray(FF_TX_CATEGORY_MAP)}
+          data={txHistData}
+          indexBy="timestamp"
+          keys={makeKeyArray(FF_TX_CATEGORY_MAP)}
+          includeLegend={true}
+          emptyText={t('noTransactions')}
+          isLoading={isHistLoading}
+          isEmpty={isHistogramEmpty(txHistData ?? [])}
+          filterButton={
+            <FilterButton
+              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                setFilterAnchor(e.currentTarget)
+              }
             />
-          </Box>
-          <DataTable
-            onHandleCurrPageChange={(currentPage: number) =>
-              setCurrentPage(currentPage)
-            }
-            onHandleRowsPerPage={(rowsPerPage: number) =>
-              setRowsPerPage(rowsPerPage)
-            }
-            stickyHeader={true}
-            minHeight="300px"
-            maxHeight="calc(100vh - 340px)"
-            records={txRecords}
-            columnHeaders={txColumnHeaders}
-            paginate={true}
-            emptyStateText={t('noTransactionsToDisplay')}
-            dataTotal={txTotal}
-            currentPage={currentPage}
-            rowsPerPage={rowsPerPage}
-          />
-        </Grid>
-      </Grid>
+          }
+        />
+        <DataTable
+          onHandleCurrPageChange={(currentPage: number) =>
+            setCurrentPage(currentPage)
+          }
+          onHandleRowsPerPage={(rowsPerPage: number) =>
+            setRowsPerPage(rowsPerPage)
+          }
+          stickyHeader={true}
+          minHeight="300px"
+          maxHeight="calc(100vh - 340px)"
+          records={txRecords}
+          columnHeaders={txColumnHeaders}
+          paginate={true}
+          emptyStateText={t('noTransactionsToDisplay')}
+          dataTotal={txTotal}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+        />
+      </FFPageLayout>
       {filterAnchor && (
         <FilterModal
           anchor={filterAnchor}

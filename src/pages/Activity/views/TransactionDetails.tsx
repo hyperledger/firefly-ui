@@ -20,10 +20,9 @@ import { useTranslation } from 'react-i18next';
 import { useLocation, useParams } from 'react-router-dom';
 import { FFBreadcrumb } from '../../../components/Breadcrumbs/FFBreadcrumb';
 import { FFCopyButton } from '../../../components/Buttons/CopyButton';
-import { FFArrowButton } from '../../../components/Buttons/FFArrowButton';
+import { DetailsCard } from '../../../components/Cards/DetailsCard';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
 import { OpCardWrapper } from '../../../components/Cards/EventCards/OpCardWrapper';
-import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { Header } from '../../../components/Header';
 import { TxList } from '../../../components/Lists/TxList';
 import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
@@ -156,9 +155,9 @@ export const TransactionDetails: () => JSX.Element = () => {
 
   const operationsCard: IFireFlyCard = {
     headerText: t('blockchainOperations'),
-    headerComponent: (
-      <FFArrowButton link={FF_NAV_PATHS.activityOpPath(selectedNamespace)} />
-    ),
+    clickPath:
+      tx?.id &&
+      FF_NAV_PATHS.activityOpPathWithTxFilter(selectedNamespace, tx.id),
     component: (
       <>
         {!txOperations ? (
@@ -173,7 +172,7 @@ export const TransactionDetails: () => JSX.Element = () => {
                 }}
                 {...{ op }}
               />
-              <Grid sx={{ padding: '6px' }} />
+              <Grid sx={{ padding: '2px' }} />
             </React.Fragment>
           ))
         )}
@@ -183,11 +182,9 @@ export const TransactionDetails: () => JSX.Element = () => {
 
   const networkEventsCard: IFireFlyCard = {
     headerText: t('events'),
-    headerComponent: (
-      <FFArrowButton
-        link={FF_NAV_PATHS.activityEventsPath(selectedNamespace)}
-      />
-    ),
+    clickPath:
+      tx?.id &&
+      FF_NAV_PATHS.activityEventsPathWithTxFilter(selectedNamespace, tx.id),
     component: (
       <>
         {!txEvents ? (
@@ -202,7 +199,7 @@ export const TransactionDetails: () => JSX.Element = () => {
                 }}
                 {...{ event }}
               />
-              <Grid sx={{ padding: '6px' }} />
+              <Grid sx={{ padding: '2px' }} />
             </React.Fragment>
           ))
         )}
@@ -270,7 +267,7 @@ export const TransactionDetails: () => JSX.Element = () => {
               item
               height="100%"
             >
-              <FireFlyCard height="100%" card={operationsCard} />
+              <DetailsCard card={operationsCard} />
             </Grid>
           </Grid>
         </Grid>
@@ -294,7 +291,7 @@ export const TransactionDetails: () => JSX.Element = () => {
             container
             item
           >
-            <FireFlyCard height="100%" card={networkEventsCard} />
+            <DetailsCard card={networkEventsCard} />
           </Grid>
         </Grid>
       </Grid>

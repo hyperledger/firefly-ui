@@ -281,9 +281,7 @@ export const NetworkMap: React.FC<Props> = ({ size }) => {
                 background: 'secondary.dark',
               }}
             >
-              <Grid item>
-                <Typography>{node?.id?.split(NODE_STRING_DELIM)[0]}</Typography>
-              </Grid>
+              <Typography>{node?.id?.split(NODE_STRING_DELIM)[0]}</Typography>
             </Paper>
           );
         }}
@@ -291,7 +289,7 @@ export const NetworkMap: React.FC<Props> = ({ size }) => {
     );
 
   return (
-    <Grid container sx={{ width: '100%', height: '100%', cursor: 'pointer' }}>
+    <Grid container sx={{ width: '100%', height: '98%', cursor: 'pointer' }}>
       {content}
       {anchorPosition && (
         <Popover

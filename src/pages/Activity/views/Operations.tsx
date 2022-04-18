@@ -14,7 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Grid } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -24,7 +23,7 @@ import { OpStatusChip } from '../../../components/Chips/OpStatusChip';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
-import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
+import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { OperationSlide } from '../../../components/Slides/OperationSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
@@ -34,7 +33,6 @@ import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
-import { hasAnyEvent } from '../../../utils/wsEvents';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
@@ -46,11 +44,7 @@ import {
   OperationFilters,
 } from '../../../interfaces';
 import { FF_OP_CATEGORY_MAP } from '../../../interfaces/enums';
-import {
-  DEFAULT_HIST_HEIGHT,
-  DEFAULT_PADDING,
-  DEFAULT_PAGE_LIMITS,
-} from '../../../theme';
+import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import {
   fetchCatcher,
   getFFTime,
@@ -61,6 +55,7 @@ import {
   makeColorArray,
   makeKeyArray,
 } from '../../../utils/charts';
+import { hasAnyEvent } from '../../../utils/wsEvents';
 
 export const ActivityOperations: () => JSX.Element = () => {
   const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
@@ -211,49 +206,43 @@ export const ActivityOperations: () => JSX.Element = () => {
         showRefreshBtn={hasAnyEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
-      <Grid container px={DEFAULT_PADDING}>
-        <Grid container item wrap="nowrap" direction="column">
-          <ChartTableHeader
-            filter={
-              <FilterButton
-                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
-                  setFilterAnchor(e.currentTarget)
-                }
-              />
-            }
-          />
-          <Box height={DEFAULT_HIST_HEIGHT}>
-            <Histogram
-              colors={makeColorArray(FF_OP_CATEGORY_MAP)}
-              data={opHistData}
-              indexBy="timestamp"
-              keys={makeKeyArray(FF_OP_CATEGORY_MAP)}
-              includeLegend={true}
-              emptyText={t('noOperations')}
-              isLoading={isHistLoading}
-              isEmpty={isHistogramEmpty(opHistData ?? [])}
+      <FFPageLayout>
+        <Histogram
+          colors={makeColorArray(FF_OP_CATEGORY_MAP)}
+          data={opHistData}
+          indexBy="timestamp"
+          keys={makeKeyArray(FF_OP_CATEGORY_MAP)}
+          includeLegend={true}
+          emptyText={t('noOperations')}
+          isLoading={isHistLoading}
+          isEmpty={isHistogramEmpty(opHistData ?? [])}
+          filterButton={
+            <FilterButton
+              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                setFilterAnchor(e.currentTarget)
+              }
             />
-          </Box>
-          <DataTable
-            onHandleCurrPageChange={(currentPage: number) =>
-              setCurrentPage(currentPage)
-            }
-            onHandleRowsPerPage={(rowsPerPage: number) =>
-              setRowsPerPage(rowsPerPage)
-            }
-            stickyHeader={true}
-            minHeight="300px"
-            maxHeight="calc(100vh - 340px)"
-            records={opsRecords}
-            columnHeaders={opsColumnHeaders}
-            paginate={true}
-            emptyStateText={t('noOperationsToDisplay')}
-            dataTotal={opTotal}
-            currentPage={currentPage}
-            rowsPerPage={rowsPerPage}
-          />
-        </Grid>
-      </Grid>
+          }
+        />
+        <DataTable
+          onHandleCurrPageChange={(currentPage: number) =>
+            setCurrentPage(currentPage)
+          }
+          onHandleRowsPerPage={(rowsPerPage: number) =>
+            setRowsPerPage(rowsPerPage)
+          }
+          stickyHeader={true}
+          minHeight="300px"
+          maxHeight="calc(100vh - 340px)"
+          records={opsRecords}
+          columnHeaders={opsColumnHeaders}
+          paginate={true}
+          emptyStateText={t('noOperationsToDisplay')}
+          dataTotal={opTotal}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+        />
+      </FFPageLayout>
       {filterAnchor && (
         <FilterModal
           anchor={filterAnchor}

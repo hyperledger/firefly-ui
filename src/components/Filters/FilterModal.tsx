@@ -14,6 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { Close } from '@mui/icons-material';
 import {
   Button,
   Checkbox,
@@ -28,7 +29,6 @@ import {
   TextField,
   Typography,
 } from '@mui/material';
-import CloseIcon from 'mdi-react/CloseIcon';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FilterContext } from '../../contexts/FilterContext';
@@ -135,7 +135,7 @@ export const FilterModal: React.FC<Props> = ({ anchor, onClose, fields }) => {
               </Typography>
             </Grid>
             <Grid item sx={{ cursor: 'pointer', marginRight: 1 }}>
-              <CloseIcon onClick={onClose} />
+              <Close onClick={onClose} />
             </Grid>
           </Grid>
           <form>

@@ -1,6 +1,5 @@
-import { Grid, Paper, Popover, Typography } from '@mui/material';
+import { Box, Grid, Paper, Popover, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { Box } from '@mui/system';
 import { BarDatum, ResponsiveBar } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
@@ -19,9 +18,10 @@ interface Props {
   isEmpty: boolean;
   keys: string[];
   isLoading: boolean;
+  filterButton?: JSX.Element;
 }
 
-export const getIsCappedColor = (lightMode: boolean) =>
+export const getTruncatedColor = (lightMode: boolean) =>
   lightMode ? '#000000' : '#FFFFFF';
 
 export const Histogram: React.FC<Props> = ({
@@ -34,14 +34,13 @@ export const Histogram: React.FC<Props> = ({
   isEmpty,
   keys,
   isLoading,
+  filterButton,
 }) => {
   const theme = useTheme();
   const [xAxisValues, setXAxisValues] = useState<(string | number)[]>([]);
   const [popoverBucket, setPopoverBucket] = useState<any>(undefined);
   const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
-
-  colors.push(getIsCappedColor(theme.palette.mode === 'light'));
 
   useEffect(() => {
     if (data) {
@@ -74,7 +73,7 @@ export const Histogram: React.FC<Props> = ({
       >
         {Object.entries(popoverBucket.data).map(([key, value], idx) => {
           return (
-            key !== 'isCapped' &&
+            key !== 'Truncated' &&
             key !== 'timestamp' && (
               <Typography key={key} sx={{ color: colors[idx] }}>
                 {`${key.toUpperCase()}: ${value ?? 0}`}
@@ -92,115 +91,146 @@ export const Histogram: React.FC<Props> = ({
     );
   };
 
+  // Returns key array, altered if buckets have a bar that is truncated
+  const getKeys = (data: BarDatum[], keys: string[]) => {
+    if (!data.every((d) => d.Truncated === 0) && !keys.includes('Truncated')) {
+      keys.push('Truncated');
+    }
+
+    return keys;
+  };
+
+  // Returns colors array, altered if buckets have a bar that is truncated
+  const getColors = (data: BarDatum[], colors: string[]) => {
+    const truncatedColor = getTruncatedColor(theme.palette.mode === 'light');
+    if (
+      !data.every((d) => d.Truncated === 0) &&
+      !keys.includes(truncatedColor)
+    ) {
+      colors.push(truncatedColor);
+    }
+
+    return colors;
+  };
+
   return (
-    <Box
-      borderRadius={DEFAULT_BORDER_RADIUS}
-      sx={{
-        width: '100%',
-        height: height ?? DEFAULT_HIST_HEIGHT,
-        backgroundColor: 'background.paper',
-      }}
-    >
-      {!data || isLoading ? (
-        <FFCircleLoader height="100%" color="warning"></FFCircleLoader>
-      ) : isEmpty ? (
-        <EmptyStateCard
-          height={height ?? DEFAULT_HIST_HEIGHT}
-          text={emptyText}
-        />
-      ) : (
-        <>
-          <Grid height="100%" width="100%">
-            <ResponsiveBar
-              data={data}
-              colors={colors}
-              keys={keys}
-              indexBy={indexBy}
-              margin={{ top: 10, right: 5, bottom: 60, left: 40 }}
-              padding={0.1}
-              valueScale={{ type: 'linear' }}
-              indexScale={{ type: 'band', round: true }}
-              axisTop={null}
-              axisRight={null}
-              onMouseEnter={handleMouseEnter}
-              onMouseLeave={handleMouseLeave}
-              axisBottom={{
-                tickSize: 5,
-                tickPadding: 5,
-                tickRotation: 0,
-                format: (v) =>
-                  xAxisValues?.find((vts) => vts === v)
-                    ? dayjs(v).format('h:mm')
-                    : '',
-              }}
-              axisLeft={{
-                tickSize: 5,
-                tickPadding: 5,
-                tickRotation: 0,
-                tickValues: 5,
-              }}
-              legends={
-                includeLegend
-                  ? [
-                      {
-                        dataFrom: 'keys',
-                        anchor: 'bottom',
-                        direction: 'row',
-                        justify: false,
-                        translateX: 0,
-                        translateY: 50,
-                        itemsSpacing: 2,
-                        itemWidth: 100,
-                        itemHeight: 10,
-                        itemDirection: 'left-to-right',
-                        itemOpacity: 1,
-                        itemTextColor: theme.palette.text.primary,
-                        symbolSize: 15,
-                        symbolShape: 'circle',
+    <>
+      {filterButton && (
+        <Grid
+          container
+          alignItems="center"
+          direction="row"
+          justifyContent="flex-end"
+        >
+          {filterButton}
+        </Grid>
+      )}
+      <Box
+        borderRadius={DEFAULT_BORDER_RADIUS}
+        sx={{
+          width: '100%',
+          height: height ?? DEFAULT_HIST_HEIGHT,
+          backgroundColor: 'background.paper',
+        }}
+      >
+        {!data || isLoading ? (
+          <FFCircleLoader height="100%" color="warning"></FFCircleLoader>
+        ) : isEmpty ? (
+          <EmptyStateCard height={'80%'} text={emptyText} />
+        ) : (
+          <>
+            <Grid height="98%" width="100%">
+              <ResponsiveBar
+                data={data}
+                colors={getColors(data, colors)}
+                keys={getKeys(data, keys)}
+                indexBy={indexBy}
+                margin={{ top: 10, right: 5, bottom: 60, left: 40 }}
+                padding={0.1}
+                valueScale={{ type: 'linear' }}
+                indexScale={{ type: 'band', round: true }}
+                axisTop={null}
+                axisRight={null}
+                onMouseEnter={handleMouseEnter}
+                onMouseLeave={handleMouseLeave}
+                axisBottom={{
+                  tickSize: 5,
+                  tickPadding: 5,
+                  tickRotation: 0,
+                  format: (v) =>
+                    xAxisValues?.find((vts) => vts === v)
+                      ? dayjs(v).format('h:mm')
+                      : '',
+                }}
+                axisLeft={{
+                  tickSize: 5,
+                  tickPadding: 5,
+                  tickRotation: 0,
+                  tickValues: 5,
+                }}
+                legends={
+                  includeLegend
+                    ? [
+                        {
+                          dataFrom: 'keys',
+                          anchor: 'bottom',
+                          direction: 'row',
+                          justify: false,
+                          translateX: 0,
+                          translateY: 50,
+                          itemsSpacing: 2,
+                          itemWidth: 115,
+                          itemHeight: 10,
+                          itemDirection: 'left-to-right',
+                          itemOpacity: 1,
+                          itemTextColor: theme.palette.text.primary,
+                          symbolSize: 15,
+                          symbolShape: 'circle',
+                        },
+                      ]
+                    : undefined
+                }
+                motionConfig="stiff"
+                enableLabel={false}
+                role="application"
+                theme={{
+                  background: theme.palette.background.paper,
+                  axis: {
+                    ticks: {
+                      line: {
+                        stroke: theme.palette.background.default,
                       },
-                    ]
-                  : undefined
-              }
-              motionConfig="stiff"
-              enableLabel={false}
-              role="application"
-              theme={{
-                background: theme.palette.background.paper,
-                axis: {
-                  ticks: {
+                      text: {
+                        fill: theme.palette.text.disabled,
+                      },
+                    },
+                  },
+                  grid: {
                     line: {
                       stroke: theme.palette.background.default,
                     },
-                    text: {
-                      fill: theme.palette.text.disabled,
-                    },
                   },
-                },
-                grid: {
-                  line: {
-                    stroke: theme.palette.background.default,
-                  },
-                },
-              }}
-              // disable tooltip in favor of popover
-              tooltip={() => <></>}
-            />
-          </Grid>
-          {anchorEl && (
-            <Popover
-              open={open}
-              anchorEl={anchorEl}
-              anchorOrigin={{
-                vertical: 'center',
-                horizontal: 'center',
-              }}
-              style={{ pointerEvents: 'none' }}
-            >
-              {makePopoverContent()}
-            </Popover>
-          )}
-        </>
-      )}
-    </Box>
+                }}
+                // disable tooltip in favor of popover
+                tooltip={() => <></>}
+              />
+            </Grid>
+            {anchorEl && (
+              <Popover
+                open={open}
+                anchorEl={anchorEl}
+                anchorOrigin={{
+                  vertical: 'center',
+                  horizontal: 'center',
+                }}
+                style={{ pointerEvents: 'none' }}
+              >
+                {makePopoverContent()}
+              </Popover>
+            )}
+          </>
+        )}
+      </Box>
+    </>
   );
 };

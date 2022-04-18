@@ -21,7 +21,7 @@ export interface IHistOpBucket {
   [OpCategoryEnum.BLOCKCHAIN]: number;
   [OpCategoryEnum.MESSAGES]: number;
   [OpCategoryEnum.TOKENS]: number;
-  isCapped: number;
+  Truncated: number;
 }
 
 export interface IHistOpTimeMap {

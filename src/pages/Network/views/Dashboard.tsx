@@ -14,12 +14,11 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid } from '@mui/material';
 import React, { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { Header } from '../../../components/Header';
+import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { NetworkMap } from '../../../components/NetworkMap/NetworkMap';
-import { DEFAULT_PADDING } from '../../../theme';
 
 export const NetworkMapDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
@@ -40,18 +39,9 @@ export const NetworkMapDashboard: () => JSX.Element = () => {
         noDateFilter
         noNsFilter
       ></Header>
-      <Grid container px={DEFAULT_PADDING}>
-        <Grid
-          container
-          item
-          direction="row"
-          justifyContent="center"
-          alignItems="center"
-          height="85vh"
-        >
-          {isMounted && <NetworkMap size="large" />}
-        </Grid>
-      </Grid>
+      <FFPageLayout height="85vh">
+        {isMounted && <NetworkMap size="large" />}
+      </FFPageLayout>
     </>
   );
 };
