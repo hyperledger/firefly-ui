@@ -14,13 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
+import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { DatatypeSlide } from '../../../components/Slides/DatatypeSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
@@ -37,7 +37,7 @@ import {
   IDatatype,
   IPagedDatatypeResponse,
 } from '../../../interfaces';
-import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
+import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime } from '../../../utils';
 import { hasDatatypeEvent } from '../../../utils/wsEvents';
 
@@ -163,37 +163,35 @@ export const OffChainDataTypes: () => JSX.Element = () => {
         showRefreshBtn={hasDatatypeEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
-      <Grid container px={DEFAULT_PADDING}>
-        <Grid container item wrap="nowrap" direction="column">
-          <ChartTableHeader
-            filter={
-              <FilterButton
-                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
-                  setFilterAnchor(e.currentTarget)
-                }
-              />
-            }
-          />
-          <DataTable
-            onHandleCurrPageChange={(currentPage: number) =>
-              setCurrentPage(currentPage)
-            }
-            onHandleRowsPerPage={(rowsPerPage: number) =>
-              setRowsPerPage(rowsPerPage)
-            }
-            stickyHeader={true}
-            minHeight="300px"
-            maxHeight="calc(100vh - 340px)"
-            records={datatypeRecords}
-            columnHeaders={datatypeColHeaders}
-            paginate={true}
-            emptyStateText={t('noDatatypesToDisplay')}
-            dataTotal={datatypeTotal}
-            currentPage={currentPage}
-            rowsPerPage={rowsPerPage}
-          />
-        </Grid>
-      </Grid>
+      <FFPageLayout>
+        <ChartTableHeader
+          filter={
+            <FilterButton
+              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                setFilterAnchor(e.currentTarget)
+              }
+            />
+          }
+        />
+        <DataTable
+          onHandleCurrPageChange={(currentPage: number) =>
+            setCurrentPage(currentPage)
+          }
+          onHandleRowsPerPage={(rowsPerPage: number) =>
+            setRowsPerPage(rowsPerPage)
+          }
+          stickyHeader={true}
+          minHeight="300px"
+          maxHeight="calc(100vh - 340px)"
+          records={datatypeRecords}
+          columnHeaders={datatypeColHeaders}
+          paginate={true}
+          emptyStateText={t('noDatatypesToDisplay')}
+          dataTotal={datatypeTotal}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+        />
+      </FFPageLayout>
       {filterAnchor && (
         <FilterModal
           anchor={filterAnchor}

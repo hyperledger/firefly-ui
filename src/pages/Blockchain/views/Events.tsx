@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Grid } from '@mui/material';
+import { Box } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -24,6 +24,7 @@ import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
+import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { BlockchainEventSlide } from '../../../components/Slides/BlockchainEventSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
@@ -46,7 +47,6 @@ import {
 import { FF_BE_CATEGORY_MAP } from '../../../interfaces/enums/blockchainEventTypes';
 import {
   DEFAULT_HIST_HEIGHT,
-  DEFAULT_PADDING,
   DEFAULT_PAGE_LIMITS,
   FFColors,
 } from '../../../theme';
@@ -206,49 +206,47 @@ export const BlockchainEvents: () => JSX.Element = () => {
         showRefreshBtn={hasBlockchainEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
-      <Grid container px={DEFAULT_PADDING}>
-        <Grid container item wrap="nowrap" direction="column">
-          <ChartTableHeader
-            filter={
-              <FilterButton
-                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
-                  setFilterAnchor(e.currentTarget)
-                }
-              />
-            }
-          />
-          <Box height={DEFAULT_HIST_HEIGHT}>
-            <Histogram
-              colors={makeColorArray(FF_BE_CATEGORY_MAP)}
-              data={beHistData}
-              indexBy="timestamp"
-              keys={makeKeyArray(FF_BE_CATEGORY_MAP)}
-              includeLegend={true}
-              isLoading={isHistLoading}
-              emptyText={t('noBlockchainEvents')}
-              isEmpty={isHistogramEmpty(beHistData ?? [])}
+      <FFPageLayout>
+        <ChartTableHeader
+          filter={
+            <FilterButton
+              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                setFilterAnchor(e.currentTarget)
+              }
             />
-          </Box>
-          <DataTable
-            onHandleCurrPageChange={(currentPage: number) =>
-              setCurrentPage(currentPage)
-            }
-            onHandleRowsPerPage={(rowsPerPage: number) =>
-              setRowsPerPage(rowsPerPage)
-            }
-            stickyHeader={true}
-            minHeight="300px"
-            maxHeight="calc(100vh - 340px)"
-            records={beRecords}
-            columnHeaders={beColHeaders}
-            paginate={true}
-            emptyStateText={t('noBlockchainEvents')}
-            dataTotal={blockchainEventTotal}
-            currentPage={currentPage}
-            rowsPerPage={rowsPerPage}
+          }
+        />
+        <Box height={DEFAULT_HIST_HEIGHT}>
+          <Histogram
+            colors={makeColorArray(FF_BE_CATEGORY_MAP)}
+            data={beHistData}
+            indexBy="timestamp"
+            keys={makeKeyArray(FF_BE_CATEGORY_MAP)}
+            includeLegend={true}
+            isLoading={isHistLoading}
+            emptyText={t('noBlockchainEvents')}
+            isEmpty={isHistogramEmpty(beHistData ?? [])}
           />
-        </Grid>
-      </Grid>
+        </Box>
+        <DataTable
+          onHandleCurrPageChange={(currentPage: number) =>
+            setCurrentPage(currentPage)
+          }
+          onHandleRowsPerPage={(rowsPerPage: number) =>
+            setRowsPerPage(rowsPerPage)
+          }
+          stickyHeader={true}
+          minHeight="300px"
+          maxHeight="calc(100vh - 340px)"
+          records={beRecords}
+          columnHeaders={beColHeaders}
+          paginate={true}
+          emptyStateText={t('noBlockchainEvents')}
+          dataTotal={blockchainEventTotal}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+        />
+      </FFPageLayout>
       {filterAnchor && (
         <FilterModal
           anchor={filterAnchor}

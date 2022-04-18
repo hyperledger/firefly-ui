@@ -14,13 +14,13 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
+import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { NamespaceSlide } from '../../../components/Slides/NamespaceSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
@@ -36,7 +36,7 @@ import {
   IPagesNamespaceResponse,
   NamespaceFilters,
 } from '../../../interfaces';
-import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
+import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime } from '../../../utils';
 import { hasIdentityEvent } from '../../../utils/wsEvents';
 
@@ -159,37 +159,35 @@ export const NetworkNamespaces: () => JSX.Element = () => {
         showRefreshBtn={hasIdentityEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
-      <Grid container px={DEFAULT_PADDING}>
-        <Grid container item wrap="nowrap" direction="column">
-          <ChartTableHeader
-            filter={
-              <FilterButton
-                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
-                  setFilterAnchor(e.currentTarget)
-                }
-              />
-            }
-          />
-          <DataTable
-            onHandleCurrPageChange={(currentPage: number) =>
-              setCurrentPage(currentPage)
-            }
-            onHandleRowsPerPage={(rowsPerPage: number) =>
-              setRowsPerPage(rowsPerPage)
-            }
-            stickyHeader={true}
-            minHeight="300px"
-            maxHeight="calc(100vh - 340px)"
-            records={nsRecords}
-            columnHeaders={nsColHeaders}
-            paginate={true}
-            emptyStateText={t('noNamespaces')}
-            dataTotal={nsTotal}
-            currentPage={currentPage}
-            rowsPerPage={rowsPerPage}
-          />
-        </Grid>
-      </Grid>
+      <FFPageLayout>
+        <ChartTableHeader
+          filter={
+            <FilterButton
+              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                setFilterAnchor(e.currentTarget)
+              }
+            />
+          }
+        />
+        <DataTable
+          onHandleCurrPageChange={(currentPage: number) =>
+            setCurrentPage(currentPage)
+          }
+          onHandleRowsPerPage={(rowsPerPage: number) =>
+            setRowsPerPage(rowsPerPage)
+          }
+          stickyHeader={true}
+          minHeight="300px"
+          maxHeight="calc(100vh - 340px)"
+          records={nsRecords}
+          columnHeaders={nsColHeaders}
+          paginate={true}
+          emptyStateText={t('noNamespaces')}
+          dataTotal={nsTotal}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+        />
+      </FFPageLayout>
       {filterAnchor && (
         <FilterModal
           anchor={filterAnchor}

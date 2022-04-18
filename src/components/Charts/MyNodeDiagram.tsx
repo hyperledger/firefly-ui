@@ -289,7 +289,6 @@ export const MyNodeDiagram: React.FC<Props> = ({
             />
           )}
         </ReactFlowProvider>
-        <Typography>done</Typography>
       </Box>
     );
   }

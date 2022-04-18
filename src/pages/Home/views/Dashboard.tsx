@@ -12,6 +12,7 @@ import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { MyNodeDiagram } from '../../../components/Charts/MyNodeDiagram';
 import { Header } from '../../../components/Header';
+import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { NetworkMap } from '../../../components/NetworkMap/NetworkMap';
 import { EventSlide } from '../../../components/Slides/EventSlide';
@@ -507,87 +508,85 @@ export const HomeDashboard: () => JSX.Element = () => {
         showRefreshBtn={hasAnyEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
-      <Grid container px={DEFAULT_PADDING}>
-        <Grid container item wrap="nowrap" direction="column">
-          {/* Small Cards */}
-          <Grid
-            spacing={DEFAULT_SPACING}
-            container
-            item
-            direction="row"
-            pb={DEFAULT_PADDING}
-          >
-            {smallCards.map((card) => {
-              return (
-                <Grid
-                  key={card.header}
-                  sm={12}
-                  md={12}
-                  lg={3}
-                  direction="column"
-                  alignItems="center"
-                  justifyContent="center"
-                  container
-                  item
-                >
-                  <SmallCard card={card} />
-                </Grid>
-              );
-            })}
-          </Grid>
-          {/* Medium Cards */}
-          <Grid
-            spacing={DEFAULT_SPACING}
-            container
-            justifyContent="center"
-            alignItems="center"
-            direction="row"
-            pb={DEFAULT_PADDING}
-          >
-            {mediumCards.map((card) => {
-              return (
-                <Grid
-                  key={card.headerText}
-                  direction="column"
-                  alignItems="center"
-                  justifyContent="center"
-                  container
-                  item
-                  md={12}
-                  lg={4}
-                >
-                  <FireFlyCard card={card} position="flex-start" />
-                </Grid>
-              );
-            })}
-          </Grid>
-          {/* Tables */}
-          <Grid
-            spacing={DEFAULT_SPACING}
-            container
-            item
-            direction="row"
-            pb={DEFAULT_PADDING}
-          >
-            {tableCards.map((card, idx) => {
-              return (
-                <Grid
-                  key={idx}
-                  direction="column"
-                  alignItems="center"
-                  justifyContent="center"
-                  container
-                  item
-                  sm={12}
-                  md={6}
-                >
-                  <FireFlyCard position="flex-start" key={idx} card={card} />
-                </Grid>
-              );
-            })}
-          </Grid>
+      <FFPageLayout>
+        {/* Small Cards */}
+        <Grid
+          spacing={DEFAULT_SPACING}
+          container
+          item
+          direction="row"
+          pb={DEFAULT_PADDING}
+        >
+          {smallCards.map((card) => {
+            return (
+              <Grid
+                key={card.header}
+                sm={12}
+                md={12}
+                lg={3}
+                direction="column"
+                alignItems="center"
+                justifyContent="center"
+                container
+                item
+              >
+                <SmallCard card={card} />
+              </Grid>
+            );
+          })}
         </Grid>
-      </Grid>
+        {/* Medium Cards */}
+        <Grid
+          spacing={DEFAULT_SPACING}
+          container
+          justifyContent="center"
+          alignItems="center"
+          direction="row"
+          pb={DEFAULT_PADDING}
+        >
+          {mediumCards.map((card) => {
+            return (
+              <Grid
+                key={card.headerText}
+                direction="column"
+                alignItems="center"
+                justifyContent="center"
+                container
+                item
+                md={12}
+                lg={4}
+              >
+                <FireFlyCard card={card} position="flex-start" />
+              </Grid>
+            );
+          })}
+        </Grid>
+        {/* Tables */}
+        <Grid
+          spacing={DEFAULT_SPACING}
+          container
+          item
+          direction="row"
+          pb={DEFAULT_PADDING}
+        >
+          {tableCards.map((card, idx) => {
+            return (
+              <Grid
+                key={idx}
+                direction="column"
+                alignItems="center"
+                justifyContent="center"
+                container
+                item
+                sm={12}
+                md={6}
+              >
+                <FireFlyCard position="flex-start" key={idx} card={card} />
+              </Grid>
+            );
+          })}
+        </Grid>
+      </FFPageLayout>
       {viewTx && (
         <TransactionSlide
           transaction={viewTx}

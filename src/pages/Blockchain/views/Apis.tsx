@@ -15,7 +15,7 @@
 // limitations under the License.
 
 import LaunchIcon from '@mui/icons-material/Launch';
-import { Grid, IconButton, Link } from '@mui/material';
+import { IconButton, Link } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DownloadButton } from '../../../components/Buttons/DownloadButton';
@@ -23,6 +23,7 @@ import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
+import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { ApiSlide } from '../../../components/Slides/ApiSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
@@ -39,7 +40,7 @@ import {
   IFireflyApi,
   IPagedFireFlyApiResponse,
 } from '../../../interfaces';
-import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
+import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
 import { hasApiEvent } from '../../../utils/wsEvents';
 
@@ -182,37 +183,35 @@ export const BlockchainApis: () => JSX.Element = () => {
         showRefreshBtn={hasApiEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
-      <Grid container px={DEFAULT_PADDING}>
-        <Grid container item wrap="nowrap" direction="column">
-          <ChartTableHeader
-            filter={
-              <FilterButton
-                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
-                  setFilterAnchor(e.currentTarget)
-                }
-              />
-            }
-          />
-          <DataTable
-            onHandleCurrPageChange={(currentPage: number) =>
-              setCurrentPage(currentPage)
-            }
-            onHandleRowsPerPage={(rowsPerPage: number) =>
-              setRowsPerPage(rowsPerPage)
-            }
-            stickyHeader={true}
-            minHeight="300px"
-            maxHeight="calc(100vh - 340px)"
-            records={apiRecords}
-            columnHeaders={apiColHeaders}
-            paginate={true}
-            emptyStateText={t('noApisToDisplay')}
-            dataTotal={apiTotal}
-            currentPage={currentPage}
-            rowsPerPage={rowsPerPage}
-          />
-        </Grid>
-      </Grid>
+      <FFPageLayout>
+        <ChartTableHeader
+          filter={
+            <FilterButton
+              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                setFilterAnchor(e.currentTarget)
+              }
+            />
+          }
+        />
+        <DataTable
+          onHandleCurrPageChange={(currentPage: number) =>
+            setCurrentPage(currentPage)
+          }
+          onHandleRowsPerPage={(rowsPerPage: number) =>
+            setRowsPerPage(rowsPerPage)
+          }
+          stickyHeader={true}
+          minHeight="300px"
+          maxHeight="calc(100vh - 340px)"
+          records={apiRecords}
+          columnHeaders={apiColHeaders}
+          paginate={true}
+          emptyStateText={t('noApisToDisplay')}
+          dataTotal={apiTotal}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+        />
+      </FFPageLayout>
       {filterAnchor && (
         <FilterModal
           anchor={filterAnchor}

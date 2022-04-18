@@ -14,7 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DownloadJsonButton } from '../../../components/Buttons/DownloadJsonButton';
@@ -22,6 +21,7 @@ import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
+import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { BatchSlide } from '../../../components/Slides/BatchSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
@@ -38,7 +38,7 @@ import {
   IDataTableRecord,
   IPagedBatchResponse,
 } from '../../../interfaces';
-import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../../theme';
+import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime } from '../../../utils';
 import { hasDataEvent } from '../../../utils/wsEvents';
 
@@ -188,37 +188,35 @@ export const OffChainBatches: () => JSX.Element = () => {
         showRefreshBtn={hasDataEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
-      <Grid container px={DEFAULT_PADDING}>
-        <Grid container item wrap="nowrap" direction="column">
-          <ChartTableHeader
-            filter={
-              <FilterButton
-                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
-                  setFilterAnchor(e.currentTarget)
-                }
-              />
-            }
-          />
-          <DataTable
-            onHandleCurrPageChange={(currentPage: number) =>
-              setCurrentPage(currentPage)
-            }
-            onHandleRowsPerPage={(rowsPerPage: number) =>
-              setRowsPerPage(rowsPerPage)
-            }
-            stickyHeader={true}
-            minHeight="300px"
-            maxHeight="calc(100vh - 340px)"
-            records={batchRecords}
-            columnHeaders={batchColHeaders}
-            paginate={true}
-            emptyStateText={t('noBatchesToDisplay')}
-            dataTotal={batchTotal}
-            currentPage={currentPage}
-            rowsPerPage={rowsPerPage}
-          />
-        </Grid>
-      </Grid>
+      <FFPageLayout>
+        <ChartTableHeader
+          filter={
+            <FilterButton
+              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                setFilterAnchor(e.currentTarget)
+              }
+            />
+          }
+        />
+        <DataTable
+          onHandleCurrPageChange={(currentPage: number) =>
+            setCurrentPage(currentPage)
+          }
+          onHandleRowsPerPage={(rowsPerPage: number) =>
+            setRowsPerPage(rowsPerPage)
+          }
+          stickyHeader={true}
+          minHeight="300px"
+          maxHeight="calc(100vh - 340px)"
+          records={batchRecords}
+          columnHeaders={batchColHeaders}
+          paginate={true}
+          emptyStateText={t('noBatchesToDisplay')}
+          dataTotal={batchTotal}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+        />
+      </FFPageLayout>
       {filterAnchor && (
         <FilterModal
           anchor={filterAnchor}

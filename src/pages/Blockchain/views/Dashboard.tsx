@@ -26,6 +26,7 @@ import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { Header } from '../../../components/Header';
+import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { ApiSlide } from '../../../components/Slides/ApiSlide';
 import { BlockchainEventSlide } from '../../../components/Slides/BlockchainEventSlide';
@@ -455,82 +456,80 @@ export const BlockchainDashboard: () => JSX.Element = () => {
         showRefreshBtn={hasBlockchainEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
-      <Grid container px={DEFAULT_PADDING}>
-        <Grid container item wrap="nowrap" direction="column">
-          {/* Small Cards */}
-          <Grid
-            spacing={DEFAULT_SPACING}
-            container
-            item
-            direction="row"
-            pb={DEFAULT_PADDING}
-          >
-            {smallCards.map((card) => {
-              return (
-                <Grid
-                  key={card.header}
-                  sm={12}
-                  md={6}
-                  lg={3}
-                  direction="column"
-                  alignItems="center"
-                  justifyContent="center"
-                  container
-                  item
-                >
-                  <SmallCard card={card} />
-                </Grid>
-              );
-            })}
-          </Grid>
-          {/* Medium Cards */}
-          <Grid
-            spacing={DEFAULT_SPACING}
-            container
-            justifyContent="center"
-            alignItems="flex-start"
-            direction="row"
-            pb={DEFAULT_PADDING}
-          >
-            {mediumCards.map((card) => {
-              return (
-                <Grid
-                  key={card.headerText}
-                  direction="column"
-                  justifyContent="center"
-                  container
-                  item
-                  sm={12}
-                  lg={4}
-                >
-                  <FireFlyCard card={card} position="flex-start" />
-                </Grid>
-              );
-            })}
-          </Grid>
-          <DataTable
-            header={t('recentBlockchainEvents')}
-            onHandleCurrPageChange={(currentPage: number) =>
-              setCurrentPage(currentPage)
-            }
-            onHandleRowsPerPage={(rowsPerPage: number) =>
-              setRowsPerPage(rowsPerPage)
-            }
-            stickyHeader={true}
-            minHeight="300px"
-            maxHeight="calc(100vh - 800px)"
-            records={beRecords}
-            columnHeaders={beColHeaders}
-            paginate={true}
-            emptyStateText={t('noBlockchainEvents')}
-            dataTotal={blockchainEventsTotal}
-            currentPage={currentPage}
-            rowsPerPage={rowsPerPage}
-            dashboardSize
-            headerBtn={<FFArrowButton link={EVENTS_PATH} />}
-          />
+      <FFPageLayout>
+        {/* Small Cards */}
+        <Grid
+          spacing={DEFAULT_SPACING}
+          container
+          item
+          direction="row"
+          pb={DEFAULT_PADDING}
+        >
+          {smallCards.map((card) => {
+            return (
+              <Grid
+                key={card.header}
+                sm={12}
+                md={6}
+                lg={3}
+                direction="column"
+                alignItems="center"
+                justifyContent="center"
+                container
+                item
+              >
+                <SmallCard card={card} />
+              </Grid>
+            );
+          })}
         </Grid>
-      </Grid>
+        {/* Medium Cards */}
+        <Grid
+          spacing={DEFAULT_SPACING}
+          container
+          justifyContent="center"
+          alignItems="flex-start"
+          direction="row"
+          pb={DEFAULT_PADDING}
+        >
+          {mediumCards.map((card) => {
+            return (
+              <Grid
+                key={card.headerText}
+                direction="column"
+                justifyContent="center"
+                container
+                item
+                sm={12}
+                lg={4}
+              >
+                <FireFlyCard card={card} position="flex-start" />
+              </Grid>
+            );
+          })}
+        </Grid>
+        <DataTable
+          header={t('recentBlockchainEvents')}
+          onHandleCurrPageChange={(currentPage: number) =>
+            setCurrentPage(currentPage)
+          }
+          onHandleRowsPerPage={(rowsPerPage: number) =>
+            setRowsPerPage(rowsPerPage)
+          }
+          stickyHeader={true}
+          minHeight="300px"
+          maxHeight="calc(100vh - 800px)"
+          records={beRecords}
+          columnHeaders={beColHeaders}
+          paginate={true}
+          emptyStateText={t('noBlockchainEvents')}
+          dataTotal={blockchainEventsTotal}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+          dashboardSize
+          headerBtn={<FFArrowButton link={EVENTS_PATH} />}
+        />
+      </FFPageLayout>
       {viewApi && (
         <ApiSlide
           api={viewApi}

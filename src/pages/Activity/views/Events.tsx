@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box, Grid } from '@mui/material';
+import { Box } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -24,6 +24,7 @@ import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { ChartTableHeader } from '../../../components/Headers/ChartTableHeader';
+import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { EventSlide } from '../../../components/Slides/EventSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
@@ -45,11 +46,7 @@ import {
   IMetric,
   IPagedEventResponse,
 } from '../../../interfaces';
-import {
-  DEFAULT_HIST_HEIGHT,
-  DEFAULT_PADDING,
-  DEFAULT_PAGE_LIMITS,
-} from '../../../theme';
+import { DEFAULT_HIST_HEIGHT, DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime, makeEventHistogram } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -225,49 +222,47 @@ export const ActivityEvents: () => JSX.Element = () => {
         showRefreshBtn={hasAnyEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
-      <Grid container px={DEFAULT_PADDING}>
-        <Grid container item wrap="nowrap" direction="column">
-          <ChartTableHeader
-            filter={
-              <FilterButton
-                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
-                  setFilterAnchor(e.currentTarget)
-                }
-              />
-            }
-          />
-          <Box height={DEFAULT_HIST_HEIGHT}>
-            <Histogram
-              colors={makeColorArray(FF_EVENTS_CATEGORY_MAP)}
-              data={eventHistData}
-              indexBy="timestamp"
-              keys={makeKeyArray(FF_EVENTS_CATEGORY_MAP)}
-              includeLegend={true}
-              emptyText={t('noEvents')}
-              isLoading={isHistLoading}
-              isEmpty={isHistogramEmpty(eventHistData ?? [])}
+      <FFPageLayout>
+        <ChartTableHeader
+          filter={
+            <FilterButton
+              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                setFilterAnchor(e.currentTarget)
+              }
             />
-          </Box>
-          <DataTable
-            onHandleCurrPageChange={(currentPage: number) =>
-              setCurrentPage(currentPage)
-            }
-            onHandleRowsPerPage={(rowsPerPage: number) =>
-              setRowsPerPage(rowsPerPage)
-            }
-            stickyHeader={true}
-            minHeight="300px"
-            maxHeight="calc(100vh - 340px)"
-            records={eventsRecords}
-            columnHeaders={eventsColumnHeaders}
-            paginate={true}
-            emptyStateText={t('noEventsToDisplay')}
-            dataTotal={eventTotal}
-            currentPage={currentPage}
-            rowsPerPage={rowsPerPage}
+          }
+        />
+        <Box height={DEFAULT_HIST_HEIGHT}>
+          <Histogram
+            colors={makeColorArray(FF_EVENTS_CATEGORY_MAP)}
+            data={eventHistData}
+            indexBy="timestamp"
+            keys={makeKeyArray(FF_EVENTS_CATEGORY_MAP)}
+            includeLegend={true}
+            emptyText={t('noEvents')}
+            isLoading={isHistLoading}
+            isEmpty={isHistogramEmpty(eventHistData ?? [])}
           />
-        </Grid>
-      </Grid>
+        </Box>
+        <DataTable
+          onHandleCurrPageChange={(currentPage: number) =>
+            setCurrentPage(currentPage)
+          }
+          onHandleRowsPerPage={(rowsPerPage: number) =>
+            setRowsPerPage(rowsPerPage)
+          }
+          stickyHeader={true}
+          minHeight="300px"
+          maxHeight="calc(100vh - 340px)"
+          records={eventsRecords}
+          columnHeaders={eventsColumnHeaders}
+          paginate={true}
+          emptyStateText={t('noEventsToDisplay')}
+          dataTotal={eventTotal}
+          currentPage={currentPage}
+          rowsPerPage={rowsPerPage}
+        />
+      </FFPageLayout>
       {filterAnchor && (
         <FilterModal
           anchor={filterAnchor}
