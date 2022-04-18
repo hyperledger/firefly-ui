@@ -21,7 +21,7 @@ import { useTranslation } from 'react-i18next';
 import Jazzicon from 'react-jazzicon';
 import { useNavigate } from 'react-router-dom';
 import { FFArrowButton } from '../../../components/Buttons/FFArrowButton';
-import { MediumCard } from '../../../components/Cards/MediumCard';
+import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { Header } from '../../../components/Header';
@@ -543,7 +543,13 @@ export const TokensDashboard: () => JSX.Element = () => {
         {/* Medium Cards */}
         <FFDashboardRowLayout>
           {mediumCards.map((cardData) => {
-            return <MediumCard key={cardData.headerText} cardData={cardData} />;
+            return (
+              <FireFlyCard
+                size="medium"
+                key={cardData.headerText}
+                cardData={cardData}
+              />
+            );
           })}
         </FFDashboardRowLayout>
         <DataTable

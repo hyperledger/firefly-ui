@@ -5,60 +5,57 @@ import { DEFAULT_BORDER_RADIUS } from '../../theme';
 import { FFArrowButton } from '../Buttons/FFArrowButton';
 
 type Props = {
-  card: IFireFlyCard;
-  height?: string | number;
-  position?: string;
+  cardData: IFireFlyCard;
+  size: 'medium' | 'large';
 };
 
-export const FireFlyCard: React.FC<Props> = ({
-  card,
-  height = 375,
-  position,
-}) => {
+const COMPONENT_HEIGHT = '375px';
+
+export const FireFlyCard: React.FC<Props> = ({ cardData, size }) => {
   return (
-    <Box
-      px={2}
-      py={1}
-      borderRadius={DEFAULT_BORDER_RADIUS}
-      sx={{
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'background.paper',
-      }}
+    <Grid
+      alignItems="center"
+      justifyContent="center"
+      container
+      item
+      sm={12}
+      md={size === 'medium' ? 12 : 6}
+      lg={size === 'medium' ? 4 : 6}
     >
-      <Grid
-        container
-        alignItems="center"
-        justifyContent="space-between"
-        direction="row"
-        sx={{ paddingBottom: 1 }}
-      >
-        <Grid item>
-          <Typography sx={{ fontWeight: 'bold' }}>{card.headerText}</Typography>
-        </Grid>
-        <Grid item>
-          {card.clickPath && <FFArrowButton link={card.clickPath} />}
-        </Grid>
-      </Grid>
-      <Grid
-        container
-        alignItems={position ?? 'center'}
-        justifyContent="center"
-        direction="column"
+      <Box
+        p={2}
+        borderRadius={DEFAULT_BORDER_RADIUS}
         sx={{
-          overflow: 'auto',
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'background.paper',
         }}
       >
+        {/* Header */}
         <Grid
           container
-          alignItems={position ?? 'center'}
-          justifyContent="center"
-          sx={{ height: height, width: '100%' }}
           item
+          alignItems="center"
+          justifyContent="space-between"
+          direction="row"
+          sx={{ paddingBottom: 1 }}
         >
-          {card.component}
+          <Typography sx={{ fontWeight: 'bold' }} noWrap>
+            {cardData.headerText}
+          </Typography>
+          {cardData.clickPath && <FFArrowButton link={cardData.clickPath} />}
         </Grid>
-      </Grid>
-    </Box>
+        {/* Component */}
+        <Grid
+          container
+          alignItems={'flex-start'}
+          justifyContent="center"
+          item
+          sx={{ height: COMPONENT_HEIGHT, width: '100%', overflow: 'auto' }}
+        >
+          {cardData.component}
+        </Grid>
+      </Box>
+    </Grid>
   );
 };

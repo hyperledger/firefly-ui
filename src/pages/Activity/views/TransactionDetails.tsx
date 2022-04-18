@@ -263,7 +263,7 @@ export const TransactionDetails: () => JSX.Element = () => {
               item
               height="100%"
             >
-              <FireFlyCard height="100%" card={operationsCard} />
+              <FireFlyCard size="medium" cardData={operationsCard} />
             </Grid>
           </Grid>
         </Grid>
@@ -287,7 +287,7 @@ export const TransactionDetails: () => JSX.Element = () => {
             container
             item
           >
-            <FireFlyCard height="100%" card={networkEventsCard} />
+            <FireFlyCard size="medium" cardData={networkEventsCard} />
           </Grid>
         </Grid>
       </Grid>

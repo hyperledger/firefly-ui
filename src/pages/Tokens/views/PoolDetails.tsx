@@ -207,7 +207,7 @@ export const PoolDetails: () => JSX.Element = () => {
     ),
   };
 
-  const infoCard = {
+  const infoCard: IFireFlyCard = {
     headerText: t('poolInfo'),
     component: pool?.info && <FFJsonViewer json={pool?.info} />,
   };
@@ -352,7 +352,7 @@ export const PoolDetails: () => JSX.Element = () => {
             item
             height="100%"
           >
-            <FireFlyCard height="100%" card={infoCard} />
+            <FireFlyCard size="medium" cardData={infoCard} />
           </Grid>
         </Grid>
         <Grid
@@ -373,7 +373,7 @@ export const PoolDetails: () => JSX.Element = () => {
             item
             height="100%"
           >
-            <FireFlyCard height="100%" card={accountsCard} />
+            <FireFlyCard size="medium" cardData={accountsCard} />
           </Grid>
         </Grid>
         <Grid item pt={3} container>
