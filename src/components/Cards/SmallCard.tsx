@@ -6,54 +6,64 @@ import { ISmallCard } from '../../interfaces';
 import { DEFAULT_BORDER_RADIUS } from '../../theme';
 
 type Props = {
-  card: ISmallCard;
+  cardData: ISmallCard;
 };
 
-export const SmallCard: React.FC<Props> = ({ card }) => {
+export const SmallCard: React.FC<Props> = ({ cardData }) => {
   const { t } = useTranslation();
   const navigate = useNavigate();
 
   return (
-    <Box
-      key={card.header}
-      p={2}
-      borderRadius={DEFAULT_BORDER_RADIUS}
-      sx={{
-        width: '100%',
-        height: '100%',
-        backgroundColor: 'background.paper',
-        '&:hover': card.clickPath && {
-          backgroundColor: 'secondary.dark',
-          cursor: 'pointer',
-        },
-      }}
-      onClick={() => (card.clickPath ? navigate(card.clickPath) : undefined)}
+    <Grid
+      sm={12}
+      md={6}
+      lg={3}
+      direction="column"
+      alignItems="center"
+      justifyContent="flex-end"
+      container
+      item
     >
-      <Grid
-        container
-        alignItems="flex-end"
-        justifyContent="space-between"
-        direction="row"
-        sx={{ paddingBottom: 1 }}
+      <Box
+        p={2}
+        borderRadius={DEFAULT_BORDER_RADIUS}
+        sx={{
+          width: '100%',
+          height: '100%',
+          backgroundColor: 'background.paper',
+          '&:hover': cardData.clickPath && {
+            backgroundColor: 'secondary.dark',
+            cursor: 'pointer',
+          },
+        }}
+        onClick={() =>
+          cardData.clickPath ? navigate(cardData.clickPath) : undefined
+        }
       >
-        <Grid item>
+        {/* Card header */}
+        <Grid
+          container
+          alignItems="flex-end"
+          justifyContent="space-between"
+          direction="row"
+          sx={{ paddingBottom: 1 }}
+          item
+        >
           <Typography
             sx={{
               fontWeight: 'bold',
             }}
             noWrap
           >
-            {card.header}
+            {cardData.header}
           </Typography>
-        </Grid>
-        {card.numErrors && card.numErrors > 0 ? (
-          <Grid item>
+          {cardData.numErrors && cardData.numErrors > 0 && (
             <Chip
               onClick={(e) => {
                 e.stopPropagation();
-                card.errorLink ? navigate(card.errorLink) : undefined;
+                cardData.errorLink ? navigate(cardData.errorLink) : undefined;
               }}
-              label={`${card.numErrors} ${t('failed')}`}
+              label={`${cardData.numErrors} ${t('failed')}`}
               color="error"
               size="small"
               sx={{
@@ -62,43 +72,43 @@ export const SmallCard: React.FC<Props> = ({ card }) => {
                 cursor: 'pointer',
               }}
             />
-          </Grid>
-        ) : (
-          <></>
-        )}
-      </Grid>
-      <Grid
-        container
-        alignItems="flex-end"
-        justifyContent={card.data.length > 1 ? 'space-evenly' : 'flex-start'}
-        direction="row"
-      >
-        {card.data.map((data, idx) => {
-          return (
-            <Grid key={idx} item>
-              <Typography
-                noWrap
-                sx={{ fontSize: 12, textTransform: 'uppercase' }}
-                variant="subtitle2"
-              >
-                {data.header}
-              </Typography>
-
-              {data.data !== undefined ? (
+          )}
+        </Grid>
+        <Grid
+          container
+          alignItems="flex-end"
+          justifyContent={
+            cardData.data.length > 1 ? 'space-evenly' : 'flex-start'
+          }
+          direction="row"
+        >
+          {cardData.data.map((data, idx) => {
+            return (
+              <Grid key={idx} item>
                 <Typography
                   noWrap
-                  sx={{ fontSize: 24, fontWeight: 'bold' }}
-                  variant="subtitle1"
+                  sx={{ fontSize: 12, textTransform: 'uppercase' }}
+                  variant="subtitle2"
                 >
-                  {data.data}
+                  {data.header}
                 </Typography>
-              ) : (
-                <Skeleton sx={{ width: 40, height: 42 }} />
-              )}
-            </Grid>
-          );
-        })}
-      </Grid>
-    </Box>
+
+                {data.data !== undefined ? (
+                  <Typography
+                    noWrap
+                    sx={{ fontSize: 24, fontWeight: 'bold' }}
+                    variant="subtitle1"
+                  >
+                    {data.data}
+                  </Typography>
+                ) : (
+                  <Skeleton sx={{ width: 40, height: 42 }} />
+                )}
+              </Grid>
+            );
+          })}
+        </Grid>
+      </Box>
+    </Grid>
   );
 };

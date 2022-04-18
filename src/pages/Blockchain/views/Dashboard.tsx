@@ -455,22 +455,8 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       <FFPageLayout>
         {/* Small Cards */}
         <FFDashboardRowLayout>
-          {smallCards.map((card) => {
-            return (
-              <Grid
-                key={card.header}
-                sm={12}
-                md={6}
-                lg={3}
-                direction="column"
-                alignItems="center"
-                justifyContent="center"
-                container
-                item
-              >
-                <SmallCard card={card} />
-              </Grid>
-            );
+          {smallCards.map((cardData) => {
+            return <SmallCard cardData={cardData} key={cardData.header} />;
           })}
         </FFDashboardRowLayout>
         {/* Medium Cards */}

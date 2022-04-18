@@ -1,4 +1,3 @@
-import { Typography } from '@mui/material';
 import { Box } from '@mui/system';
 import dagre from 'dagre';
 import i18next from 'i18next';

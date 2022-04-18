@@ -503,30 +503,16 @@ export const HomeDashboard: () => JSX.Element = () => {
   return (
     <>
       <Header
-        title={'Dashboard'}
-        subtitle={'Home'}
+        title={t('dashboard')}
+        subtitle={t('home')}
         showRefreshBtn={hasAnyEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
       <FFPageLayout>
         {/* Small Cards */}
         <FFDashboardRowLayout>
-          {smallCards.map((card) => {
-            return (
-              <Grid
-                key={card.header}
-                sm={12}
-                md={12}
-                lg={3}
-                direction="column"
-                alignItems="center"
-                justifyContent="center"
-                container
-                item
-              >
-                <SmallCard card={card} />
-              </Grid>
-            );
+          {smallCards.map((cardData) => {
+            return <SmallCard cardData={cardData} key={cardData.header} />;
           })}
         </FFDashboardRowLayout>
         {/* Medium Cards */}
