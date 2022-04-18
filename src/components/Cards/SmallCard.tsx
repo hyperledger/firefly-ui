@@ -1,5 +1,4 @@
-import { Chip, Grid, Skeleton, Typography } from '@mui/material';
-import { Box } from '@mui/system';
+import { Box, Chip, Grid, Skeleton, Typography } from '@mui/material';
 import { useTranslation } from 'react-i18next';
 import { useNavigate } from 'react-router-dom';
 import { ISmallCard } from '../../interfaces';

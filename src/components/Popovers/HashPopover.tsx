@@ -14,6 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { ContentCopyOutlined } from '@mui/icons-material';
 import {
   Chip,
   Grid,
@@ -22,7 +23,6 @@ import {
   Typography,
   useTheme,
 } from '@mui/material';
-import ContentCopyIcon from 'mdi-react/ContentCopyIcon';
 import React, { useRef, useState } from 'react';
 import CopyToClipboard from 'react-copy-to-clipboard';
 import { DEFAULT_BORDER_RADIUS } from '../../theme';
@@ -105,7 +105,7 @@ export const HashPopover: React.FC<Props> = ({
                 sx={{ color: theme.palette.text.primary, padding: 0 }}
                 size="large"
               >
-                <ContentCopyIcon />
+                <ContentCopyOutlined />
               </IconButton>
             </CopyToClipboard>
           </Grid>

@@ -1,4 +1,4 @@
-import { Box } from '@mui/system';
+import { Box } from '@mui/material';
 import dagre from 'dagre';
 import i18next from 'i18next';
 import React, { useContext, useEffect, useState } from 'react';

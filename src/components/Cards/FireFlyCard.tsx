@@ -1,5 +1,4 @@
-import { Grid, Typography } from '@mui/material';
-import { Box } from '@mui/system';
+import { Box, Grid, Typography } from '@mui/material';
 import { IFireFlyCard } from '../../interfaces';
 import { DEFAULT_BORDER_RADIUS } from '../../theme';
 import { FFArrowButton } from '../Buttons/FFArrowButton';

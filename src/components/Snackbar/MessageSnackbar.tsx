@@ -14,12 +14,10 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import React, { useEffect, useRef, useState } from 'react';
+import { Check, Close, ErrorOutlineOutlined } from '@mui/icons-material';
 import { IconButton, Slide, SlideProps, Snackbar, Theme } from '@mui/material';
 import makeStyles from '@mui/styles/makeStyles';
-import AlertCircleIcon from 'mdi-react/AlertCircleIcon';
-import CloseIcon from 'mdi-react/CloseIcon';
-import CheckIcon from 'mdi-react/CheckIcon';
+import React, { useEffect, useRef, useState } from 'react';
 
 const TRANSITION_TIMEOUT = 400;
 export type SnackbarMessageType = 'error' | 'success';
@@ -73,9 +71,9 @@ export const MessageSnackbar: React.FC<MessageSnackbarProps> = ({
       message={
         <div className={classes.message}>
           {messageType === 'error' && (
-            <AlertCircleIcon className={classes.icon} />
+            <ErrorOutlineOutlined className={classes.icon} />
           )}
-          {messageType === 'success' && <CheckIcon className={classes.icon} />}
+          {messageType === 'success' && <Check className={classes.icon} />}
           {message}
         </div>
       }
@@ -87,7 +85,7 @@ export const MessageSnackbar: React.FC<MessageSnackbarProps> = ({
           onClick={handleClose}
           size="large"
         >
-          <CloseIcon />
+          <Close />
         </IconButton>,
       ]}
     />

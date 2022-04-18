@@ -1,6 +1,5 @@
-import { Grid, Paper, Popover, Typography } from '@mui/material';
+import { Box, Grid, Paper, Popover, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
-import { Box } from '@mui/system';
 import { BarDatum, ResponsiveBar } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';

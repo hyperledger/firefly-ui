@@ -14,7 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import ChartBoxOutline from 'mdi-react/ChartBoxOutlineIcon';
+import { InsertChartOutlined } from '@mui/icons-material';
 import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useLocation, useNavigate } from 'react-router-dom';
@@ -58,7 +58,7 @@ export const ActivityNav = () => {
 
   return (
     <NavSection
-      icon={<ChartBoxOutline />}
+      icon={<InsertChartOutlined />}
       navItems={navItems}
       title={t('activity')}
     />

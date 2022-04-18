@@ -14,6 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { ExpandLess, ExpandMore } from '@mui/icons-material';
 import {
   Collapse,
   ListItemButton,
@@ -21,8 +22,6 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material';
-import ExpandMore from 'mdi-react/ChevronDownIcon';
-import ExpandLess from 'mdi-react/ChevronUpIcon';
 import { useEffect, useState } from 'react';
 import { useLocation } from 'react-router-dom';
 import { INavItem } from '../../interfaces';
