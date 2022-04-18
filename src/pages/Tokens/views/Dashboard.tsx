@@ -26,6 +26,7 @@ import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { Header } from '../../../components/Header';
+import { FFDashboardRowLayout } from '../../../components/Layouts/FFDashboardRowLayout';
 import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { BalanceSlide } from '../../../components/Slides/BalanceSlide';
@@ -61,11 +62,7 @@ import {
   FF_TRANSFER_CATEGORY_MAP,
   TransferIconMap,
 } from '../../../interfaces/enums';
-import {
-  DEFAULT_PADDING,
-  DEFAULT_PAGE_LIMITS,
-  DEFAULT_SPACING,
-} from '../../../theme';
+import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import {
   fetchCatcher,
   fetchPool,
@@ -541,13 +538,7 @@ export const TokensDashboard: () => JSX.Element = () => {
       ></Header>
       <FFPageLayout>
         {/* Small Cards */}
-        <Grid
-          spacing={DEFAULT_SPACING}
-          container
-          item
-          direction="row"
-          pb={DEFAULT_PADDING}
-        >
+        <FFDashboardRowLayout>
           {smallCards.map((card) => {
             return (
               <Grid
@@ -565,16 +556,9 @@ export const TokensDashboard: () => JSX.Element = () => {
               </Grid>
             );
           })}
-        </Grid>
+        </FFDashboardRowLayout>
         {/* Medium Cards */}
-        <Grid
-          spacing={DEFAULT_SPACING}
-          container
-          justifyContent="center"
-          alignItems="flex-start"
-          direction="row"
-          pb={DEFAULT_PADDING}
-        >
+        <FFDashboardRowLayout>
           {mediumCards.map((card) => {
             return (
               <Grid
@@ -590,7 +574,7 @@ export const TokensDashboard: () => JSX.Element = () => {
               </Grid>
             );
           })}
-        </Grid>
+        </FFDashboardRowLayout>
         <DataTable
           header={t('recentTokenTransfers')}
           headerBtn={<FFArrowButton link={TRANSFERS_PATH} />}

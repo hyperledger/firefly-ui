@@ -26,6 +26,7 @@ import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { MsgStatusChip } from '../../../components/Chips/MsgStatusChip';
 import { Header } from '../../../components/Header';
+import { FFDashboardRowLayout } from '../../../components/Layouts/FFDashboardRowLayout';
 import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { DataSlide } from '../../../components/Slides/DataSlide';
@@ -57,11 +58,7 @@ import {
   MESSAGES_PATH,
 } from '../../../interfaces';
 import { FF_TX_CATEGORY_MAP } from '../../../interfaces/enums/transactionTypes';
-import {
-  DEFAULT_PADDING,
-  DEFAULT_PAGE_LIMITS,
-  DEFAULT_SPACING,
-} from '../../../theme';
+import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime, makeMsgHistogram } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -461,13 +458,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
       ></Header>
       <FFPageLayout>
         {/* Small Cards */}
-        <Grid
-          spacing={DEFAULT_SPACING}
-          container
-          item
-          direction="row"
-          pb={DEFAULT_PADDING}
-        >
+        <FFDashboardRowLayout>
           {smallCards.map((card) => {
             return (
               <Grid
@@ -485,16 +476,9 @@ export const OffChainDashboard: () => JSX.Element = () => {
               </Grid>
             );
           })}
-        </Grid>
+        </FFDashboardRowLayout>
         {/* Medium Cards */}
-        <Grid
-          spacing={DEFAULT_SPACING}
-          container
-          justifyContent="center"
-          alignItems="flex-start"
-          direction="row"
-          pb={DEFAULT_PADDING}
-        >
+        <FFDashboardRowLayout>
           {mediumCards.map((card) => {
             return (
               <Grid
@@ -510,7 +494,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
               </Grid>
             );
           })}
-        </Grid>
+        </FFDashboardRowLayout>
         <DataTable
           header={t('recentMessages')}
           onHandleCurrPageChange={(currentPage: number) =>

@@ -26,6 +26,7 @@ import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
 import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { Header } from '../../../components/Header';
+import { FFDashboardRowLayout } from '../../../components/Layouts/FFDashboardRowLayout';
 import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { ApiSlide } from '../../../components/Slides/ApiSlide';
@@ -57,12 +58,7 @@ import {
   LISTENERS_PATH,
 } from '../../../interfaces';
 import { FF_BE_CATEGORY_MAP } from '../../../interfaces/enums/blockchainEventTypes';
-import {
-  DEFAULT_PADDING,
-  DEFAULT_PAGE_LIMITS,
-  DEFAULT_SPACING,
-  FFColors,
-} from '../../../theme';
+import { DEFAULT_PAGE_LIMITS, FFColors } from '../../../theme';
 import { fetchCatcher, getFFTime } from '../../../utils';
 import {
   isHistogramEmpty,
@@ -458,13 +454,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       ></Header>
       <FFPageLayout>
         {/* Small Cards */}
-        <Grid
-          spacing={DEFAULT_SPACING}
-          container
-          item
-          direction="row"
-          pb={DEFAULT_PADDING}
-        >
+        <FFDashboardRowLayout>
           {smallCards.map((card) => {
             return (
               <Grid
@@ -482,16 +472,9 @@ export const BlockchainDashboard: () => JSX.Element = () => {
               </Grid>
             );
           })}
-        </Grid>
+        </FFDashboardRowLayout>
         {/* Medium Cards */}
-        <Grid
-          spacing={DEFAULT_SPACING}
-          container
-          justifyContent="center"
-          alignItems="flex-start"
-          direction="row"
-          pb={DEFAULT_PADDING}
-        >
+        <FFDashboardRowLayout>
           {mediumCards.map((card) => {
             return (
               <Grid
@@ -507,7 +490,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
               </Grid>
             );
           })}
-        </Grid>
+        </FFDashboardRowLayout>
         <DataTable
           header={t('recentBlockchainEvents')}
           onHandleCurrPageChange={(currentPage: number) =>

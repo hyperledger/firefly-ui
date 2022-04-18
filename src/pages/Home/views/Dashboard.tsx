@@ -12,6 +12,7 @@ import { SmallCard } from '../../../components/Cards/SmallCard';
 import { Histogram } from '../../../components/Charts/Histogram';
 import { MyNodeDiagram } from '../../../components/Charts/MyNodeDiagram';
 import { Header } from '../../../components/Header';
+import { FFDashboardRowLayout } from '../../../components/Layouts/FFDashboardRowLayout';
 import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { FFCircleLoader } from '../../../components/Loaders/FFCircleLoader';
 import { NetworkMap } from '../../../components/NetworkMap/NetworkMap';
@@ -37,7 +38,6 @@ import {
   OpCategoryEnum,
 } from '../../../interfaces';
 import { FF_Paths } from '../../../interfaces/constants';
-import { DEFAULT_PADDING, DEFAULT_SPACING } from '../../../theme';
 import {
   fetchCatcher,
   makeEventHistogram,
@@ -510,13 +510,7 @@ export const HomeDashboard: () => JSX.Element = () => {
       ></Header>
       <FFPageLayout>
         {/* Small Cards */}
-        <Grid
-          spacing={DEFAULT_SPACING}
-          container
-          item
-          direction="row"
-          pb={DEFAULT_PADDING}
-        >
+        <FFDashboardRowLayout>
           {smallCards.map((card) => {
             return (
               <Grid
@@ -534,16 +528,9 @@ export const HomeDashboard: () => JSX.Element = () => {
               </Grid>
             );
           })}
-        </Grid>
+        </FFDashboardRowLayout>
         {/* Medium Cards */}
-        <Grid
-          spacing={DEFAULT_SPACING}
-          container
-          justifyContent="center"
-          alignItems="center"
-          direction="row"
-          pb={DEFAULT_PADDING}
-        >
+        <FFDashboardRowLayout>
           {mediumCards.map((card) => {
             return (
               <Grid
@@ -560,15 +547,9 @@ export const HomeDashboard: () => JSX.Element = () => {
               </Grid>
             );
           })}
-        </Grid>
+        </FFDashboardRowLayout>
         {/* Tables */}
-        <Grid
-          spacing={DEFAULT_SPACING}
-          container
-          item
-          direction="row"
-          pb={DEFAULT_PADDING}
-        >
+        <FFDashboardRowLayout>
           {tableCards.map((card, idx) => {
             return (
               <Grid
@@ -585,7 +566,7 @@ export const HomeDashboard: () => JSX.Element = () => {
               </Grid>
             );
           })}
-        </Grid>
+        </FFDashboardRowLayout>
       </FFPageLayout>
       {viewTx && (
         <TransactionSlide
