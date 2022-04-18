@@ -21,7 +21,7 @@ import Jazzicon from 'react-jazzicon';
 import { useParams } from 'react-router-dom';
 import { FFBreadcrumb } from '../../../components/Breadcrumbs/FFBreadcrumb';
 import { FFCopyButton } from '../../../components/Buttons/CopyButton';
-import { FireFlyCard } from '../../../components/Cards/FireFlyCard';
+import { DetailsCard } from '../../../components/Cards/DetailsCard';
 import { Header } from '../../../components/Header';
 import { PoolList } from '../../../components/Lists/PoolList';
 import { HashPopover } from '../../../components/Popovers/HashPopover';
@@ -351,7 +351,7 @@ export const PoolDetails: () => JSX.Element = () => {
             item
             height="100%"
           >
-            <FireFlyCard size="medium" cardData={infoCard} />
+            <DetailsCard card={infoCard} />
           </Grid>
         </Grid>
         <Grid
@@ -372,10 +372,10 @@ export const PoolDetails: () => JSX.Element = () => {
             item
             height="100%"
           >
-            <FireFlyCard size="medium" cardData={accountsCard} />
+            <DetailsCard card={accountsCard} />
           </Grid>
         </Grid>
-        <Grid item pt={3} container>
+        <Grid item pt={3} container direction="row" justifyContent={'flex-end'}>
           <DataTable
             header={t('transfersInPool')}
             onHandleCurrPageChange={(currentPage: number) =>

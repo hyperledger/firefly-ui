@@ -14,7 +14,6 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
-import { Box } from '@mui/material';
 import { BarDatum } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
@@ -45,7 +44,7 @@ import {
   OperationFilters,
 } from '../../../interfaces';
 import { FF_OP_CATEGORY_MAP } from '../../../interfaces/enums';
-import { DEFAULT_HIST_HEIGHT, DEFAULT_PAGE_LIMITS } from '../../../theme';
+import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import {
   fetchCatcher,
   getFFTime,
@@ -208,25 +207,23 @@ export const ActivityOperations: () => JSX.Element = () => {
         onRefresh={clearNewEvents}
       ></Header>
       <FFPageLayout>
-        <Box height={DEFAULT_HIST_HEIGHT}>
-          <Histogram
-            colors={makeColorArray(FF_OP_CATEGORY_MAP)}
-            data={opHistData}
-            indexBy="timestamp"
-            keys={makeKeyArray(FF_OP_CATEGORY_MAP)}
-            includeLegend={true}
-            emptyText={t('noOperations')}
-            isLoading={isHistLoading}
-            isEmpty={isHistogramEmpty(opHistData ?? [])}
-            filterButton={
-              <FilterButton
-                onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
-                  setFilterAnchor(e.currentTarget)
-                }
-              />
-            }
-          />
-        </Box>
+        <Histogram
+          colors={makeColorArray(FF_OP_CATEGORY_MAP)}
+          data={opHistData}
+          indexBy="timestamp"
+          keys={makeKeyArray(FF_OP_CATEGORY_MAP)}
+          includeLegend={true}
+          emptyText={t('noOperations')}
+          isLoading={isHistLoading}
+          isEmpty={isHistogramEmpty(opHistData ?? [])}
+          filterButton={
+            <FilterButton
+              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
+                setFilterAnchor(e.currentTarget)
+              }
+            />
+          }
+        />
         <DataTable
           onHandleCurrPageChange={(currentPage: number) =>
             setCurrentPage(currentPage)
