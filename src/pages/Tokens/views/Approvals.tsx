@@ -54,9 +54,8 @@ export const TokensApprovals: () => JSX.Element = () => {
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
   // Token approvals
-  const [tokenApprovals, setTokenApprovals] = useState<
-    ITokenApprovalWithPoolName[]
-  >([]);
+  const [tokenApprovals, setTokenApprovals] =
+    useState<ITokenApprovalWithPoolName[]>();
   // Token approvals totals
   const [tokenApprovalsTotal, setTokenApprovalsTotal] = useState(0);
   const [viewApproval, setViewApproval] =
@@ -121,10 +120,14 @@ export const TokensApprovals: () => JSX.Element = () => {
               ...item,
               poolName: pool ? pool.name : item.pool,
             };
-            setTokenApprovals((tokenApprovals) => [
-              ...tokenApprovals,
-              approval,
-            ]);
+            setTokenApprovals((tokenApprovals) => {
+              return tokenApprovals
+                ? [...tokenApprovals, approval]
+                : [approval];
+            });
+          }
+          if (tokenApprovalRes.items.length === 0) {
+            setTokenApprovals([]);
           }
           setTokenApprovalsTotal(tokenApprovalRes.total);
         })

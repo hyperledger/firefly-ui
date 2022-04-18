@@ -14,7 +14,7 @@ export const makeOperationHistogram = (histList: IMetric[]): BarDatum[] => {
       [OpCategoryEnum.BLOCKCHAIN]: 0,
       [OpCategoryEnum.MESSAGES]: 0,
       [OpCategoryEnum.TOKENS]: 0,
-      isCapped: 0,
+      Truncated: 0,
     };
     hist.types.map((type) => {
       switch (FF_OP_CATEGORY_MAP[type.type as FF_OPS]?.category) {
@@ -34,7 +34,7 @@ export const makeOperationHistogram = (histList: IMetric[]): BarDatum[] => {
             timeMap[hist.timestamp][OpCategoryEnum.TOKENS] + +type.count;
           break;
       }
-      hist.isCapped && (timeMap[hist.timestamp].isCapped = 1);
+      hist.isCapped && (timeMap[hist.timestamp].Truncated = 1);
     });
   });
 

@@ -26,6 +26,7 @@ import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { FFTimelineHeader } from '../../../components/Headers/TimelineHeader';
+import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
 import { EventSlide } from '../../../components/Slides/EventSlide';
 import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { FFTimeline } from '../../../components/Timeline/FFTimeline';
@@ -206,7 +207,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
         subtitle={t('activity')}
         showRefreshBtn={false}
       />
-      <Grid container px={DEFAULT_PADDING} direction="column" spacing={2}>
+      <FFPageLayout>
         <Histogram
           colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
           data={eventHistData}
@@ -220,7 +221,6 @@ export const ActivityTimeline: () => JSX.Element = () => {
           isLoading={isHistLoading}
           isEmpty={isHistogramEmpty(eventHistData ?? [])}
           emptyText={t('noActivity')}
-          height="100%"
           filterButton={
             <FilterButton
               onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
@@ -229,7 +229,13 @@ export const ActivityTimeline: () => JSX.Element = () => {
             />
           }
         />
-        <Grid container justifyContent={'center'} direction="column" item>
+        <Grid
+          container
+          justifyContent={'center'}
+          direction="column"
+          item
+          pt={DEFAULT_PADDING}
+        >
           <FFTimelineHeader
             leftHeader={t('submittedByMe')}
             rightHeader={t('receivedFromEveryone')}
@@ -237,14 +243,14 @@ export const ActivityTimeline: () => JSX.Element = () => {
           <FFTimeline
             elements={buildTimelineElements(data)}
             emptyText={t('noTimelineEvents')}
-            height={'calc(100vh - 475px)'}
+            height={'calc(100vh - 425px)'}
             fetchMoreData={() => setIsVisible(isVisible + 1)}
             hasMoreData={hasNextPage}
             hasNewEvents={hasAnyEvent(newEvents)}
             fetchNewData={clearNewEvents}
           />
         </Grid>
-      </Grid>
+      </FFPageLayout>
       {filterAnchor && (
         <FilterModal
           anchor={filterAnchor}

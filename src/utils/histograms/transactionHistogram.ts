@@ -14,7 +14,7 @@ export const makeTxHistogram = (histList: IMetric[]): BarDatum[] => {
       [TxCategoryEnum.BLOCKCHAIN]: 0,
       [TxCategoryEnum.MESSAGES]: 0,
       [TxCategoryEnum.TOKENS]: 0,
-      isCapped: 0,
+      Truncated: 0,
     };
     hist.types.map((type) => {
       switch (FF_TX_CATEGORY_MAP[type.type as FF_TX]?.category) {
@@ -34,7 +34,7 @@ export const makeTxHistogram = (histList: IMetric[]): BarDatum[] => {
             timeMap[hist.timestamp][TxCategoryEnum.TOKENS] + +type.count;
           break;
       }
-      hist.isCapped && (timeMap[hist.timestamp].isCapped = 1);
+      hist.isCapped && (timeMap[hist.timestamp].Truncated = 1);
     });
   });
 

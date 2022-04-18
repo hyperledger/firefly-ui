@@ -56,9 +56,8 @@ export const TokensBalances: () => JSX.Element = () => {
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
   // Token balances
-  const [tokenBalances, setTokenBalances] = useState<
-    ITokenBalanceWithPoolName[]
-  >([]);
+  const [tokenBalances, setTokenBalances] =
+    useState<ITokenBalanceWithPoolName[]>();
   // Token balances totals
   const [tokenBalancesTotal, setTokenBalancesTotal] = useState(0);
   const [viewBalance, setViewBalance] = useState<ITokenBalance>();
@@ -121,7 +120,9 @@ export const TokensBalances: () => JSX.Element = () => {
               ...item,
               poolName: pool ? pool.name : item.pool,
             };
-            setTokenBalances((tokenBalances) => [...tokenBalances, balance]);
+            setTokenBalances((tokenBalances) => {
+              return tokenBalances ? [...tokenBalances, balance] : [balance];
+            });
           }
         })
         .catch((err) => {

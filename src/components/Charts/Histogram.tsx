@@ -22,7 +22,7 @@ interface Props {
   filterButton?: JSX.Element;
 }
 
-export const getIsCappedColor = (lightMode: boolean) =>
+export const getTruncatedColor = (lightMode: boolean) =>
   lightMode ? '#000000' : '#FFFFFF';
 
 export const Histogram: React.FC<Props> = ({
@@ -42,8 +42,6 @@ export const Histogram: React.FC<Props> = ({
   const [popoverBucket, setPopoverBucket] = useState<any>(undefined);
   const [anchorEl, setAnchorEl] = useState(null);
   const [open, setOpen] = useState(false);
-
-  colors.push(getIsCappedColor(theme.palette.mode === 'light'));
 
   useEffect(() => {
     if (data) {
@@ -76,7 +74,7 @@ export const Histogram: React.FC<Props> = ({
       >
         {Object.entries(popoverBucket.data).map(([key, value], idx) => {
           return (
-            key !== 'isCapped' &&
+            key !== 'Truncated' &&
             key !== 'timestamp' && (
               <Typography key={key} sx={{ color: colors[idx] }}>
                 {`${key.toUpperCase()}: ${value ?? 0}`}
@@ -92,6 +90,28 @@ export const Histogram: React.FC<Props> = ({
         </Typography>
       </Paper>
     );
+  };
+
+  // Returns key array, altered if buckets have a bar that is truncated
+  const getKeys = (data: BarDatum[], keys: string[]) => {
+    if (!data.every((d) => d.Truncated === 0) && !keys.includes('Truncated')) {
+      keys.push('Truncated');
+    }
+
+    return keys;
+  };
+
+  // Returns colors array, altered if buckets have a bar that is truncated
+  const getColors = (data: BarDatum[], colors: string[]) => {
+    const truncatedColor = getTruncatedColor(theme.palette.mode === 'light');
+    if (
+      !data.every((d) => d.Truncated === 0) &&
+      !keys.includes(truncatedColor)
+    ) {
+      colors.push(truncatedColor);
+    }
+
+    return colors;
   };
 
   return (
@@ -117,17 +137,14 @@ export const Histogram: React.FC<Props> = ({
         {!data || isLoading ? (
           <FFCircleLoader height="100%" color="warning"></FFCircleLoader>
         ) : isEmpty ? (
-          <EmptyStateCard
-            height={height ?? DEFAULT_HIST_HEIGHT}
-            text={emptyText}
-          />
+          <EmptyStateCard height={'80%'} text={emptyText} />
         ) : (
           <>
-            <Grid height="100%" width="100%">
+            <Grid height="98%" width="100%">
               <ResponsiveBar
                 data={data}
-                colors={colors}
-                keys={keys}
+                colors={getColors(data, colors)}
+                keys={getKeys(data, keys)}
                 indexBy={indexBy}
                 margin={{ top: 10, right: 5, bottom: 60, left: 40 }}
                 padding={0.1}
@@ -163,7 +180,7 @@ export const Histogram: React.FC<Props> = ({
                           translateX: 0,
                           translateY: 50,
                           itemsSpacing: 2,
-                          itemWidth: 110,
+                          itemWidth: 115,
                           itemHeight: 10,
                           itemDirection: 'left-to-right',
                           itemOpacity: 1,

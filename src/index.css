@@ -24,11 +24,3 @@ pre {
 .react-flow__attribution {
   display: none;
 }
-
-/* Remove scroll bars */
-* {
-  -ms-overflow-style: none;
-}
-::-webkit-scrollbar {
-  display: none;
-}
