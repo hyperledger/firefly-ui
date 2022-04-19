@@ -237,11 +237,11 @@ export const OffChainDashboard: () => JSX.Element = () => {
     },
   }));
 
-  const dtHeaders = [t('id'), t('version'), t('created')];
+  const dtHeaders = [t('name'), t('version'), t('created')];
   const dtRecords: IDataTableRecord[] | undefined = datatypes?.map((dt) => ({
     key: dt.id,
     columns: [
-      { value: <HashPopover shortHash address={dt.id} /> },
+      { value: <HashPopover shortHash address={dt.name} /> },
       {
         value: <FFTableText color="primary" text={dt.version} />,
       },

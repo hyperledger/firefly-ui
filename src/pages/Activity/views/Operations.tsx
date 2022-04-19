@@ -163,7 +163,7 @@ export const ActivityOperations: () => JSX.Element = () => {
     t('operationID'),
     t('transactionID'),
     t('status'),
-    t('updated'),
+    t('created'),
   ];
 
   const opsRecords: IDataTableRecord[] | undefined = ops?.map((op) => ({
@@ -184,7 +184,7 @@ export const ActivityOperations: () => JSX.Element = () => {
         value: <HashPopover address={op.id}></HashPopover>,
       },
       {
-        value: <HashPopover shortHash={true} address={op.tx}></HashPopover>,
+        value: <HashPopover address={op.tx}></HashPopover>,
       },
       {
         value: <OpStatusChip op={op} />,

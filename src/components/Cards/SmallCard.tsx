@@ -55,7 +55,7 @@ export const SmallCard: React.FC<Props> = ({ cardData }) => {
           >
             {cardData.header}
           </Typography>
-          {cardData.numErrors && cardData.numErrors > 0 && (
+          {cardData.numErrors && cardData.numErrors > 0 ? (
             <Chip
               onClick={(e) => {
                 e.stopPropagation();
@@ -70,6 +70,8 @@ export const SmallCard: React.FC<Props> = ({ cardData }) => {
                 cursor: 'pointer',
               }}
             />
+          ) : (
+            <></>
           )}
         </Grid>
         {/* Data */}

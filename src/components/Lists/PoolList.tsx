@@ -47,6 +47,11 @@ export const PoolList: React.FC<Props> = ({ pool }) => {
           button: <FFCopyButton value={pool.connector} />,
         },
         {
+          label: t('locator'),
+          value: <FFListText color="primary" text={pool.locator} />,
+          button: <FFCopyButton value={pool.locator} />,
+        },
+        {
           label: t('transactionID'),
           value: pool.tx?.id ? (
             <FFListText color="primary" text={pool.tx.id} />

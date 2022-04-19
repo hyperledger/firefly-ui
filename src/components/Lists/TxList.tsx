@@ -32,7 +32,7 @@ export const TxList: React.FC<Props> = ({
   const [dataList, setDataList] = useState<IDataListItem[]>(FFSkeletonList);
 
   useEffect(() => {
-    if (tx && txStatus) {
+    if (tx) {
       setDataList([
         {
           label: t('id'),
@@ -62,7 +62,7 @@ export const TxList: React.FC<Props> = ({
           ),
         },
         {
-          label: t('status'),
+          label: txStatus ? t('status') : '',
           value: txStatus && <TxStatusChip txStatus={txStatus} />,
         },
         {
@@ -98,9 +98,9 @@ export const TxList: React.FC<Props> = ({
 
   return (
     <>
-      {dataList.map((d, idx) => (
-        <FFListItem key={idx} item={d} />
-      ))}
+      {dataList.map((d, idx) => {
+        return d.label !== '' && <FFListItem key={idx} item={d} />;
+      })}
       {txDetails?.map(
         (d) => d !== undefined && <FFListItem key={d.label} item={d} />
       )}

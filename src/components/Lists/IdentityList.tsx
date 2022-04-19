@@ -51,7 +51,7 @@ export const IdentityList: React.FC<Props> = ({ identity }) => {
           ),
         },
         {
-          label: t('messageClaim'),
+          label: t('claimMessage'),
           value: <FFListText color="primary" text={identity.messages.claim} />,
           button: (
             <>
@@ -64,11 +64,11 @@ export const IdentityList: React.FC<Props> = ({ identity }) => {
           ),
         },
         {
-          label: t('messageVerification'),
+          label: t('verificationMessage'),
           value: identity.messages.verification ? (
             <FFListText color="primary" text={identity.messages.verification} />
           ) : (
-            <FFListText color="secondary" text={t('noMessageVerification')} />
+            <FFListText color="secondary" text={t('noVerificationMessage')} />
           ),
           button: identity.messages.verification ? (
             <>

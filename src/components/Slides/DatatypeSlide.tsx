@@ -38,7 +38,10 @@ export const DatatypeSlide: React.FC<Props> = ({ dt, open, onClose }) => {
       <DisplaySlide open={open} onClose={onClose}>
         <Grid container direction="column" p={DEFAULT_PADDING}>
           {/* Header */}
-          <SlideHeader subtitle={t('datatype')} title={dt.name} />
+          <SlideHeader
+            subtitle={t('datatype')}
+            title={`${dt.name} - ${dt.version}`}
+          />
           {/* Data list */}
           <Grid container item pb={DEFAULT_PADDING}>
             <DatatypeList dt={dt} />
@@ -46,7 +49,12 @@ export const DatatypeSlide: React.FC<Props> = ({ dt, open, onClose }) => {
           {/* Value */}
           {dt.value && (
             <Grid container item pb={DEFAULT_PADDING}>
-              <JsonViewAccordion isOpen header={t('schema')} json={dt.value} />
+              <JsonViewAccordion
+                isOpen
+                header={t('schema')}
+                json={dt.value}
+                filename={`${dt.name}-${dt.version}.json`}
+              />
             </Grid>
           )}
         </Grid>

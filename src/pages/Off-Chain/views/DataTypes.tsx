@@ -25,7 +25,6 @@ import { DatatypeSlide } from '../../../components/Slides/DatatypeSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
-import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
@@ -43,7 +42,6 @@ import { hasDatatypeEvent } from '../../../utils/wsEvents';
 export const OffChainDataTypes: () => JSX.Element = () => {
   const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
     useContext(ApplicationContext);
-  const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
@@ -82,13 +80,12 @@ export const OffChainDataTypes: () => JSX.Element = () => {
   // Datatype
   useEffect(() => {
     isMounted &&
-      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.datatypes
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          dateFilter.filterString
-        }${filterString ?? ''}`
+          filterString ?? ''
+        }`
       )
         .then((datatypeRes: IPagedDatatypeResponse) => {
           if (isMounted) {
@@ -103,19 +100,17 @@ export const OffChainDataTypes: () => JSX.Element = () => {
     rowsPerPage,
     currentPage,
     selectedNamespace,
-    dateFilter,
     filterString,
     lastRefreshTime,
     isMounted,
   ]);
 
   const datatypeColHeaders = [
-    t('id'),
     t('name'),
-    t('dataHash'),
-    t('messageID'),
-    t('validator'),
     t('version'),
+    t('id'),
+    t('dataHash'),
+    t('validator'),
     t('created'),
   ];
 
@@ -124,22 +119,19 @@ export const OffChainDataTypes: () => JSX.Element = () => {
       key: d.id,
       columns: [
         {
-          value: <HashPopover shortHash address={d.id}></HashPopover>,
+          value: <FFTableText color="primary" text={d.name} />,
         },
         {
-          value: <FFTableText color="primary" text={d.name} />,
+          value: <FFTableText color="primary" text={d.version} />,
+        },
+        {
+          value: <HashPopover shortHash address={d.id}></HashPopover>,
         },
         {
           value: <HashPopover shortHash address={d.hash}></HashPopover>,
         },
         {
-          value: <HashPopover shortHash address={d.message}></HashPopover>,
-        },
-        {
           value: <FFTableText color="primary" text={d.validator} />,
-        },
-        {
-          value: <FFTableText color="primary" text={d.version} />,
         },
         {
           value: (
@@ -161,6 +153,7 @@ export const OffChainDataTypes: () => JSX.Element = () => {
         subtitle={t('offChain')}
         showRefreshBtn={hasDatatypeEvent(newEvents)}
         onRefresh={clearNewEvents}
+        noDateFilter
       ></Header>
       <FFPageLayout>
         <DataTable

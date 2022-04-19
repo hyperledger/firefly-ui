@@ -38,6 +38,7 @@ import { PoolContext } from '../../../contexts/PoolContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
+  APPROVALS_PATH,
   BALANCES_PATH,
   BucketCollectionEnum,
   BucketCountEnum,
@@ -166,7 +167,7 @@ export const TokensDashboard: () => JSX.Element = () => {
     {
       header: t('activity'),
       numErrors: tokenErrorCount,
-      errorLink: FF_NAV_PATHS.tokensTransfersErrorPath(selectedNamespace),
+      errorLink: FF_NAV_PATHS.activityOpErrorPath(selectedNamespace),
       data: [
         { header: t('transfers'), data: tokenTransfersCount },
         { header: t('mint'), data: tokenMintCount },
@@ -184,6 +185,7 @@ export const TokensDashboard: () => JSX.Element = () => {
       header: t('approvals'),
       numErrors: 0,
       data: [{ header: t('total'), data: tokenApprovalCount }],
+      clickPath: APPROVALS_PATH,
     },
     {
       header: t('connectors'),
@@ -264,16 +266,16 @@ export const TokensDashboard: () => JSX.Element = () => {
         });
   }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
-  const tokenAccountsColHeaders = [t('key'), t('poolID'), t('balance')];
+  const tokenAccountsColHeaders = [t('key'), t('poolName'), t('balance')];
   const tokenAccountRecords: IDataTableRecord[] | undefined =
     tokenBalances?.map((acct, idx) => ({
       key: idx.toString(),
       columns: [
         {
-          value: <HashPopover address={acct.key} />,
+          value: <HashPopover shortHash address={acct.key} />,
         },
         {
-          value: <HashPopover shortHash address={acct.poolName} />,
+          value: <HashPopover address={acct.poolName} />,
         },
         {
           value: <FFTableText color="primary" text={acct.balance} />,
@@ -296,13 +298,7 @@ export const TokensDashboard: () => JSX.Element = () => {
           value: (
             <FFTableText
               color="primary"
-              text={
-                pool.name.length > 10 ? (
-                  <HashPopover shortHash address={pool.name} />
-                ) : (
-                  pool.name
-                )
-              }
+              text={<HashPopover address={pool.name} />}
               icon={
                 <Jazzicon diameter={20} seed={jsNumberForAddress(pool.name)} />
               }

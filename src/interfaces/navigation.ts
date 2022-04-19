@@ -74,16 +74,20 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}/${txID}`,
   activityTxDetailPathWithSlide: (ns: string, txID: string, slideID: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}/${txID}?slide=${slideID}`,
+  activityTxPathOnlyBlockchainTxs: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${TRANSACTIONS_PATH}${'?filters=blockchainids=!='}`,
   activityOpPath: (ns: string, opID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}${
       opID ? `?slide=${opID}` : ''
     }`,
+  activityOpPathOnlyBlockchainOps: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}${'?filters=type=^blockchain'}`,
   activityOpPathWithTxFilter: (ns: string, txID: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}${
       txID ? `?filters=tx==${txID}` : ''
     }`,
   activityOpErrorPath: (ns: string) =>
-    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}?filters=error=!=`,
+    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}?filters=status==Failed`,
   // Blockchain
   blockchainPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}`,

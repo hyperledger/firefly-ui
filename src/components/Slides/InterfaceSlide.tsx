@@ -96,7 +96,7 @@ export const InterfaceSlide: React.FC<Props> = ({
           {/* Title */}
           <SlideHeader
             subtitle={t('contractInterface')}
-            title={cInterface?.name}
+            title={`${cInterface?.name} - ${cInterface?.version}`}
           />
           {/* Data list */}
           <Grid container item>

@@ -159,6 +159,7 @@ export const BlockchainEvents: () => JSX.Element = () => {
     t('name'),
     t('id'),
     t('protocolID'),
+    t('blockchainTransaction'),
     t('source'),
     t('timestamp'),
   ];
@@ -176,7 +177,14 @@ export const BlockchainEvents: () => JSX.Element = () => {
           value: <HashPopover address={be.protocolId}></HashPopover>,
         },
         {
-          value: <HashPopover address={be.source}></HashPopover>,
+          value: be.tx?.blockchainId ? (
+            <HashPopover address={be.tx.blockchainId}></HashPopover>
+          ) : (
+            <FFTableText color="secondary" text={t('noTxBlockchainId')} />
+          ),
+        },
+        {
+          value: <HashPopover shortHash address={be.source}></HashPopover>,
         },
         {
           value: (

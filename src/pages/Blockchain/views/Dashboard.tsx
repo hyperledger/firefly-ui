@@ -147,14 +147,17 @@ export const BlockchainDashboard: () => JSX.Element = () => {
   const smallCards: ISmallCard[] = [
     {
       header: t('blockchainOperations'),
+      errorLink: FF_NAV_PATHS.activityOpErrorPath(selectedNamespace),
       numErrors: blockchainOpErrorCount,
       data: [{ data: blockchainOpCount }],
-      clickPath: FF_NAV_PATHS.activityOpPath(selectedNamespace),
+      clickPath:
+        FF_NAV_PATHS.activityOpPathOnlyBlockchainOps(selectedNamespace),
     },
     {
       header: t('blockchainTransactions'),
       data: [{ data: blockchainTxCount }],
-      clickPath: FF_NAV_PATHS.activityTxPath(selectedNamespace),
+      clickPath:
+        FF_NAV_PATHS.activityTxPathOnlyBlockchainTxs(selectedNamespace),
     },
     {
       header: t('blockchainEvents'),
@@ -178,14 +181,14 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       Promise.all([
         // Blockchain Operations
         fetchCatcher(
-          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}`
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&type=^blockchain`
         ),
         fetchCatcher(
           `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operations}${qParams}&error=!`
         ),
         // Blockchain Transactions
         fetchCatcher(
-          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactions}${qParams}`
+          `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactions}${qParams}&blockchainids=!`
         ),
         // Blockchain Events
         fetchCatcher(
@@ -249,7 +252,12 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       },
       {
         value: (
-          <Link target="_blank" href={api.urls.ui} underline="always">
+          <Link
+            target="_blank"
+            href={api.urls.ui}
+            underline="always"
+            onClick={(e) => e.stopPropagation()}
+          >
             <IconButton>
               <Launch />
             </IconButton>

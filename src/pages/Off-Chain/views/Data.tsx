@@ -142,7 +142,10 @@ export const OffChainData: () => JSX.Element = () => {
       },
       {
         value: d.blob?.size ? (
-          <FFTableText color="primary" text={d.blob.size.toString()} />
+          <FFTableText
+            color="primary"
+            text={`${d.blob.size.toString()} ${t('bytes')}`}
+          />
         ) : (
           <FFTableText color="secondary" text={t('---')} />
         ),

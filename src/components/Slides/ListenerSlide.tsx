@@ -21,8 +21,10 @@ import { IContractListener } from '../../interfaces';
 import { DEFAULT_PADDING } from '../../theme';
 import { JsonViewAccordion } from '../Accordions/JsonViewerAccordion';
 import { ListenerList } from '../Lists/ListenerList';
+import { SubOptionsList } from '../Lists/SubOptionsList';
 import { DisplaySlide } from './DisplaySlide';
 import { SlideHeader } from './SlideHeader';
+import { SlideSectionHeader } from './SlideSectionHeader';
 
 interface Props {
   listener: IContractListener;
@@ -45,6 +47,11 @@ export const ListenerSlide: React.FC<Props> = ({ listener, open, onClose }) => {
           {/* Data list */}
           <Grid container item>
             <ListenerList listener={listener} />
+          </Grid>
+          {/* Filter options */}
+          <Grid container item pb={DEFAULT_PADDING}>
+            <SlideSectionHeader title={t('options')} />
+            <SubOptionsList options={listener.options} />
           </Grid>
           {/* API Location */}
           {listener.location && (

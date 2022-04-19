@@ -117,10 +117,7 @@ export const OffChainBatches: () => JSX.Element = () => {
     t('id'),
     t('type'),
     t('hash'),
-    t('node'),
-    t('group'),
     t('author'),
-    t('signingKey'),
     t('created'),
     t('manifest'),
   ];
@@ -139,24 +136,7 @@ export const OffChainBatches: () => JSX.Element = () => {
           value: <HashPopover shortHash address={batch.hash}></HashPopover>,
         },
         {
-          value: batch.node ? (
-            <HashPopover shortHash address={batch.node}></HashPopover>
-          ) : (
-            <FFTableText color="secondary" text={t('noNode')} />
-          ),
-        },
-        {
-          value: batch.group ? (
-            <HashPopover shortHash address={batch.group}></HashPopover>
-          ) : (
-            <FFTableText color="secondary" text={t('noGroup')} />
-          ),
-        },
-        {
-          value: <HashPopover shortHash address={batch.author}></HashPopover>,
-        },
-        {
-          value: <HashPopover shortHash address={batch.key}></HashPopover>,
+          value: <HashPopover address={batch.author}></HashPopover>,
         },
         {
           value: (
