@@ -109,6 +109,9 @@ export const TokensBalances: () => JSX.Element = () => {
       )
         .then(async (tokenBalancesRes: IPagedTokenBalanceResponse) => {
           setTokenBalancesTotal(tokenBalancesRes.total);
+          if (tokenBalancesRes.items.length === 0) {
+            setTokenBalances([]);
+          }
           for (const item of tokenBalancesRes.items) {
             const pool = await fetchPool(
               selectedNamespace,
@@ -202,7 +205,7 @@ export const TokensBalances: () => JSX.Element = () => {
           records={tokenBalanceRecords}
           columnHeaders={tokenBalanceColHeaders}
           paginate={true}
-          emptyStateText={t('noTokenBalancesToDisplay')}
+          emptyStateText={t('noAccountsWithBalances')}
           dataTotal={tokenBalancesTotal}
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}

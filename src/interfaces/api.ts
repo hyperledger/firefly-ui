@@ -143,7 +143,7 @@ export interface IFireFlyParam {
   schema: any;
   message?: IMessage;
   transaction?: ITransaction;
-  blockchainevent?: IBlockchainEvent;
+  blockchainEvent?: IBlockchainEvent;
 }
 
 export interface IGenericPagedResponse {
@@ -545,6 +545,7 @@ export interface ITokenPool {
   created: string;
   tx?: ITx;
   info?: any;
+  decimals?: number;
 }
 
 export interface ITokenTransfer {

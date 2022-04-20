@@ -29,6 +29,8 @@ export enum EventCategoryEnum {
 export enum FF_EVENTS {
   // Blockchain Event
   BLOCKCHAIN_EVENT_RECEIVED = 'blockchain_event_received',
+  BLOCKCHAIN_INVOKE_OP_SUCCEEDED = 'blockchain_invoke_op_succeeded',
+  BLOCKCHAIN_INVOKE_OP_FAILED = 'blockchain_invoke_op_failed',
   CONTRACT_API_CONFIRMED = 'contract_api_confirmed',
   CONTRACT_INTERFACE_CONFIRMED = 'contract_interface_confirmed',
   DATATYPE_CONFIRMED = 'datatype_confirmed',
@@ -41,6 +43,7 @@ export enum FF_EVENTS {
   TX_SUBMITTED = 'transaction_submitted',
   // Transfers
   TOKEN_POOL_CONFIRMED = 'token_pool_confirmed',
+  TOKEN_POOL_OP_FAILED = 'token_pool_op_failed',
   TOKEN_APPROVAL_CONFIRMED = 'token_approval_confirmed',
   TOKEN_APPROVAL_OP_FAILED = 'token_approval_op_failed',
   TOKEN_TRANSFER_CONFIRMED = 'token_transfer_confirmed',
@@ -73,7 +76,7 @@ export const FF_EVENTS_CATEGORY_MAP: {
     category: EventCategoryEnum.BLOCKCHAIN,
     color: FFColors.Yellow,
     nicename: 'blockchainEventReceived',
-    enrichedEventKey: 'blockchainevent',
+    enrichedEventKey: 'blockchainEvent',
     enrichedEventString: (event: IEvent): string =>
       `${event.blockchainEvent?.name}${
         event.blockchainEvent?.protocolId
@@ -81,6 +84,30 @@ export const FF_EVENTS_CATEGORY_MAP: {
           : ''
       }`,
     referenceIDName: 'blockchainEventID',
+    referenceIDButton: (ns: string, refID: string): JSX.Element => (
+      <LaunchButton link={FF_NAV_PATHS.blockchainEventsPath(ns, refID)} />
+    ),
+  },
+  // TODO: Add enrichment text
+  [FF_EVENTS.BLOCKCHAIN_INVOKE_OP_SUCCEEDED]: {
+    category: EventCategoryEnum.BLOCKCHAIN,
+    color: FFColors.Yellow,
+    nicename: 'blockchainInvokeSucceeded',
+    enrichedEventKey: 'blockchainInvokeSucceeded',
+    enrichedEventString: (): string => t('---'),
+    referenceIDName: 'blockchainInvokeSucceeded',
+    referenceIDButton: (ns: string, refID: string): JSX.Element => (
+      <LaunchButton link={FF_NAV_PATHS.blockchainEventsPath(ns, refID)} />
+    ),
+  },
+  // TODO: Add enrichment text
+  [FF_EVENTS.BLOCKCHAIN_INVOKE_OP_FAILED]: {
+    category: EventCategoryEnum.BLOCKCHAIN,
+    color: FFColors.Yellow,
+    nicename: 'blockchainInvokeFailed',
+    enrichedEventKey: 'blockchainInvokeFailed',
+    enrichedEventString: (): string => t('---'),
+    referenceIDName: 'blockchainInvokeFailed',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
       <LaunchButton link={FF_NAV_PATHS.blockchainEventsPath(ns, refID)} />
     ),
@@ -245,6 +272,18 @@ export const FF_EVENTS_CATEGORY_MAP: {
           : ''
       }${event.tokenPool?.type ? ', Type=' + event.tokenPool?.type : ''}`,
     referenceIDName: 'poolID',
+    referenceIDButton: (ns: string, refID: string): JSX.Element => (
+      <LaunchButton link={FF_NAV_PATHS.tokensPoolDetailsPath(ns, refID)} />
+    ),
+  },
+  // TODO: Add event enrichment
+  [FF_EVENTS.TOKEN_POOL_OP_FAILED]: {
+    category: EventCategoryEnum.TOKENS,
+    color: FFColors.Pink,
+    nicename: 'tokenPoolFailed',
+    enrichedEventKey: 'tokenPoolFailed',
+    enrichedEventString: (): string => t('---'),
+    referenceIDName: 'tokenPoolFailed',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
       <LaunchButton link={FF_NAV_PATHS.tokensPoolDetailsPath(ns, refID)} />
     ),

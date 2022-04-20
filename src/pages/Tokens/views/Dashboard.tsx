@@ -346,7 +346,7 @@ export const TokensDashboard: () => JSX.Element = () => {
         <MediumCardTable
           records={tokenAccountRecords}
           columnHeaders={tokenAccountsColHeaders}
-          emptyMessage={t('noTokenAccounts')}
+          emptyMessage={t('noAccountsWithBalances')}
         ></MediumCardTable>
       ),
     },
@@ -404,6 +404,9 @@ export const TokensDashboard: () => JSX.Element = () => {
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenBalances}`
       )
         .then(async (balances: ITokenBalance[]) => {
+          if (balances.length === 0) {
+            setTokenBalances([]);
+          }
           for (const balance of balances) {
             const pool = await fetchPool(
               selectedNamespace,

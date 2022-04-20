@@ -52,6 +52,19 @@ export const PoolList: React.FC<Props> = ({ pool }) => {
           button: <FFCopyButton value={pool.locator} />,
         },
         {
+          label: pool.decimals ? t('decimals') : '',
+          value: pool.decimals ? (
+            <FFListText color="primary" text={pool.decimals.toString()} />
+          ) : (
+            <></>
+          ),
+          button: pool.decimals ? (
+            <FFCopyButton value={pool.decimals.toString()} />
+          ) : (
+            <></>
+          ),
+        },
+        {
           label: t('transactionID'),
           value: pool.tx?.id ? (
             <FFListText color="primary" text={pool.tx.id} />
@@ -96,9 +109,9 @@ export const PoolList: React.FC<Props> = ({ pool }) => {
 
   return (
     <>
-      {dataList.map((d, idx) => (
-        <FFListItem key={idx} item={d} />
-      ))}
+      {dataList.map(
+        (d, idx) => d.label !== '' && <FFListItem key={idx} item={d} />
+      )}
     </>
   );
 };
