@@ -337,7 +337,13 @@ export const HomeDashboard: () => JSX.Element = () => {
       headerText: t('myRecentTransactions'),
       clickPath: FF_NAV_PATHS.activityTimelinePath(selectedNamespace),
       component: (
-        <>
+        <Grid
+          container
+          direction="column"
+          item
+          alignItems="flex-start"
+          justifyContent="flex-start"
+        >
           {recentEventTxs?.length === 0 ? (
             <EmptyStateCard text={t('noRecentTransactions')} />
           ) : !recentEventTxs ? (
@@ -364,7 +370,7 @@ export const HomeDashboard: () => JSX.Element = () => {
               </React.Fragment>
             ))
           )}
-        </>
+        </Grid>
       ),
     },
     // Recent Network Events
@@ -372,7 +378,13 @@ export const HomeDashboard: () => JSX.Element = () => {
       headerText: t('recentNetworkEvents'),
       clickPath: FF_NAV_PATHS.activityTimelinePath(selectedNamespace),
       component: (
-        <>
+        <Grid
+          container
+          direction="column"
+          item
+          alignItems="flex-start"
+          justifyContent="flex-start"
+        >
           {recentEvents?.length === 0 ? (
             <EmptyStateCard text={t('noRecentNetworkEvents')} />
           ) : !recentEvents ? (
@@ -403,7 +415,7 @@ export const HomeDashboard: () => JSX.Element = () => {
               </React.Fragment>
             ))
           )}
-        </>
+        </Grid>
       ),
     },
   ];
