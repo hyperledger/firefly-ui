@@ -48,8 +48,9 @@ export const FireFlyCard: React.FC<Props> = ({ cardData, size }) => {
         <Grid
           container
           alignItems={'flex-start'}
-          justifyContent="center"
+          justifyContent="flex-start"
           item
+          direction="column"
           sx={{ height: COMPONENT_HEIGHT, width: '100%', overflow: 'auto' }}
         >
           {cardData.component}
