@@ -36,10 +36,7 @@ export interface IBlockchainEvent {
   output?: any;
   info?: any;
   timestamp: string;
-  tx?: {
-    type?: FF_TX;
-    id?: string;
-  };
+  tx?: ITx;
 }
 
 export interface IContractInterface {
@@ -54,21 +51,25 @@ export interface IContractInterface {
 export interface IContractListener {
   id: string;
   interface: {
-    id: string;
+    id?: string;
   };
   namespace: string;
   name?: string;
-  protocolId: string;
-  location?: {
-    address?: string;
-  };
+  backendId: string;
+  location?: any;
   created: string;
   event: {
     name: string;
     description?: '';
-    params: IFireFlyParam[];
+    params: IFireFlyParam[] | null;
   };
-  topic?: string;
+  signature: string;
+  topic: string;
+  options: {
+    firstEvent?: string;
+    readAhead?: number;
+    withData?: boolean;
+  };
 }
 
 export interface IData {
@@ -277,6 +278,7 @@ export interface IOperation {
   created: string;
   updated: string;
   retry?: string;
+  error?: string;
 }
 
 export interface IOrganization {
@@ -479,9 +481,9 @@ export interface ISubscription {
   transport: string;
   filter?: any;
   options: {
-    firstEvent: string;
-    readAhead: number;
-    withData: boolean;
+    firstEvent?: string;
+    readAhead?: number;
+    withData?: boolean;
   };
   created: string;
   updated: string | null;
@@ -500,6 +502,8 @@ export interface ITokenApproval {
   approved: boolean;
   namespace: string;
   protocolId: string;
+  subject: string;
+  active: boolean;
   created: string;
   tx?: ITx;
   blockchainEvent: string;
@@ -534,7 +538,7 @@ export interface ITokenPool {
   name: string;
   standard: string;
   symbol?: string;
-  protocolId: string;
+  locator: string;
   connector: string;
   message: string;
   state: 'confirmed' | 'pending';
@@ -571,8 +575,9 @@ export interface ITransaction {
 }
 
 export interface ITx {
-  type?: string;
+  type?: FF_TX;
   id?: string;
+  blockchainId?: string;
 }
 
 export interface ITxStatus {

@@ -15,14 +15,22 @@
 // limitations under the License.
 
 import { Grid } from '@mui/material';
-import React from 'react';
+import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ITokenApprovalWithPoolName } from '../../interfaces';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
+import { SnackbarContext } from '../../contexts/SnackbarContext';
+import {
+  FF_Paths,
+  IBlockchainEvent,
+  ITokenApprovalWithPoolName,
+} from '../../interfaces';
 import { DEFAULT_PADDING } from '../../theme';
-import { getShortHash } from '../../utils';
+import { fetchCatcher, getShortHash } from '../../utils';
+import { BlockchainEventAccordion } from '../Accordions/BlockchainEventAccordion';
 import { ApprovalList } from '../Lists/ApprovalList';
 import { DisplaySlide } from './DisplaySlide';
 import { SlideHeader } from './SlideHeader';
+import { SlideSectionHeader } from './SlideSectionHeader';
 
 interface Props {
   approval: ITokenApprovalWithPoolName;
@@ -32,6 +40,33 @@ interface Props {
 
 export const ApprovalSlide: React.FC<Props> = ({ approval, open, onClose }) => {
   const { t } = useTranslation();
+  const { selectedNamespace } = useContext(ApplicationContext);
+  const { reportFetchError } = useContext(SnackbarContext);
+  const [blockchainEvent, setBlockchainEvent] = useState<IBlockchainEvent>();
+  const [isMounted, setIsMounted] = useState(false);
+  useEffect(() => {
+    setIsMounted(true);
+    return () => {
+      setIsMounted(false);
+    };
+  }, []);
+
+  useEffect(() => {
+    isMounted &&
+      fetchCatcher(
+        `${
+          FF_Paths.nsPrefix
+        }/${selectedNamespace}/${FF_Paths.blockchainEventsById(
+          approval.blockchainEvent
+        )}`
+      )
+        .then((blockchainEventRes: IBlockchainEvent) => {
+          isMounted && setBlockchainEvent(blockchainEventRes);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+  }, [isMounted]);
 
   return (
     <>
@@ -46,6 +81,12 @@ export const ApprovalSlide: React.FC<Props> = ({ approval, open, onClose }) => {
           <Grid container item>
             <ApprovalList approval={approval} />
           </Grid>
+          {blockchainEvent && (
+            <Grid container item>
+              <SlideSectionHeader title={t('blockchainEvent')} />
+              <BlockchainEventAccordion isOpen be={blockchainEvent} />
+            </Grid>
+          )}
         </Grid>
       </DisplaySlide>
     </>

@@ -1,7 +1,7 @@
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { FF_EVENTS_CATEGORY_MAP, IEvent } from '../../interfaces';
+import { FF_EVENTS, FF_EVENTS_CATEGORY_MAP, IEvent } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { TxButton } from '../Buttons/TxButton';
@@ -42,7 +42,12 @@ export const EventList: React.FC<Props> = ({ event, showTxLink = true }) => {
           ),
         },
         {
-          label: event.tx ? t('transactionID') : '',
+          label:
+            event.tx &&
+            FF_EVENTS_CATEGORY_MAP[event.type].referenceIDName !==
+              FF_EVENTS_CATEGORY_MAP[FF_EVENTS.TX_SUBMITTED].referenceIDName
+              ? t('transactionID')
+              : '',
           value: event.tx && <FFListText color="primary" text={event.tx} />,
           button: event.tx ? (
             <>

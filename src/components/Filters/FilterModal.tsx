@@ -127,7 +127,12 @@ export const FilterModal: React.FC<Props> = ({ anchor, onClose, fields }) => {
           justifyContent: 'center',
         }}
       >
-        <Paper sx={{ outline: 'none', padding: 2 }}>
+        <Paper
+          sx={{
+            outline: 'none',
+            padding: 2,
+          }}
+        >
           <Grid mr={1} container justifyContent="space-between">
             <Grid item>
               <Typography sx={{ fontWeight: 'bold' }}>
@@ -217,9 +222,6 @@ export const FilterModal: React.FC<Props> = ({ anchor, onClose, fields }) => {
               justifyContent="flex-end"
               spacing={1}
             >
-              <Grid item>
-                <Button>{t('cancel')}</Button>
-              </Grid>
               <Grid item>
                 <Button variant="contained" onClick={handleSubmit}>
                   {t('save')}

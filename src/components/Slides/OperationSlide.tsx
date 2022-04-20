@@ -23,6 +23,7 @@ import { FF_OP_CATEGORY_MAP } from '../../interfaces/enums';
 import { DEFAULT_PADDING } from '../../theme';
 import { JsonViewAccordion } from '../Accordions/JsonViewerAccordion';
 import { OperationList } from '../Lists/OperationList';
+import { FFJsonViewer } from '../Viewers/FFJsonViewer';
 import { DisplaySlide } from './DisplaySlide';
 import { SlideHeader } from './SlideHeader';
 import { SlideSectionHeader } from './SlideSectionHeader';
@@ -47,9 +48,15 @@ export const OperationSlide: React.FC<Props> = ({ op, open, onClose }) => {
             title={t(FF_OP_CATEGORY_MAP[op.type]?.nicename)}
           />
           {/* Data list */}
-          <Grid container item pb={DEFAULT_PADDING}>
+          <Grid container item>
             <OperationList op={op} showTxLink={txID !== op.tx} />
           </Grid>
+          {op.error && (
+            <Grid container item>
+              <SlideSectionHeader title={t('errorMessage')} />
+              <FFJsonViewer json={op.error} />
+            </Grid>
+          )}
           {/* Input and Output */}
           {(op.input || op.output) && (
             <SlideSectionHeader title={t('inputAndOutput')} />

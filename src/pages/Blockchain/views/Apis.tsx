@@ -160,7 +160,12 @@ export const BlockchainApis: () => JSX.Element = () => {
       },
       {
         value: (
-          <Link target="_blank" href={api.urls.ui} underline="always">
+          <Link
+            target="_blank"
+            href={api.urls.ui}
+            underline="always"
+            onClick={(e) => e.stopPropagation()}
+          >
             <IconButton>
               <LaunchIcon />
             </IconButton>

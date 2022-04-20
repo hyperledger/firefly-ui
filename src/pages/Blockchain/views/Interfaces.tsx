@@ -116,10 +116,9 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
 
   const interfaceColHeaders = [
     t('name'),
+    t('version'),
     t('id'),
     t('description'),
-    t('messageID'),
-    t('version'),
   ];
 
   const interfaceRecords: IDataTableRecord[] | undefined = interfaces?.map(
@@ -130,7 +129,10 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
           value: <FFTableText color="primary" text={int.name} />,
         },
         {
-          value: <HashPopover shortHash={true} address={int.id}></HashPopover>,
+          value: <FFTableText color="primary" text={int.version} />,
+        },
+        {
+          value: <HashPopover address={int.id}></HashPopover>,
         },
         {
           value:
@@ -142,14 +144,6 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
                 text={t('noDescriptionForInterface')}
               />
             ),
-        },
-        {
-          value: (
-            <HashPopover shortHash={true} address={int.message}></HashPopover>
-          ),
-        },
-        {
-          value: <FFTableText color="primary" text={int.version} />,
         },
       ],
       onClick: () => {

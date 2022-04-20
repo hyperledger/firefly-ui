@@ -19,27 +19,39 @@ export const SubOptionsList: React.FC<Props> = ({ options }) => {
     if (options) {
       setDataList([
         {
-          label: t('firstEvent'),
-          value: <FFListText color="primary" text={options.firstEvent} />,
-          button: <FFCopyButton value={options.firstEvent} />,
+          label: options.firstEvent ? t('firstEvent') : '',
+          value: options.firstEvent && (
+            <FFListText color="primary" text={options.firstEvent} />
+          ),
+          button: options.firstEvent ? (
+            <FFCopyButton value={options.firstEvent} />
+          ) : (
+            <></>
+          ),
         },
         {
-          label: t('readAhead'),
-          value: (
+          label: options.readAhead ? t('readAhead') : '',
+          value: options.readAhead && (
             <FFListText color="primary" text={options.readAhead.toString()} />
           ),
-          button: <FFCopyButton value={options.readAhead.toString()} />,
+          button: options.readAhead ? (
+            <FFCopyButton value={options.readAhead.toString()} />
+          ) : (
+            <></>
+          ),
         },
         {
-          label: t('withData'),
-          value: (
+          label: options.withData ? t('withData') : '',
+          value: options.withData && (
             <FFListText
               color="primary"
               text={options.withData ? t('yes') : t('no')}
             />
           ),
-          button: (
+          button: options.withData ? (
             <FFCopyButton value={options.withData ? t('yes') : t('no')} />
+          ) : (
+            <></>
           ),
         },
       ]);
@@ -48,9 +60,9 @@ export const SubOptionsList: React.FC<Props> = ({ options }) => {
 
   return (
     <>
-      {dataList.map((d, idx) => (
-        <FFListItem key={idx} item={d} />
-      ))}
+      {dataList.map(
+        (d, idx) => d.label !== '' && <FFListItem key={idx} item={d} />
+      )}
     </>
   );
 };

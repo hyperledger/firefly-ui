@@ -53,7 +53,18 @@ export const ApprovalList: React.FC<Props> = ({ approval }) => {
           button: <FFCopyButton value={approval.protocolId} />,
         },
         {
-          label: t('approved?'),
+          label: t('active'),
+          value: (
+            <FFListText
+              color="primary"
+              text={
+                approval.active ? t('yes').toUpperCase() : t('no').toUpperCase()
+              }
+            />
+          ),
+        },
+        {
+          label: t('approved'),
           value: (
             <FFListText
               color="primary"

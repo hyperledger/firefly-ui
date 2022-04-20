@@ -161,8 +161,8 @@ export const TokensTransfers: () => JSX.Element = () => {
     t('from'),
     t('to'),
     t('amount'),
-    t('blockchainEvent'),
-    t('author'),
+    t('protocolID'),
+    t('signingKey'),
     t('timestamp'),
   ];
   const tokenTransferRecords: IDataTableRecord[] | undefined =

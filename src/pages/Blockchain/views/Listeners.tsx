@@ -113,9 +113,10 @@ export const BlockchainListeners: () => JSX.Element = () => {
 
   const listenerColHeaders = [
     t('eventName'),
+    t('signature'),
+    t('topic'),
     t('id'),
     t('interfaceID'),
-    t('fireflyID'),
     t('created'),
   ];
 
@@ -127,19 +128,22 @@ export const BlockchainListeners: () => JSX.Element = () => {
           value: <FFTableText color="primary" text={l.event.name} />,
         },
         {
-          value: (
-            <HashPopover
-              shortHash={true}
-              address={l.interface.id}
-            ></HashPopover>
-          ),
+          value: <FFTableText color="primary" text={l.signature} />,
+        },
+        {
+          value: <FFTableText color="primary" text={l.topic} />,
         },
         {
           value: <HashPopover shortHash={true} address={l.id}></HashPopover>,
         },
         {
-          value: (
-            <HashPopover shortHash={true} address={l.protocolId}></HashPopover>
+          value: l.interface.id ? (
+            <HashPopover
+              shortHash={true}
+              address={l.interface.id ?? ''}
+            ></HashPopover>
+          ) : (
+            <FFTableText color="secondary" text={t('noInterfaceID')} />
           ),
         },
         {

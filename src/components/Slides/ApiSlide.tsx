@@ -45,7 +45,7 @@ export const ApiSlide: React.FC<Props> = ({ api, open, onClose }) => {
           </Grid>
           {/* API Location */}
           {api.location && (
-            <Grid container item>
+            <Grid container item pt={DEFAULT_PADDING}>
               <JsonViewAccordion
                 isOpen
                 json={api.location}

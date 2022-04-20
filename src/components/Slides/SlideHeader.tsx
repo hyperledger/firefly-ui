@@ -31,7 +31,6 @@ export const SlideHeader: React.FC<Props> = ({ subtitle, title }) => {
         sx={{
           fontWeight: 'bold',
           fontSize: '14',
-          textTransform: 'uppercase',
         }}
       >
         {title}

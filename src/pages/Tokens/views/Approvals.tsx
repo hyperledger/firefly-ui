@@ -109,6 +109,11 @@ export const TokensApprovals: () => JSX.Element = () => {
         }${filterString ?? ''}`
       )
         .then(async (tokenApprovalRes: IPagedTokenApprovalResponse) => {
+          if (tokenApprovalRes.items === null) {
+            setTokenApprovals([]);
+            setTokenApprovalsTotal(tokenApprovalRes.total);
+            return;
+          }
           for (const item of tokenApprovalRes.items) {
             const pool = await fetchPool(
               selectedNamespace,
@@ -149,8 +154,8 @@ export const TokensApprovals: () => JSX.Element = () => {
     t('signingKey'),
     t('operator'),
     t('pool'),
-    t('protocolID'),
-    t('approved?'),
+    t('active'),
+    t('approved'),
     t('created'),
   ];
   const tokenApprovalRecords: IDataTableRecord[] | undefined =
@@ -170,7 +175,14 @@ export const TokensApprovals: () => JSX.Element = () => {
           value: <HashPopover address={approval.poolName} />,
         },
         {
-          value: <HashPopover address={approval.protocolId} />,
+          value: (
+            <FFTableText
+              color="primary"
+              text={
+                approval.active ? t('yes').toUpperCase() : t('no').toUpperCase()
+              }
+            />
+          ),
         },
         {
           value: (

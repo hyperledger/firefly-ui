@@ -25,7 +25,6 @@ import { GroupSlide } from '../../../components/Slides/GroupSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
-import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
@@ -43,7 +42,6 @@ import { hasOffchainEvent } from '../../../utils/wsEvents';
 export const OffChainGroups: () => JSX.Element = () => {
   const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
     useContext(ApplicationContext);
-  const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
@@ -85,13 +83,12 @@ export const OffChainGroups: () => JSX.Element = () => {
   // Group
   useEffect(() => {
     isMounted &&
-      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.groups
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          dateFilter.filterString
-        }${filterString ?? ''}`
+          filterString ?? ''
+        }`
       )
         .then((groupRes: IPagedGroupResponse) => {
           if (isMounted) {
@@ -106,15 +103,14 @@ export const OffChainGroups: () => JSX.Element = () => {
     rowsPerPage,
     currentPage,
     selectedNamespace,
-    dateFilter,
     filterString,
     lastRefreshTime,
     isMounted,
   ]);
 
   const groupColHeaders = [
-    t('groupHash'),
     t('name'),
+    t('groupHash'),
     t('numberOfMembers'),
     t('created'),
   ];
@@ -124,14 +120,14 @@ export const OffChainGroups: () => JSX.Element = () => {
       key: idx.toString(),
       columns: [
         {
-          value: <HashPopover address={g.hash}></HashPopover>,
-        },
-        {
           value: g.name.length ? (
             <FFTableText color="primary" text={g.name} />
           ) : (
             <FFTableText color="secondary" text={t('noNameSpecified')} />
           ),
+        },
+        {
+          value: <HashPopover address={g.hash}></HashPopover>,
         },
         {
           value: (

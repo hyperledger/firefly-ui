@@ -32,6 +32,22 @@ export const BlockchainEventList: React.FC<Props> = ({ be }) => {
           button: <FFCopyButton value={be.source} />,
         },
         {
+          label: t('protocolID'),
+          value: <FFListText color="primary" text={be.protocolId} />,
+          button: <FFCopyButton value={be.protocolId} />,
+        },
+        {
+          label: be.tx?.blockchainId ? t('blockchainTransaction') : '',
+          value: be.tx?.blockchainId && (
+            <FFListText color="primary" text={be.tx.blockchainId} />
+          ),
+          button: be.tx?.blockchainId ? (
+            <FFCopyButton value={be.tx?.blockchainId} />
+          ) : (
+            <></>
+          ),
+        },
+        {
           label: be.tx?.type ? t('transactionType') : '',
           value: be.tx?.type && (
             <FFListText

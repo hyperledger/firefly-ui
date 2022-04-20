@@ -1,8 +1,10 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { IContractInterface } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
+import { MsgButton } from '../Buttons/MsgButton';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
 import { FFSkeletonList } from './FFSkeletonList';
@@ -13,6 +15,7 @@ interface Props {
 
 export const InterfaceList: React.FC<Props> = ({ cInterface }) => {
   const { t } = useTranslation();
+  const { selectedNamespace } = useContext(ApplicationContext);
   const [dataList, setDataList] = useState<IDataListItem[]>(FFSkeletonList);
 
   useEffect(() => {
@@ -28,7 +31,12 @@ export const InterfaceList: React.FC<Props> = ({ cInterface }) => {
           value: (
             <FFListText text={cInterface?.message ?? ''} color="primary" />
           ),
-          button: <FFCopyButton value={cInterface?.id ?? ''} />,
+          button: (
+            <>
+              <MsgButton ns={selectedNamespace} msgID={cInterface?.message} />
+              <FFCopyButton value={cInterface?.message ?? ''} />
+            </>
+          ),
         },
         {
           label: t('version'),

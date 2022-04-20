@@ -101,7 +101,7 @@ export const TokensPools: () => JSX.Element = () => {
     t('type'),
     t('standard'),
     t('connector'),
-    t('protocolID'),
+    t('locator'),
     t('state'),
     t('created'),
   ];
@@ -146,7 +146,7 @@ export const TokensPools: () => JSX.Element = () => {
           value: <FFTableText color="primary" text={pool.connector} />,
         },
         {
-          value: <HashPopover address={pool.protocolId} />,
+          value: <HashPopover address={pool.locator} />,
         },
         {
           value: <PoolStatusChip pool={pool} />,

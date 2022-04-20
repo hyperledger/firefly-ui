@@ -35,6 +35,16 @@ export const BatchList: React.FC<Props> = ({ batch }) => {
           button: <FFCopyButton value={batch.hash} />,
         },
         {
+          label: t('author'),
+          value: <FFListText color="primary" text={batch.author} />,
+          button: (
+            <>
+              <IdentityButton did={batch.author} />
+              <FFCopyButton value={batch.author} />
+            </>
+          ),
+        },
+        {
           label: batch.node ? t('node') : '',
           value: batch.node && <FFListText color="primary" text={batch.node} />,
           button: batch.node ? (
@@ -54,16 +64,6 @@ export const BatchList: React.FC<Props> = ({ batch }) => {
             <></>
           ),
           button: batch.group ? <FFCopyButton value={batch.group} /> : <></>,
-        },
-        {
-          label: t('author'),
-          value: <FFListText color="primary" text={batch.author} />,
-          button: (
-            <>
-              <IdentityButton did={batch.author} />
-              <FFCopyButton value={batch.author} />
-            </>
-          ),
         },
         {
           label: t('signingKey'),
