@@ -337,42 +337,40 @@ export const HomeDashboard: () => JSX.Element = () => {
       headerText: t('myRecentTransactions'),
       clickPath: FF_NAV_PATHS.activityTimelinePath(selectedNamespace),
       component: (
-        <>
-          <Grid
-            container
-            direction="column"
-            item
-            alignItems="flex-start"
-            justifyContent="flex-start"
-          >
-            {recentEventTxs?.length === 0 ? (
-              <EmptyStateCard text={t('noRecentTransactions')} />
-            ) : !recentEventTxs ? (
-              <SkeletonCardList numElements={7} />
-            ) : (
-              recentEventTxs.map((event) => (
-                <React.Fragment key={event.id}>
-                  <EventCardWrapper
-                    onHandleViewTx={(tx: ITransaction) => {
-                      setViewTx(tx);
-                      setSlideSearchParam(tx.id);
-                    }}
-                    link={
-                      event.tx
-                        ? FF_NAV_PATHS.activityTxDetailPath(
-                            selectedNamespace,
-                            event.tx
-                          )
-                        : FF_NAV_PATHS.activityTxPath(selectedNamespace)
-                    }
-                    {...{ event }}
-                  />
-                  <Grid sx={{ padding: '1px' }} />
-                </React.Fragment>
-              ))
-            )}
-          </Grid>
-        </>
+        <Grid
+          container
+          direction="column"
+          item
+          alignItems="flex-start"
+          justifyContent="flex-start"
+        >
+          {recentEventTxs?.length === 0 ? (
+            <EmptyStateCard text={t('noRecentTransactions')} />
+          ) : !recentEventTxs ? (
+            <SkeletonCardList numElements={7} />
+          ) : (
+            recentEventTxs.map((event) => (
+              <React.Fragment key={event.id}>
+                <EventCardWrapper
+                  onHandleViewTx={(tx: ITransaction) => {
+                    setViewTx(tx);
+                    setSlideSearchParam(tx.id);
+                  }}
+                  link={
+                    event.tx
+                      ? FF_NAV_PATHS.activityTxDetailPath(
+                          selectedNamespace,
+                          event.tx
+                        )
+                      : FF_NAV_PATHS.activityTxPath(selectedNamespace)
+                  }
+                  {...{ event }}
+                />
+                <Grid sx={{ padding: '1px' }} />
+              </React.Fragment>
+            ))
+          )}
+        </Grid>
       ),
     },
     // Recent Network Events
