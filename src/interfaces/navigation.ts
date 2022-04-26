@@ -82,10 +82,10 @@ export const FF_NAV_PATHS = {
     }`,
   activityOpPathOnlyBlockchainOps: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}${'?filters=type=^blockchain'}`,
-  activityOpPathWithTxFilter: (ns: string, txID: string) =>
+  activityOpPathWithTxFilter: (ns: string, txID: string, opID?: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}${
       txID ? `?filters=tx==${txID}` : ''
-    }`,
+    }${txID ? `&slide=${opID}` : ''}`,
   activityOpErrorPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}?filters=status==Failed`,
   // Blockchain
