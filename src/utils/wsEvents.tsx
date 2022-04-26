@@ -16,7 +16,7 @@ export const hasAnyEvent = (events: INewEventSet) => {
     events[FF_EVENTS.TOKEN_APPROVAL_CONFIRMED] ||
     events[FF_EVENTS.TOKEN_APPROVAL_OP_FAILED] ||
     events[FF_EVENTS.TOKEN_TRANSFER_CONFIRMED] ||
-    events[FF_EVENTS.TOKEN_TRANSFER_FAILED]
+    events[FF_EVENTS.TOKEN_TRANSFER_OP_FAILED]
   );
 };
 
@@ -72,7 +72,7 @@ export const hasTransferEvent = (events: INewEventSet) => {
     events[FF_EVENTS.TOKEN_APPROVAL_CONFIRMED] ||
     events[FF_EVENTS.TOKEN_APPROVAL_OP_FAILED] ||
     events[FF_EVENTS.TOKEN_TRANSFER_CONFIRMED] ||
-    events[FF_EVENTS.TOKEN_TRANSFER_FAILED]
+    events[FF_EVENTS.TOKEN_TRANSFER_OP_FAILED]
   );
 };
 export const hasApprovalEvent = (events: INewEventSet) => {

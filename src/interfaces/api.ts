@@ -115,6 +115,7 @@ export interface IEvent {
   identity?: IIdentity;
   message?: IMessage;
   namespaceDetails?: INamespace;
+  operation?: IOperation;
   tokenApproval?: ITokenApproval;
   tokenPool?: ITokenPool;
   transaction?: ITransaction;

@@ -47,7 +47,7 @@ export enum FF_EVENTS {
   TOKEN_APPROVAL_CONFIRMED = 'token_approval_confirmed',
   TOKEN_APPROVAL_OP_FAILED = 'token_approval_op_failed',
   TOKEN_TRANSFER_CONFIRMED = 'token_transfer_confirmed',
-  TOKEN_TRANSFER_FAILED = 'token_transfer_op_failed',
+  TOKEN_TRANSFER_OP_FAILED = 'token_transfer_op_failed',
 }
 
 interface IEventCategory {
@@ -88,28 +88,28 @@ export const FF_EVENTS_CATEGORY_MAP: {
       <LaunchButton link={FF_NAV_PATHS.blockchainEventsPath(ns, refID)} />
     ),
   },
-  // TODO: Add enrichment text
   [FF_EVENTS.BLOCKCHAIN_INVOKE_OP_SUCCEEDED]: {
     category: EventCategoryEnum.BLOCKCHAIN,
     color: FFColors.Yellow,
     nicename: 'blockchainInvokeSucceeded',
-    enrichedEventKey: 'blockchainInvokeSucceeded',
-    enrichedEventString: (): string => t('---'),
-    referenceIDName: 'blockchainInvokeSucceeded',
+    enrichedEventKey: 'operation',
+    enrichedEventString: (event: IEvent): string =>
+      `Operation ID=${getShortHash(event.operation?.id ?? '')}`,
+    referenceIDName: 'operationID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <LaunchButton link={FF_NAV_PATHS.blockchainEventsPath(ns, refID)} />
+      <LaunchButton link={FF_NAV_PATHS.activityOpPath(ns, refID)} />
     ),
   },
-  // TODO: Add enrichment text
   [FF_EVENTS.BLOCKCHAIN_INVOKE_OP_FAILED]: {
     category: EventCategoryEnum.BLOCKCHAIN,
     color: FFColors.Yellow,
     nicename: 'blockchainInvokeFailed',
-    enrichedEventKey: 'blockchainInvokeFailed',
-    enrichedEventString: (): string => t('---'),
-    referenceIDName: 'blockchainInvokeFailed',
+    enrichedEventKey: 'operation',
+    enrichedEventString: (event: IEvent): string =>
+      `Operation ID=${getShortHash(event.operation?.id ?? '')}`,
+    referenceIDName: 'operationID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <LaunchButton link={FF_NAV_PATHS.blockchainEventsPath(ns, refID)} />
+      <LaunchButton link={FF_NAV_PATHS.activityOpPath(ns, refID)} />
     ),
   },
   [FF_EVENTS.CONTRACT_API_CONFIRMED]: {
@@ -276,16 +276,16 @@ export const FF_EVENTS_CATEGORY_MAP: {
       <LaunchButton link={FF_NAV_PATHS.tokensPoolDetailsPath(ns, refID)} />
     ),
   },
-  // TODO: Add event enrichment
   [FF_EVENTS.TOKEN_POOL_OP_FAILED]: {
     category: EventCategoryEnum.TOKENS,
     color: FFColors.Pink,
     nicename: 'tokenPoolFailed',
-    enrichedEventKey: 'tokenPoolFailed',
-    enrichedEventString: (): string => t('---'),
-    referenceIDName: 'tokenPoolFailed',
+    enrichedEventKey: 'operation',
+    enrichedEventString: (event: IEvent): string =>
+      `Operation ID=${getShortHash(event.operation?.id ?? '')}`,
+    referenceIDName: 'operationID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <LaunchButton link={FF_NAV_PATHS.tokensPoolDetailsPath(ns, refID)} />
+      <LaunchButton link={FF_NAV_PATHS.activityOpPath(ns, refID)} />
     ),
   },
   [FF_EVENTS.TOKEN_APPROVAL_CONFIRMED]: {
@@ -297,7 +297,7 @@ export const FF_EVENTS_CATEGORY_MAP: {
       `Key=${getShortHash(
         event.tokenApproval?.key ?? ''
       )}, Operator=${getShortHash(event.tokenApproval?.operator ?? '')}`,
-    referenceIDName: 'approvalID',
+    referenceIDName: 'operation',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
       <LaunchButton link={FF_NAV_PATHS.tokensApprovalsPath(ns, refID)} />
     ),
@@ -306,14 +306,12 @@ export const FF_EVENTS_CATEGORY_MAP: {
     category: EventCategoryEnum.TOKENS,
     color: FFColors.Pink,
     nicename: 'tokenApprovalOpFailed',
-    enrichedEventKey: 'tokenApproval',
+    enrichedEventKey: 'operation',
     enrichedEventString: (event: IEvent): string =>
-      `Key=${getShortHash(
-        event.tokenApproval?.key ?? ''
-      )}, Operator=${getShortHash(event.tokenApproval?.operator ?? '')}`,
-    referenceIDName: 'approvalID',
+      `Operation ID=${getShortHash(event.operation?.id ?? '')}`,
+    referenceIDName: 'operationID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <LaunchButton link={FF_NAV_PATHS.tokensApprovalsPath(ns, refID)} />
+      <LaunchButton link={FF_NAV_PATHS.activityOpPath(ns, refID)} />
     ),
   },
   [FF_EVENTS.TOKEN_TRANSFER_CONFIRMED]: {
@@ -346,16 +344,16 @@ export const FF_EVENTS_CATEGORY_MAP: {
       <LaunchButton link={FF_NAV_PATHS.tokensTransfersPathLocalID(ns, refID)} />
     ),
   },
-  [FF_EVENTS.TOKEN_TRANSFER_FAILED]: {
+  [FF_EVENTS.TOKEN_TRANSFER_OP_FAILED]: {
     category: EventCategoryEnum.TOKENS,
     color: FFColors.Pink,
     nicename: 'tokenTransferFailed',
-    enrichedEventKey: 'tokenTransfer',
+    enrichedEventKey: 'operation',
     enrichedEventString: (event: IEvent): string =>
-      `${t('event')} ID=${event.id}`,
-    referenceIDName: 'transferID',
+      `Operation ID=${getShortHash(event.operation?.id ?? '')}`,
+    referenceIDName: 'operationID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <LaunchButton link={FF_NAV_PATHS.tokensTransfersPathLocalID(ns, refID)} />
+      <LaunchButton link={FF_NAV_PATHS.activityOpPath(ns, refID)} />
     ),
   },
 };
