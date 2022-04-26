@@ -46,6 +46,7 @@ import { EventList } from '../Lists/EventList';
 import { IdentityList } from '../Lists/IdentityList';
 import { InterfaceList } from '../Lists/InterfaceList';
 import { NamespaceList } from '../Lists/NamespaceList';
+import { OperationList } from '../Lists/OperationList';
 import { PoolList } from '../Lists/PoolList';
 import { TransferList } from '../Lists/TransferList';
 import { TxList } from '../Lists/TxList';
@@ -229,6 +230,15 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
               <SlideSectionHeader title={t('namespaceDetails')} />
               <Grid container item>
                 <NamespaceList ns={enrichedEvent.namespaceDetails} />
+              </Grid>
+            </>
+          )}
+          {/* Operation */}
+          {enrichedEvent && enrichedEvent['operation'] && (
+            <>
+              <SlideSectionHeader title={t('operation')} />
+              <Grid container item>
+                <OperationList op={enrichedEvent.operation} />
               </Grid>
             </>
           )}
