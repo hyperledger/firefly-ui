@@ -43,7 +43,7 @@ export const MediumCardTable: React.FC<Props> = ({
   return (
     <>
       {!records ? (
-        <FFCircleLoader color="warning"></FFCircleLoader>
+        <FFCircleLoader height="100%" color="warning"></FFCircleLoader>
       ) : records.length ? (
         <TableContainer sx={{ whiteSpace: 'nowrap' }}>
           <Table stickyHeader={true}>

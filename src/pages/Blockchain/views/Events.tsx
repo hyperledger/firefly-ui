@@ -243,7 +243,7 @@ export const BlockchainEvents: () => JSX.Element = () => {
           records={beRecords}
           columnHeaders={beColHeaders}
           paginate={true}
-          emptyStateText={t('noBlockchainEvents')}
+          emptyStateText={t('noBlockchainEventsToDisplay')}
           dataTotal={blockchainEventTotal}
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
