@@ -32,12 +32,14 @@ const nodeStyle = {
   color: '#FFF',
   background: 'transparent',
   fontSize: '14px',
+  cursor: 'default',
 };
 
 const edgeStyle = {
   color: FFColors.Orange,
   stroke: FFColors.Orange,
   strokeWidth: '3',
+  cursor: 'default',
 };
 
 const dagreGraph = new dagre.graphlib.Graph();
@@ -259,8 +261,8 @@ export const MyNodeDiagram: React.FC<Props> = ({
     isSmall
   );
 
-  const [nodes, , onNodesChange] = useNodesState(layoutedNodes);
-  const [edges, , onEdgesChange] = useEdgesState(layoutedEdges);
+  const [nodes, ,] = useNodesState(layoutedNodes);
+  const [edges, ,] = useEdgesState(layoutedEdges);
 
   if (!plugins || Object.keys(plugins ?? {}).length === 0) {
     return (
@@ -288,8 +290,7 @@ export const MyNodeDiagram: React.FC<Props> = ({
             <ReactFlow
               nodes={nodes}
               edges={edges}
-              onNodesChange={onNodesChange}
-              onEdgesChange={onEdgesChange}
+              nodesDraggable={false}
               nodeTypes={nodeTypes}
               fitView
             />
