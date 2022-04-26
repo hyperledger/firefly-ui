@@ -49,9 +49,9 @@ export const BalanceList: React.FC<Props> = ({ balance, pool }) => {
           value: <FFListText color="primary" text={balance.balance} />,
         },
         {
-          label: t('uri'),
-          value: <FFListText color="primary" text={balance.uri} />,
-          button: <FFCopyButton value={balance.uri} />,
+          label: balance.uri ? t('uri') : '',
+          value: <FFListText color="primary" text={balance.uri ?? ''} />,
+          button: <FFCopyButton value={balance.uri ?? ''} />,
         },
         {
           label: t('updated'),
@@ -63,9 +63,9 @@ export const BalanceList: React.FC<Props> = ({ balance, pool }) => {
 
   return (
     <>
-      {dataList.map((d, idx) => (
-        <FFListItem key={idx} item={d} />
-      ))}
+      {dataList.map(
+        (d, idx) => d.label !== '' && <FFListItem key={idx} item={d} />
+      )}
     </>
   );
 };

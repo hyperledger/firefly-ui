@@ -1,5 +1,5 @@
 import { Dispatch, SetStateAction } from 'react';
-import { ITokenPool } from '../interfaces';
+import { FF_Paths, ITokenPool } from '../interfaces';
 
 export const fetchWithCredentials = (
   resource: string,
@@ -62,7 +62,7 @@ export const fetchPool = async (
     return poolCache.get(id);
   }
   const response = await fetchWithCredentials(
-    `/api/v1/namespaces/${namespace}/tokens/pools/${id}`
+    `${FF_Paths.nsPrefix}/${namespace}${FF_Paths.tokenPools}/${id}`
   );
   if (!response.ok) {
     return undefined;

@@ -515,7 +515,7 @@ export interface ITokenApprovalWithPoolName extends ITokenApproval {
 
 export interface ITokenBalance {
   pool: string;
-  uri: string;
+  uri?: string;
   connector: string;
   namespace: string;
   key: string;
@@ -523,8 +523,8 @@ export interface ITokenBalance {
   updated: string;
 }
 
-export interface ITokenBalanceWithPoolName extends ITokenBalance {
-  poolName: string;
+export interface ITokenBalanceWithPool extends ITokenBalance {
+  poolObject: ITokenPool | undefined;
 }
 
 export interface ITokenConnector {
@@ -545,7 +545,7 @@ export interface ITokenPool {
   created: string;
   tx?: ITx;
   info?: any;
-  decimals?: number;
+  decimals: number;
 }
 
 export interface ITokenTransfer {
@@ -565,6 +565,10 @@ export interface ITokenTransfer {
   created: string;
   tx?: ITx;
   blockchainEvent: string;
+}
+
+export interface ITokenTransferWithPool extends ITokenTransfer {
+  poolObject: ITokenPool | undefined;
 }
 
 export interface ITransaction {

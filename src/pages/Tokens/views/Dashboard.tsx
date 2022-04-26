@@ -51,9 +51,10 @@ import {
   IPagedTokenTransferResponse,
   ISmallCard,
   ITokenBalance,
-  ITokenBalanceWithPoolName,
+  ITokenBalanceWithPool,
   ITokenPool,
   ITokenTransfer,
+  ITokenTransferWithPool,
   POOLS_PATH,
   TRANSFERS_PATH,
 } from '../../../interfaces';
@@ -63,8 +64,10 @@ import {
 } from '../../../interfaces/enums';
 import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import {
+  addDecToAmount,
   fetchCatcher,
   fetchPool,
+  getBalanceTooltip,
   getFFTime,
   jsNumberForAddress,
 } from '../../../utils';
@@ -105,12 +108,12 @@ export const TokensDashboard: () => JSX.Element = () => {
   // Transfer types histogram
   const [transferHistData, setTransferHistData] = useState<BarDatum[]>();
   // Token accounts
-  const [tokenBalances, setTokenBalances] =
-    useState<ITokenBalanceWithPoolName[]>();
+  const [tokenBalances, setTokenBalances] = useState<ITokenBalanceWithPool[]>();
   // Token pools
   const [tokenPools, setTokenPools] = useState<ITokenPool[]>();
   // Token transfers
-  const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>();
+  const [tokenTransfers, setTokenTransfers] =
+    useState<ITokenTransferWithPool[]>();
   // Token Transfer totals
   const [tokenTransferTotal, setTokenTransferTotal] = useState(0);
   // View transfer slide out
@@ -266,7 +269,7 @@ export const TokensDashboard: () => JSX.Element = () => {
         });
   }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
-  const tokenAccountsColHeaders = [t('key'), t('poolName'), t('balance')];
+  const tokenAccountsColHeaders = [t('key'), t('pool'), t('balance')];
   const tokenAccountRecords: IDataTableRecord[] | undefined =
     tokenBalances?.map((acct, idx) => ({
       key: idx.toString(),
@@ -275,10 +278,30 @@ export const TokensDashboard: () => JSX.Element = () => {
           value: <HashPopover shortHash address={acct.key} />,
         },
         {
-          value: <HashPopover address={acct.poolName} />,
+          value: (
+            <FFTableText
+              color="primary"
+              text={acct.poolObject?.name ?? ''}
+              tooltip={`${acct.poolObject?.standard} - ${t(
+                acct.poolObject?.type ?? ''
+              )}`}
+            />
+          ),
         },
         {
-          value: <FFTableText color="primary" text={acct.balance} />,
+          value: (
+            <FFTableText
+              color="primary"
+              text={addDecToAmount(
+                acct.balance,
+                acct.poolObject ? acct.poolObject.decimals : -1
+              )}
+              tooltip={getBalanceTooltip(
+                acct.balance,
+                acct.poolObject ? acct.poolObject.decimals : -1
+              )}
+            />
+          ),
         },
       ],
       onClick: () => {
@@ -298,6 +321,7 @@ export const TokensDashboard: () => JSX.Element = () => {
           value: (
             <FFTableText
               color="primary"
+              isComponent
               text={<HashPopover address={pool.name} />}
               icon={
                 <Jazzicon diameter={20} seed={jsNumberForAddress(pool.name)} />
@@ -407,24 +431,20 @@ export const TokensDashboard: () => JSX.Element = () => {
           if (balances.length === 0) {
             setTokenBalances([]);
           }
+          const balancesWithPoolName: ITokenBalanceWithPool[] = [];
           for (const balance of balances) {
-            const pool = await fetchPool(
-              selectedNamespace,
-              balance.pool,
-              poolCache,
-              setPoolCache
-            );
-            const balanceWithPoolName = {
+            const balanceWithPool = await fetchPoolObjectFromBalance(balance);
+            balancesWithPoolName.push({
               ...balance,
-              poolName: pool ? pool.name : balance.pool,
-            };
-            isMounted &&
-              setTokenBalances((tokenBalances) => {
-                return tokenBalances
-                  ? [...tokenBalances, balanceWithPoolName]
-                  : [balanceWithPoolName];
-              });
+              poolObject: balanceWithPool.poolObject ?? undefined,
+            });
           }
+          isMounted &&
+            setTokenBalances((tokenBalances) => {
+              return tokenBalances
+                ? [...tokenBalances, ...balancesWithPoolName]
+                : balancesWithPoolName;
+            });
         })
         .catch((err) => {
           reportFetchError(err);
@@ -434,6 +454,7 @@ export const TokensDashboard: () => JSX.Element = () => {
 
   const tokenTransferColHeaders = [
     t('type'),
+    t('pool'),
     t('from'),
     t('to'),
     t('amount'),
@@ -456,6 +477,17 @@ export const TokensDashboard: () => JSX.Element = () => {
         },
         {
           value: (
+            <FFTableText
+              color="primary"
+              text={transfer.poolObject?.name ?? ''}
+              tooltip={`${transfer.poolObject?.standard} - ${t(
+                transfer.poolObject?.type ?? ''
+              )}`}
+            />
+          ),
+        },
+        {
+          value: (
             <HashPopover
               shortHash={true}
               address={transfer.from ?? t('nullAddress')}
@@ -471,7 +503,19 @@ export const TokensDashboard: () => JSX.Element = () => {
           ),
         },
         {
-          value: <FFTableText color="primary" text={transfer.amount} />,
+          value: (
+            <FFTableText
+              color="primary"
+              text={addDecToAmount(
+                transfer.amount,
+                transfer.poolObject ? transfer.poolObject.decimals : -1
+              )}
+              tooltip={getBalanceTooltip(
+                transfer.amount,
+                transfer.poolObject ? transfer.poolObject.decimals : -1
+              )}
+            />
+          ),
         },
         {
           value: <HashPopover address={transfer.protocolId}></HashPopover>,
@@ -505,10 +549,28 @@ export const TokensDashboard: () => JSX.Element = () => {
           dateFilter.filterString
         }`
       )
-        .then((tokenTransfers: IPagedTokenTransferResponse) => {
+        .then(async (tokenTransferRes: IPagedTokenTransferResponse) => {
           if (isMounted) {
-            setTokenTransfers(tokenTransfers.items);
-            setTokenTransferTotal(tokenTransfers.total);
+            if (tokenTransferRes.items.length === 0) {
+              setTokenTransfers([]);
+              setTokenTransferTotal(tokenTransferRes.total);
+              return;
+            }
+            const enrichedTransfers: ITokenTransferWithPool[] = [];
+            for (const transfer of tokenTransferRes.items) {
+              const transferWithPool = await fetchPoolObjectFromTransfer(
+                transfer
+              );
+              enrichedTransfers.push({
+                ...transfer,
+                poolObject: transferWithPool.poolObject,
+              });
+            }
+            setTokenTransfers((tokenTransfers) => {
+              return tokenTransfers
+                ? [...tokenTransfers, ...enrichedTransfers]
+                : [...enrichedTransfers];
+            });
           }
         })
         .catch((err) => {
@@ -522,6 +584,36 @@ export const TokensDashboard: () => JSX.Element = () => {
     dateFilter,
     isMounted,
   ]);
+
+  const fetchPoolObjectFromBalance = async (
+    balance: ITokenBalance
+  ): Promise<ITokenBalanceWithPool> => {
+    const pool = await fetchPool(
+      selectedNamespace,
+      balance.pool,
+      poolCache,
+      setPoolCache
+    );
+    return {
+      ...balance,
+      poolObject: pool,
+    };
+  };
+
+  const fetchPoolObjectFromTransfer = async (
+    transfer: ITokenTransfer
+  ): Promise<ITokenTransferWithPool> => {
+    const pool = await fetchPool(
+      selectedNamespace,
+      transfer.pool,
+      poolCache,
+      setPoolCache
+    );
+    return {
+      ...transfer,
+      poolObject: pool,
+    };
+  };
 
   return (
     <>

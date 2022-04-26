@@ -36,10 +36,16 @@ import {
   IDataTableRecord,
   IPagedTokenBalanceResponse,
   ITokenBalance,
-  ITokenBalanceWithPoolName,
+  ITokenBalanceWithPool,
 } from '../../../interfaces';
 import { DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, fetchPool, getFFTime } from '../../../utils';
+import {
+  addDecToAmount,
+  fetchCatcher,
+  fetchPool,
+  getBalanceTooltip,
+  getFFTime,
+} from '../../../utils';
 import { hasTransferEvent } from '../../../utils/wsEvents';
 
 export const KEY_POOL_DELIM = '||';
@@ -56,8 +62,9 @@ export const TokensBalances: () => JSX.Element = () => {
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
   // Token balances
-  const [tokenBalances, setTokenBalances] =
-    useState<ITokenBalanceWithPoolName[]>();
+  const [tokenBalances, setTokenBalances] = useState<
+    ITokenBalanceWithPool[] | undefined
+  >();
   // Token balances totals
   const [tokenBalancesTotal, setTokenBalancesTotal] = useState(0);
   const [viewBalance, setViewBalance] = useState<ITokenBalance>();
@@ -98,6 +105,7 @@ export const TokensBalances: () => JSX.Element = () => {
 
   // Token balances
   useEffect(() => {
+    setTokenBalances(undefined);
     isMounted &&
       dateFilter &&
       fetchCatcher(
@@ -112,21 +120,20 @@ export const TokensBalances: () => JSX.Element = () => {
           if (tokenBalancesRes.items.length === 0) {
             setTokenBalances([]);
           }
-          for (const item of tokenBalancesRes.items) {
-            const pool = await fetchPool(
-              selectedNamespace,
-              item.pool,
-              poolCache,
-              setPoolCache
-            );
-            const balance = {
-              ...item,
-              poolName: pool ? pool.name : item.pool,
-            };
-            setTokenBalances((tokenBalances) => {
-              return tokenBalances ? [...tokenBalances, balance] : [balance];
+          const balancesWithPoolName: ITokenBalanceWithPool[] = [];
+          for (const balance of tokenBalancesRes.items) {
+            const balanceWithPool = await fetchPoolObjectFromBalance(balance);
+            balancesWithPoolName.push({
+              ...balance,
+              poolObject: balanceWithPool.poolObject ?? undefined,
             });
           }
+          isMounted &&
+            setTokenBalances((tokenBalances) => {
+              return tokenBalances
+                ? [...tokenBalances, ...balancesWithPoolName]
+                : balancesWithPoolName;
+            });
         })
         .catch((err) => {
           reportFetchError(err);
@@ -151,20 +158,44 @@ export const TokensBalances: () => JSX.Element = () => {
   ];
 
   const tokenBalanceRecords: IDataTableRecord[] | undefined =
-    tokenBalances?.map((balance, idx) => ({
-      key: idx.toString(),
+    tokenBalances?.map((balance) => ({
+      key: `${balance.key}${balance.pool}`,
       columns: [
         {
           value: <HashPopover address={balance.key} />,
         },
         {
-          value: <FFTableText color="primary" text={balance.balance} />,
+          value: (
+            <FFTableText
+              color="primary"
+              text={addDecToAmount(
+                balance.balance,
+                balance.poolObject ? balance.poolObject.decimals : -1
+              )}
+              tooltip={getBalanceTooltip(
+                balance.balance,
+                balance.poolObject ? balance.poolObject.decimals : -1
+              )}
+            />
+          ),
         },
         {
-          value: <HashPopover address={balance.poolName} />,
+          value: (
+            <FFTableText
+              color="primary"
+              text={balance.poolObject?.name ?? ''}
+              tooltip={`${balance.poolObject?.standard} - ${t(
+                balance.poolObject?.type ?? ''
+              )}`}
+            />
+          ),
         },
         {
-          value: <HashPopover address={balance.uri} />,
+          value: balance.uri?.length ? (
+            <HashPopover address={balance.uri} />
+          ) : (
+            <FFTableText color="secondary" text={t('noURIForToken')} />
+          ),
         },
         {
           value: <FFTableText color="primary" text={balance.connector} />,
@@ -182,6 +213,21 @@ export const TokensBalances: () => JSX.Element = () => {
         setSlideSearchParam([balance.key, balance.pool].join(KEY_POOL_DELIM));
       },
     }));
+
+  const fetchPoolObjectFromBalance = async (
+    balance: ITokenBalance
+  ): Promise<ITokenBalanceWithPool> => {
+    const pool = await fetchPool(
+      selectedNamespace,
+      balance.pool,
+      poolCache,
+      setPoolCache
+    );
+    return {
+      ...balance,
+      poolObject: pool,
+    };
+  };
 
   return (
     <>

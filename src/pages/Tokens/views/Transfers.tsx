@@ -30,6 +30,7 @@ import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
+import { PoolContext } from '../../../contexts/PoolContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
@@ -40,6 +41,7 @@ import {
   IMetric,
   IPagedTokenTransferResponse,
   ITokenTransfer,
+  ITokenTransferWithPool,
   TransferFilters,
 } from '../../../interfaces';
 import {
@@ -47,7 +49,13 @@ import {
   TransferIconMap,
 } from '../../../interfaces/enums';
 import { DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, getFFTime } from '../../../utils';
+import {
+  addDecToAmount,
+  fetchCatcher,
+  fetchPool,
+  getBalanceTooltip,
+  getFFTime,
+} from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -62,12 +70,15 @@ export const TokensTransfers: () => JSX.Element = () => {
   const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
+  const { poolCache, setPoolCache } = useContext(PoolContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
   // Token transfers
-  const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>();
+  const [tokenTransfers, setTokenTransfers] = useState<
+    ITokenTransferWithPool[] | undefined
+  >();
   // Token Transfer totals
   const [tokenTransferTotal, setTokenTransferTotal] = useState(0);
   // Transfer types histogram
@@ -105,6 +116,7 @@ export const TokensTransfers: () => JSX.Element = () => {
 
   // Token transfers
   useEffect(() => {
+    setTokenTransfers(undefined);
     isMounted &&
       dateFilter &&
       fetchCatcher(
@@ -114,10 +126,26 @@ export const TokensTransfers: () => JSX.Element = () => {
           dateFilter.filterString
         }${filterString ?? ''}`
       )
-        .then((tokenTransferRes: IPagedTokenTransferResponse) => {
+        .then(async (tokenTransferRes: IPagedTokenTransferResponse) => {
           if (isMounted) {
-            setTokenTransfers(tokenTransferRes.items);
-            setTokenTransferTotal(tokenTransferRes.total);
+            if (tokenTransferRes.items.length === 0) {
+              setTokenTransfers([]);
+              setTokenTransferTotal(tokenTransferRes.total);
+              return;
+            }
+            const enrichedTransfers: ITokenTransferWithPool[] = [];
+            for (const transfer of tokenTransferRes.items) {
+              const transferWithPool = await fetchPoolObject(transfer);
+              enrichedTransfers.push({
+                ...transfer,
+                poolObject: transferWithPool.poolObject,
+              });
+            }
+            setTokenTransfers((tokenTransfers) => {
+              return tokenTransfers
+                ? [...tokenTransfers, ...enrichedTransfers]
+                : [...enrichedTransfers];
+            });
           }
         })
         .catch((err) => {
@@ -156,8 +184,24 @@ export const TokensTransfers: () => JSX.Element = () => {
         .finally(() => setIsHistLoading(false));
   }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
+  const fetchPoolObject = async (
+    transfer: ITokenTransfer
+  ): Promise<ITokenTransferWithPool> => {
+    const pool = await fetchPool(
+      selectedNamespace,
+      transfer.pool,
+      poolCache,
+      setPoolCache
+    );
+    return {
+      ...transfer,
+      poolObject: pool,
+    };
+  };
+
   const tokenTransferColHeaders = [
     t('activity'),
+    t('pool'),
     t('from'),
     t('to'),
     t('amount'),
@@ -180,6 +224,17 @@ export const TokensTransfers: () => JSX.Element = () => {
         },
         {
           value: (
+            <FFTableText
+              color="primary"
+              text={transfer.poolObject?.name ?? ''}
+              tooltip={`${transfer.poolObject?.standard} - ${t(
+                transfer.poolObject?.type ?? ''
+              )}`}
+            />
+          ),
+        },
+        {
+          value: (
             <HashPopover
               shortHash={true}
               address={transfer.from ?? t('nullAddress')}
@@ -195,7 +250,19 @@ export const TokensTransfers: () => JSX.Element = () => {
           ),
         },
         {
-          value: <FFTableText color="primary" text={transfer.amount} />,
+          value: (
+            <FFTableText
+              color="primary"
+              text={addDecToAmount(
+                transfer.amount,
+                transfer.poolObject ? transfer.poolObject.decimals : -1
+              )}
+              tooltip={getBalanceTooltip(
+                transfer.amount,
+                transfer.poolObject ? transfer.poolObject.decimals : -1
+              )}
+            />
+          ),
         },
         {
           value: <HashPopover address={transfer.protocolId}></HashPopover>,
