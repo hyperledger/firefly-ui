@@ -25,7 +25,7 @@ import {
   Typography,
 } from '@mui/material';
 import React from 'react';
-import { DEFAULT_PADDING } from '../../theme';
+import { DEFAULT_BORDER_RADIUS, DEFAULT_PADDING } from '../../theme';
 
 interface Props {
   message?: string;
@@ -75,6 +75,7 @@ export const DataTableEmptyState: React.FC<Props> = ({
             height: '100%',
             width: '100%',
             backgroundColor: 'background.paper',
+            borderRadius: DEFAULT_BORDER_RADIUS,
           }}
           elevation={0}
         >

@@ -131,6 +131,7 @@ export const Histogram: React.FC<Props> = ({
           width: '100%',
           height: height ?? DEFAULT_HIST_HEIGHT,
           backgroundColor: 'background.paper',
+          pt: 1,
         }}
       >
         {!data || isLoading ? (

@@ -18,7 +18,7 @@ import { Button, Chip, Grid, Typography } from '@mui/material';
 import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FilterContext } from '../../contexts/FilterContext';
-import { DEFAULT_PADDING } from '../../theme';
+import { DEFAULT_BORDER_RADIUS, DEFAULT_PADDING } from '../../theme';
 
 interface Props {
   onSetFilterAnchor: any;
@@ -67,7 +67,7 @@ export const FilterButton: React.FC<Props> = ({ onSetFilterAnchor }) => {
       )}
       <Grid container item justifyContent="flex-end" my={1} xs={1} pl={1}>
         <Button
-          sx={{ height: 40 }}
+          sx={{ height: 40, borderRadius: DEFAULT_BORDER_RADIUS }}
           variant="outlined"
           onClick={handleOpenFilter}
         >
