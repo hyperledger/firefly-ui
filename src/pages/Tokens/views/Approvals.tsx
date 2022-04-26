@@ -109,11 +109,6 @@ export const TokensApprovals: () => JSX.Element = () => {
         }${filterString ?? ''}`
       )
         .then(async (tokenApprovalRes: IPagedTokenApprovalResponse) => {
-          if (tokenApprovalRes.items === null) {
-            setTokenApprovals([]);
-            setTokenApprovalsTotal(tokenApprovalRes.total);
-            return;
-          }
           for (const item of tokenApprovalRes.items) {
             const pool = await fetchPool(
               selectedNamespace,
