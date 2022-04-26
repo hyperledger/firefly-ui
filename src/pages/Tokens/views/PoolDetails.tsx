@@ -32,6 +32,7 @@ import { DataTable } from '../../../components/Tables/Table';
 import { FFJsonViewer } from '../../../components/Viewers/FFJsonViewer';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { DateFilterContext } from '../../../contexts/DateFilterContext';
+import { PoolContext } from '../../../contexts/PoolContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
@@ -45,6 +46,7 @@ import {
   ITokenBalance,
   ITokenPool,
   ITokenTransfer,
+  ITokenTransferWithPool,
   TransferIconMap,
 } from '../../../interfaces';
 import {
@@ -53,7 +55,10 @@ import {
   DEFAULT_PAGE_LIMITS,
 } from '../../../theme';
 import {
+  addDecToAmount,
   fetchCatcher,
+  fetchPool,
+  getBalanceTooltip,
   getFFTime,
   getShortHash,
   jsNumberForAddress,
@@ -62,6 +67,7 @@ import {
 export const PoolDetails: () => JSX.Element = () => {
   const { selectedNamespace } = useContext(ApplicationContext);
   const { dateFilter } = useContext(DateFilterContext);
+  const { poolCache, setPoolCache } = useContext(PoolContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
@@ -72,7 +78,9 @@ export const PoolDetails: () => JSX.Element = () => {
   const [viewTransfer, setViewTransfer] = useState<ITokenTransfer>();
 
   // Token transfers
-  const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>();
+  const [tokenTransfers, setTokenTransfers] = useState<
+    ITokenTransferWithPool[] | undefined
+  >();
   // Token Transfer totals
   const [tokenTransferTotal, setTokenTransferTotal] = useState(0);
   const [currentPage, setCurrentPage] = useState(0);
@@ -136,6 +144,8 @@ export const PoolDetails: () => JSX.Element = () => {
 
   // Token transfers and accounts
   useEffect(() => {
+    setTokenTransfers(undefined);
+
     isMounted &&
       dateFilter &&
       fetchCatcher(
@@ -145,10 +155,26 @@ export const PoolDetails: () => JSX.Element = () => {
           dateFilter.filterString
         }&pool=${pool?.id}`
       )
-        .then((tokenTransferRes: IPagedTokenTransferResponse) => {
+        .then(async (tokenTransferRes: IPagedTokenTransferResponse) => {
           if (isMounted) {
-            setTokenTransfers(tokenTransferRes.items);
-            setTokenTransferTotal(tokenTransferRes.total);
+            if (tokenTransferRes.items.length === 0) {
+              setTokenTransfers([]);
+              setTokenTransferTotal(tokenTransferRes.total);
+              return;
+            }
+            const enrichedTransfers: ITokenTransferWithPool[] = [];
+            for (const transfer of tokenTransferRes.items) {
+              const transferWithPool = await fetchPoolObject(transfer);
+              enrichedTransfers.push({
+                ...transfer,
+                poolObject: transferWithPool.poolObject,
+              });
+            }
+            setTokenTransfers((tokenTransfers) => {
+              return tokenTransfers
+                ? [...tokenTransfers, ...enrichedTransfers]
+                : [...enrichedTransfers];
+            });
           }
         })
         .catch((err) => {
@@ -250,7 +276,19 @@ export const PoolDetails: () => JSX.Element = () => {
           ),
         },
         {
-          value: <FFTableText color="primary" text={transfer.amount} />,
+          value: (
+            <FFTableText
+              color="primary"
+              text={addDecToAmount(
+                transfer.amount,
+                transfer.poolObject ? transfer.poolObject.decimals : -1
+              )}
+              tooltip={getBalanceTooltip(
+                transfer.amount,
+                transfer.poolObject ? transfer.poolObject.decimals : -1
+              )}
+            />
+          ),
         },
         {
           value: (
@@ -277,6 +315,21 @@ export const PoolDetails: () => JSX.Element = () => {
       },
       leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type]?.color,
     }));
+
+  const fetchPoolObject = async (
+    transfer: ITokenTransfer
+  ): Promise<ITokenTransferWithPool> => {
+    const pool = await fetchPool(
+      selectedNamespace,
+      transfer.pool,
+      poolCache,
+      setPoolCache
+    );
+    return {
+      ...transfer,
+      poolObject: pool,
+    };
+  };
 
   return (
     <>
