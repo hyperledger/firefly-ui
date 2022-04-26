@@ -1,7 +1,7 @@
 import { t } from 'i18next';
 import { LaunchButton } from '../../components/Buttons/LaunchButton';
 import { FFColors } from '../../theme';
-import { getShortHash } from '../../utils';
+import { addDecToAmount, getShortHash } from '../../utils';
 import { IEvent } from '../api';
 import { FF_NAV_PATHS } from '../navigation';
 
@@ -335,9 +335,12 @@ export const FF_EVENTS_CATEGORY_MAP: {
         event.tokenTransfer?.to
           ? getShortHash(event.tokenTransfer?.to)
           : getShortHash(t('nullAddress'))
-      }, Amount=${event.tokenTransfer?.amount ?? ''}, Signer=${getShortHash(
-        event.tokenTransfer?.key ?? ''
-      )}`,
+      }, Amount=${
+        addDecToAmount(
+          event.tokenTransfer?.amount ?? '',
+          event.tokenTransfer?.poolObject?.decimals ?? -1
+        ) ?? ''
+      }, Signer=${getShortHash(event.tokenTransfer?.key ?? '')}`,
     referenceIDName: 'transferID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
       <LaunchButton link={FF_NAV_PATHS.tokensTransfersPathLocalID(ns, refID)} />

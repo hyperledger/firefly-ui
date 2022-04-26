@@ -19,17 +19,22 @@ import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
+import { PoolContext } from '../../contexts/PoolContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import {
   FF_EVENTS_CATEGORY_MAP,
   FF_Paths,
   IData,
   IEvent,
-  ITokenApproval,
   ITokenApprovalWithPoolName,
+  ITokenTransferWithPool,
 } from '../../interfaces';
 import { DEFAULT_PADDING } from '../../theme';
-import { fetchCatcher, fetchPool } from '../../utils';
+import {
+  fetchCatcher,
+  fetchPoolNameFromApproval,
+  fetchPoolObjectFromTransfer,
+} from '../../utils';
 import { BlockchainEventAccordion } from '../Accordions/BlockchainEventAccordion';
 import { JsonViewAccordion } from '../Accordions/JsonViewerAccordion';
 import { MessageAccordion } from '../Accordions/MessageAccordion';
@@ -47,7 +52,6 @@ import { TxList } from '../Lists/TxList';
 import { DisplaySlide } from './DisplaySlide';
 import { SlideHeader } from './SlideHeader';
 import { SlideSectionHeader } from './SlideSectionHeader';
-import { PoolContext } from '../../contexts/PoolContext';
 
 interface Props {
   event: IEvent;
@@ -65,6 +69,8 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
   const { txID } = useParams<{ txID: string }>();
   const [approvalWithName, setApprovalWithName] =
     useState<ITokenApprovalWithPoolName>();
+  const [transferWithPool, setTransferWithPool] =
+    useState<ITokenTransferWithPool>();
 
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
@@ -108,28 +114,29 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
 
   useEffect(() => {
     if (enrichedEvent && isMounted && enrichedEvent['tokenApproval']) {
-      fetchPoolName(enrichedEvent.tokenApproval).then(
-        (approvalWithName: ITokenApprovalWithPoolName) => {
-          setApprovalWithName(approvalWithName);
-        }
-      );
+      fetchPoolNameFromApproval(
+        enrichedEvent.tokenApproval,
+        selectedNamespace,
+        poolCache,
+        setPoolCache
+      ).then((approvalWithName: ITokenApprovalWithPoolName) => {
+        setApprovalWithName(approvalWithName);
+      });
     }
   }, [enrichedEvent, isMounted]);
 
-  const fetchPoolName = async (
-    approval: ITokenApproval
-  ): Promise<ITokenApprovalWithPoolName> => {
-    const pool = await fetchPool(
-      selectedNamespace,
-      approval.pool,
-      poolCache,
-      setPoolCache
-    );
-    return {
-      ...approval,
-      poolName: pool ? pool.name : approval.pool,
-    };
-  };
+  useEffect(() => {
+    if (enrichedEvent && isMounted && enrichedEvent['tokenTransfer']) {
+      fetchPoolObjectFromTransfer(
+        enrichedEvent.tokenTransfer,
+        selectedNamespace,
+        poolCache,
+        setPoolCache
+      ).then((transferWithPool: ITokenTransferWithPool) => {
+        setTransferWithPool(transferWithPool);
+      });
+    }
+  }, [enrichedEvent, isMounted]);
 
   return (
     <>
@@ -262,7 +269,7 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
                 )} - ${enrichedEvent.tokenTransfer.type.toUpperCase()}`}
               />
               <Grid container item>
-                <TransferList transfer={enrichedEvent?.tokenTransfer} />
+                <TransferList transfer={transferWithPool} />
               </Grid>
             </>
           )}

@@ -118,7 +118,7 @@ export interface IEvent {
   tokenApproval?: ITokenApproval;
   tokenPool?: ITokenPool;
   transaction?: ITransaction;
-  tokenTransfer?: ITokenTransfer;
+  tokenTransfer?: ITokenTransferWithPool;
 }
 
 export interface IFireflyApi {

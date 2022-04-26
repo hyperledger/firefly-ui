@@ -66,7 +66,8 @@ import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import {
   addDecToAmount,
   fetchCatcher,
-  fetchPool,
+  fetchPoolObjectFromBalance,
+  fetchPoolObjectFromTransfer,
   getBalanceTooltip,
   getFFTime,
   jsNumberForAddress,
@@ -118,9 +119,9 @@ export const TokensDashboard: () => JSX.Element = () => {
   const [tokenTransferTotal, setTokenTransferTotal] = useState(0);
   // View transfer slide out
   const [viewTransfer, setViewTransfer] = useState<
-    ITokenTransfer | undefined
+    ITokenTransferWithPool | undefined
   >();
-  const [viewBalance, setViewBalance] = useState<ITokenBalance>();
+  const [viewBalance, setViewBalance] = useState<ITokenBalanceWithPool>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[0]);
 
@@ -142,8 +143,16 @@ export const TokensDashboard: () => JSX.Element = () => {
           `${
             FF_Paths.nsPrefix
           }/${selectedNamespace}${FF_Paths.tokenTransferById(slideID)}`
-        ).then((transferRes: ITokenTransfer) => {
-          setViewTransfer(transferRes);
+        ).then(async (transferRes: ITokenTransfer) => {
+          if (transferRes) {
+            const transferWithPool = await fetchPoolObjectFromTransfer(
+              transferRes,
+              selectedNamespace,
+              poolCache,
+              setPoolCache
+            );
+            isMounted && setViewTransfer(transferWithPool);
+          }
         });
       } else {
         fetchCatcher(
@@ -154,10 +163,16 @@ export const TokensDashboard: () => JSX.Element = () => {
             keyPoolArray[1]
           )}`
         )
-          .then((balanceRes: ITokenBalance[]) => {
-            isMounted &&
-              balanceRes.length === 1 &&
-              setViewBalance(balanceRes[0]);
+          .then(async (balanceRes: ITokenBalance[]) => {
+            if (isMounted && balanceRes.length === 1) {
+              const balanceWithPool = await fetchPoolObjectFromBalance(
+                balanceRes[0],
+                selectedNamespace,
+                poolCache,
+                setPoolCache
+              );
+              setViewBalance(balanceWithPool);
+            }
           })
           .catch((err) => {
             reportFetchError(err);
@@ -433,7 +448,12 @@ export const TokensDashboard: () => JSX.Element = () => {
           }
           const balancesWithPoolName: ITokenBalanceWithPool[] = [];
           for (const balance of balances) {
-            const balanceWithPool = await fetchPoolObjectFromBalance(balance);
+            const balanceWithPool = await fetchPoolObjectFromBalance(
+              balance,
+              selectedNamespace,
+              poolCache,
+              setPoolCache
+            );
             balancesWithPoolName.push({
               ...balance,
               poolObject: balanceWithPool.poolObject ?? undefined,
@@ -544,6 +564,7 @@ export const TokensDashboard: () => JSX.Element = () => {
 
   // Recent token transfers
   useEffect(() => {
+    setTokenTransfers(undefined);
     isMounted &&
       dateFilter &&
       fetchCatcher(
@@ -563,7 +584,10 @@ export const TokensDashboard: () => JSX.Element = () => {
             const enrichedTransfers: ITokenTransferWithPool[] = [];
             for (const transfer of tokenTransferRes.items) {
               const transferWithPool = await fetchPoolObjectFromTransfer(
-                transfer
+                transfer,
+                selectedNamespace,
+                poolCache,
+                setPoolCache
               );
               enrichedTransfers.push({
                 ...transfer,
@@ -588,36 +612,6 @@ export const TokensDashboard: () => JSX.Element = () => {
     dateFilter,
     isMounted,
   ]);
-
-  const fetchPoolObjectFromBalance = async (
-    balance: ITokenBalance
-  ): Promise<ITokenBalanceWithPool> => {
-    const pool = await fetchPool(
-      selectedNamespace,
-      balance.pool,
-      poolCache,
-      setPoolCache
-    );
-    return {
-      ...balance,
-      poolObject: pool,
-    };
-  };
-
-  const fetchPoolObjectFromTransfer = async (
-    transfer: ITokenTransfer
-  ): Promise<ITokenTransferWithPool> => {
-    const pool = await fetchPool(
-      selectedNamespace,
-      transfer.pool,
-      poolCache,
-      setPoolCache
-    );
-    return {
-      ...transfer,
-      poolObject: pool,
-    };
-  };
 
   return (
     <>

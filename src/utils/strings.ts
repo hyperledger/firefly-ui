@@ -25,7 +25,7 @@ export const makeMultipleQueryParams = (
 };
 
 export const addDecToAmount = (amount: string, decimals: number) => {
-  // Pad amount with (decimals) amount of '0's on the right hand side
+  // Pad amount with (decimals) amount of '0's on the left hand side
   let decAmount = amount.padStart(decimals + 1, '0');
   // Add decimal to correct spot
   decAmount =
@@ -33,11 +33,7 @@ export const addDecToAmount = (amount: string, decimals: number) => {
     '.' +
     decAmount.slice(decAmount.length - decimals);
   // Remove trailing 0s
-  decAmount = decAmount.replace(/0+$/, '');
-  // If last character is a '.', remove it
-  if (decAmount.charAt(decAmount.length - 1) === '.') {
-    decAmount = decAmount.slice(0, -1);
-  }
+  decAmount = decAmount.replace(/\.?0*$/, '');
 
   return decAmount;
 };

@@ -1,5 +1,14 @@
 import { Dispatch, SetStateAction } from 'react';
-import { FF_Paths, ITokenPool } from '../interfaces';
+import {
+  FF_Paths,
+  ITokenApproval,
+  ITokenApprovalWithPoolName,
+  ITokenBalance,
+  ITokenBalanceWithPool,
+  ITokenPool,
+  ITokenTransfer,
+  ITokenTransferWithPool,
+} from '../interfaces';
 
 export const fetchWithCredentials = (
   resource: string,
@@ -70,4 +79,43 @@ export const fetchPool = async (
   const pool: ITokenPool = await response.json();
   setPoolCache((poolCache) => new Map(poolCache.set(pool.id, pool)));
   return pool;
+};
+
+export const fetchPoolObjectFromTransfer = async (
+  transfer: ITokenTransfer,
+  ns: string,
+  poolCache: Map<string, ITokenPool>,
+  setPoolCache: Dispatch<SetStateAction<Map<string, ITokenPool>>>
+): Promise<ITokenTransferWithPool> => {
+  const pool = await fetchPool(ns, transfer.pool, poolCache, setPoolCache);
+  return {
+    ...transfer,
+    poolObject: pool,
+  };
+};
+
+export const fetchPoolObjectFromBalance = async (
+  balance: ITokenBalance,
+  ns: string,
+  poolCache: Map<string, ITokenPool>,
+  setPoolCache: Dispatch<SetStateAction<Map<string, ITokenPool>>>
+): Promise<ITokenBalanceWithPool> => {
+  const pool = await fetchPool(ns, balance.pool, poolCache, setPoolCache);
+  return {
+    ...balance,
+    poolObject: pool,
+  };
+};
+
+export const fetchPoolNameFromApproval = async (
+  approval: ITokenApproval,
+  ns: string,
+  poolCache: Map<string, ITokenPool>,
+  setPoolCache: Dispatch<SetStateAction<Map<string, ITokenPool>>>
+): Promise<ITokenApprovalWithPoolName> => {
+  const pool = await fetchPool(ns, approval.pool, poolCache, setPoolCache);
+  return {
+    ...approval,
+    poolName: pool ? pool.name : approval.pool,
+  };
 };

@@ -42,7 +42,7 @@ import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import {
   addDecToAmount,
   fetchCatcher,
-  fetchPool,
+  fetchPoolObjectFromBalance,
   getBalanceTooltip,
   getFFTime,
 } from '../../../utils';
@@ -67,7 +67,7 @@ export const TokensBalances: () => JSX.Element = () => {
   >();
   // Token balances totals
   const [tokenBalancesTotal, setTokenBalancesTotal] = useState(0);
-  const [viewBalance, setViewBalance] = useState<ITokenBalance>();
+  const [viewBalance, setViewBalance] = useState<ITokenBalanceWithPool>();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
 
@@ -94,8 +94,16 @@ export const TokensBalances: () => JSX.Element = () => {
           keyPoolArray[1]
         )}`
       )
-        .then((balanceRes: ITokenBalance[]) => {
-          isMounted && balanceRes.length === 1 && setViewBalance(balanceRes[0]);
+        .then(async (balanceRes: ITokenBalance[]) => {
+          if (isMounted && balanceRes.length === 1) {
+            const balanceWithPool = await fetchPoolObjectFromBalance(
+              balanceRes[0],
+              selectedNamespace,
+              poolCache,
+              setPoolCache
+            );
+            setViewBalance(balanceWithPool);
+          }
         })
         .catch((err) => {
           reportFetchError(err);
@@ -122,7 +130,12 @@ export const TokensBalances: () => JSX.Element = () => {
           }
           const balancesWithPoolName: ITokenBalanceWithPool[] = [];
           for (const balance of tokenBalancesRes.items) {
-            const balanceWithPool = await fetchPoolObjectFromBalance(balance);
+            const balanceWithPool = await fetchPoolObjectFromBalance(
+              balance,
+              selectedNamespace,
+              poolCache,
+              setPoolCache
+            );
             balancesWithPoolName.push({
               ...balance,
               poolObject: balanceWithPool.poolObject ?? undefined,
@@ -217,21 +230,6 @@ export const TokensBalances: () => JSX.Element = () => {
         setSlideSearchParam([balance.key, balance.pool].join(KEY_POOL_DELIM));
       },
     }));
-
-  const fetchPoolObjectFromBalance = async (
-    balance: ITokenBalance
-  ): Promise<ITokenBalanceWithPool> => {
-    const pool = await fetchPool(
-      selectedNamespace,
-      balance.pool,
-      poolCache,
-      setPoolCache
-    );
-    return {
-      ...balance,
-      poolObject: pool,
-    };
-  };
 
   return (
     <>

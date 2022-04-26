@@ -3,8 +3,9 @@ import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import Jazzicon, { jsNumberForAddress } from 'react-jazzicon';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { ITokenBalance, ITokenPool } from '../../interfaces';
+import { ITokenBalanceWithPool, ITokenPool } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
+import { addDecToAmount, getBalanceTooltip } from '../../utils';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { PoolButton } from '../Buttons/PoolButton';
 import { FFListItem } from './FFListItem';
@@ -13,7 +14,7 @@ import { FFListTimestamp } from './FFListTimestamp';
 import { FFSkeletonList } from './FFSkeletonList';
 
 interface Props {
-  balance?: ITokenBalance;
+  balance?: ITokenBalanceWithPool;
   pool?: ITokenPool;
 }
 
@@ -46,7 +47,19 @@ export const BalanceList: React.FC<Props> = ({ balance, pool }) => {
         },
         {
           label: t('balance'),
-          value: <FFListText color="primary" text={balance.balance} />,
+          value: (
+            <FFListText
+              color="primary"
+              text={addDecToAmount(
+                balance.balance,
+                balance.poolObject ? balance.poolObject.decimals : -1
+              )}
+              tooltip={getBalanceTooltip(
+                balance.balance,
+                balance.poolObject ? balance.poolObject.decimals : -1
+              )}
+            />
+          ),
         },
         {
           label: balance.uri ? t('uri') : '',

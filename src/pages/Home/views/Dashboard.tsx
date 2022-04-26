@@ -19,11 +19,13 @@ import { EventSlide } from '../../../components/Slides/EventSlide';
 import { TransactionSlide } from '../../../components/Slides/TransactionSlide';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { DateFilterContext } from '../../../contexts/DateFilterContext';
+import { PoolContext } from '../../../contexts/PoolContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
+  FF_EVENTS,
   FF_EVENTS_CATEGORY_MAP,
   FF_NAV_PATHS,
   FF_OP_CATEGORY_MAP,
@@ -39,6 +41,7 @@ import {
 import { FF_Paths } from '../../../interfaces/constants';
 import {
   fetchCatcher,
+  fetchPoolObjectFromTransfer,
   makeEventHistogram,
   makeMultipleQueryParams,
 } from '../../../utils';
@@ -54,6 +57,7 @@ export const HomeDashboard: () => JSX.Element = () => {
   const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
     useContext(ApplicationContext);
   const { dateFilter } = useContext(DateFilterContext);
+  const { poolCache, setPoolCache } = useContext(PoolContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const [isMounted, setIsMounted] = useState(false);
@@ -84,7 +88,7 @@ export const HomeDashboard: () => JSX.Element = () => {
   const [eventHistData, setEventHistData] = useState<BarDatum[]>();
   // Table cards
   const [recentEventTxs, setRecentEventTxs] = useState<IEvent[]>();
-  const [recentEvents, setRecentEvents] = useState<IEvent[]>();
+  const [recentEvents, setRecentEvents] = useState<IEvent[] | undefined>();
   const [isHistLoading, setIsHistLoading] = useState(false);
 
   const [plugins, setPlugins] = useState<IStatus['plugins']>();
@@ -101,9 +105,27 @@ export const HomeDashboard: () => JSX.Element = () => {
   useEffect(() => {
     if (isMounted && slideID) {
       fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?id=${slideID}`
-      ).then((eventRes: IEvent[]) => {
-        isMounted && eventRes.length > 0 && setViewEvent(eventRes[0]);
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}?id=${slideID}&fetchreferences`
+      ).then(async (eventRes: IEvent[]) => {
+        if (
+          eventRes.length > 0 &&
+          eventRes[0].type === FF_EVENTS.TOKEN_TRANSFER_CONFIRMED &&
+          eventRes[0].tokenTransfer
+        ) {
+          const transferWithPool = await fetchPoolObjectFromTransfer(
+            eventRes[0].tokenTransfer,
+            selectedNamespace,
+            poolCache,
+            setPoolCache
+          );
+          isMounted &&
+            setViewEvent({
+              ...eventRes[0],
+              tokenTransfer: transferWithPool,
+            });
+        } else {
+          isMounted && eventRes.length > 0 && setViewEvent(eventRes[0]);
+        }
       });
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.transactions}?id=${slideID}`
@@ -421,6 +443,7 @@ export const HomeDashboard: () => JSX.Element = () => {
   ];
   // Table Card UseEffect
   useEffect(() => {
+    setRecentEvents(undefined);
     const qParams = `?limit=25${dateFilter?.filterString ?? ''}`;
     isMounted &&
       dateFilter &&
@@ -432,10 +455,29 @@ export const HomeDashboard: () => JSX.Element = () => {
           `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.events}${qParams}&type=!transaction_submitted&fetchreferences=true`
         ),
       ])
-        .then(([recentEventTxs, recentEvents]) => {
+        .then(async ([recentEventTxs, recentEvents]) => {
           if (isMounted) {
             setRecentEventTxs(recentEventTxs);
-            setRecentEvents(recentEvents);
+
+            const enrichedRecentEvents: IEvent[] = [];
+            for (const event of recentEvents) {
+              if (event.type === FF_EVENTS.TOKEN_TRANSFER_CONFIRMED) {
+                const transferWithPool = await fetchPoolObjectFromTransfer(
+                  event.tokenTransfer,
+                  selectedNamespace,
+                  poolCache,
+                  setPoolCache
+                );
+                enrichedRecentEvents.push({
+                  ...event,
+                  tokenTransfer: transferWithPool,
+                });
+              } else {
+                enrichedRecentEvents.push(event);
+              }
+            }
+
+            setRecentEvents(enrichedRecentEvents);
           }
         })
         .catch((err) => {

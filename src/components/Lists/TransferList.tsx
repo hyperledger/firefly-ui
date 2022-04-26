@@ -1,8 +1,9 @@
 import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
-import { ITokenTransfer, ITxStatus } from '../../interfaces';
+import { ITokenTransferWithPool, ITxStatus } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
+import { addDecToAmount, getBalanceTooltip } from '../../utils';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { MsgButton } from '../Buttons/MsgButton';
 import { PoolButton } from '../Buttons/PoolButton';
@@ -14,7 +15,7 @@ import { FFListTimestamp } from './FFListTimestamp';
 import { FFSkeletonList } from './FFSkeletonList';
 
 interface Props {
-  transfer?: ITokenTransfer;
+  transfer?: ITokenTransferWithPool;
   txStatus?: ITxStatus;
   showTxLink?: boolean;
   showPoolLink?: boolean;
@@ -86,7 +87,19 @@ export const TransferList: React.FC<Props> = ({
         },
         {
           label: t('amount'),
-          value: <FFListText color="primary" text={transfer.amount} />,
+          value: (
+            <FFListText
+              color="primary"
+              text={addDecToAmount(
+                transfer.amount,
+                transfer.poolObject ? transfer.poolObject.decimals : -1
+              )}
+              tooltip={getBalanceTooltip(
+                transfer.amount,
+                transfer.poolObject ? transfer.poolObject.decimals : -1
+              )}
+            />
+          ),
           button: <FFCopyButton value={transfer.amount} />,
         },
         {
