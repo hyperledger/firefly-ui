@@ -198,7 +198,11 @@ export const TokensApprovals: () => JSX.Element = () => {
         },
         {
           value: (
-            <FFTableText color="secondary" text={getFFTime(approval.created)} />
+            <FFTableText
+              color="secondary"
+              text={getFFTime(approval.created)}
+              tooltip={getFFTime(approval.created, true)}
+            />
           ),
         },
       ],

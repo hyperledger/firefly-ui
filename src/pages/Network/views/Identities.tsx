@@ -147,7 +147,11 @@ export const NetworkIdentities: () => JSX.Element = () => {
         },
         {
           value: (
-            <FFTableText color="secondary" text={getFFTime(id.updated, true)} />
+            <FFTableText
+              color="secondary"
+              text={getFFTime(id.updated)}
+              tooltip={getFFTime(id.updated, true)}
+            />
           ),
         },
       ],

@@ -274,7 +274,11 @@ export const TokensTransfers: () => JSX.Element = () => {
         },
         {
           value: (
-            <FFTableText color="secondary" text={getFFTime(transfer.created)} />
+            <FFTableText
+              color="secondary"
+              text={getFFTime(transfer.created)}
+              tooltip={getFFTime(transfer.created, true)}
+            />
           ),
         },
       ],

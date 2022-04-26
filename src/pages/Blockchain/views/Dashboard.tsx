@@ -408,7 +408,11 @@ export const BlockchainDashboard: () => JSX.Element = () => {
         },
         {
           value: (
-            <FFTableText color="secondary" text={getFFTime(be.timestamp)} />
+            <FFTableText
+              color="secondary"
+              text={getFFTime(be.timestamp)}
+              tooltip={getFFTime(be.timestamp, true)}
+            />
           ),
         },
       ],

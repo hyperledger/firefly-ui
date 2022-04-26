@@ -116,7 +116,8 @@ export const MyNodeSubscriptions: () => JSX.Element = () => {
             value: (
               <FFTableText
                 color="secondary"
-                text={getFFTime(sub.created, true)}
+                text={getFFTime(sub.created)}
+                tooltip={getFFTime(sub.created, true)}
               />
             ),
           },

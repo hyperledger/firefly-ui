@@ -147,7 +147,13 @@ export const BlockchainListeners: () => JSX.Element = () => {
           ),
         },
         {
-          value: <FFTableText color="secondary" text={getFFTime(l.created)} />,
+          value: (
+            <FFTableText
+              color="secondary"
+              text={getFFTime(l.created)}
+              tooltip={getFFTime(l.created, true)}
+            />
+          ),
         },
       ],
       onClick: () => {

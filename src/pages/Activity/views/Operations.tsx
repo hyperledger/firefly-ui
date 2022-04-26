@@ -189,7 +189,15 @@ export const ActivityOperations: () => JSX.Element = () => {
       {
         value: <OpStatusChip op={op} />,
       },
-      { value: <FFTableText color="secondary" text={getFFTime(op.created)} /> },
+      {
+        value: (
+          <FFTableText
+            color="secondary"
+            text={getFFTime(op.created)}
+            tooltip={getFFTime(op.created, true)}
+          />
+        ),
+      },
     ],
     onClick: () => {
       setViewOp(op);

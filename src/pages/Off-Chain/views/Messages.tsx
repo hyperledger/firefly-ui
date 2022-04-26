@@ -213,7 +213,11 @@ export const OffChainMessages: () => JSX.Element = () => {
       },
       {
         value: (
-          <FFTableText color="secondary" text={getFFTime(msg.header.created)} />
+          <FFTableText
+            color="secondary"
+            text={getFFTime(msg.header.created)}
+            tooltip={getFFTime(msg.header.created, true)}
+          />
         ),
       },
       {

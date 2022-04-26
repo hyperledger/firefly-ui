@@ -200,7 +200,11 @@ export const ActivityEvents: () => JSX.Element = () => {
         },
         {
           value: (
-            <FFTableText color="secondary" text={getFFTime(event.created)} />
+            <FFTableText
+              color="secondary"
+              text={getFFTime(event.created)}
+              tooltip={getFFTime(event.created, true)}
+            />
           ),
         },
       ],

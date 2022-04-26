@@ -135,7 +135,13 @@ export const OffChainGroups: () => JSX.Element = () => {
           ),
         },
         {
-          value: <FFTableText color="secondary" text={getFFTime(g.created)} />,
+          value: (
+            <FFTableText
+              color="secondary"
+              text={getFFTime(g.created)}
+              tooltip={getFFTime(g.created, true)}
+            />
+          ),
         },
       ],
       onClick: () => {

@@ -135,7 +135,11 @@ export const OffChainDataTypes: () => JSX.Element = () => {
         },
         {
           value: (
-            <FFTableText color="secondary" text={getFFTime(d.created, true)} />
+            <FFTableText
+              color="secondary"
+              text={getFFTime(d.created)}
+              tooltip={getFFTime(d.created, true)}
+            />
           ),
         },
       ],

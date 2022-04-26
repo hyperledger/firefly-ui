@@ -153,7 +153,11 @@ export const TokensPools: () => JSX.Element = () => {
         },
         {
           value: (
-            <FFTableText color="secondary" text={getFFTime(pool.created)} />
+            <FFTableText
+              color="secondary"
+              text={getFFTime(pool.created)}
+              tooltip={getFFTime(pool.created, true)}
+            />
           ),
         },
       ],

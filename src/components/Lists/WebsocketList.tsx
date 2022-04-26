@@ -37,11 +37,6 @@ export const WebsocketList: React.FC<Props> = ({ ws }) => {
           ),
           button: ws.userAgent.length ? <FFCopyButton value={ws.id} /> : <></>,
         },
-        {
-          label: t('id'),
-          value: <FFListText color="primary" text={ws.id} />,
-          button: <FFCopyButton value={ws.id} />,
-        },
       ]);
     }
   }, [ws]);

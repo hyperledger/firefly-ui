@@ -202,7 +202,11 @@ export const TokensBalances: () => JSX.Element = () => {
         },
         {
           value: (
-            <FFTableText color="secondary" text={getFFTime(balance.updated)} />
+            <FFTableText
+              color="secondary"
+              text={getFFTime(balance.updated)}
+              tooltip={getFFTime(balance.updated, true)}
+            />
           ),
         },
       ],
