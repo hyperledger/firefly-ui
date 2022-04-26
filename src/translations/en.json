@@ -153,6 +153,7 @@
   "locator": "Locator",
   "manifest": "Manifest",
   "matches": "Matches",
+  "members": "Members",
   "message": "Message",
   "messageConfirmed": "Message Confirmed",
   "messageData": "Message Data",
