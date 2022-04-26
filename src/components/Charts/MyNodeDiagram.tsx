@@ -133,7 +133,14 @@ const makeInitialNodes = (
             id: `${PLUGIN_PREFIX}${k}_${idx}`,
             targetPosition: Position.Left,
             type: 'output',
-            data: { label: plugin.name ? plugin.name : plugin.pluginType },
+            data: {
+              label:
+                plugin.name && plugin.pluginType
+                  ? `${plugin.pluginType}: ${plugin.name}`
+                  : plugin.name
+                  ? plugin.name
+                  : plugin.pluginType,
+            },
             position,
             style: nodeStyle,
           };
