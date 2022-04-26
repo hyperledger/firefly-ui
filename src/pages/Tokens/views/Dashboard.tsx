@@ -322,7 +322,7 @@ export const TokensDashboard: () => JSX.Element = () => {
             <FFTableText
               color="primary"
               isComponent
-              text={<HashPopover address={pool.name} />}
+              text={<HashPopover shortHash address={pool.name} />}
               icon={
                 <Jazzicon diameter={20} seed={jsNumberForAddress(pool.name)} />
               }
