@@ -46,6 +46,16 @@ export const BalanceList: React.FC<Props> = ({ balance, pool }) => {
           button: <PoolButton ns={selectedNamespace} poolID={pool.id} />,
         },
         {
+          label: balance.tokenIndex ? t('tokenIndex') : '',
+          value: <FFListText color="primary" text={balance.tokenIndex ?? ''} />,
+          button: <FFCopyButton value={balance.tokenIndex ?? ''} />,
+        },
+        {
+          label: balance.uri ? t('uri') : '',
+          value: <FFListText color="primary" text={balance.uri ?? ''} />,
+          button: <FFCopyButton value={balance.uri ?? ''} />,
+        },
+        {
           label: t('balance'),
           value: (
             <FFListText
@@ -60,11 +70,6 @@ export const BalanceList: React.FC<Props> = ({ balance, pool }) => {
               )}
             />
           ),
-        },
-        {
-          label: balance.uri ? t('uri') : '',
-          value: <FFListText color="primary" text={balance.uri ?? ''} />,
-          button: <FFCopyButton value={balance.uri ?? ''} />,
         },
         {
           label: t('updated'),

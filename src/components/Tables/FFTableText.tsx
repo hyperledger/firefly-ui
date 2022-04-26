@@ -20,7 +20,9 @@ export const FFTableText: React.FC<Props> = ({
     <Grid container justifyContent="flex-start" alignItems="center">
       {icon}
       {isComponent ? (
-        <Grid item>{text}</Grid>
+        <Grid item pl={1}>
+          {text}
+        </Grid>
       ) : tooltip ? (
         <Tooltip title={tooltip} placement="top">
           <Typography

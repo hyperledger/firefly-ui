@@ -522,6 +522,7 @@ export interface ITokenBalance {
   key: string;
   balance: string;
   updated: string;
+  tokenIndex?: string;
 }
 
 export interface ITokenBalanceWithPool extends ITokenBalance {

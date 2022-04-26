@@ -163,8 +163,9 @@ export const TokensBalances: () => JSX.Element = () => {
 
   const tokenBalanceColHeaders = [
     t('key'),
-    t('balance'),
     t('pool'),
+    t('balance'),
+    t('tokenIndex'),
     t('uri'),
     t('connector'),
     t('updated'),
@@ -176,6 +177,17 @@ export const TokensBalances: () => JSX.Element = () => {
       columns: [
         {
           value: <HashPopover address={balance.key} />,
+        },
+        {
+          value: (
+            <FFTableText
+              color="primary"
+              text={balance.poolObject?.name ?? ''}
+              tooltip={`${balance.poolObject?.standard} - ${t(
+                balance.poolObject?.type ?? ''
+              )}`}
+            />
+          ),
         },
         {
           value: (
@@ -193,14 +205,10 @@ export const TokensBalances: () => JSX.Element = () => {
           ),
         },
         {
-          value: (
-            <FFTableText
-              color="primary"
-              text={balance.poolObject?.name ?? ''}
-              tooltip={`${balance.poolObject?.standard} - ${t(
-                balance.poolObject?.type ?? ''
-              )}`}
-            />
+          value: balance.tokenIndex ? (
+            <FFTableText color="primary" text={balance.tokenIndex} />
+          ) : (
+            <FFTableText color="secondary" text={t('notANonFungiblePool')} />
           ),
         },
         {
