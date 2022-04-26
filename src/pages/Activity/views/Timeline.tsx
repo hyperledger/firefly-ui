@@ -15,14 +15,10 @@
 // limitations under the License.
 
 import { Grid } from '@mui/material';
-import { BarDatum } from '@nivo/bar';
-import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { InfiniteData, useInfiniteQuery, useQueryClient } from 'react-query';
 import { EventCardWrapper } from '../../../components/Cards/EventCards/EventCardWrapper';
-import { Histogram } from '../../../components/Charts/Histogram';
-import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { FFTimelineHeader } from '../../../components/Headers/TimelineHeader';
@@ -36,9 +32,6 @@ import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
-  BucketCollectionEnum,
-  BucketCountEnum,
-  EventCategoryEnum,
   EventFilters,
   FF_NAV_PATHS,
   FF_Paths,
@@ -46,13 +39,8 @@ import {
   IPagedEventResponse,
   ITransaction,
 } from '../../../interfaces';
-import { DEFAULT_PADDING, FFColors } from '../../../theme';
-import {
-  fetchCatcher,
-  fetchWithCredentials,
-  makeEventHistogram,
-} from '../../../utils';
-import { isHistogramEmpty } from '../../../utils/charts';
+import { DEFAULT_PADDING } from '../../../theme';
+import { fetchCatcher, fetchWithCredentials } from '../../../utils';
 import { isOppositeTimelineEvent } from '../../../utils/timeline';
 import { hasAnyEvent } from '../../../utils/wsEvents';
 
@@ -67,14 +55,11 @@ export const ActivityTimeline: () => JSX.Element = () => {
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const [isMounted, setIsMounted] = useState(false);
-  const [eventHistData, setEventHistData] = useState<BarDatum[]>();
   const { t } = useTranslation();
   const [viewTx, setViewTx] = useState<ITransaction>();
   const [viewEvent, setViewEvent] = useState<IEvent>();
   const queryClient = useQueryClient();
   const [isVisible, setIsVisible] = useState(0);
-  // Last event tracking
-  const [isHistLoading, setIsHistLoading] = useState(false);
 
   useEffect(() => {
     setIsMounted(true);
@@ -126,30 +111,6 @@ export const ActivityTimeline: () => JSX.Element = () => {
       },
     }
   );
-
-  // Events Histogram
-  useEffect(() => {
-    setIsHistLoading(true);
-    const currentTime = dayjs().unix();
-
-    isMounted &&
-      dateFilter &&
-      fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
-          BucketCollectionEnum.Events,
-          dateFilter.filterTime,
-          currentTime,
-          BucketCountEnum.Large
-        )}`
-      )
-        .then((histEvents) => {
-          isMounted && setEventHistData(makeEventHistogram(histEvents));
-        })
-        .catch((err) => {
-          reportFetchError(err);
-        })
-        .finally(() => setIsHistLoading(false));
-  }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
 
   useEffect(() => {
     if (isVisible && hasNextPage && isMounted) {
@@ -208,27 +169,6 @@ export const ActivityTimeline: () => JSX.Element = () => {
         showRefreshBtn={false}
       />
       <FFPageLayout>
-        <Histogram
-          colors={[FFColors.Yellow, FFColors.Orange, FFColors.Pink]}
-          data={eventHistData}
-          indexBy="timestamp"
-          keys={[
-            EventCategoryEnum.BLOCKCHAIN,
-            EventCategoryEnum.MESSAGES,
-            EventCategoryEnum.TOKENS,
-          ]}
-          includeLegend={true}
-          isLoading={isHistLoading}
-          isEmpty={isHistogramEmpty(eventHistData ?? [])}
-          emptyText={t('noActivity')}
-          filterButton={
-            <FilterButton
-              onSetFilterAnchor={(e: React.MouseEvent<HTMLButtonElement>) =>
-                setFilterAnchor(e.currentTarget)
-              }
-            />
-          }
-        />
         <Grid
           container
           justifyContent={'center'}
@@ -243,7 +183,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
           <FFTimeline
             elements={buildTimelineElements(data)}
             emptyText={t('noTimelineEvents')}
-            height={'calc(100vh - 425px)'}
+            height={'75vh'}
             fetchMoreData={() => setIsVisible(isVisible + 1)}
             hasMoreData={hasNextPage}
             hasNewEvents={hasAnyEvent(newEvents)}

@@ -21,7 +21,7 @@ import React, { useEffect, useRef } from 'react';
 import { useTranslation } from 'react-i18next';
 import InfiniteScroll from 'react-infinite-scroll-component';
 import { ITimelineElement } from '../../interfaces';
-import { DEFAULT_TIMELINE_HEIGHT } from '../../theme';
+import { DEFAULT_BORDER_RADIUS, DEFAULT_TIMELINE_HEIGHT } from '../../theme';
 import { EmptyStateCard } from '../Cards/EmptyStateCard';
 import { FFCircleLoader } from '../Loaders/FFCircleLoader';
 import { TimelineItemWrapper } from './TimelineItemWrapper';
@@ -61,6 +61,10 @@ export const FFTimeline: React.FC<Props> = ({
         height: height ?? DEFAULT_TIMELINE_HEIGHT,
         backgroundColor: 'background.paper',
         overflow: 'auto',
+        borderTopLeftRadius: 0,
+        borderTopRightRadius: 0,
+        borderBottomLeftRadius: DEFAULT_BORDER_RADIUS,
+        borderBottomRightRadius: DEFAULT_BORDER_RADIUS,
       }}
       elevation={0}
     >

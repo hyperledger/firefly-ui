@@ -16,6 +16,7 @@
 
 import { Divider, Grid, Typography } from '@mui/material';
 import React from 'react';
+import { DEFAULT_BORDER_RADIUS } from '../../theme';
 
 interface Props {
   leftHeader: string;
@@ -32,7 +33,12 @@ export const FFTimelineHeader: React.FC<Props> = ({
         container
         item
         direction="row"
-        sx={{ backgroundColor: 'background.paper', padding: '0px 0px 0px 0px' }}
+        sx={{
+          backgroundColor: 'background.paper',
+          padding: '0px 0px 0px 0px',
+          borderTopLeftRadius: DEFAULT_BORDER_RADIUS,
+          borderTopRightRadius: DEFAULT_BORDER_RADIUS,
+        }}
       >
         <Grid
           xs={6}
@@ -45,7 +51,7 @@ export const FFTimelineHeader: React.FC<Props> = ({
         >
           <Typography
             height="100%"
-            fontSize="12"
+            fontSize="14px"
             variant="caption"
             fontWeight="bold"
           >
@@ -61,7 +67,7 @@ export const FFTimelineHeader: React.FC<Props> = ({
           height="100%"
           py="16px"
         >
-          <Typography fontSize="12" variant="caption" fontWeight="bold">
+          <Typography fontSize="14px" variant="caption" fontWeight="bold">
             {rightHeader}
           </Typography>
         </Grid>
