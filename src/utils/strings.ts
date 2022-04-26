@@ -25,6 +25,8 @@ export const makeMultipleQueryParams = (
 };
 
 export const addDecToAmount = (amount: string, decimals: number) => {
+  // If pool doesn't support decimals, return normal amount
+  if (decimals === -1 || decimals === undefined) return amount;
   // Pad amount with (decimals) amount of '0's on the left hand side
   let decAmount = amount.padStart(decimals + 1, '0');
   // Add decimal to correct spot
@@ -39,6 +41,8 @@ export const addDecToAmount = (amount: string, decimals: number) => {
 };
 
 export const getBalanceTooltip = (amount: string, decimals: number) => {
+  // If pool doesn't support decimals, don't show tooltip
+  if (decimals === -1 || decimals === undefined) return undefined;
   return `${i18next.t('amount')}: ${amount}, ${i18next.t(
     'decimals'
   )}: ${decimals}`;
