@@ -77,11 +77,13 @@ export const BatchFilters = [
 export const BlockchainEventFilters = [
   'id',
   'source',
+  'namespace',
   'name',
   'protocolid',
   'listener',
   'tx.type',
   'tx.id',
+  'tx.blockchainid',
   'timestamp',
 ];
 
@@ -89,6 +91,7 @@ export const InterfaceFilters = ['id', 'name', 'namespace', 'version'];
 
 export const DataFilters = [
   'id',
+  'namespace',
   'validator',
   'datatype.name',
   'datatype.version',
@@ -104,6 +107,7 @@ export const DataFilters = [
 export const DatatypesFilters = [
   'id',
   'message',
+  'namespace',
   'validator',
   'name',
   'version',
@@ -113,9 +117,11 @@ export const DatatypesFilters = [
 export const EventFilters = [
   'id',
   'type',
+  'namespace',
   'reference',
   'correlator',
   'tx',
+  'topic',
   'sequence',
   'created',
 ];
@@ -137,6 +143,7 @@ export const IdentityFilters = [
   'messages.verification',
   'messages.update',
   'type',
+  'namespace',
   'name',
   'description',
   'profile',
@@ -144,11 +151,21 @@ export const IdentityFilters = [
   'updated',
 ];
 
-export const ListenerFilters = ['id', 'interface', 'protocolid', 'created'];
+export const ListenerFilters = [
+  'id',
+  'interface',
+  'namespace',
+  'location',
+  'topic',
+  'signature',
+  'backendid',
+  'created',
+];
 
 export const MessageFilters = [
   'id',
   'cid',
+  'namespace',
   'type',
   'author',
   'key',
@@ -179,6 +196,7 @@ export const OperationFilters = [
   'id',
   'tx',
   'type',
+  'namespace',
   'status',
   'error',
   'plugin',
@@ -192,10 +210,12 @@ export const OperationFilters = [
 export const PoolFilters = [
   'id',
   'type',
+  'namespace',
   'name',
   'standard',
-  'protocolid',
+  'locator',
   'symbol',
+  'decimals',
   'message',
   'state',
   'created',
@@ -215,7 +235,13 @@ export const SubscriptionFilters = [
   'created',
 ];
 
-export const TransactionFilters = ['id', 'type', 'created', 'blockchainids'];
+export const TransactionFilters = [
+  'id',
+  'type',
+  'created',
+  'blockchainids',
+  'namespace',
+];
 
 export const TransferFilters = [
   'localid',
@@ -223,6 +249,7 @@ export const TransferFilters = [
   'tokenindex',
   'uri',
   'connector',
+  'namespace',
   'key',
   'from',
   'to',

@@ -18,14 +18,15 @@ import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
+import { PoolContext } from '../../contexts/PoolContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import {
   FF_NAV_PATHS,
   IDataTableRecord,
   IPagedTokenTransferResponse,
-  ITokenBalance,
+  ITokenBalanceWithPool,
   ITokenPool,
-  ITokenTransfer,
+  ITokenTransferWithPool,
 } from '../../interfaces';
 import { FF_Paths } from '../../interfaces/constants';
 import {
@@ -33,7 +34,14 @@ import {
   TransferIconMap,
 } from '../../interfaces/enums';
 import { DEFAULT_PADDING, DEFAULT_PAGE_LIMITS } from '../../theme';
-import { fetchCatcher, getFFTime, getShortHash } from '../../utils';
+import {
+  addDecToAmount,
+  fetchCatcher,
+  fetchPoolObjectFromTransfer,
+  getBalanceTooltip,
+  getFFTime,
+  getShortHash,
+} from '../../utils';
 import { BalanceList } from '../Lists/BalanceList';
 import { HashPopover } from '../Popovers/HashPopover';
 import { FFTableText } from '../Tables/FFTableText';
@@ -43,7 +51,7 @@ import { SlideHeader } from './SlideHeader';
 import { SlideSectionHeader } from './SlideSectionHeader';
 
 interface Props {
-  balance: ITokenBalance;
+  balance: ITokenBalanceWithPool;
   open: boolean;
   onClose: () => void;
 }
@@ -51,9 +59,11 @@ interface Props {
 export const BalanceSlide: React.FC<Props> = ({ balance, open, onClose }) => {
   const { t } = useTranslation();
   const { selectedNamespace } = useContext(ApplicationContext);
+  const { poolCache, setPoolCache } = useContext(PoolContext);
   const { reportFetchError } = useContext(SnackbarContext);
 
-  const [tokenTransfers, setTokenTransfers] = useState<ITokenTransfer[]>([]);
+  const [tokenTransfers, setTokenTransfers] =
+    useState<ITokenTransferWithPool[]>();
   const [tokenTransferTotal, setTokenTransferTotal] = useState(0);
   const [tokenPool, setTokenPool] = useState<ITokenPool>();
 
@@ -87,6 +97,7 @@ export const BalanceSlide: React.FC<Props> = ({ balance, open, onClose }) => {
 
   // Token transfers
   useEffect(() => {
+    setTokenTransfers(undefined);
     isMounted &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
@@ -95,10 +106,31 @@ export const BalanceSlide: React.FC<Props> = ({ balance, open, onClose }) => {
           rowsPerPage * currentPage
         }&fromOrTo=${balance.key}&pool=${balance.pool}`
       )
-        .then((tokenTransferRes: IPagedTokenTransferResponse) => {
+        .then(async (tokenTransferRes: IPagedTokenTransferResponse) => {
           if (isMounted) {
-            setTokenTransfers(tokenTransferRes.items);
-            setTokenTransferTotal(tokenTransferRes.total);
+            if (tokenTransferRes.items.length === 0) {
+              setTokenTransfers([]);
+              setTokenTransferTotal(tokenTransferRes.total);
+              return;
+            }
+            const enrichedTransfers: ITokenTransferWithPool[] = [];
+            for (const transfer of tokenTransferRes.items) {
+              const transferWithPool = await fetchPoolObjectFromTransfer(
+                transfer,
+                selectedNamespace,
+                poolCache,
+                setPoolCache
+              );
+              enrichedTransfers.push({
+                ...transfer,
+                poolObject: transferWithPool.poolObject,
+              });
+            }
+            setTokenTransfers((tokenTransfers) => {
+              return tokenTransfers
+                ? [...tokenTransfers, ...enrichedTransfers]
+                : [...enrichedTransfers];
+            });
           }
         })
         .catch((err) => {
@@ -143,11 +175,27 @@ export const BalanceSlide: React.FC<Props> = ({ balance, open, onClose }) => {
           ),
         },
         {
-          value: <FFTableText color="primary" text={transfer.amount} />,
+          value: (
+            <FFTableText
+              color="primary"
+              text={addDecToAmount(
+                transfer.amount,
+                transfer.poolObject ? transfer.poolObject.decimals : -1
+              )}
+              tooltip={getBalanceTooltip(
+                transfer.amount,
+                transfer.poolObject ? transfer.poolObject.decimals : -1
+              )}
+            />
+          ),
         },
         {
           value: (
-            <FFTableText color="secondary" text={getFFTime(transfer.created)} />
+            <FFTableText
+              color="secondary"
+              text={getFFTime(transfer.created)}
+              tooltip={getFFTime(transfer.created, true)}
+            />
           ),
         },
       ],

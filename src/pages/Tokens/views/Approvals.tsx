@@ -109,11 +109,6 @@ export const TokensApprovals: () => JSX.Element = () => {
         }${filterString ?? ''}`
       )
         .then(async (tokenApprovalRes: IPagedTokenApprovalResponse) => {
-          if (tokenApprovalRes.items === null) {
-            setTokenApprovals([]);
-            setTokenApprovalsTotal(tokenApprovalRes.total);
-            return;
-          }
           for (const item of tokenApprovalRes.items) {
             const pool = await fetchPool(
               selectedNamespace,
@@ -198,7 +193,11 @@ export const TokensApprovals: () => JSX.Element = () => {
         },
         {
           value: (
-            <FFTableText color="secondary" text={getFFTime(approval.created)} />
+            <FFTableText
+              color="secondary"
+              text={getFFTime(approval.created)}
+              tooltip={getFFTime(approval.created, true)}
+            />
           ),
         },
       ],

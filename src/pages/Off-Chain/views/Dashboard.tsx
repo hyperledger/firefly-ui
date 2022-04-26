@@ -221,7 +221,13 @@ export const OffChainDashboard: () => JSX.Element = () => {
         ),
       },
       {
-        value: <FFTableText color="secondary" text={getFFTime(data.created)} />,
+        value: (
+          <FFTableText
+            color="secondary"
+            text={getFFTime(data.created)}
+            tooltip={getFFTime(data.created, true)}
+          />
+        ),
       },
       {
         value: data.blob ? (
@@ -246,7 +252,13 @@ export const OffChainDashboard: () => JSX.Element = () => {
         value: <FFTableText color="primary" text={dt.version} />,
       },
       {
-        value: <FFTableText color="secondary" text={getFFTime(dt.created)} />,
+        value: (
+          <FFTableText
+            color="secondary"
+            text={getFFTime(dt.created)}
+            tooltip={getFFTime(dt.created, true)}
+          />
+        ),
       },
     ],
     onClick: () => {
@@ -430,7 +442,11 @@ export const OffChainDashboard: () => JSX.Element = () => {
       },
       {
         value: (
-          <FFTableText color="secondary" text={getFFTime(msg.confirmed)} />
+          <FFTableText
+            color="secondary"
+            text={getFFTime(msg.confirmed)}
+            tooltip={getFFTime(msg.confirmed, true)}
+          />
         ),
       },
       {

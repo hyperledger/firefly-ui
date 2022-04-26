@@ -52,7 +52,7 @@ import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import {
   addDecToAmount,
   fetchCatcher,
-  fetchPool,
+  fetchPoolObjectFromTransfer,
   getBalanceTooltip,
   getFFTime,
 } from '../../../utils';
@@ -85,7 +85,7 @@ export const TokensTransfers: () => JSX.Element = () => {
   const [transferHistData, setTransferHistData] = useState<BarDatum[]>();
   // View transfer slide out
   const [viewTransfer, setViewTransfer] = useState<
-    ITokenTransfer | undefined
+    ITokenTransferWithPool | undefined
   >();
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[1]);
@@ -106,8 +106,16 @@ export const TokensTransfers: () => JSX.Element = () => {
           slideID
         )}`
       )
-        .then((transferRes: ITokenTransfer) => {
-          setViewTransfer(transferRes);
+        .then(async (transferRes: ITokenTransfer) => {
+          if (transferRes) {
+            const transferWithPool = await fetchPoolObjectFromTransfer(
+              transferRes,
+              selectedNamespace,
+              poolCache,
+              setPoolCache
+            );
+            isMounted && setViewTransfer(transferWithPool);
+          }
         })
         .catch((err) => {
           reportFetchError(err);
@@ -135,7 +143,12 @@ export const TokensTransfers: () => JSX.Element = () => {
             }
             const enrichedTransfers: ITokenTransferWithPool[] = [];
             for (const transfer of tokenTransferRes.items) {
-              const transferWithPool = await fetchPoolObject(transfer);
+              const transferWithPool = await fetchPoolObjectFromTransfer(
+                transfer,
+                selectedNamespace,
+                poolCache,
+                setPoolCache
+              );
               enrichedTransfers.push({
                 ...transfer,
                 poolObject: transferWithPool.poolObject,
@@ -183,21 +196,6 @@ export const TokensTransfers: () => JSX.Element = () => {
         })
         .finally(() => setIsHistLoading(false));
   }, [selectedNamespace, dateFilter, lastRefreshTime, isMounted]);
-
-  const fetchPoolObject = async (
-    transfer: ITokenTransfer
-  ): Promise<ITokenTransferWithPool> => {
-    const pool = await fetchPool(
-      selectedNamespace,
-      transfer.pool,
-      poolCache,
-      setPoolCache
-    );
-    return {
-      ...transfer,
-      poolObject: pool,
-    };
-  };
 
   const tokenTransferColHeaders = [
     t('activity'),
@@ -274,7 +272,11 @@ export const TokensTransfers: () => JSX.Element = () => {
         },
         {
           value: (
-            <FFTableText color="secondary" text={getFFTime(transfer.created)} />
+            <FFTableText
+              color="secondary"
+              text={getFFTime(transfer.created)}
+              tooltip={getFFTime(transfer.created, true)}
+            />
           ),
         },
       ],

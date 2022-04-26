@@ -140,7 +140,11 @@ export const OffChainBatches: () => JSX.Element = () => {
         },
         {
           value: (
-            <FFTableText color="secondary" text={getFFTime(batch.created)} />
+            <FFTableText
+              color="secondary"
+              text={getFFTime(batch.created)}
+              tooltip={getFFTime(batch.created, true)}
+            />
           ),
         },
         {

@@ -318,7 +318,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
         <MediumCardTable
           records={apiRecords}
           columnHeaders={apiColHeaders}
-          emptyMessage={t('noApisToDisplay')}
+          emptyMessage={t('noApis')}
         ></MediumCardTable>
       ),
     },
@@ -408,7 +408,11 @@ export const BlockchainDashboard: () => JSX.Element = () => {
         },
         {
           value: (
-            <FFTableText color="secondary" text={getFFTime(be.timestamp)} />
+            <FFTableText
+              color="secondary"
+              text={getFFTime(be.timestamp)}
+              tooltip={getFFTime(be.timestamp, true)}
+            />
           ),
         },
       ],
@@ -490,7 +494,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
           records={beRecords}
           columnHeaders={beColHeaders}
           paginate={true}
-          emptyStateText={t('noBlockchainEvents')}
+          emptyStateText={t('noBlockchainEventsToDisplay')}
           dataTotal={blockchainEventsTotal}
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}

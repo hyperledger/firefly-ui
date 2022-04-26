@@ -20,7 +20,11 @@ import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
-import { IBlockchainEvent, ITokenTransfer, ITxStatus } from '../../interfaces';
+import {
+  IBlockchainEvent,
+  ITokenTransferWithPool,
+  ITxStatus,
+} from '../../interfaces';
 import { FF_Paths } from '../../interfaces/constants';
 import {
   FF_TRANSFER_CATEGORY_MAP,
@@ -35,7 +39,7 @@ import { SlideHeader } from './SlideHeader';
 import { SlideSectionHeader } from './SlideSectionHeader';
 
 interface Props {
-  transfer: ITokenTransfer;
+  transfer: ITokenTransferWithPool;
   open: boolean;
   onClose: () => void;
 }

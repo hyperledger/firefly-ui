@@ -30,12 +30,14 @@ import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
+import { PoolContext } from '../../../contexts/PoolContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
   BucketCollectionEnum,
   BucketCountEnum,
   EventFilters,
+  FF_EVENTS,
   FF_EVENTS_CATEGORY_MAP,
   FF_Paths,
   getEnrichedEventText,
@@ -45,7 +47,12 @@ import {
   IPagedEventResponse,
 } from '../../../interfaces';
 import { DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, getFFTime, makeEventHistogram } from '../../../utils';
+import {
+  fetchCatcher,
+  fetchPoolObjectFromTransfer,
+  getFFTime,
+  makeEventHistogram,
+} from '../../../utils';
 import {
   isHistogramEmpty,
   makeColorArray,
@@ -59,6 +66,7 @@ export const ActivityEvents: () => JSX.Element = () => {
   const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
+  const { poolCache, setPoolCache } = useContext(PoolContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
@@ -109,9 +117,30 @@ export const ActivityEvents: () => JSX.Element = () => {
           rowsPerPage * currentPage
         }${dateFilter.filterString}${filterString ?? ''}`
       )
-        .then((eventRes: IPagedEventResponse) => {
+        .then(async (eventRes: IPagedEventResponse) => {
           if (isMounted) {
-            setEvents(eventRes.items);
+            const enrichedRecentEvents: IEvent[] = [];
+            for (const event of eventRes.items) {
+              if (
+                event.type === FF_EVENTS.TOKEN_TRANSFER_CONFIRMED &&
+                event.tokenTransfer
+              ) {
+                const transferWithPool = await fetchPoolObjectFromTransfer(
+                  event.tokenTransfer,
+                  selectedNamespace,
+                  poolCache,
+                  setPoolCache
+                );
+                enrichedRecentEvents.push({
+                  ...event,
+                  tokenTransfer: transferWithPool,
+                });
+              } else {
+                enrichedRecentEvents.push(event);
+              }
+            }
+
+            setEvents(enrichedRecentEvents);
             setEventTotal(eventRes.total);
           }
         })
@@ -200,7 +229,11 @@ export const ActivityEvents: () => JSX.Element = () => {
         },
         {
           value: (
-            <FFTableText color="secondary" text={getFFTime(event.created)} />
+            <FFTableText
+              color="secondary"
+              text={getFFTime(event.created)}
+              tooltip={getFFTime(event.created, true)}
+            />
           ),
         },
       ],

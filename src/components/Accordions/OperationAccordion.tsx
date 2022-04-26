@@ -5,11 +5,13 @@ import {
   AccordionSummary,
   Grid,
 } from '@mui/material';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IDataWithHeader, IOperation } from '../../interfaces';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
+import { FF_NAV_PATHS, IDataWithHeader, IOperation } from '../../interfaces';
 import { FF_OP_CATEGORY_MAP } from '../../interfaces/enums';
 import { getFFTime } from '../../utils';
+import { LaunchButton } from '../Buttons/LaunchButton';
 import { OpStatusChip } from '../Chips/OpStatusChip';
 import { HashPopover } from '../Popovers/HashPopover';
 import { FFAccordionHeader } from './FFAccordionHeader';
@@ -22,6 +24,7 @@ interface Props {
 
 export const OperationAccordion: React.FC<Props> = ({ op, isOpen = false }) => {
   const { t } = useTranslation();
+  const { selectedNamespace } = useContext(ApplicationContext);
   const [expanded, setExpanded] = useState<boolean>(isOpen);
 
   const accInfo: IDataWithHeader[] = [
@@ -56,7 +59,19 @@ export const OperationAccordion: React.FC<Props> = ({ op, isOpen = false }) => {
               isHeader
             />
           }
-          rightContent={<OpStatusChip op={op} />}
+          rightContent={
+            <>
+              <OpStatusChip op={op} />
+              <LaunchButton
+                link={FF_NAV_PATHS.activityOpPathWithTxFilter(
+                  selectedNamespace,
+                  op.tx,
+                  op.id
+                )}
+                noColor
+              />
+            </>
+          }
         />
       </AccordionSummary>
       <AccordionDetails>

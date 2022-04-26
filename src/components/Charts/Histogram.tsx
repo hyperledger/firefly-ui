@@ -1,3 +1,4 @@
+import { Circle } from '@mui/icons-material';
 import { Box, Grid, Paper, Popover, Typography } from '@mui/material';
 import { useTheme } from '@mui/material/styles';
 import { BarDatum, ResponsiveBar } from '@nivo/bar';
@@ -75,16 +76,24 @@ export const Histogram: React.FC<Props> = ({
           return (
             key !== 'Truncated' &&
             key !== 'timestamp' && (
-              <Typography key={key} sx={{ color: colors[idx] }}>
-                {`${key.toUpperCase()}: ${value ?? 0}`}
-              </Typography>
+              <Grid container alignItems={'center'}>
+                <Circle
+                  fontSize="small"
+                  sx={{ color: colors[idx], pr: 0.25 }}
+                />
+                <Typography key={key} sx={{ fontSize: '14px' }}>
+                  {`${key.charAt(0).toUpperCase() + key.slice(1)}: ${
+                    value ?? 0
+                  }`}
+                </Typography>
+              </Grid>
             )
           );
         })}
-        <Typography variant="subtitle1" color="secondary">
+        <Typography variant="caption" color="secondary">
           {getFFTime(popoverBucket.data.timestamp.toString())}
         </Typography>
-        <Typography variant="subtitle2" color="secondary">
+        <Typography variant="caption" component="div" color="secondary">
           {getFFTime(popoverBucket.data.timestamp.toString(), true)}
         </Typography>
       </Paper>
@@ -131,6 +140,7 @@ export const Histogram: React.FC<Props> = ({
           width: '100%',
           height: height ?? DEFAULT_HIST_HEIGHT,
           backgroundColor: 'background.paper',
+          pt: 1,
         }}
       >
         {!data || isLoading ? (

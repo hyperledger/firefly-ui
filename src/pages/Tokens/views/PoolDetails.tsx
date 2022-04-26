@@ -44,6 +44,7 @@ import {
   IFireFlyCard,
   IPagedTokenTransferResponse,
   ITokenBalance,
+  ITokenBalanceWithPool,
   ITokenPool,
   ITokenTransfer,
   ITokenTransferWithPool,
@@ -57,7 +58,8 @@ import {
 import {
   addDecToAmount,
   fetchCatcher,
-  fetchPool,
+  fetchPoolObjectFromBalance,
+  fetchPoolObjectFromTransfer,
   getBalanceTooltip,
   getFFTime,
   getShortHash,
@@ -75,7 +77,7 @@ export const PoolDetails: () => JSX.Element = () => {
   // Pools
   const [pool, setPool] = useState<ITokenPool>();
   const [isMounted, setIsMounted] = useState(false);
-  const [viewTransfer, setViewTransfer] = useState<ITokenTransfer>();
+  const [viewTransfer, setViewTransfer] = useState<ITokenTransferWithPool>();
 
   // Token transfers
   const [tokenTransfers, setTokenTransfers] = useState<
@@ -86,7 +88,7 @@ export const PoolDetails: () => JSX.Element = () => {
   const [currentPage, setCurrentPage] = useState(0);
   const [rowsPerPage, setRowsPerPage] = useState(DEFAULT_PAGE_LIMITS[0]);
   // Pool accounts
-  const [poolAccounts, setPoolAccounts] = useState<ITokenBalance[]>();
+  const [poolAccounts, setPoolAccounts] = useState<ITokenBalanceWithPool[]>();
 
   useEffect(() => {
     setIsMounted(true);
@@ -103,8 +105,16 @@ export const PoolDetails: () => JSX.Element = () => {
           slideID
         )}`
       )
-        .then((transferRes: ITokenTransfer) => {
-          setViewTransfer(transferRes);
+        .then(async (transferRes: ITokenTransfer) => {
+          if (transferRes) {
+            const transferWithPool = await fetchPoolObjectFromTransfer(
+              transferRes,
+              selectedNamespace,
+              poolCache,
+              setPoolCache
+            );
+            isMounted && setViewTransfer(transferWithPool);
+          }
         })
         .catch((err) => {
           reportFetchError(err);
@@ -133,8 +143,29 @@ export const PoolDetails: () => JSX.Element = () => {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenBalances}?pool=${pool?.id}`
       )
-        .then((balances: ITokenBalance[]) => {
-          isMounted && setPoolAccounts(balances);
+        .then(async (balances: ITokenBalance[]) => {
+          if (balances.length === 0) {
+            setPoolAccounts([]);
+          }
+          const balancesWithPoolName: ITokenBalanceWithPool[] = [];
+          for (const balance of balances) {
+            const balanceWithPool = await fetchPoolObjectFromBalance(
+              balance,
+              selectedNamespace,
+              poolCache,
+              setPoolCache
+            );
+            balancesWithPoolName.push({
+              ...balance,
+              poolObject: balanceWithPool.poolObject ?? undefined,
+            });
+          }
+          isMounted &&
+            setPoolAccounts((tokenBalances) => {
+              return tokenBalances
+                ? [...tokenBalances, ...balancesWithPoolName]
+                : balancesWithPoolName;
+            });
         })
         .catch((err) => {
           reportFetchError(err);
@@ -164,7 +195,12 @@ export const PoolDetails: () => JSX.Element = () => {
             }
             const enrichedTransfers: ITokenTransferWithPool[] = [];
             for (const transfer of tokenTransferRes.items) {
-              const transferWithPool = await fetchPoolObject(transfer);
+              const transferWithPool = await fetchPoolObjectFromTransfer(
+                transfer,
+                selectedNamespace,
+                poolCache,
+                setPoolCache
+              );
               enrichedTransfers.push({
                 ...transfer,
                 poolObject: transferWithPool.poolObject,
@@ -206,14 +242,26 @@ export const PoolDetails: () => JSX.Element = () => {
 
   const poolAccountsColHeaders = [t('key'), t('balance')];
   const poolAccountsRecords: IDataTableRecord[] | undefined = poolAccounts?.map(
-    (account, idx) => ({
-      key: idx.toString(),
+    (account) => ({
+      key: account.key,
       columns: [
         {
           value: <HashPopover shortHash address={account.key} />,
         },
         {
-          value: <FFTableText color="primary" text={account.balance} />,
+          value: (
+            <FFTableText
+              color="primary"
+              text={addDecToAmount(
+                account.balance,
+                account.poolObject ? account.poolObject.decimals : -1
+              )}
+              tooltip={getBalanceTooltip(
+                account.balance,
+                account.poolObject ? account.poolObject.decimals : -1
+              )}
+            />
+          ),
         },
       ],
     })
@@ -305,7 +353,11 @@ export const PoolDetails: () => JSX.Element = () => {
         },
         {
           value: (
-            <FFTableText color="secondary" text={getFFTime(transfer.created)} />
+            <FFTableText
+              color="secondary"
+              text={getFFTime(transfer.created)}
+              tooltip={getFFTime(transfer.created, true)}
+            />
           ),
         },
       ],
@@ -315,21 +367,6 @@ export const PoolDetails: () => JSX.Element = () => {
       },
       leftBorderColor: FF_TRANSFER_CATEGORY_MAP[transfer.type]?.color,
     }));
-
-  const fetchPoolObject = async (
-    transfer: ITokenTransfer
-  ): Promise<ITokenTransferWithPool> => {
-    const pool = await fetchPool(
-      selectedNamespace,
-      transfer.pool,
-      poolCache,
-      setPoolCache
-    );
-    return {
-      ...transfer,
-      poolObject: pool,
-    };
-  };
 
   return (
     <>

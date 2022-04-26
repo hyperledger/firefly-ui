@@ -193,7 +193,13 @@ export const ActivityTransactions: () => JSX.Element = () => {
         ),
       },
       {
-        value: <FFTableText color="secondary" text={getFFTime(tx.created)} />,
+        value: (
+          <FFTableText
+            color="secondary"
+            text={getFFTime(tx.created)}
+            tooltip={getFFTime(tx.created, true)}
+          />
+        ),
       },
       { value: <TxButton ns={selectedNamespace} txID={tx.id} small /> },
     ],

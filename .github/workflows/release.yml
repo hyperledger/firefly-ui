@@ -19,18 +19,17 @@ jobs:
       - name: Set outputs
         id: vars
         run: |
-          echo "::set-output name=sha_short::$(git rev-parse --short HEAD)"
           echo "::set-output name=ref_name::$(echo ${{ github.ref }} | sed 's/.*\///')"
       - name: package
-        run: tar -C build -zcvf "${{ steps.vars.outputs.ref_name }}_${{ steps.vars.outputs.sha_short }}.tgz" .
+        run: tar -C build -zcvf "${{ steps.vars.outputs.ref_name }}.tgz" .
       - name: release
         uses: softprops/action-gh-release@v1
         id: create_release
         with:
           draft: false
           prerelease: false
-          name: ${{ steps.vars.outputs.ref_name }}_${{ steps.vars.outputs.sha_short }}
+          name: ${{ steps.vars.outputs.ref_name }}
           tag_name: ${{ steps.vars.outputs.ref_name }}
-          files: ${{ steps.vars.outputs.ref_name }}_${{ steps.vars.outputs.sha_short }}.tgz
+          files: ${{ steps.vars.outputs.ref_name }}.tgz
         env:
           GITHUB_TOKEN: ${{ github.token }}

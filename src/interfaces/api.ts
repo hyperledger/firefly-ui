@@ -115,10 +115,11 @@ export interface IEvent {
   identity?: IIdentity;
   message?: IMessage;
   namespaceDetails?: INamespace;
+  operation?: IOperation;
   tokenApproval?: ITokenApproval;
   tokenPool?: ITokenPool;
   transaction?: ITransaction;
-  tokenTransfer?: ITokenTransfer;
+  tokenTransfer?: ITokenTransferWithPool;
 }
 
 export interface IFireflyApi {
@@ -521,6 +522,7 @@ export interface ITokenBalance {
   key: string;
   balance: string;
   updated: string;
+  tokenIndex?: string;
 }
 
 export interface ITokenBalanceWithPool extends ITokenBalance {

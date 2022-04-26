@@ -14,6 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { FilterButton } from '../../../components/Filters/FilterButton';
@@ -112,38 +113,54 @@ export const OffChainGroups: () => JSX.Element = () => {
     t('name'),
     t('groupHash'),
     t('numberOfMembers'),
+    t('members'),
     t('created'),
   ];
 
-  const groupRecords: IDataTableRecord[] | undefined = groups?.map(
-    (g, idx) => ({
-      key: idx.toString(),
-      columns: [
-        {
-          value: g.name.length ? (
-            <FFTableText color="primary" text={g.name} />
-          ) : (
-            <FFTableText color="secondary" text={t('noNameSpecified')} />
-          ),
-        },
-        {
-          value: <HashPopover address={g.hash}></HashPopover>,
-        },
-        {
-          value: (
-            <FFTableText color="primary" text={g.members.length.toString()} />
-          ),
-        },
-        {
-          value: <FFTableText color="secondary" text={getFFTime(g.created)} />,
-        },
-      ],
-      onClick: () => {
-        setViewGroup(g);
-        setSlideSearchParam(g.hash);
+  const groupRecords: IDataTableRecord[] | undefined = groups?.map((g) => ({
+    key: g.hash,
+    columns: [
+      {
+        value: g.name.length ? (
+          <FFTableText color="primary" text={g.name} />
+        ) : (
+          <FFTableText color="secondary" text={t('noNameSpecified')} />
+        ),
       },
-    })
-  );
+      {
+        value: <HashPopover address={g.hash}></HashPopover>,
+      },
+      {
+        value: (
+          <FFTableText color="primary" text={g.members.length.toString()} />
+        ),
+      },
+      {
+        value: (
+          <Grid container>
+            {g.members.map((m) => (
+              <Grid item pr={0.25}>
+                <HashPopover key={m.identity} address={m.identity} shortHash />
+              </Grid>
+            ))}
+          </Grid>
+        ),
+      },
+      {
+        value: (
+          <FFTableText
+            color="secondary"
+            text={getFFTime(g.created)}
+            tooltip={getFFTime(g.created, true)}
+          />
+        ),
+      },
+    ],
+    onClick: () => {
+      setViewGroup(g);
+      setSlideSearchParam(g.hash);
+    },
+  }));
 
   return (
     <>

@@ -137,7 +137,11 @@ export const NetworkNamespaces: () => JSX.Element = () => {
         },
         {
           value: (
-            <FFTableText color="secondary" text={getFFTime(ns.created, true)} />
+            <FFTableText
+              color="secondary"
+              text={getFFTime(ns.created)}
+              tooltip={getFFTime(ns.created, true)}
+            />
           ),
         },
       ],

@@ -131,7 +131,8 @@ export const NetworkNodes: () => JSX.Element = () => {
           value: (
             <FFTableText
               color="secondary"
-              text={getFFTime(node.created, true)}
+              text={getFFTime(node.created)}
+              tooltip={getFFTime(node.created, true)}
             />
           ),
         },
