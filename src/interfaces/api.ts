@@ -196,6 +196,7 @@ export interface IMessage {
     topics: string[];
     tag: string;
     datahash: string;
+    group?: string;
   };
   hash: string;
   batch: string;

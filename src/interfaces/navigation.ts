@@ -125,8 +125,10 @@ export const FF_NAV_PATHS = {
     `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${BATCHES_PATH}${
       batchID ? `?slide=${batchID}` : ''
     }`,
-  offchainGroupsPath: (ns: string) =>
-    `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${GROUPS_PATH}`,
+  offchainGroupsPath: (ns: string, groupHash?: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${OFFCHAIN_PATH}/${GROUPS_PATH}${
+      groupHash ? `?slide=${groupHash}` : ''
+    }`,
   // Tokens
   tokensPath: (ns: string) => `/${NAMESPACES_PATH}/${ns}/${TOKENS_PATH}`,
   tokensTransfersPath: (ns: string, poolID?: string) =>

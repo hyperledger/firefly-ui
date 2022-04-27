@@ -50,6 +50,25 @@ export const MessageList: React.FC<Props> = ({ message }) => {
           button: <FFCopyButton value={message.header.key} />,
         },
         {
+          label: message.header.group ? t('groupHash') : '',
+          value: message.header.group && (
+            <FFListText color="primary" text={message.header.group} />
+          ),
+          button: message.header.group ? (
+            <>
+              <LaunchButton
+                link={FF_NAV_PATHS.offchainGroupsPath(
+                  selectedNamespace,
+                  message.header.group
+                )}
+              />
+              <FFCopyButton value={message.header.group} />
+            </>
+          ) : (
+            <></>
+          ),
+        },
+        {
           label: t('tag'),
           value: message.header.tag ? (
             <FFListText color="primary" text={message.header.tag} />
@@ -103,9 +122,9 @@ export const MessageList: React.FC<Props> = ({ message }) => {
 
   return (
     <>
-      {dataList.map((d, idx) => (
-        <FFListItem key={idx} item={d} />
-      ))}
+      {dataList.map(
+        (d, idx) => d.label !== '' && <FFListItem key={idx} item={d} />
+      )}
     </>
   );
 };
