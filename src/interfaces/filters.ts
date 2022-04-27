@@ -40,6 +40,7 @@ export const ApprovalFilters = [
   'operator',
   'approved',
   'protocolid',
+  'subject',
   'active',
   'created',
   'tx.type',

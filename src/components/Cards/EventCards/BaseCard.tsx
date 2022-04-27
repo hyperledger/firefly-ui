@@ -74,28 +74,20 @@ export const BaseCard: React.FC<Props> = ({
           p={1}
           onClick={onClick}
         >
-          <Grid container item alignItems="center" direction="row">
-            <Grid
-              xs={8}
-              container
-              item
-              direction="row"
-              justifyContent="flex-start"
-            >
+          <Grid
+            container
+            item
+            alignItems="center"
+            direction="row"
+            justifyContent={'space-between'}
+          >
+            <Grid item justifyContent="flex-start">
               <Typography noWrap fontSize={14}>
                 {title}
               </Typography>
             </Grid>
-            <Grid
-              xs={4}
-              container
-              item
-              direction="row"
-              justifyContent="flex-end"
-            >
-              <Grid item pr={1}>
-                {status}
-              </Grid>
+            <Grid item>
+              {status}
               {link && (
                 <IconButton
                   size="small"

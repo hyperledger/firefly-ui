@@ -54,6 +54,7 @@ import {
   DEFAULT_BORDER_RADIUS,
   DEFAULT_PADDING,
   DEFAULT_PAGE_LIMITS,
+  DEFAULT_SPACING,
 } from '../../../theme';
 import {
   addDecToAmount,
@@ -374,7 +375,7 @@ export const PoolDetails: () => JSX.Element = () => {
         title={<FFBreadcrumb breadcrumbs={breadcrumbs} />}
         subtitle={t('activity')}
       ></Header>
-      <Grid container px={DEFAULT_PADDING}>
+      <Grid container px={DEFAULT_PADDING} spacing={DEFAULT_SPACING}>
         {/* Left hand side */}
         <Grid
           container
@@ -382,8 +383,8 @@ export const PoolDetails: () => JSX.Element = () => {
           direction="row"
           justifyContent="flex-center"
           alignItems="flex-start"
-          xs={5}
-          pr={DEFAULT_PADDING}
+          md={12}
+          lg={5}
         >
           {/* Pool Card */}
           <Paper
@@ -430,7 +431,8 @@ export const PoolDetails: () => JSX.Element = () => {
           direction="row"
           justifyContent="flex-start"
           alignItems="flex-start"
-          xs={4}
+          md={12}
+          lg={4}
         >
           {/* Transfers */}
           <Grid
@@ -445,13 +447,13 @@ export const PoolDetails: () => JSX.Element = () => {
           </Grid>
         </Grid>
         <Grid
-          pl={DEFAULT_PADDING}
           container
           item
           direction="row"
           justifyContent="flex-center"
           alignItems="flex-start"
-          xs={3}
+          md={12}
+          lg={3}
         >
           {/* Accounts */}
           <Grid

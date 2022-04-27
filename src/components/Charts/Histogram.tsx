@@ -76,15 +76,16 @@ export const Histogram: React.FC<Props> = ({
           return (
             key !== 'Truncated' &&
             key !== 'timestamp' && (
-              <Grid container alignItems={'center'}>
-                <Circle
-                  fontSize="small"
-                  sx={{ color: colors[idx], pr: 0.25 }}
-                />
-                <Typography key={key} sx={{ fontSize: '14px' }}>
-                  {`${key.charAt(0).toUpperCase() + key.slice(1)}: ${
-                    value ?? 0
-                  }`}
+              <Grid container alignItems={'center'} key={key}>
+                <Circle fontSize="small" sx={{ color: colors[idx], pr: 0.5 }} />
+                <Typography
+                  sx={{ fontSize: '14px', fontWeight: '600' }}
+                  component="span"
+                >
+                  {`${key.charAt(0).toUpperCase() + key.slice(1)}:`}
+                </Typography>
+                <Typography sx={{ fontSize: '14px' }} component="span">
+                  &nbsp;{`${value ?? 0}`}
                 </Typography>
               </Grid>
             )
@@ -233,7 +234,7 @@ export const Histogram: React.FC<Props> = ({
                   vertical: 'center',
                   horizontal: 'center',
                 }}
-                style={{ pointerEvents: 'none' }}
+                sx={{ pointerEvents: 'none' }}
               >
                 {makePopoverContent()}
               </Popover>
