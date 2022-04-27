@@ -72,15 +72,15 @@ export const themeOptions: ThemeOptions = {
       styleOverrides: {
         body: {
           overflow: 'overlay',
-          scrollbarColor: '#1e242a',
+          scrollbarColor: '#12171d',
           '&::-webkit-scrollbar, & *::-webkit-scrollbar': {
             cursor: 'pointer',
-            backgroundColor: '#1e242a',
+            backgroundColor: '#12171d',
           },
           '&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb': {
             borderRadius: 8,
-            backgroundColor: '#12171d',
-            border: '3px solid #1e242a',
+            backgroundColor: '#1e242a',
+            border: '3px solid #12171d',
           },
         },
       },
