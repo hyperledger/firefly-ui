@@ -138,17 +138,25 @@ export const ActivityTimeline: () => JSX.Element = () => {
         item: (
           <EventCardWrapper
             onHandleViewEvent={(event: IEvent) => {
-              setViewEvent(event);
-              setSlideSearchParam(event?.id);
-            }}
-            onHandleViewTx={(tx: ITransaction) => {
-              setViewTx(tx);
-              setSlideSearchParam(tx?.id);
+              if (event.transaction) {
+                setViewTx(event.transaction);
+                setSlideSearchParam(event?.tx ?? null);
+              } else {
+                setViewEvent(event);
+                setSlideSearchParam(event?.id);
+              }
             }}
             link={
-              event.tx
-                ? FF_NAV_PATHS.activityTxDetailPath(selectedNamespace, event.tx)
-                : FF_NAV_PATHS.activityEventsPath(selectedNamespace, event.id)
+              event.transaction
+                ? FF_NAV_PATHS.activityTxDetailPath(
+                    selectedNamespace,
+                    event.transaction.id
+                  )
+                : FF_NAV_PATHS.activityTxDetailPathWithSlide(
+                    selectedNamespace,
+                    event.tx ?? '',
+                    event.id
+                  )
             }
             {...{ event }}
           />
