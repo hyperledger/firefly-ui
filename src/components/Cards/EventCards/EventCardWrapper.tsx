@@ -15,24 +15,14 @@ interface Props {
   link?: string;
   linkState?: any;
   onHandleViewEvent?: any;
-  onHandleViewTx?: any;
 }
 
-export const EventCardWrapper = ({
-  event,
-  onHandleViewEvent,
-  onHandleViewTx,
-  link,
-}: Props) => {
+export const EventCardWrapper = ({ event, onHandleViewEvent, link }: Props) => {
   const { t } = useTranslation();
 
   return (
     <BaseCard
-      onClick={
-        onHandleViewTx
-          ? () => onHandleViewTx(event.transaction)
-          : () => onHandleViewEvent(event)
-      }
+      onClick={() => onHandleViewEvent(event)}
       title={
         event.transaction
           ? t(FF_TX_CATEGORY_MAP[event.transaction?.type]?.nicename)

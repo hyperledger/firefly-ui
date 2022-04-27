@@ -39,7 +39,7 @@ import {
   IPagedEventResponse,
   ITransaction,
 } from '../../../interfaces';
-import { DEFAULT_PADDING } from '../../../theme';
+import { altScrollbarStyle, DEFAULT_PADDING } from '../../../theme';
 import { fetchCatcher, fetchWithCredentials } from '../../../utils';
 import { isOppositeTimelineEvent } from '../../../utils/timeline';
 import { hasAnyEvent } from '../../../utils/wsEvents';
@@ -138,17 +138,25 @@ export const ActivityTimeline: () => JSX.Element = () => {
         item: (
           <EventCardWrapper
             onHandleViewEvent={(event: IEvent) => {
-              setViewEvent(event);
-              setSlideSearchParam(event?.id);
-            }}
-            onHandleViewTx={(tx: ITransaction) => {
-              setViewTx(tx);
-              setSlideSearchParam(tx?.id);
+              if (event.transaction) {
+                setViewTx(event.transaction);
+                setSlideSearchParam(event?.tx ?? null);
+              } else {
+                setViewEvent(event);
+                setSlideSearchParam(event?.id);
+              }
             }}
             link={
-              event.tx
-                ? FF_NAV_PATHS.activityTxDetailPath(selectedNamespace, event.tx)
-                : FF_NAV_PATHS.activityEventsPath(selectedNamespace, event.id)
+              event.transaction
+                ? FF_NAV_PATHS.activityTxDetailPath(
+                    selectedNamespace,
+                    event.transaction.id
+                  )
+                : FF_NAV_PATHS.activityTxDetailPathWithSlide(
+                    selectedNamespace,
+                    event.tx ?? '',
+                    event.id
+                  )
             }
             {...{ event }}
           />
@@ -175,6 +183,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
           direction="column"
           item
           pt={DEFAULT_PADDING}
+          sx={altScrollbarStyle}
         >
           <FFTimelineHeader
             leftHeader={t('submittedByMe')}

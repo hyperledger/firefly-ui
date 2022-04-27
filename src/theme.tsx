@@ -87,3 +87,17 @@ export const themeOptions: ThemeOptions = {
     },
   },
 };
+
+export const altScrollbarStyle = {
+  overflow: 'overlay',
+  scrollbarColor: '#1e242a',
+  '&::-webkit-scrollbar, & *::-webkit-scrollbar': {
+    cursor: 'pointer',
+    backgroundColor: '#1e242a',
+  },
+  '&::-webkit-scrollbar-thumb, & *::-webkit-scrollbar-thumb': {
+    borderRadius: 8,
+    backgroundColor: '#12171d',
+    border: '3px solid #1e242a',
+  },
+};
