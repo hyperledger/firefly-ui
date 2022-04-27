@@ -1,9 +1,11 @@
-import { useEffect, useState } from 'react';
+import { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { IBatch } from '../../interfaces';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
+import { FF_NAV_PATHS, IBatch } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
 import { FFCopyButton } from '../Buttons/CopyButton';
 import { IdentityButton } from '../Buttons/IdentityButton';
+import { LaunchButton } from '../Buttons/LaunchButton';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
 import { FFListTimestamp } from './FFListTimestamp';
@@ -15,6 +17,7 @@ interface Props {
 
 export const BatchList: React.FC<Props> = ({ batch }) => {
   const { t } = useTranslation();
+  const { selectedNamespace } = useContext(ApplicationContext);
   const [dataList, setDataList] = useState<IDataListItem[]>(FFSkeletonList);
 
   useEffect(() => {
@@ -63,7 +66,19 @@ export const BatchList: React.FC<Props> = ({ batch }) => {
           ) : (
             <></>
           ),
-          button: batch.group ? <FFCopyButton value={batch.group} /> : <></>,
+          button: batch.group ? (
+            <>
+              <LaunchButton
+                link={FF_NAV_PATHS.offchainGroupsPath(
+                  selectedNamespace,
+                  batch.group
+                )}
+              />
+              <FFCopyButton value={batch.group} />
+            </>
+          ) : (
+            <></>
+          ),
         },
         {
           label: t('signingKey'),
