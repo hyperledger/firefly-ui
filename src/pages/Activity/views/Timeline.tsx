@@ -39,7 +39,7 @@ import {
   IPagedEventResponse,
   ITransaction,
 } from '../../../interfaces';
-import { DEFAULT_PADDING } from '../../../theme';
+import { altScrollbarStyle, DEFAULT_PADDING } from '../../../theme';
 import { fetchCatcher, fetchWithCredentials } from '../../../utils';
 import { isOppositeTimelineEvent } from '../../../utils/timeline';
 import { hasAnyEvent } from '../../../utils/wsEvents';
@@ -183,6 +183,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
           direction="column"
           item
           pt={DEFAULT_PADDING}
+          sx={altScrollbarStyle}
         >
           <FFTimelineHeader
             leftHeader={t('submittedByMe')}

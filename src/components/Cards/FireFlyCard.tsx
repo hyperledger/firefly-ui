@@ -1,6 +1,6 @@
 import { Box, Grid, Typography } from '@mui/material';
 import { IFireFlyCard } from '../../interfaces';
-import { DEFAULT_BORDER_RADIUS } from '../../theme';
+import { altScrollbarStyle, DEFAULT_BORDER_RADIUS } from '../../theme';
 import { FFArrowButton } from '../Buttons/FFArrowButton';
 
 type Props = {
@@ -19,6 +19,7 @@ export const FireFlyCard: React.FC<Props> = ({ cardData, size }) => {
       item
       md={12}
       lg={size === 'medium' ? 4 : 6}
+      sx={altScrollbarStyle}
     >
       <Box
         p={2}
