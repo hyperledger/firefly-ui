@@ -156,12 +156,12 @@ export const NetworkMap: React.FC<Props> = ({ size }) => {
       <Grid
         direction="row"
         container
-        width={420}
+        width={400}
         sx={{
           borderRadius: DEFAULT_BORDER_RADIUS,
           opacity: '0.92 !important',
           backgroundColor: 'background.paper',
-          maxWidth: 420,
+          maxWidth: 400,
           border: `1px solid`,
           borderColor: 'primary.main',
         }}

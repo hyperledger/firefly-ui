@@ -60,7 +60,7 @@ export const MyNodeDashboard: () => JSX.Element = () => {
         noDateFilter
         noNsFilter
       ></Header>
-      <FFPageLayout height="750px">
+      <FFPageLayout height="85vh">
         {!isLoading &&
           plugins &&
           Object.keys(plugins ?? {}).length > 0 &&

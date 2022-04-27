@@ -17,8 +17,7 @@ export const FireFlyCard: React.FC<Props> = ({ cardData, size }) => {
       justifyContent="center"
       container
       item
-      sm={12}
-      md={size === 'medium' ? 12 : 6}
+      md={12}
       lg={size === 'medium' ? 4 : 6}
     >
       <Box
