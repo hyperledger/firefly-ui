@@ -16,6 +16,7 @@
     "dagre": "^0.8.5",
     "dayjs": "^1.11.1",
     "i18next": "^21.6.16",
+    "pretty-bytes": "^6.0.0",
     "react": "^17.0.2",
     "react-copy-to-clipboard": "^5.1.0",
     "react-dom": "^17.0.2",

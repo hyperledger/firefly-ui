@@ -30,6 +30,7 @@ import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
+import prettyBytes from 'pretty-bytes';
 import {
   DataFilters,
   FF_Paths,
@@ -142,10 +143,7 @@ export const OffChainData: () => JSX.Element = () => {
       },
       {
         value: d.blob?.size ? (
-          <FFTableText
-            color="primary"
-            text={`${d.blob.size.toString()} ${t('bytes')}`}
-          />
+          <FFTableText color="primary" text={`${prettyBytes(d.blob.size)}`} />
         ) : (
           <FFTableText color="secondary" text={t('---')} />
         ),
