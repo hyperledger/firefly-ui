@@ -196,6 +196,7 @@ export const TokensDashboard: () => JSX.Element = () => {
     {
       header: t('tokenPools'),
       numErrors: tokenPoolErrorCount,
+      errorLink: FF_NAV_PATHS.activityOpPoolErrorPath(selectedNamespace),
       data: [{ header: t('total'), data: tokenPoolCount }],
       clickPath: POOLS_PATH,
     },

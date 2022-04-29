@@ -88,6 +88,8 @@ export const FF_NAV_PATHS = {
     }${txID ? `&slide=${opID}` : ''}`,
   activityOpErrorPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}?filters=status==Failed`,
+  activityOpPoolErrorPath: (ns: string) =>
+    `/${NAMESPACES_PATH}/${ns}/${ACTIVITY_PATH}/${OPERATIONS_PATH}?filters=status==Failed&filters=type==token_create_pool`,
   // Blockchain
   blockchainPath: (ns: string) =>
     `/${NAMESPACES_PATH}/${ns}/${BLOCKCHAIN_PATH}`,
