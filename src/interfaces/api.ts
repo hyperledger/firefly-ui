@@ -509,6 +509,7 @@ export interface ITokenApproval {
   created: string;
   tx?: ITx;
   blockchainEvent: string;
+  info?: any;
 }
 
 export interface ITokenApprovalWithPoolName extends ITokenApproval {
