@@ -103,6 +103,13 @@ export const TransferList: React.FC<Props> = ({
           button: <FFCopyButton value={transfer.amount} />,
         },
         {
+          label: transfer.tokenIndex ? t('tokenIndex') : '',
+          value: (
+            <FFListText color="primary" text={transfer.tokenIndex ?? ''} />
+          ),
+          button: <FFCopyButton value={transfer.tokenIndex ?? ''} />,
+        },
+        {
           label: t('messageID'),
           value: transfer.message ? (
             <FFListText color="primary" text={transfer.message} />

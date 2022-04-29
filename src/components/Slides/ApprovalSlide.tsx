@@ -27,6 +27,7 @@ import {
 import { DEFAULT_PADDING } from '../../theme';
 import { fetchCatcher, getShortHash } from '../../utils';
 import { BlockchainEventAccordion } from '../Accordions/BlockchainEventAccordion';
+import { JsonViewAccordion } from '../Accordions/JsonViewerAccordion';
 import { ApprovalList } from '../Lists/ApprovalList';
 import { DisplaySlide } from './DisplaySlide';
 import { SlideHeader } from './SlideHeader';
@@ -81,6 +82,16 @@ export const ApprovalSlide: React.FC<Props> = ({ approval, open, onClose }) => {
           <Grid container item>
             <ApprovalList approval={approval} />
           </Grid>
+          {approval.info && (
+            <Grid container item>
+              <JsonViewAccordion
+                header={t('approvalInfo')}
+                isOpen
+                json={approval.info}
+                filename={`${approval.localId}-${t('approval')}.json`}
+              />
+            </Grid>
+          )}
           {blockchainEvent && (
             <Grid container item>
               <SlideSectionHeader title={t('blockchainEvent')} />

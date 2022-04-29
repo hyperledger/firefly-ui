@@ -154,11 +154,7 @@ export const TokensTransfers: () => JSX.Element = () => {
                 poolObject: transferWithPool.poolObject,
               });
             }
-            setTokenTransfers((tokenTransfers) => {
-              return tokenTransfers
-                ? [...tokenTransfers, ...enrichedTransfers]
-                : [...enrichedTransfers];
-            });
+            isMounted && setTokenTransfers(enrichedTransfers);
           }
         })
         .catch((err) => {
@@ -255,10 +251,14 @@ export const TokensTransfers: () => JSX.Element = () => {
                 transfer.amount,
                 transfer.poolObject ? transfer.poolObject.decimals : -1
               )}
-              tooltip={getBalanceTooltip(
-                transfer.amount,
-                transfer.poolObject ? transfer.poolObject.decimals : -1
-              )}
+              tooltip={
+                transfer.tokenIndex
+                  ? `${t('tokenIndex')}: ${transfer.tokenIndex}`
+                  : getBalanceTooltip(
+                      transfer.amount,
+                      transfer.poolObject ? transfer.poolObject.decimals : -1
+                    )
+              }
             />
           ),
         },

@@ -39,7 +39,12 @@ import {
   ITokenApprovalWithPoolName,
 } from '../../../interfaces';
 import { DEFAULT_PAGE_LIMITS } from '../../../theme';
-import { fetchCatcher, fetchPool, getFFTime } from '../../../utils';
+import {
+  fetchCatcher,
+  fetchPool,
+  fetchPoolNameFromApproval,
+  getFFTime,
+} from '../../../utils';
 import { hasApprovalEvent } from '../../../utils/wsEvents';
 
 export const TokensApprovals: () => JSX.Element = () => {
@@ -99,6 +104,7 @@ export const TokensApprovals: () => JSX.Element = () => {
 
   // Token approvals
   useEffect(() => {
+    setTokenApprovals(undefined);
     isMounted &&
       dateFilter &&
       fetchCatcher(
@@ -109,27 +115,27 @@ export const TokensApprovals: () => JSX.Element = () => {
         }${filterString ?? ''}`
       )
         .then(async (tokenApprovalRes: IPagedTokenApprovalResponse) => {
-          for (const item of tokenApprovalRes.items) {
-            const pool = await fetchPool(
-              selectedNamespace,
-              item.pool,
-              poolCache,
-              setPoolCache
-            );
-            const approval: ITokenApprovalWithPoolName = {
-              ...item,
-              poolName: pool ? pool.name : item.pool,
-            };
-            setTokenApprovals((tokenApprovals) => {
-              return tokenApprovals
-                ? [...tokenApprovals, approval]
-                : [approval];
-            });
-          }
+          setTokenApprovalsTotal(tokenApprovalRes.total);
           if (tokenApprovalRes.items.length === 0) {
             setTokenApprovals([]);
           }
-          setTokenApprovalsTotal(tokenApprovalRes.total);
+          const approvalsWithPool: ITokenApprovalWithPoolName[] = [];
+          for (const approval of tokenApprovalRes.items) {
+            const approvalWithPool = await fetchPoolNameFromApproval(
+              approval,
+              selectedNamespace,
+              poolCache,
+              setPoolCache
+            );
+            approvalsWithPool.push({
+              ...approval,
+              poolName: approvalWithPool
+                ? approvalWithPool.poolName
+                : approval.pool,
+            });
+          }
+
+          isMounted && setTokenApprovals(approvalsWithPool);
         })
         .catch((err) => {
           reportFetchError(err);
@@ -173,9 +179,7 @@ export const TokensApprovals: () => JSX.Element = () => {
           value: (
             <FFTableText
               color="primary"
-              text={
-                approval.active ? t('yes').toUpperCase() : t('no').toUpperCase()
-              }
+              text={approval.active ? t('true') : t('false')}
             />
           ),
         },
@@ -183,11 +187,7 @@ export const TokensApprovals: () => JSX.Element = () => {
           value: (
             <FFTableText
               color="primary"
-              text={
-                approval.approved
-                  ? t('yes').toUpperCase()
-                  : t('no').toUpperCase()
-              }
+              text={approval.approved ? t('true') : t('false')}
             />
           ),
         },

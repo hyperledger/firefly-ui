@@ -126,11 +126,7 @@ export const BalanceSlide: React.FC<Props> = ({ balance, open, onClose }) => {
                 poolObject: transferWithPool.poolObject,
               });
             }
-            setTokenTransfers((tokenTransfers) => {
-              return tokenTransfers
-                ? [...tokenTransfers, ...enrichedTransfers]
-                : [...enrichedTransfers];
-            });
+            isMounted && setTokenTransfers(enrichedTransfers);
           }
         })
         .catch((err) => {

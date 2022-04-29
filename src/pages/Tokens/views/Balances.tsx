@@ -141,12 +141,7 @@ export const TokensBalances: () => JSX.Element = () => {
               poolObject: balanceWithPool.poolObject ?? undefined,
             });
           }
-          isMounted &&
-            setTokenBalances((tokenBalances) => {
-              return tokenBalances
-                ? [...tokenBalances, ...balancesWithPoolName]
-                : balancesWithPoolName;
-            });
+          isMounted && setTokenBalances(balancesWithPoolName);
         })
         .catch((err) => {
           reportFetchError(err);
@@ -172,8 +167,8 @@ export const TokensBalances: () => JSX.Element = () => {
   ];
 
   const tokenBalanceRecords: IDataTableRecord[] | undefined =
-    tokenBalances?.map((balance) => ({
-      key: `${balance.key}${balance.pool}`,
+    tokenBalances?.map((balance, idx) => ({
+      key: `${balance.key}${balance.pool}${idx.toString()}`,
       columns: [
         {
           value: <HashPopover address={balance.key} />,

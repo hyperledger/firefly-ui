@@ -48,6 +48,11 @@ export const ApprovalList: React.FC<Props> = ({ approval }) => {
           ),
         },
         {
+          label: t('subject'),
+          value: <FFListText color="primary" text={approval.subject} />,
+          button: <FFCopyButton value={approval.subject} />,
+        },
+        {
           label: t('protocolID'),
           value: <FFListText color="primary" text={approval.protocolId} />,
           button: <FFCopyButton value={approval.protocolId} />,
