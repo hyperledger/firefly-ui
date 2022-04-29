@@ -300,6 +300,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
       component: (
         <Histogram
           height={'100%'}
+          categoryMap={FF_BE_CATEGORY_MAP}
           colors={makeColorArray(FF_BE_CATEGORY_MAP)}
           data={beHistData}
           indexBy="timestamp"

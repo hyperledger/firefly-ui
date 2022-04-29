@@ -214,6 +214,7 @@ export const BlockchainEvents: () => JSX.Element = () => {
       ></Header>
       <FFPageLayout>
         <Histogram
+          categoryMap={FF_BE_CATEGORY_MAP}
           colors={makeColorArray(FF_BE_CATEGORY_MAP)}
           data={beHistData}
           indexBy="timestamp"

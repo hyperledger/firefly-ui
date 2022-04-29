@@ -282,6 +282,7 @@ export const HomeDashboard: () => JSX.Element = () => {
       component: (
         <Histogram
           height={'100%'}
+          categoryMap={FF_EVENTS_CATEGORY_MAP}
           colors={makeColorArray(FF_EVENTS_CATEGORY_MAP)}
           data={eventHistData}
           indexBy="timestamp"

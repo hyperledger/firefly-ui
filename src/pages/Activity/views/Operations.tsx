@@ -216,6 +216,7 @@ export const ActivityOperations: () => JSX.Element = () => {
       ></Header>
       <FFPageLayout>
         <Histogram
+          categoryMap={FF_OP_CATEGORY_MAP}
           colors={makeColorArray(FF_OP_CATEGORY_MAP)}
           data={opHistData}
           indexBy="timestamp"

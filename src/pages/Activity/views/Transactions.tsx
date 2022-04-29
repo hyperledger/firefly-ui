@@ -220,6 +220,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
       ></Header>
       <FFPageLayout>
         <Histogram
+          categoryMap={FF_TX_CATEGORY_MAP}
           colors={makeColorArray(FF_TX_CATEGORY_MAP)}
           data={txHistData}
           indexBy="timestamp"

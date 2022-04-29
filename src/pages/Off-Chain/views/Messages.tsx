@@ -241,6 +241,7 @@ export const OffChainMessages: () => JSX.Element = () => {
       ></Header>
       <FFPageLayout>
         <Histogram
+          categoryMap={FF_MESSAGES_CATEGORY_MAP}
           colors={makeColorArray(FF_MESSAGES_CATEGORY_MAP)}
           data={messageHistData}
           indexBy="timestamp"
