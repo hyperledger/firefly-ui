@@ -54,6 +54,7 @@
   "confirmed": "Confirmed",
   "connector": "Connector",
   "connectors": "Connectors",
+  "subject": "Subject",
   "contains": "Contains",
   "contractAPI": "Contract API",
   "contractApiConfirmed": "Contract API Confirmed",

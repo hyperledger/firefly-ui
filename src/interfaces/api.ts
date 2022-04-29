@@ -568,6 +568,7 @@ export interface ITokenTransfer {
   created: string;
   tx?: ITx;
   blockchainEvent: string;
+  tokenIndex?: string;
 }
 
 export interface ITokenTransferWithPool extends ITokenTransfer {
