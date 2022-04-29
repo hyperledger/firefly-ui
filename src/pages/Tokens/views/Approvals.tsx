@@ -99,6 +99,7 @@ export const TokensApprovals: () => JSX.Element = () => {
 
   // Token approvals
   useEffect(() => {
+    setTokenApprovals(undefined);
     isMounted &&
       dateFilter &&
       fetchCatcher(
