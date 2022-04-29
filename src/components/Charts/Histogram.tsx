@@ -4,6 +4,7 @@ import { useTheme } from '@mui/material/styles';
 import { BarDatum, ResponsiveBar } from '@nivo/bar';
 import dayjs from 'dayjs';
 import React, { useEffect, useState } from 'react';
+import { IBlockchainCategory } from '../../interfaces';
 import { DEFAULT_BORDER_RADIUS, DEFAULT_HIST_HEIGHT } from '../../theme';
 import { getFFTime } from '../../utils';
 import { EmptyStateCard } from '../Cards/EmptyStateCard';
@@ -20,6 +21,9 @@ interface Props {
   keys: string[];
   isLoading: boolean;
   filterButton?: JSX.Element;
+  categoryMap: {
+    [key: string]: IBlockchainCategory;
+  };
 }
 
 export const getTruncatedColor = (lightMode: boolean) =>
@@ -36,6 +40,7 @@ export const Histogram: React.FC<Props> = ({
   keys,
   isLoading,
   filterButton,
+  categoryMap,
 }) => {
   const theme = useTheme();
   const [xAxisValues, setXAxisValues] = useState<(string | number)[]>([]);
@@ -72,12 +77,25 @@ export const Histogram: React.FC<Props> = ({
           backgroundColor: 'background.paper',
         }}
       >
-        {Object.entries(popoverBucket.data).map(([key, value], idx) => {
+        {Object.entries(popoverBucket.data).map(([key, value]) => {
+          const color = Object.values(categoryMap).find(
+            (v) => v.category.toLowerCase() === key.toLowerCase()
+          );
+
           return (
             key !== 'Truncated' &&
             key !== 'timestamp' && (
-              <Grid container alignItems={'center'} key={key}>
-                <Circle fontSize="small" sx={{ color: colors[idx], pr: 0.5 }} />
+              <Grid container alignItems={'center'} key={key + value}>
+                <Circle
+                  fontSize="small"
+                  sx={{
+                    color: color
+                      ? color
+                      : categoryMap[key.toLowerCase() as string]?.color ??
+                        '#000000',
+                    pr: 0.5,
+                  }}
+                />
                 <Typography
                   sx={{ fontSize: '14px', fontWeight: '600' }}
                   component="span"

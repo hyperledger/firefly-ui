@@ -366,6 +366,7 @@ export const TokensDashboard: () => JSX.Element = () => {
       clickPath: TRANSFERS_PATH,
       component: (
         <Histogram
+          categoryMap={FF_TRANSFER_CATEGORY_MAP}
           height={'100%'}
           isLoading={isHistLoading}
           colors={makeColorArray(FF_TRANSFER_CATEGORY_MAP)}

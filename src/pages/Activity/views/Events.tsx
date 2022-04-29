@@ -255,6 +255,7 @@ export const ActivityEvents: () => JSX.Element = () => {
       ></Header>
       <FFPageLayout>
         <Histogram
+          categoryMap={FF_EVENTS_CATEGORY_MAP}
           colors={makeColorArray(FF_EVENTS_CATEGORY_MAP)}
           data={eventHistData}
           indexBy="timestamp"

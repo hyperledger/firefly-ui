@@ -297,6 +297,7 @@ export const TokensTransfers: () => JSX.Element = () => {
       ></Header>
       <FFPageLayout>
         <Histogram
+          categoryMap={FF_TRANSFER_CATEGORY_MAP}
           colors={makeColorArray(FF_TRANSFER_CATEGORY_MAP)}
           data={transferHistData}
           indexBy="timestamp"
