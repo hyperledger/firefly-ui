@@ -161,12 +161,7 @@ export const PoolDetails: () => JSX.Element = () => {
               poolObject: balanceWithPool.poolObject ?? undefined,
             });
           }
-          isMounted &&
-            setPoolAccounts((tokenBalances) => {
-              return tokenBalances
-                ? [...tokenBalances, ...balancesWithPoolName]
-                : balancesWithPoolName;
-            });
+          isMounted && setPoolAccounts(balancesWithPoolName);
         })
         .catch((err) => {
           reportFetchError(err);
@@ -207,11 +202,7 @@ export const PoolDetails: () => JSX.Element = () => {
                 poolObject: transferWithPool.poolObject,
               });
             }
-            setTokenTransfers((tokenTransfers) => {
-              return tokenTransfers
-                ? [...tokenTransfers, ...enrichedTransfers]
-                : [...enrichedTransfers];
-            });
+            isMounted && setTokenTransfers(enrichedTransfers);
           }
         })
         .catch((err) => {

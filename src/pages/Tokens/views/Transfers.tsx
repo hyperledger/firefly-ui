@@ -154,11 +154,7 @@ export const TokensTransfers: () => JSX.Element = () => {
                 poolObject: transferWithPool.poolObject,
               });
             }
-            setTokenTransfers((tokenTransfers) => {
-              return tokenTransfers
-                ? [...tokenTransfers, ...enrichedTransfers]
-                : [...enrichedTransfers];
-            });
+            isMounted && setTokenTransfers(enrichedTransfers);
           }
         })
         .catch((err) => {
