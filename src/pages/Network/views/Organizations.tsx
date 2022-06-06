@@ -40,7 +40,7 @@ import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime } from '../../../utils';
 
 export const NetworkOrganizations: () => JSX.Element = () => {
-  const { orgName } = useContext(ApplicationContext);
+  const { orgName, selectedNamespace } = useContext(ApplicationContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
   const { setSlideSearchParam, slideID } = useContext(SlideContext);
@@ -72,7 +72,7 @@ export const NetworkOrganizations: () => JSX.Element = () => {
   useEffect(() => {
     isMounted &&
       fetchCatcher(
-        `${FF_Paths.apiPrefix}/${
+        `${FF_Paths.nsPrefix}/${selectedNamespace}/${
           FF_Paths.networkOrgs
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
           filterString ?? ''
@@ -87,7 +87,14 @@ export const NetworkOrganizations: () => JSX.Element = () => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [rowsPerPage, currentPage, filterString, reportFetchError, isMounted]);
+  }, [
+    rowsPerPage,
+    currentPage,
+    filterString,
+    reportFetchError,
+    isMounted,
+    selectedNamespace,
+  ]);
 
   const orgColHeaders = [
     t('name'),
@@ -148,7 +155,6 @@ export const NetworkOrganizations: () => JSX.Element = () => {
         title={t('organizations')}
         subtitle={t('network')}
         noDateFilter
-        noNsFilter
       ></Header>
       <FFPageLayout>
         <DataTable

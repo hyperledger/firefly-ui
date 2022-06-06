@@ -24,6 +24,7 @@ import {
 import { ResponsiveNetwork } from '@nivo/network';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import { INode, IOrganization } from '../../interfaces';
 import { FF_Paths } from '../../interfaces/constants';
@@ -55,6 +56,7 @@ const SIZE_MAP = {
 };
 export const NetworkMap: React.FC<Props> = ({ size }) => {
   const { t } = useTranslation();
+  const { selectedNamespace } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const [orgs, setOrgs] = useState<IOrganization[]>();
   const [nodes, setNodes] = useState<INode[]>();
@@ -89,26 +91,28 @@ export const NetworkMap: React.FC<Props> = ({ size }) => {
   const id = open ? 'simple-popover' : undefined;
 
   useEffect(() => {
-    fetchCatcher(`${FF_Paths.apiPrefix}${FF_Paths.networkOrgs}`)
+    fetchCatcher(
+      `${FF_Paths.nsPrefix}/${selectedNamespace}/${FF_Paths.networkOrgs}`
+    )
       .then((orgRes: IOrganization[]) => {
         setOrgs(orgRes);
       })
       .catch((err) => {
         reportFetchError(err);
       });
-    fetchCatcher(`${FF_Paths.apiPrefix}${FF_Paths.networkNodes}`)
+    fetchCatcher(
+      `${FF_Paths.nsPrefix}/${selectedNamespace}/${FF_Paths.networkNodes}`
+    )
       .then((nodeRes: INode[]) => {
         setNodes(nodeRes);
       })
       .catch((err) => {
         reportFetchError(err);
       });
-  }, []);
+  }, [selectedNamespace]);
 
   useEffect(() => {
-    if (orgs?.length && nodes?.length) {
-      createNodeArray();
-    }
+    createNodeArray();
   }, [orgs, nodes]);
 
   const makeNodeID = (node: IOrganization | INode): string => {
