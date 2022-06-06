@@ -37,7 +37,6 @@ export const NetworkMapDashboard: () => JSX.Element = () => {
         title={t('networkMap')}
         subtitle={t('network')}
         noDateFilter
-        noNsFilter
       ></Header>
       <FFPageLayout height="85vh">
         {isMounted && <NetworkMap size="large" />}

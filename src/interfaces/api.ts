@@ -457,9 +457,7 @@ export interface IStatus {
     identity: string;
     id: string;
   };
-  defaults: {
-    namespace: string;
-  };
+  namespace: string;
   plugins: {
     blockchain: IStatusPluginDetails[];
     database: IStatusPluginDetails[];

@@ -41,7 +41,7 @@ import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime } from '../../../utils';
 
 export const NetworkNodes: () => JSX.Element = () => {
-  const { nodeName } = useContext(ApplicationContext);
+  const { nodeName, selectedNamespace } = useContext(ApplicationContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
   const { setSlideSearchParam, slideID } = useContext(SlideContext);
@@ -69,7 +69,9 @@ export const NetworkNodes: () => JSX.Element = () => {
         setViewIdentity(slideID);
       } else {
         fetchCatcher(
-          `${FF_Paths.apiPrefix}/${FF_Paths.networkNodeById(slideID)}`
+          `${FF_Paths.nsPrefix}/${selectedNamespace}/${FF_Paths.networkNodeById(
+            slideID
+          )}`
         )
           .then((nodeRes: IIdentity) => {
             setViewIdentity(nodeRes.did);
@@ -79,13 +81,13 @@ export const NetworkNodes: () => JSX.Element = () => {
           });
       }
     }
-  }, [slideID, isMounted]);
+  }, [slideID, isMounted, selectedNamespace]);
 
   // Nodes
   useEffect(() => {
     isMounted &&
       fetchCatcher(
-        `${FF_Paths.apiPrefix}/${
+        `${FF_Paths.nsPrefix}/${selectedNamespace}/${
           FF_Paths.networkNodes
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
           filterString ?? ''
@@ -100,7 +102,14 @@ export const NetworkNodes: () => JSX.Element = () => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [rowsPerPage, currentPage, filterString, reportFetchError, isMounted]);
+  }, [
+    rowsPerPage,
+    currentPage,
+    filterString,
+    reportFetchError,
+    isMounted,
+    selectedNamespace,
+  ]);
 
   const nodeColHeaders = [
     t('name'),
@@ -154,12 +163,7 @@ export const NetworkNodes: () => JSX.Element = () => {
 
   return (
     <>
-      <Header
-        title={t('nodes')}
-        subtitle={t('network')}
-        noDateFilter
-        noNsFilter
-      ></Header>
+      <Header title={t('nodes')} subtitle={t('network')} noDateFilter></Header>
       <FFPageLayout>
         <DataTable
           onHandleCurrPageChange={(currentPage: number) =>
