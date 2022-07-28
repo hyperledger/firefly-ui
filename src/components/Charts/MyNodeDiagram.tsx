@@ -247,6 +247,8 @@ export const MyNodeDiagram: React.FC<Props> = ({
 }) => {
   const { nodeName } = useContext(ApplicationContext);
   const [isMounted, setIsMounted] = useState(false);
+  const [nodes, setNodes] = useNodesState([]);
+  const [edges, setEdges] = useEdgesState([]);
 
   useEffect(() => {
     setIsMounted(true);
@@ -255,14 +257,15 @@ export const MyNodeDiagram: React.FC<Props> = ({
     };
   }, []);
 
-  const { nodes: layoutedNodes, edges: layoutedEdges } = getLayoutedElements(
-    makeInitialNodes(plugins, plugins, nodeName),
-    makeInitialEdges(plugins, plugins, isSmall),
-    isSmall
-  );
-
-  const [nodes, ,] = useNodesState(layoutedNodes);
-  const [edges, ,] = useEdgesState(layoutedEdges);
+  useEffect(() => {
+    const { nodes, edges } = getLayoutedElements(
+      makeInitialNodes(plugins, plugins, nodeName),
+      makeInitialEdges(plugins, plugins, isSmall),
+      isSmall
+    );
+    setNodes(nodes);
+    setEdges(edges);
+  }, [plugins]);
 
   if (!plugins || Object.keys(plugins ?? {}).length === 0) {
     return (
