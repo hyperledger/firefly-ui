@@ -55,11 +55,8 @@ const App: React.FC = () => {
   const [namespaces, setNamespaces] = useState<INamespace[]>([]);
   const [selectedNamespace, setSelectedNamespace] = useState('');
   const ws = useRef<ReconnectingWebSocket | null>(null);
-  const [identity, setIdentity] = useState('');
   const [message, setMessage] = useState('');
   const [messageType, setMessageType] = useState<SnackbarMessageType>('error');
-  const [orgID, setOrgID] = useState('');
-  const [orgName, setOrgName] = useState('');
   const [nodeID, setNodeID] = useState('');
   const [nodeName, setNodeName] = useState('');
   const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
@@ -90,9 +87,6 @@ const App: React.FC = () => {
       .then(async ([namespaceResponse, statusResponse]) => {
         if (namespaceResponse.ok && statusResponse.ok) {
           const status: IStatus = await statusResponse.json();
-          setIdentity(status.org.identity);
-          setOrgID(status.org.id);
-          setOrgName(status.org.name);
           setNodeID(status.node.id);
           setNodeName(status.node.name);
           setSelectedNamespace(status.namespace.name);
@@ -186,11 +180,8 @@ const App: React.FC = () => {
             namespaces,
             selectedNamespace,
             setSelectedNamespace,
-            orgID,
-            orgName,
             nodeID,
             nodeName,
-            identity,
             newEvents,
             clearNewEvents,
             lastRefreshTime,

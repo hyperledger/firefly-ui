@@ -18,9 +18,6 @@ import { createContext, Dispatch, SetStateAction } from 'react';
 import { INamespace, INewEventSet } from '../interfaces';
 
 export interface IApplicationContext {
-  identity: string;
-  orgID: string;
-  orgName: string;
   nodeID: string;
   nodeName: string;
   selectedNamespace: string;

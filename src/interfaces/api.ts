@@ -441,7 +441,7 @@ export interface IStatus {
     registered: boolean;
     id: string;
   };
-  org: {
+  org?: {
     name: string;
     registered: boolean;
     identity: string;
