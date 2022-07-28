@@ -95,7 +95,7 @@ const App: React.FC = () => {
           setOrgName(status.org.name);
           setNodeID(status.node.id);
           setNodeName(status.node.name);
-          setSelectedNamespace(status.namespace);
+          setSelectedNamespace(status.namespace.name);
           const ns: INamespace[] = await namespaceResponse.json();
           setNamespaces(ns);
 
@@ -106,9 +106,9 @@ const App: React.FC = () => {
           ) {
             setSelectedNamespace(routerNamespace);
           } else {
-            setSelectedNamespace(status.namespace);
+            setSelectedNamespace(status.namespace.name);
             window.location.replace(
-              `${NAV_BASENAME}/${NAMESPACES_PATH}/${status.namespace}/home`
+              `${NAV_BASENAME}/${NAMESPACES_PATH}/${status.namespace.name}/home`
             );
           }
         } else {

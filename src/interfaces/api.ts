@@ -114,7 +114,6 @@ export interface IEvent {
   datatype?: IDatatype;
   identity?: IIdentity;
   message?: IMessage;
-  namespaceDetails?: INamespace;
   operation?: IOperation;
   tokenApproval?: ITokenApproval;
   tokenPool?: ITokenPool;
@@ -236,11 +235,9 @@ export interface IMetricType {
 }
 
 export interface INamespace {
-  id: string;
-  message?: string;
   name: string;
+  remoteName: string;
   description: string;
-  type: string;
   created: string;
 }
 
@@ -375,13 +372,6 @@ export interface IPagedMessageResponse {
   total: number;
 }
 
-export interface IPagesNamespaceResponse {
-  pageParam: number;
-  count: number;
-  items: INamespace[];
-  total: number;
-}
-
 export interface IPagedNodeResponse {
   pageParam: number;
   count: number;
@@ -457,7 +447,10 @@ export interface IStatus {
     identity: string;
     id: string;
   };
-  namespace: string;
+  namespace: {
+    name: string;
+    description: string;
+  };
   plugins: {
     blockchain: IStatusPluginDetails[];
     database: IStatusPluginDetails[];

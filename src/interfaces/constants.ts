@@ -124,5 +124,5 @@ export const FF_Paths = {
   // Status
   status: '/status',
   statusBatchManager: '/status/batchmanager',
-  statusWebsockets: '/status/websockets',
+  statusWebsockets: '/websockets',
 };

@@ -8,7 +8,6 @@ export const hasAnyEvent = (events: INewEventSet) => {
     events[FF_EVENTS.DATATYPE_CONFIRMED] ||
     events[FF_EVENTS.IDENTITY_CONFIRMED] ||
     events[FF_EVENTS.IDENTITY_UPDATED] ||
-    events[FF_EVENTS.NS_CONFIRMED] ||
     events[FF_EVENTS.MSG_CONFIRMED] ||
     events[FF_EVENTS.MSG_REJECTED] ||
     events[FF_EVENTS.TX_SUBMITTED] ||
@@ -31,8 +30,7 @@ export const hasBlockchainEvent = (events: INewEventSet) => {
     events[FF_EVENTS.CONTRACT_INTERFACE_CONFIRMED] ||
     events[FF_EVENTS.DATATYPE_CONFIRMED] ||
     events[FF_EVENTS.IDENTITY_CONFIRMED] ||
-    events[FF_EVENTS.IDENTITY_UPDATED] ||
-    events[FF_EVENTS.NS_CONFIRMED]
+    events[FF_EVENTS.IDENTITY_UPDATED]
   );
 };
 
