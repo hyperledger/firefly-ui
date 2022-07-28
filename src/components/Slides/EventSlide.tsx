@@ -45,7 +45,6 @@ import { ApprovalList } from '../Lists/ApprovalList';
 import { EventList } from '../Lists/EventList';
 import { IdentityList } from '../Lists/IdentityList';
 import { InterfaceList } from '../Lists/InterfaceList';
-import { NamespaceList } from '../Lists/NamespaceList';
 import { OperationList } from '../Lists/OperationList';
 import { PoolList } from '../Lists/PoolList';
 import { TransferList } from '../Lists/TransferList';
@@ -221,15 +220,6 @@ export const EventSlide: React.FC<Props> = ({ event, open, onClose }) => {
                 {messageData?.map((data, idx) => (
                   <MessageDataAccordion isOpen key={idx} data={data} />
                 ))}
-              </Grid>
-            </>
-          )}
-          {/* Namespace */}
-          {enrichedEvent && enrichedEvent['namespaceDetails'] && (
-            <>
-              <SlideSectionHeader title={t('namespaceDetails')} />
-              <Grid container item>
-                <NamespaceList ns={enrichedEvent.namespaceDetails} />
               </Grid>
             </>
           )}
