@@ -129,6 +129,7 @@ export const MyNodeWebsockets: () => JSX.Element = () => {
         title={t('websockets')}
         subtitle={t('myNode')}
         noDateFilter
+        noNsFilter
         showRefreshBtn={false}
       ></Header>
       <FFPageLayout>

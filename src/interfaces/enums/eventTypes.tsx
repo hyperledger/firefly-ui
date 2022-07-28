@@ -36,7 +36,6 @@ export enum FF_EVENTS {
   DATATYPE_CONFIRMED = 'datatype_confirmed',
   IDENTITY_CONFIRMED = 'identity_confirmed',
   IDENTITY_UPDATED = 'identity_updated',
-  NS_CONFIRMED = 'namespace_confirmed',
   // Message/Definitions
   MSG_CONFIRMED = 'message_confirmed',
   MSG_REJECTED = 'message_rejected',
@@ -188,22 +187,6 @@ export const FF_EVENTS_CATEGORY_MAP: {
     referenceIDName: 'identityID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
       <LaunchButton link={FF_NAV_PATHS.networkIdentitiesPath(ns, refID)} />
-    ),
-  },
-  [FF_EVENTS.NS_CONFIRMED]: {
-    category: EventCategoryEnum.BLOCKCHAIN,
-    color: FFColors.Yellow,
-    nicename: 'namespaceConfirmed',
-    enrichedEventKey: 'namespaceDetails',
-    enrichedEventString: (event: IEvent): string =>
-      `${event.namespaceDetails?.name} ${
-        event.namespaceDetails?.type
-          ? ', Type=' + event.namespaceDetails?.type
-          : ''
-      }`,
-    referenceIDName: 'nsID',
-    referenceIDButton: (ns: string, refID: string): JSX.Element => (
-      <LaunchButton link={FF_NAV_PATHS.networkNamespacesPath(ns, refID)} />
     ),
   },
   // Message Events

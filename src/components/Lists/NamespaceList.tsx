@@ -1,10 +1,7 @@
-import { useContext, useEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
-import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { INamespace } from '../../interfaces';
 import { IDataListItem } from '../../interfaces/lists';
-import { FFCopyButton } from '../Buttons/CopyButton';
-import { MsgButton } from '../Buttons/MsgButton';
 import { FFListItem } from './FFListItem';
 import { FFListText } from './FFListText';
 import { FFListTimestamp } from './FFListTimestamp';
@@ -15,7 +12,6 @@ interface Props {
 }
 
 export const NamespaceList: React.FC<Props> = ({ ns }) => {
-  const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
   const [dataList, setDataList] = useState<IDataListItem[]>(FFSkeletonList);
 
@@ -23,9 +19,8 @@ export const NamespaceList: React.FC<Props> = ({ ns }) => {
     ns &&
       setDataList([
         {
-          label: t('id'),
-          value: <FFListText text={ns.id} color="primary" />,
-          button: <FFCopyButton value={ns.id} />,
+          label: t('remoteName'),
+          value: <FFListText color="secondary" text={ns.remoteName} />,
         },
         {
           label: t('description'),
@@ -34,26 +29,6 @@ export const NamespaceList: React.FC<Props> = ({ ns }) => {
               color="secondary"
               text={ns.description.length ? ns.description : t('noDescription')}
             />
-          ),
-        },
-        {
-          label: t('type'),
-          value: <FFListText text={ns.type} color="primary" />,
-        },
-        {
-          label: t('messageID'),
-          value: ns.message ? (
-            <FFListText text={ns.message} color="primary" />
-          ) : (
-            <FFListText color="secondary" text={t('noMessageID')} />
-          ),
-          button: ns.message ? (
-            <>
-              <MsgButton msgID={ns.message} ns={selectedNamespace} />
-              <FFCopyButton value={ns.message} />
-            </>
-          ) : (
-            <></>
           ),
         },
         {

@@ -295,6 +295,7 @@
   "referenceID": "Reference ID",
   "refresh": "Refresh",
   "remoteAddress": "Remote Address",
+  "remoteName": "Remote Name",
   "retried": "Retried",
   "retriedOperation": "Retried Operation",
   "rule": "Rule",

@@ -20,7 +20,6 @@ import { FilterButton } from '../../../components/Filters/FilterButton';
 import { FilterModal } from '../../../components/Filters/FilterModal';
 import { Header } from '../../../components/Header';
 import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
-import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { NamespaceSlide } from '../../../components/Slides/NamespaceSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
@@ -32,7 +31,6 @@ import {
   FF_Paths,
   IDataTableRecord,
   INamespace,
-  IPagesNamespaceResponse,
   NamespaceFilters,
 } from '../../../interfaces';
 import { DEFAULT_PAGE_LIMITS } from '../../../theme';
@@ -81,10 +79,10 @@ export const NetworkNamespaces: () => JSX.Element = () => {
           rowsPerPage * currentPage
         }${filterString ?? ''}&sort=created`
       )
-        .then((nsRes: IPagesNamespaceResponse) => {
+        .then((nsRes: INamespace[]) => {
           if (isMounted) {
-            setNamespaces(nsRes.items);
-            setNsTotal(nsRes.total);
+            setNamespaces(nsRes);
+            setNsTotal(nsRes.length);
           }
         })
         .catch((err) => {
@@ -101,18 +99,19 @@ export const NetworkNamespaces: () => JSX.Element = () => {
 
   const nsColHeaders = [
     t('name'),
+    t('remoteName'),
     t('description'),
-    t('type'),
-    t('id'),
-    t('message'),
     t('created'),
   ];
   const nsRecords: IDataTableRecord[] | undefined = namespaces?.map((ns) => {
     return {
-      key: ns.id,
+      key: ns.name,
       columns: [
         {
           value: <FFTableText color="primary" text={ns.name} />,
+        },
+        {
+          value: <FFTableText color="secondary" text={ns.remoteName} />,
         },
         {
           value: (
@@ -120,19 +119,6 @@ export const NetworkNamespaces: () => JSX.Element = () => {
               color="secondary"
               text={ns.description.length ? ns.description : t('noDescription')}
             />
-          ),
-        },
-        {
-          value: <FFTableText color="primary" text={ns.type} />,
-        },
-        {
-          value: <HashPopover address={ns.id} />,
-        },
-        {
-          value: ns.message ? (
-            <HashPopover address={ns.message} />
-          ) : (
-            <FFTableText color="secondary" text={t('noMessageID')} />
           ),
         },
         {
@@ -147,7 +133,7 @@ export const NetworkNamespaces: () => JSX.Element = () => {
       ],
       onClick: () => {
         setViewNs(ns);
-        setSlideSearchParam(ns.id);
+        setSlideSearchParam(ns.name);
       },
     };
   });
