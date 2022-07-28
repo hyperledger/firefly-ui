@@ -19,11 +19,13 @@ import { useTranslation } from 'react-i18next';
 import { MyNodeDiagram } from '../../../components/Charts/MyNodeDiagram';
 import { Header } from '../../../components/Header';
 import { FFPageLayout } from '../../../components/Layouts/FFPageLayout';
+import { ApplicationContext } from '../../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import { FF_Paths, IStatus } from '../../../interfaces';
 import { fetchCatcher } from '../../../utils';
 
 export const MyNodeDashboard: () => JSX.Element = () => {
+  const { selectedNamespace } = useContext(ApplicationContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [plugins, setPlugins] = useState<IStatus['plugins']>();
@@ -41,7 +43,9 @@ export const MyNodeDashboard: () => JSX.Element = () => {
   useEffect(() => {
     setIsLoading(true);
     if (isMounted) {
-      fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.status}`)
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.status}`
+      )
         .then((statusRes: IStatus) => {
           isMounted && setPlugins(statusRes.plugins);
         })
@@ -50,7 +54,7 @@ export const MyNodeDashboard: () => JSX.Element = () => {
         });
       setIsLoading(false);
     }
-  }, [isMounted]);
+  }, [isMounted, selectedNamespace]);
 
   return (
     <>
@@ -58,7 +62,6 @@ export const MyNodeDashboard: () => JSX.Element = () => {
         title={t('dashboard')}
         subtitle={t('myNode')}
         noDateFilter
-        noNsFilter
       ></Header>
       <FFPageLayout height="85vh">
         {!isLoading &&

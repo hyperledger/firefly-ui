@@ -50,6 +50,7 @@ export enum FF_TX {
   NONE = 'none',
   // Blockchain Event
   CONTRACT_INVOKE = 'contract_invoke',
+  NETWORK_ACTION = 'network_action',
   //Message/Definitions
   BATCH_PIN = 'batch_pin',
   UNPINNED = 'unpinned',
@@ -65,6 +66,11 @@ export const FF_TX_CATEGORY_MAP: { [key in FF_TX]: IBlockchainCategory } = {
     category: TxCategoryEnum.BLOCKCHAIN,
     color: FFColors.Yellow,
     nicename: 'contractInvoke',
+  },
+  [FF_TX.NETWORK_ACTION]: {
+    category: TxCategoryEnum.BLOCKCHAIN,
+    color: FFColors.Yellow,
+    nicename: 'networkAction',
   },
   [FF_TX.NONE]: {
     category: TxCategoryEnum.BLOCKCHAIN,

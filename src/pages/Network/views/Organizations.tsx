@@ -35,18 +35,20 @@ import {
   IdentityFilters,
   IOrganization,
   IPagedOrganizationResponse,
+  IStatus,
 } from '../../../interfaces';
 import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher, getFFTime } from '../../../utils';
 
 export const NetworkOrganizations: () => JSX.Element = () => {
-  const { orgName, selectedNamespace } = useContext(ApplicationContext);
+  const { selectedNamespace } = useContext(ApplicationContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
   const { setSlideSearchParam, slideID } = useContext(SlideContext);
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [isMounted, setIsMounted] = useState(false);
+  const [orgName, setOrgName] = useState<string | undefined>();
 
   // Organizations
   const [orgs, setOrgs] = useState<IOrganization[]>();
@@ -67,6 +69,20 @@ export const NetworkOrganizations: () => JSX.Element = () => {
   useEffect(() => {
     isMounted && slideID && setViewIdentity(slideID);
   }, [slideID, isMounted]);
+
+  useEffect(() => {
+    if (isMounted) {
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.status}`
+      )
+        .then((statusRes: IStatus) => {
+          isMounted && setOrgName(statusRes.org?.name);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+    }
+  }, [isMounted, selectedNamespace]);
 
   // Organizations
   useEffect(() => {

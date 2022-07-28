@@ -343,7 +343,9 @@ export const HomeDashboard: () => JSX.Element = () => {
   useEffect(() => {
     setIsMyNodeLoading(true);
     if (isMounted) {
-      fetchCatcher(`${FF_Paths.apiPrefix}/${FF_Paths.status}`)
+      fetchCatcher(
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.status}`
+      )
         .then((statusRes: IStatus) => {
           isMounted && setPlugins(statusRes.plugins);
         })

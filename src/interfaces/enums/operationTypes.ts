@@ -51,7 +51,8 @@ export enum FF_OPS {
   // Blockchain Event
   BLOCKCHAIN_PIN_BATCH = 'blockchain_pin_batch',
   BLOCKCHAIN_INVOKE = 'blockchain_invoke',
-  //Message/Definitions
+  BLOCKCHAIN_NETWORK_ACTION = 'blockchain_network_action',
+  // Message/Definitions
   SHAREDSTORAGE_UPLOAD_BATCH = 'sharedstorage_upload_batch',
   SHAREDSTORAGE_UPLOAD_BLOB = 'sharedstorage_upload_blob',
   SHAREDSTORAGE_DOWNLOAD_BATCH = 'sharedstorage_download_batch',
@@ -76,6 +77,11 @@ export const FF_OP_CATEGORY_MAP: { [key in FF_OPS]: IBlockchainCategory } = {
     category: OpCategoryEnum.BLOCKCHAIN,
     color: FFColors.Yellow,
     nicename: 'blockchainInvoke',
+  },
+  [FF_OPS.BLOCKCHAIN_NETWORK_ACTION]: {
+    category: OpCategoryEnum.BLOCKCHAIN,
+    color: FFColors.Yellow,
+    nicename: 'blockchainNetworkAction',
   },
   // Message Events
   [FF_OPS.SHAREDSTORAGE_UPLOAD_BATCH]: {
