@@ -115,6 +115,9 @@ const App: React.FC = () => {
         }
       })
       .catch((e) => {
+        if (process.env.NODE_ENV === 'development') {
+          console.error(e);
+        }
         setInitError(e);
       })
       .finally(() => {
