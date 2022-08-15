@@ -18,9 +18,10 @@ import { createContext, Dispatch, SetStateAction } from 'react';
 import { INamespace, INewEventSet } from '../interfaces';
 
 export interface IApplicationContext {
-  nodeID: string;
-  nodeName: string;
+  nodeID?: string;
+  nodeName?: string;
   selectedNamespace: string;
+  multiparty: boolean;
   setSelectedNamespace: Dispatch<SetStateAction<string>>;
   namespaces: INamespace[];
   newEvents: INewEventSet;

@@ -436,7 +436,7 @@ export interface IPagedTransactionResponse {
 }
 
 export interface IStatus {
-  node: {
+  node?: {
     name: string;
     registered: boolean;
     id: string;
@@ -450,6 +450,9 @@ export interface IStatus {
   namespace: {
     name: string;
     description: string;
+  };
+  multiparty: {
+    enabled: boolean;
   };
   plugins: {
     blockchain: IStatusPluginDetails[];

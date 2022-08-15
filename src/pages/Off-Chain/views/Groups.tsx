@@ -93,8 +93,13 @@ export const OffChainGroups: () => JSX.Element = () => {
       )
         .then((groupRes: IPagedGroupResponse) => {
           if (isMounted) {
-            setGroups(groupRes.items);
-            setGroupTotal(groupRes.total);
+            if (groupRes !== undefined) {
+              setGroups(groupRes.items);
+              setGroupTotal(groupRes.total);
+            } else {
+              setGroups([]);
+              setGroupTotal(0);
+            }
           }
         })
         .catch((err) => {

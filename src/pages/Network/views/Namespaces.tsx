@@ -61,14 +61,16 @@ export const NetworkNamespaces: () => JSX.Element = () => {
   }, []);
 
   useEffect(() => {
-    isMounted && slideID;
-    fetchCatcher(`${FF_Paths.nsPrefix}?id=${slideID}`)
-      .then((nsRes: INamespace[]) => {
-        isMounted && nsRes.length === 1 && setViewNs(nsRes[0]);
-      })
-      .catch((err) => {
-        reportFetchError(err);
-      });
+    if (isMounted && slideID) {
+      fetchCatcher(`${FF_Paths.nsPrefix}?id=${slideID}`)
+        .then((nsRes: INamespace[]) => {
+          console.log(nsRes);
+          isMounted && nsRes.length === 1 && setViewNs(nsRes[0]);
+        })
+        .catch((err) => {
+          reportFetchError(err);
+        });
+    }
   }, [slideID, isMounted]);
 
   // Namespaces
