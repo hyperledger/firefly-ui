@@ -59,6 +59,7 @@ const App: React.FC = () => {
   const [messageType, setMessageType] = useState<SnackbarMessageType>('error');
   const [nodeID, setNodeID] = useState('');
   const [nodeName, setNodeName] = useState('');
+  const [multiparty, setMultiparty] = useState(true);
   const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
   const [poolCache, setPoolCache] = useState<Map<string, ITokenPool>>(
     new Map()
@@ -87,8 +88,11 @@ const App: React.FC = () => {
       .then(async ([namespaceResponse, statusResponse]) => {
         if (namespaceResponse.ok && statusResponse.ok) {
           const status: IStatus = await statusResponse.json();
-          setNodeID(status.node.id);
-          setNodeName(status.node.name);
+          setMultiparty(status.multiparty.enabled);
+          if (status.multiparty.enabled && status.node !== undefined) {
+            setNodeID(status.node.id);
+            setNodeName(status.node.name);
+          }
           setSelectedNamespace(status.namespace.name);
           const ns: INamespace[] = await namespaceResponse.json();
           setNamespaces(ns);
@@ -163,7 +167,6 @@ const App: React.FC = () => {
 
   if (initialized) {
     if (initError) {
-      // figure out what to display
       return (
         <>
           <StyledEngineProvider injectFirst>
@@ -177,11 +180,12 @@ const App: React.FC = () => {
       return (
         <ApplicationContext.Provider
           value={{
+            multiparty,
             namespaces,
             selectedNamespace,
-            setSelectedNamespace,
             nodeID,
             nodeName,
+            setSelectedNamespace,
             newEvents,
             clearNewEvents,
             lastRefreshTime,

@@ -92,12 +92,14 @@ export const OffChainGroups: () => JSX.Element = () => {
         }`
       )
         .then((groupRes: IPagedGroupResponse) => {
-          if (groupRes !== undefined) {
-            setGroups(groupRes.items);
-            setGroupTotal(groupRes.total);
-          } else {
-            setGroups([]);
-            setGroupTotal(0);
+          if (isMounted) {
+            if (groupRes !== undefined) {
+              setGroups(groupRes.items);
+              setGroupTotal(groupRes.total);
+            } else {
+              setGroups([]);
+              setGroupTotal(0);
+            }
           }
         })
         .catch((err) => {

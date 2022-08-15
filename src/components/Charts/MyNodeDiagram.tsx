@@ -259,7 +259,11 @@ export const MyNodeDiagram: React.FC<Props> = ({
 
   useEffect(() => {
     const { nodes, edges } = getLayoutedElements(
-      makeInitialNodes(plugins, plugins, nodeName),
+      makeInitialNodes(
+        plugins,
+        plugins,
+        nodeName !== undefined ? nodeName : ''
+      ),
       makeInitialEdges(plugins, plugins, isSmall),
       isSmall
     );

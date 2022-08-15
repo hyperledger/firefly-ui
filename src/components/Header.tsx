@@ -109,7 +109,7 @@ export const Header: React.FC<Props> = ({
               <Grid item>{!noNsFilter && <NamespacePicker />}</Grid>
               <Grid item pl={DEFAULT_PADDING}>
                 <Typography noWrap variant="subtitle1">
-                  {nodeName}
+                  {nodeName !== undefined ? nodeName : ''}
                 </Typography>
               </Grid>
             </Grid>

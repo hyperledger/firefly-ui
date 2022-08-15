@@ -54,8 +54,13 @@ import { hasAnyEvent } from '../../../utils/wsEvents';
 
 export const HomeDashboard: () => JSX.Element = () => {
   const { t } = useTranslation();
-  const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
-    useContext(ApplicationContext);
+  const {
+    newEvents,
+    lastRefreshTime,
+    clearNewEvents,
+    selectedNamespace,
+    multiparty,
+  } = useContext(ApplicationContext);
   const { dateFilter } = useContext(DateFilterContext);
   const { poolCache, setPoolCache } = useContext(PoolContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
@@ -295,11 +300,6 @@ export const HomeDashboard: () => JSX.Element = () => {
       ),
     },
     {
-      clickPath: FF_NAV_PATHS.networkPath(selectedNamespace),
-      headerText: t('networkMap'),
-      component: <NetworkMap size="small"></NetworkMap>,
-    },
-    {
       clickPath: FF_NAV_PATHS.myNodePath(selectedNamespace),
       headerText: t('myNode'),
       component:
@@ -313,6 +313,14 @@ export const HomeDashboard: () => JSX.Element = () => {
         ),
     },
   ];
+
+  if (multiparty) {
+    mediumCards.push({
+      clickPath: FF_NAV_PATHS.networkPath(selectedNamespace),
+      headerText: t('networkMap'),
+      component: <NetworkMap size="small"></NetworkMap>,
+    });
+  }
 
   // Medium Card UseEffect
   useEffect(() => {
@@ -347,7 +355,9 @@ export const HomeDashboard: () => JSX.Element = () => {
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.status}`
       )
         .then((statusRes: IStatus) => {
-          isMounted && setPlugins(statusRes.plugins);
+          if (isMounted) {
+            setPlugins(statusRes.plugins);
+          }
         })
         .catch((err) => {
           reportFetchError(err);
@@ -508,7 +518,7 @@ export const HomeDashboard: () => JSX.Element = () => {
           {mediumCards.map((cardData) => {
             return (
               <FireFlyCard
-                size="medium"
+                size={mediumCards.length % 2 === 0 ? 'large' : 'medium'}
                 key={cardData.headerText}
                 cardData={cardData}
               />
