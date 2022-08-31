@@ -88,7 +88,7 @@ export const FF_Paths = {
   operationsById: (opId: string) => `/operations/${opId}`,
   // Subscriptions
   subscriptions: '/subscriptions',
-  subscriptionsById: (subId: string) => `/subscriptions/${subId}`,
+  subscriptionsById: (subId: string) => `/subscriptions/${subId}?fetchstatus`,
   // Tokens
   tokens: '/tokens',
   tokenAccounts: '/tokens/accounts',

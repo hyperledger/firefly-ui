@@ -22,6 +22,7 @@ import { DEFAULT_PADDING } from '../../theme';
 import { JsonViewAccordion } from '../Accordions/JsonViewerAccordion';
 import { SubList } from '../Lists/SubList';
 import { SubOptionsList } from '../Lists/SubOptionsList';
+import { SubStatusList } from '../Lists/SubStatusList';
 import { DisplaySlide } from './DisplaySlide';
 import { SlideHeader } from './SlideHeader';
 import { SlideSectionHeader } from './SlideSectionHeader';
@@ -45,12 +46,17 @@ export const SubscriptionSlide: React.FC<Props> = ({ sub, open, onClose }) => {
           <Grid container item>
             <SubList sub={sub} />
           </Grid>
+          {sub.status && (
+            <Grid container item pb={DEFAULT_PADDING}>
+              <SlideSectionHeader title={t('status')} />
+              <SubStatusList status={sub.status} />
+            </Grid>
+          )}
           {/* Filter options */}
           <Grid container item pb={DEFAULT_PADDING}>
             <SlideSectionHeader title={t('options')} />
             <SubOptionsList options={sub.options} />
           </Grid>
-
           {sub.filter && (
             <Grid container item pb={DEFAULT_PADDING}>
               <JsonViewAccordion

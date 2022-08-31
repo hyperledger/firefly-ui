@@ -491,6 +491,9 @@ export interface ISubscription {
   };
   created: string;
   updated: string | null;
+  status?: {
+    currentOffset?: number;
+  };
 }
 
 export interface ITokenAccount {
