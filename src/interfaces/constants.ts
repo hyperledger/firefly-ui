@@ -55,7 +55,7 @@ export const FF_Paths = {
   contractQuery: '/contracts/query',
   contractListeners: '/contracts/listeners',
   contractListenersByNameId: (nameOrId: string) =>
-    `/contracts/listeners/${nameOrId}`,
+    `/contracts/listeners/${nameOrId}?fetchstatus`,
   // Data
   data: '/data',
   dataById: (id: string) => `/data/${id}`,
@@ -88,7 +88,7 @@ export const FF_Paths = {
   operationsById: (opId: string) => `/operations/${opId}`,
   // Subscriptions
   subscriptions: '/subscriptions',
-  subscriptionsById: (subId: string) => `/subscriptions/${subId}`,
+  subscriptionsById: (subId: string) => `/subscriptions/${subId}?fetchstatus`,
   // Tokens
   tokens: '/tokens',
   tokenAccounts: '/tokens/accounts',
