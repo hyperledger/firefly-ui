@@ -55,7 +55,7 @@ export const FF_Paths = {
   contractQuery: '/contracts/query',
   contractListeners: '/contracts/listeners',
   contractListenersByNameId: (nameOrId: string) =>
-    `/contracts/listeners/${nameOrId}`,
+    `/contracts/listeners/${nameOrId}?fetchstatus`,
   // Data
   data: '/data',
   dataById: (id: string) => `/data/${id}`,

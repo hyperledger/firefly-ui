@@ -70,6 +70,14 @@ export interface IContractListener {
     readAhead?: number;
     withData?: boolean;
   };
+  status?: {
+    checkpoint?: {
+      block: number;
+      transactionIndex: number;
+      logIndex: number;
+    };
+    catchup?: boolean;
+  };
 }
 
 export interface IData {

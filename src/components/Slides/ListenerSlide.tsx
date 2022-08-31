@@ -53,6 +53,15 @@ export const ListenerSlide: React.FC<Props> = ({ listener, open, onClose }) => {
             <SlideSectionHeader title={t('options')} />
             <SubOptionsList options={listener.options} />
           </Grid>
+          {listener.status?.checkpoint && (
+            <Grid container item pb={DEFAULT_PADDING}>
+              <JsonViewAccordion
+                isOpen
+                json={listener.status}
+                header={t('status')}
+              />
+            </Grid>
+          )}
           {/* API Location */}
           {listener.location && (
             <Grid container item pb={DEFAULT_PADDING}>
