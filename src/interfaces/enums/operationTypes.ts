@@ -55,6 +55,7 @@ export enum FF_OPS {
   // Message/Definitions
   SHAREDSTORAGE_UPLOAD_BATCH = 'sharedstorage_upload_batch',
   SHAREDSTORAGE_UPLOAD_BLOB = 'sharedstorage_upload_blob',
+  SHAREDSTORAGE_UPLOAD_VALUE = 'sharedstorage_upload_value',
   SHAREDSTORAGE_DOWNLOAD_BATCH = 'sharedstorage_download_batch',
   SHAREDSTORAGE_DOWNLOAD_BLOB = 'sharedstorage_download_blob',
   DATAEXCHANGE_SEND_BATCH = 'dataexchange_send_batch',
@@ -88,6 +89,11 @@ export const FF_OP_CATEGORY_MAP: { [key in FF_OPS]: IBlockchainCategory } = {
     category: OpCategoryEnum.MESSAGES,
     color: FFColors.Orange,
     nicename: 'sharedStorageUploadBatch',
+  },
+  [FF_OPS.SHAREDSTORAGE_UPLOAD_VALUE]: {
+    category: OpCategoryEnum.MESSAGES,
+    color: FFColors.Orange,
+    nicename: 'sharedStorageUploadValue',
   },
   [FF_OPS.SHAREDSTORAGE_UPLOAD_BLOB]: {
     category: OpCategoryEnum.MESSAGES,
