@@ -58,6 +58,8 @@ export enum FF_TX {
   TOKEN_APPROVAL = 'token_approval',
   TOKEN_POOL = 'token_pool',
   TOKEN_TRANSFER = 'token_transfer',
+  // Data Publishing
+  DATA_PUBLISH = 'data_publish',
 }
 
 export const FF_TX_CATEGORY_MAP: { [key in FF_TX]: IBlockchainCategory } = {
@@ -103,5 +105,10 @@ export const FF_TX_CATEGORY_MAP: { [key in FF_TX]: IBlockchainCategory } = {
     category: TxCategoryEnum.TOKENS,
     color: FFColors.Pink,
     nicename: 'tokenTransfer',
+  },
+  [FF_TX.DATA_PUBLISH]: {
+    category: TxCategoryEnum.MESSAGES,
+    color: FFColors.Orange,
+    nicename: 'dataPublish',
   },
 };
