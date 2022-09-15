@@ -231,7 +231,12 @@ export const OffChainDashboard: () => JSX.Element = () => {
       },
       {
         value: data.blob ? (
-          <DownloadButton isBlob url={data.id} filename={data.blob?.name} />
+          <DownloadButton
+            isBlob
+            url={data.id}
+            filename={data.blob?.name}
+            namespace={selectedNamespace}
+          />
         ) : (
           <FFTableText color="secondary" text={t('noBlobInData')} />
         ),

@@ -71,6 +71,7 @@ export const MessageDataAccordion: React.FC<Props> = ({
                     isBlob
                     url={data.id}
                     filename={data.blob.name}
+                    namespace={selectedNamespace}
                   />
                 ) : (
                   <DownloadJsonButton

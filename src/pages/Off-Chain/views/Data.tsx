@@ -159,7 +159,12 @@ export const OffChainData: () => JSX.Element = () => {
       },
       {
         value: d.blob && (
-          <DownloadButton isBlob url={d.id} filename={d.blob?.name} />
+          <DownloadButton
+            isBlob
+            url={d.id}
+            filename={d.blob?.name}
+            namespace={selectedNamespace}
+          />
         ),
       },
     ],

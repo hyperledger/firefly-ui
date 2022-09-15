@@ -247,6 +247,7 @@ export const BlockchainDashboard: () => JSX.Element = () => {
             filename={api.name}
             url={api.urls.openapi}
             isBlob={false}
+            namespace={selectedNamespace}
           />
         ),
       },
