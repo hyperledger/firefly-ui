@@ -17,6 +17,7 @@
 import { Grid } from '@mui/material';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { SnackbarContext } from '../../contexts/SnackbarContext';
 import { FF_Paths, IIdentity } from '../../interfaces';
 import { DEFAULT_PADDING } from '../../theme';
@@ -37,6 +38,7 @@ export const IdentitySlide: React.FC<Props> = ({ did, open, onClose }) => {
   const { reportFetchError } = useContext(SnackbarContext);
   const { t } = useTranslation();
   const [identity, setIdentity] = useState<IIdentity>();
+  const { selectedNamespace } = useContext(ApplicationContext);
 
   const [isMounted, setIsMounted] = useState(false);
   useEffect(() => {
@@ -49,7 +51,9 @@ export const IdentitySlide: React.FC<Props> = ({ did, open, onClose }) => {
   useEffect(() => {
     isMounted &&
       fetchCatcher(
-        `${FF_Paths.apiPrefix}${FF_Paths.networkIdentitiesByDID(
+        `${
+          FF_Paths.nsPrefix
+        }/${selectedNamespace}/${FF_Paths.networkIdentitiesByDID(
           did
         )}?fetchverifiers`
       )
