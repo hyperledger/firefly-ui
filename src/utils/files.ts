@@ -1,8 +1,12 @@
 import { fetchWithCredentials } from './fetches';
 
-export const downloadBlobFile = async (id: string, filename?: string) => {
+export const downloadBlobFile = async (
+  id: string,
+  namespace: string,
+  filename?: string
+) => {
   const file = await fetchWithCredentials(
-    `/api/v1/namespaces/default/data/${id}/blob`
+    `/api/v1/namespaces/${namespace}/data/${id}/blob`
   );
   const blob = await file.blob();
   const href = await URL.createObjectURL(blob);

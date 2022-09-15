@@ -65,6 +65,7 @@ export const ApiList: React.FC<Props> = ({ api }) => {
                 filename={api.name}
                 url={api.urls.openapi}
                 isBlob={false}
+                namespace={selectedNamespace}
               />
               <FFCopyButton value={api.urls.openapi} />
             </>

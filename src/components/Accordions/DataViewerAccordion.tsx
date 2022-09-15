@@ -5,7 +5,8 @@ import {
   AccordionSummary,
   Grid,
 } from '@mui/material';
-import { useState } from 'react';
+import { useContext, useState } from 'react';
+import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { IData } from '../../interfaces';
 import { DownloadButton } from '../Buttons/DownloadButton';
 import { DownloadJsonButton } from '../Buttons/DownloadJsonButton';
@@ -25,6 +26,7 @@ export const DataViewAccordion: React.FC<Props> = ({
   data,
 }) => {
   const [expanded, setExpanded] = useState<boolean>(isOpen);
+  const { selectedNamespace } = useContext(ApplicationContext);
 
   return (
     <Accordion
@@ -39,7 +41,12 @@ export const DataViewAccordion: React.FC<Props> = ({
           }
           rightContent={
             data.blob ? (
-              <DownloadButton isBlob url={data.id} filename={data.blob.name} />
+              <DownloadButton
+                isBlob
+                url={data.id}
+                namespace={selectedNamespace}
+                filename={data.blob.name}
+              />
             ) : (
               <DownloadJsonButton
                 jsonString={JSON.stringify(data.value)}

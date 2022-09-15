@@ -6,15 +6,21 @@ interface Props {
   filename?: string;
   isBlob: boolean;
   url: string;
+  namespace: string;
 }
 
-export const DownloadButton: React.FC<Props> = ({ filename, isBlob, url }) => {
+export const DownloadButton: React.FC<Props> = ({
+  filename,
+  isBlob,
+  url,
+  namespace,
+}) => {
   return (
     <IconButton
       onClick={(e) => {
         e.stopPropagation();
         isBlob
-          ? downloadBlobFile(url, filename)
+          ? downloadBlobFile(url, namespace, filename)
           : downloadExternalFile(url, filename);
       }}
     >
