@@ -40,7 +40,7 @@ export const NetworkMapDashboard: () => JSX.Element = () => {
         noNsFilter
       ></Header>
       <FFPageLayout height="85vh">
-        {isMounted && <NetworkMap size="large" />}
+        {isMounted && <NetworkMap size="small" />}
       </FFPageLayout>
     </>
   );
