@@ -39,9 +39,9 @@ interface Props {
 const NODE_STRING_DELIM = '||';
 const SIZE_MAP = {
   small: {
-    node: 40,
-    org: 75,
-    distance: 100,
+    node: 24,
+    org: 36,
+    distance: 60,
   },
   medium: {
     node: 90,
@@ -223,6 +223,9 @@ export const NetworkMap: React.FC<Props> = ({ size }) => {
       case 5:
         return size === 'small' ? 17 : 60;
       default:
+        if (numOrgs > 10) {
+          return 3.2;
+        }
         return 50;
     }
   };
