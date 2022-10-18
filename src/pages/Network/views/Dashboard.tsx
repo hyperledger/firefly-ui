@@ -39,7 +39,7 @@ export const NetworkMapDashboard: () => JSX.Element = () => {
         noDateFilter
       ></Header>
       <FFPageLayout height="85vh">
-        {isMounted && <NetworkMap size="large" />}
+        {isMounted && <NetworkMap size="small" />}
       </FFPageLayout>
     </>
   );
