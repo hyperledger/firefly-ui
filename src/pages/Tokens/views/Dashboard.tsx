@@ -592,6 +592,7 @@ export const TokensDashboard: () => JSX.Element = () => {
               });
             }
             setTokenTransfers(enrichedTransfers);
+            setTokenTransferTotal(tokenTransferRes.total);
           }
         })
         .catch((err) => {
