@@ -155,6 +155,7 @@ export const TokensTransfers: () => JSX.Element = () => {
               });
             }
             isMounted && setTokenTransfers(enrichedTransfers);
+            isMounted && setTokenTransferTotal(tokenTransferRes.total);
           }
         })
         .catch((err) => {
