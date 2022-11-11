@@ -27,7 +27,6 @@ import { HashPopover } from '../../../components/Popovers/HashPopover';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
-import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
 import {
@@ -45,7 +44,6 @@ import { hasPoolEvent } from '../../../utils/wsEvents';
 export const TokensPools: () => JSX.Element = () => {
   const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
     useContext(ApplicationContext);
-  const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
   const { reportFetchError } = useContext(SnackbarContext);
@@ -69,13 +67,12 @@ export const TokensPools: () => JSX.Element = () => {
   // Token pools
   useEffect(() => {
     isMounted &&
-      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.tokenPools
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          dateFilter.filterString
-        }${filterString ?? ''}`
+          filterString ?? ''
+        }`
       )
         .then((tokenPoolsRes: IPagedTokenPoolResponse) => {
           setTokenPools(tokenPoolsRes.items);
@@ -88,7 +85,6 @@ export const TokensPools: () => JSX.Element = () => {
     rowsPerPage,
     currentPage,
     selectedNamespace,
-    dateFilter,
     filterString,
     lastRefreshTime,
     isMounted,
@@ -175,6 +171,7 @@ export const TokensPools: () => JSX.Element = () => {
         subtitle={t('tokens')}
         showRefreshBtn={hasPoolEvent(newEvents)}
         onRefresh={clearNewEvents}
+        noDateFilter
       ></Header>
       <FFPageLayout>
         <DataTable
