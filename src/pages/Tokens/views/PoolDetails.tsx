@@ -140,9 +140,9 @@ export const PoolDetails: () => JSX.Element = () => {
 
   // Pool balances
   useEffect(() => {
-    if (pool && isMounted) {
+    if (isMounted && poolID) {
       fetchCatcher(
-        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenBalances}?pool=${pool?.id}`
+        `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.tokenBalances}?pool=${poolID}`
       )
         .then(async (balances: ITokenBalance[]) => {
           if (balances.length === 0) {
@@ -167,7 +167,7 @@ export const PoolDetails: () => JSX.Element = () => {
           reportFetchError(err);
         });
     }
-  }, [pool, isMounted]);
+  }, [isMounted, poolID]);
 
   // Token transfers and accounts
   useEffect(() => {
@@ -175,12 +175,13 @@ export const PoolDetails: () => JSX.Element = () => {
 
     isMounted &&
       dateFilter &&
+      poolID &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.tokenTransfers
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
           dateFilter.filterString
-        }&pool=${pool?.id}`
+        }&pool=${poolID}`
       )
         .then(async (tokenTransferRes: IPagedTokenTransferResponse) => {
           if (isMounted) {
@@ -213,7 +214,7 @@ export const PoolDetails: () => JSX.Element = () => {
     dateFilter,
     currentPage,
     selectedNamespace,
-    pool,
+    poolID,
     isMounted,
   ]);
 
@@ -262,7 +263,8 @@ export const PoolDetails: () => JSX.Element = () => {
   const accountsCard: IFireFlyCard = {
     headerText: t('accountsInPool'),
     clickPath:
-      pool && FF_NAV_PATHS.tokensBalancesPathByPool(selectedNamespace, pool.id),
+      poolID &&
+      FF_NAV_PATHS.tokensBalancesPathByPool(selectedNamespace, poolID),
     component: (
       <MediumCardTable
         records={poolAccountsRecords}
@@ -396,7 +398,9 @@ export const PoolDetails: () => JSX.Element = () => {
                 container
               >
                 <Grid container item justifyContent="flex-start" xs={2}>
-                  <Jazzicon diameter={34} seed={jsNumberForAddress(pool.id)} />
+                  {poolID && (
+                    <Jazzicon diameter={34} seed={jsNumberForAddress(poolID)} />
+                  )}
                 </Grid>
                 <Grid container item justifyContent="flex-start" xs={10}>
                   <Typography
@@ -480,7 +484,7 @@ export const PoolDetails: () => JSX.Element = () => {
             dashboardSize
             clickPath={FF_NAV_PATHS.tokensTransfersPath(
               selectedNamespace,
-              pool?.id
+              poolID
             )}
           />
         </Grid>
