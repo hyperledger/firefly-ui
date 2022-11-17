@@ -110,6 +110,11 @@ export const TransferList: React.FC<Props> = ({
           button: <FFCopyButton value={transfer.tokenIndex ?? ''} />,
         },
         {
+          label: transfer.uri ? t('uri') : '',
+          value: <FFListText color="primary" text={transfer.uri ?? ''} />,
+          button: <FFCopyButton value={transfer.uri ?? ''} />,
+        },
+        {
           label: t('messageID'),
           value: transfer.message ? (
             <FFListText color="primary" text={transfer.message} />
