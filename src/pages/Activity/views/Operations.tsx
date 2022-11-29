@@ -92,7 +92,8 @@ export const ActivityOperations: () => JSX.Element = () => {
       slideID &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.operationsById(
-          slideID
+          slideID,
+          true
         )}`
       )
         .then((opRes: IOperation) => {
