@@ -57,9 +57,9 @@ export const OperationSlide: React.FC<Props> = ({ op, open, onClose }) => {
               <FFJsonViewer json={op.error} />
             </Grid>
           )}
-          {/* Input and Output */}
-          {(op.input || op.output) && (
-            <SlideSectionHeader title={t('inputAndOutput')} />
+          {/* Input, Output and Detail */}
+          {(op.input || op.output || op.detail) && (
+            <SlideSectionHeader title={t('inputOutputDetail')} />
           )}
           {op.input && (
             <Grid container item pb={DEFAULT_PADDING}>
@@ -67,8 +67,13 @@ export const OperationSlide: React.FC<Props> = ({ op, open, onClose }) => {
             </Grid>
           )}
           {op.output && (
-            <Grid container item>
+            <Grid container item pb={DEFAULT_PADDING}>
               <JsonViewAccordion isOpen header={t('output')} json={op.output} />
+            </Grid>
+          )}
+          {op.detail && (
+            <Grid container item>
+              <JsonViewAccordion isOpen header={t('detail')} json={op.detail} />
             </Grid>
           )}
         </Grid>

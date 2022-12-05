@@ -282,6 +282,7 @@ export interface IOperation {
     id: string;
     success: boolean;
   };
+  detail?: any;
   created: string;
   updated: string;
   retry?: string;

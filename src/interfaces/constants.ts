@@ -85,7 +85,8 @@ export const FF_Paths = {
   messageTxById: (msgId: string) => `/messages/${msgId}/transaction`,
   // Operations
   operations: '/operations',
-  operationsById: (opId: string) => `/operations/${opId}`,
+  operationsById: (opId: string, fetchStatus: boolean) =>
+    `/operations/${opId}${fetchStatus ? '?fetchstatus=true' : ''}`,
   // Subscriptions
   subscriptions: '/subscriptions',
   subscriptionsById: (subId: string) => `/subscriptions/${subId}?fetchstatus`,
