@@ -37,7 +37,7 @@ export const ApiAccordion: React.FC<Props> = ({ api, isOpen = false }) => {
     },
     {
       header: t('messageID'),
-      data: <HashPopover address={api.message} shortHash />,
+      data: <HashPopover address={api.message ?? ''} shortHash />,
     },
   ];
 
