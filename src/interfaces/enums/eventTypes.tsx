@@ -31,6 +31,8 @@ export enum FF_EVENTS {
   BLOCKCHAIN_EVENT_RECEIVED = 'blockchain_event_received',
   BLOCKCHAIN_INVOKE_OP_SUCCEEDED = 'blockchain_invoke_op_succeeded',
   BLOCKCHAIN_INVOKE_OP_FAILED = 'blockchain_invoke_op_failed',
+  BLOCKCHAIN_CONTRACT_DEPLOY_OP_SUCCEEDED = 'blockchain_contract_deploy_op_succeeded',
+  BLOCKCHAIN_CONTRACT_DEPLOY_OP_FAILED = 'blockchain_contract_deploy_op_failed',
   CONTRACT_API_CONFIRMED = 'contract_api_confirmed',
   CONTRACT_INTERFACE_CONFIRMED = 'contract_interface_confirmed',
   DATATYPE_CONFIRMED = 'datatype_confirmed',
@@ -106,6 +108,30 @@ export const FF_EVENTS_CATEGORY_MAP: {
     enrichedEventKey: 'operation',
     enrichedEventString: (event: IEvent): string =>
       `Operation ID=${getShortHash(event.operation?.id ?? '')}`,
+    referenceIDName: 'operationID',
+    referenceIDButton: (ns: string, refID: string): JSX.Element => (
+      <LaunchButton link={FF_NAV_PATHS.activityOpPath(ns, refID)} />
+    ),
+  },
+  [FF_EVENTS.BLOCKCHAIN_CONTRACT_DEPLOY_OP_SUCCEEDED]: {
+    category: EventCategoryEnum.BLOCKCHAIN,
+    color: FFColors.Yellow,
+    nicename: 'blockchainContractDeploySucceeded',
+    enrichedEventKey: 'operation',
+    enrichedEventString: (event: IEvent): string =>
+      `Operation ID=${event.reference}`,
+    referenceIDName: 'operationID',
+    referenceIDButton: (ns: string, refID: string): JSX.Element => (
+      <LaunchButton link={FF_NAV_PATHS.activityOpPath(ns, refID)} />
+    ),
+  },
+  [FF_EVENTS.BLOCKCHAIN_CONTRACT_DEPLOY_OP_FAILED]: {
+    category: EventCategoryEnum.BLOCKCHAIN,
+    color: FFColors.Yellow,
+    nicename: 'blockchainContractDeployFailed',
+    enrichedEventKey: 'operation',
+    enrichedEventString: (event: IEvent): string =>
+      `Operation ID=${event.reference}`,
     referenceIDName: 'operationID',
     referenceIDButton: (ns: string, refID: string): JSX.Element => (
       <LaunchButton link={FF_NAV_PATHS.activityOpPath(ns, refID)} />

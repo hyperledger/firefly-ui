@@ -111,7 +111,7 @@ export const FF_Paths = {
   transactionByIdBlockchainEvents: (txId: string) =>
     `/transactions/${txId}/blockchainevents`,
   transactionByIdOperations: (txId: string) =>
-    `/transactions/${txId}/operations`,
+    `/transactions/${txId}/operations?fetchstatus`,
   transactionByIdStatus: (txId: string) => `/transactions/${txId}/status`,
   // Network
   networkIdentities: '/network/identities',
