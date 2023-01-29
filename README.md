@@ -61,7 +61,7 @@ list is likely to grow as additional pluggable extensions come online in the com
 - Command Line Interface (CLI) - https://github.com/hyperledger/firefly-cli
 - Core - https://github.com/hyperledger/firefly
 - FireFly SDK - https://github.com/kaleido-io/firefly-sdk-nodejs
-- FireFly Sandbox (this repo) - https://github.com/kaleido-io/firefly-sandbox
+- FireFly UI (this repo) - https://github.com/hyperledger/firefly-ui
 - HTTPS Data Exchange - https://github.com/hyperledger/firefly-dataexchange-https
 - Hyperledger Fabric connector - https://github.com/hyperledger/firefly-fabconnect
 - Ethereum (Hyperledger Besu / Quorum) connector - https://github.com/hyperledger/firefly-ethconnect
