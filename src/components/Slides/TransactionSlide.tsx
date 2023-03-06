@@ -117,7 +117,9 @@ export const TransactionSlide: React.FC<Props> = ({
           {/* Title */}
           <SlideHeader
             subtitle={t('transaction')}
-            title={t(FF_TX_CATEGORY_MAP[transaction.type]?.nicename)}
+            title={t(
+              FF_TX_CATEGORY_MAP[transaction.type]?.nicename ?? transaction.type
+            )}
           />
           {/* Data list */}
           <Grid container item>

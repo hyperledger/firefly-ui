@@ -25,7 +25,10 @@ export const EventCardWrapper = ({ event, onHandleViewEvent, link }: Props) => {
       onClick={() => onHandleViewEvent(event)}
       title={
         event.transaction
-          ? t(FF_TX_CATEGORY_MAP[event.transaction?.type]?.nicename)
+          ? t(
+              FF_TX_CATEGORY_MAP[event.transaction?.type]?.nicename ??
+                event.transaction?.type
+            )
           : t(t(FF_EVENTS_CATEGORY_MAP[event.type]?.nicename))
       }
       description={getEnrichedEventText(event)}
