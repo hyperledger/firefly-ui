@@ -170,7 +170,7 @@ export const ActivityTransactions: () => JSX.Element = () => {
         value: (
           <FFTableText
             color="primary"
-            text={t(FF_TX_CATEGORY_MAP[tx.type]?.nicename)}
+            text={t(FF_TX_CATEGORY_MAP[tx.type]?.nicename ?? tx.type)}
           />
         ),
       },

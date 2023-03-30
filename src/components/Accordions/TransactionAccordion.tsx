@@ -64,7 +64,7 @@ export const TransactionAccordion: React.FC<Props> = ({
             leftContent={
               <FFAccordionText
                 color="primary"
-                text={t(FF_TX_CATEGORY_MAP[tx.type]?.nicename)}
+                text={t(FF_TX_CATEGORY_MAP[tx.type]?.nicename ?? tx.type)}
                 isHeader
               />
             }

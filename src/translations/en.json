@@ -68,6 +68,7 @@
   "contractInterfaceConfirmed": "Contract Interface Confirmed",
   "contractInterfaces": "Contract Interfaces",
   "contractInvoke": "Contract Invoke",
+  "contractInvokePin": "Contract Invoke w/ Pin",
   "contractListener": "Contract Listener",
   "contractListeners": "Contract Listeners",
   "copyToClipboard": "Copy to Clipboard",
