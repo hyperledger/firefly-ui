@@ -387,6 +387,7 @@ export const HomeDashboard: () => JSX.Element = () => {
             recentEventTxs.map((event) => (
               <React.Fragment key={event.id}>
                 <EventCardWrapper
+                  lookupTxNames
                   onHandleViewEvent={(event: IEvent) => {
                     setViewTx(event.transaction);
                     setSlideSearchParam(event?.tx ?? null);

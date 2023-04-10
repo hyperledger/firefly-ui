@@ -137,6 +137,7 @@ export const ActivityTimeline: () => JSX.Element = () => {
         key: idx,
         item: (
           <EventCardWrapper
+            lookupTxNames
             onHandleViewEvent={(event: IEvent) => {
               if (event.transaction) {
                 setViewTx(event.transaction);
