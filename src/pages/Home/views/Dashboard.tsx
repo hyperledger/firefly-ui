@@ -387,6 +387,7 @@ export const HomeDashboard: () => JSX.Element = () => {
             recentEventTxs.map((event) => (
               <React.Fragment key={event.id}>
                 <EventCardWrapper
+                  lookupTxNames
                   onHandleViewEvent={(event: IEvent) => {
                     setViewTx(event.transaction);
                     setSlideSearchParam(event?.tx ?? null);
@@ -474,7 +475,10 @@ export const HomeDashboard: () => JSX.Element = () => {
 
             const enrichedRecentEvents: IEvent[] = [];
             for (const event of recentEvents) {
-              if (event.type === FF_EVENTS.TOKEN_TRANSFER_CONFIRMED) {
+              if (
+                event.type === FF_EVENTS.TOKEN_TRANSFER_CONFIRMED &&
+                event.tokenTransfer
+              ) {
                 const transferWithPool = await fetchPoolObjectFromTransfer(
                   event.tokenTransfer,
                   selectedNamespace,

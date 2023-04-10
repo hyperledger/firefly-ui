@@ -154,7 +154,7 @@ export const TransactionDetails: () => JSX.Element = () => {
   ];
 
   const operationsCard: IFireFlyCard = {
-    headerText: t('blockchainOperations'),
+    headerText: t('operations'),
     clickPath:
       tx?.id &&
       FF_NAV_PATHS.activityOpPathWithTxFilter(selectedNamespace, tx.id),
