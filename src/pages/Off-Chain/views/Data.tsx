@@ -14,6 +14,7 @@
 // See the License for the specific language governing permissions and
 // limitations under the License.
 
+import prettyBytes from 'pretty-bytes';
 import React, { useContext, useEffect, useState } from 'react';
 import { useTranslation } from 'react-i18next';
 import { DownloadButton } from '../../../components/Buttons/DownloadButton';
@@ -26,11 +27,9 @@ import { DataSlide } from '../../../components/Slides/DataSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
-import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
-import prettyBytes from 'pretty-bytes';
 import {
   DataFilters,
   FF_Paths,
@@ -45,7 +44,6 @@ import { hasDataEvent } from '../../../utils/wsEvents';
 export const OffChainData: () => JSX.Element = () => {
   const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
     useContext(ApplicationContext);
-  const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
@@ -85,13 +83,12 @@ export const OffChainData: () => JSX.Element = () => {
   // Data
   useEffect(() => {
     isMounted &&
-      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.data
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          dateFilter.filterString
-        }${filterString ?? ''}`
+          filterString ?? ''
+        }`
       )
         .then((dataRes: IPagedDataResponse) => {
           if (isMounted) {
@@ -106,7 +103,6 @@ export const OffChainData: () => JSX.Element = () => {
     rowsPerPage,
     currentPage,
     selectedNamespace,
-    dateFilter,
     filterString,
     lastRefreshTime,
     isMounted,
@@ -181,6 +177,7 @@ export const OffChainData: () => JSX.Element = () => {
         subtitle={t('offChain')}
         showRefreshBtn={hasDataEvent(newEvents)}
         onRefresh={clearNewEvents}
+        noDateFilter
       ></Header>
       <FFPageLayout>
         <DataTable

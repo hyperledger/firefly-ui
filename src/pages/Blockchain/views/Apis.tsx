@@ -28,7 +28,6 @@ import { ApiSlide } from '../../../components/Slides/ApiSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
-import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
@@ -46,7 +45,6 @@ import { hasApiEvent } from '../../../utils/wsEvents';
 export const BlockchainApis: () => JSX.Element = () => {
   const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
     useContext(ApplicationContext);
-  const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
   const { setSlideSearchParam, slideID } = useContext(SlideContext);
@@ -88,13 +86,12 @@ export const BlockchainApis: () => JSX.Element = () => {
   // APIs
   useEffect(() => {
     isMounted &&
-      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.apis
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          dateFilter.filterString
-        }${filterString ?? ''}`
+          filterString ?? ''
+        }`
       )
         .then((apis: IPagedFireFlyApiResponse) => {
           if (isMounted) {
@@ -109,7 +106,6 @@ export const BlockchainApis: () => JSX.Element = () => {
     rowsPerPage,
     currentPage,
     selectedNamespace,
-    dateFilter,
     filterString,
     lastRefreshTime,
     isMounted,
@@ -187,6 +183,7 @@ export const BlockchainApis: () => JSX.Element = () => {
         subtitle={t('blockchain')}
         showRefreshBtn={hasApiEvent(newEvents)}
         onRefresh={clearNewEvents}
+        noDateFilter
       ></Header>
       <FFPageLayout>
         <DataTable

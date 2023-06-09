@@ -26,7 +26,6 @@ import { BatchSlide } from '../../../components/Slides/BatchSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
-import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
@@ -44,7 +43,6 @@ import { hasDataEvent } from '../../../utils/wsEvents';
 export const OffChainBatches: () => JSX.Element = () => {
   const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
     useContext(ApplicationContext);
-  const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
@@ -86,13 +84,12 @@ export const OffChainBatches: () => JSX.Element = () => {
   // Batch
   useEffect(() => {
     isMounted &&
-      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.batches
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          dateFilter.filterString
-        }${filterString ?? ''}`
+          filterString ?? ''
+        }`
       )
         .then((batchRes: IPagedBatchResponse) => {
           if (isMounted) {
@@ -107,7 +104,6 @@ export const OffChainBatches: () => JSX.Element = () => {
     rowsPerPage,
     currentPage,
     selectedNamespace,
-    dateFilter,
     filterString,
     lastRefreshTime,
     isMounted,
@@ -170,6 +166,7 @@ export const OffChainBatches: () => JSX.Element = () => {
         subtitle={t('offChain')}
         showRefreshBtn={hasDataEvent(newEvents)}
         onRefresh={clearNewEvents}
+        noDateFilter
       ></Header>
       <FFPageLayout>
         <DataTable

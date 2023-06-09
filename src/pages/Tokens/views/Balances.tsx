@@ -53,7 +53,6 @@ export const KEY_POOL_DELIM = '||';
 export const TokensBalances: () => JSX.Element = () => {
   const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
     useContext(ApplicationContext);
-  const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
@@ -115,13 +114,12 @@ export const TokensBalances: () => JSX.Element = () => {
   useEffect(() => {
     setTokenBalances(undefined);
     isMounted &&
-      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.tokenBalances
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          dateFilter.filterString
-        }${filterString ?? ''}`
+          filterString ?? ''
+        }`
       )
         .then(async (tokenBalancesRes: IPagedTokenBalanceResponse) => {
           setTokenBalancesTotal(tokenBalancesRes.total);
@@ -150,7 +148,6 @@ export const TokensBalances: () => JSX.Element = () => {
     rowsPerPage,
     currentPage,
     selectedNamespace,
-    dateFilter,
     filterString,
     lastRefreshTime,
     isMounted,
@@ -239,6 +236,7 @@ export const TokensBalances: () => JSX.Element = () => {
       <Header
         title={t('balances')}
         subtitle={t('tokens')}
+        noDateFilter
         showRefreshBtn={hasTransferEvent(newEvents)}
         onRefresh={clearNewEvents}
       ></Header>
