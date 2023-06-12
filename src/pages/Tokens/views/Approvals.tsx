@@ -25,7 +25,6 @@ import { ApprovalSlide } from '../../../components/Slides/ApprovalSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
-import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { PoolContext } from '../../../contexts/PoolContext';
 import { SlideContext } from '../../../contexts/SlideContext';
@@ -50,7 +49,6 @@ import { hasApprovalEvent } from '../../../utils/wsEvents';
 export const TokensApprovals: () => JSX.Element = () => {
   const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
     useContext(ApplicationContext);
-  const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
@@ -106,13 +104,12 @@ export const TokensApprovals: () => JSX.Element = () => {
   useEffect(() => {
     setTokenApprovals(undefined);
     isMounted &&
-      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.tokenApprovals
-        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          dateFilter.filterString
-        }${filterString ?? ''}`
+        }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}$${
+          filterString ?? ''
+        }`
       )
         .then(async (tokenApprovalRes: IPagedTokenApprovalResponse) => {
           setTokenApprovalsTotal(tokenApprovalRes.total);
@@ -144,7 +141,6 @@ export const TokensApprovals: () => JSX.Element = () => {
     rowsPerPage,
     currentPage,
     selectedNamespace,
-    dateFilter,
     filterString,
     lastRefreshTime,
     isMounted,
@@ -214,6 +210,7 @@ export const TokensApprovals: () => JSX.Element = () => {
         subtitle={t('tokens')}
         showRefreshBtn={hasApprovalEvent(newEvents)}
         onRefresh={clearNewEvents}
+        noDateFilter
       ></Header>
       <FFPageLayout>
         <DataTable

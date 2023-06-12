@@ -25,7 +25,6 @@ import { InterfaceSlide } from '../../../components/Slides/InterfaceSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
-import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
@@ -33,8 +32,8 @@ import {
   FF_Paths,
   IContractInterface,
   IDataTableRecord,
-  InterfaceFilters,
   IPagedContractInterfaceResponse,
+  InterfaceFilters,
 } from '../../../interfaces';
 import { DEFAULT_PAGE_LIMITS } from '../../../theme';
 import { fetchCatcher } from '../../../utils';
@@ -43,7 +42,6 @@ import { hasInterfaceEvent } from '../../../utils/wsEvents';
 export const BlockchainInterfaces: () => JSX.Element = () => {
   const { newEvents, lastRefreshTime, clearNewEvents, selectedNamespace } =
     useContext(ApplicationContext);
-  const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
@@ -87,13 +85,12 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
   // Interfaces
   useEffect(() => {
     isMounted &&
-      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.contractInterfaces
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          dateFilter.filterString
-        }${filterString ?? ''}`
+          filterString ?? ''
+        }`
       )
         .then((interfaceRes: IPagedContractInterfaceResponse) => {
           if (isMounted) {
@@ -108,7 +105,6 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
     rowsPerPage,
     currentPage,
     selectedNamespace,
-    dateFilter,
     filterString,
     lastRefreshTime,
     isMounted,
@@ -160,6 +156,7 @@ export const BlockchainInterfaces: () => JSX.Element = () => {
         subtitle={t('blockchain')}
         showRefreshBtn={hasInterfaceEvent(newEvents)}
         onRefresh={clearNewEvents}
+        noDateFilter
       ></Header>
       <FFPageLayout>
         <DataTable

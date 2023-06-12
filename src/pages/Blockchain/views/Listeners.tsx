@@ -25,7 +25,6 @@ import { ListenerSlide } from '../../../components/Slides/ListenerSlide';
 import { FFTableText } from '../../../components/Tables/FFTableText';
 import { DataTable } from '../../../components/Tables/Table';
 import { ApplicationContext } from '../../../contexts/ApplicationContext';
-import { DateFilterContext } from '../../../contexts/DateFilterContext';
 import { FilterContext } from '../../../contexts/FilterContext';
 import { SlideContext } from '../../../contexts/SlideContext';
 import { SnackbarContext } from '../../../contexts/SnackbarContext';
@@ -41,7 +40,6 @@ import { fetchCatcher, getFFTime } from '../../../utils';
 
 export const BlockchainListeners: () => JSX.Element = () => {
   const { selectedNamespace } = useContext(ApplicationContext);
-  const { dateFilter } = useContext(DateFilterContext);
   const { filterAnchor, setFilterAnchor, filterString } =
     useContext(FilterContext);
   const { slideID, setSlideSearchParam } = useContext(SlideContext);
@@ -85,13 +83,12 @@ export const BlockchainListeners: () => JSX.Element = () => {
   // Listeners
   useEffect(() => {
     isMounted &&
-      dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${
           FF_Paths.contractListeners
         }?limit=${rowsPerPage}&count&skip=${rowsPerPage * currentPage}${
-          dateFilter.filterString
-        }${filterString ?? ''}`
+          filterString ?? ''
+        }`
       )
         .then((listeners: IPagedContractListenerResponse) => {
           if (isMounted) {
@@ -102,14 +99,7 @@ export const BlockchainListeners: () => JSX.Element = () => {
         .catch((err) => {
           reportFetchError(err);
         });
-  }, [
-    rowsPerPage,
-    currentPage,
-    selectedNamespace,
-    dateFilter,
-    filterString,
-    isMounted,
-  ]);
+  }, [rowsPerPage, currentPage, selectedNamespace, filterString, isMounted]);
 
   const listenerColHeaders = [
     t('eventName'),
@@ -165,7 +155,11 @@ export const BlockchainListeners: () => JSX.Element = () => {
 
   return (
     <>
-      <Header title={t('listeners')} subtitle={t('blockchain')}></Header>
+      <Header
+        title={t('listeners')}
+        subtitle={t('blockchain')}
+        noDateFilter
+      ></Header>
       <FFPageLayout>
         <DataTable
           onHandleCurrPageChange={(currentPage: number) =>

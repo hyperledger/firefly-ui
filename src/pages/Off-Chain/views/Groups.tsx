@@ -174,6 +174,7 @@ export const OffChainGroups: () => JSX.Element = () => {
         subtitle={t('offChain')}
         showRefreshBtn={hasOffchainEvent(newEvents)}
         onRefresh={clearNewEvents}
+        noDateFilter
       ></Header>
       <FFPageLayout>
         <DataTable
