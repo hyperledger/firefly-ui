@@ -27,8 +27,8 @@ locally on ports 5000 & 5001. The easiest way to set this up is with the
 [FireFly CLI](https://github.com/hyperledger/firefly-cli):
 
 ```
-ff init myFireFly 2
-ff start myFireFly
+ff init <ethereum/fabric> myfirefly 2
+ff start myfirefly
 ```
 
 ## Running
