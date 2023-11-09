@@ -97,7 +97,7 @@ export const PoolList: React.FC<Props> = ({ pool }) => {
         },
         {
           label: t('state'),
-          value: pool.state && <PoolStatusChip pool={pool} />,
+          value: <PoolStatusChip pool={pool} />,
         },
         {
           label: t('created'),
