@@ -16,7 +16,11 @@
 
 import { Chip } from '@mui/material';
 import React from 'react';
-import { ITokenPool, PoolStateColorMap } from '../../interfaces';
+import {
+  ITokenPool,
+  PoolStateColorMap,
+  PoolStateString,
+} from '../../interfaces';
 
 interface Props {
   pool: ITokenPool;
@@ -25,8 +29,8 @@ interface Props {
 export const PoolStatusChip: React.FC<Props> = ({ pool }) => {
   return (
     <Chip
-      label={pool.state.toLocaleUpperCase()}
-      sx={{ backgroundColor: PoolStateColorMap[pool.state] }}
+      label={PoolStateString(pool.active)}
+      sx={{ backgroundColor: PoolStateColorMap(pool.active) }}
     />
   );
 };
