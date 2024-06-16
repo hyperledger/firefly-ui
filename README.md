@@ -50,7 +50,7 @@ npm run start
 
 - [YouTube Channel](https://www.youtube.com/playlist?list=PL0MZ85B_96CFVEdBNsHRoX_f15AJacZJD)
   - Check out the architecture series
-- [Architecture reference documentation](https://hyperledger.github.io/firefly/architecture/node_component_architecture.html)
+- [Architecture reference documentation](https://hyperledger.github.io/firefly/latest/architecture/node_component_architecture)
   - Join the discussion [on Discord](http://discord.gg/hyperledger)
 
 ## Git repositories
@@ -73,7 +73,7 @@ list is likely to grow as additional pluggable extensions come online in the com
 
 Interested in contributing to the community?
 
-Check out our [Contributor Guide](https://hyperledger.github.io/firefly/contributors/contributors.html), and welcome!
+Check out our [Contributor Guide](https://hyperledger.github.io/firefly/latest/contributors/), and welcome!
 
 Please adhere to this project's [Code of Conduct](CODE_OF_CONDUCT.md).
 
