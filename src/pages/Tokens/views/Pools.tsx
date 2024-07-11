@@ -98,7 +98,7 @@ export const TokensPools: () => JSX.Element = () => {
     t('standard'),
     t('connector'),
     t('locator'),
-    t('state'),
+    t('active'),
     t('created'),
   ];
   const tokenPoolRecords: IDataTableRecord[] | undefined = tokenPools?.map(

@@ -19,6 +19,7 @@ import LocalFireDepartmentIcon from '@mui/icons-material/LocalFireDepartment';
 import SwapHorizIcon from '@mui/icons-material/SwapHoriz';
 import { IBlockchainCategory } from '.';
 import { FFColors } from '../../theme';
+import { t } from 'i18next';
 
 export interface IHistTransferBucket {
   [TransferCategoryEnum.MINT]: number;
@@ -37,10 +38,18 @@ export enum TransferCategoryEnum {
   TRANSFER = 'Transfer',
 }
 
-export const PoolStateColorMap: { [key: string]: string } = {
-  unknown: FFColors.Red,
-  confirmed: FFColors.Purple,
-  pending: FFColors.Orange,
+export const PoolStateColorMap = (active: boolean) => {
+  if (active) {
+    return FFColors.Purple;
+  }
+  return FFColors.Orange;
+};
+
+export const PoolStateString = (active: boolean) => {
+  if (active) {
+    return t('active');
+  }
+  return t('inactive');
 };
 
 export enum FF_TRANSFERS {

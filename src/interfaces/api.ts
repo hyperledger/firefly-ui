@@ -551,7 +551,7 @@ export interface ITokenPool {
   locator: string;
   connector: string;
   message: string;
-  state: 'confirmed' | 'pending';
+  active: boolean;
   created: string;
   tx?: ITx;
   info?: any;
