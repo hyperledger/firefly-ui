@@ -10,6 +10,8 @@ import {
   ITokenTransferWithPool,
 } from '../interfaces';
 
+import { parse, isSafeNumber, LosslessNumber } from 'lossless-json';
+
 export const fetchWithCredentials = (
   resource: string,
   options?: RequestInit
@@ -20,12 +22,23 @@ export const fetchWithCredentials = (
   );
 };
 
+export function parseLargeNumbersAsStrings(value: any) {
+  return isSafeNumber(value, { approx: false })
+    ? parseFloat(value) // Smaller numbers are kept as Javascript numbers
+    : new LosslessNumber(value).toString(); // Large numbers are safely stringified
+}
+
 export const fetchCatcher = async (resource: string): Promise<any> => {
   const response = await fetchWithCredentials(resource);
   if (!response.ok) {
-    console.log(`error fetching ${resource}`);
   } else {
-    return await response.json();
+    const responseText = await response.text();
+    const responseJSONLargeNumbersStringified = parse(
+      responseText,
+      null,
+      parseLargeNumbersAsStrings
+    );
+    return responseJSONLargeNumbersStringified;
   }
 };
 
