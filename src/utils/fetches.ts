@@ -32,13 +32,7 @@ export const fetchCatcher = async (resource: string): Promise<any> => {
   const response = await fetchWithCredentials(resource);
   if (!response.ok) {
   } else {
-    const responseText = await response.text();
-    const responseJSONLargeNumbersStringified = parse(
-      responseText,
-      null,
-      parseLargeNumbersAsStrings
-    );
-    return responseJSONLargeNumbersStringified;
+    return await parse(await response.text(), null, parseLargeNumbersAsStrings);
   }
 };
 
