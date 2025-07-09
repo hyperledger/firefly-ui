@@ -46,6 +46,7 @@
   "blockchainNetworkAction": "Blockchain Network Action",
   "blockchainTransaction": "Blockchain Transaction",
   "blockchainTransactions": "Blockchain Transactions",
+  "blockchainOperations": "Blockchain Operations",
   "blockNumber": "Block Number",
   "broadcast": "Broadcast",
   "burn": "Burn",
