@@ -5,9 +5,9 @@
   "dependencies": {
     "@emotion/react": "^11.9.0",
     "@emotion/styled": "^11.8.1",
-    "@mui/icons-material": "^5.6.2",
-    "@mui/lab": "^5.0.0-alpha.78",
-    "@mui/material": "^5.6.2",
+    "@mui/icons-material": "^6.4.8",
+    "@mui/lab": "^6.0.1-beta.36",
+    "@mui/material": "^6.4.8",
     "@mui/styles": "^6.4.8",
     "@nivo/bar": "^0.85.1",
     "@nivo/core": "^0.85.1",
