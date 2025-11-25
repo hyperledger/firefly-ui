@@ -17,14 +17,13 @@
 import ViewInArIcon from '@mui/icons-material/ViewInAr';
 import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { FF_NAV_PATHS, INavItem } from '../../interfaces';
 import { NavSection } from './NavSection';
 
 export const BlockchainNav = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { selectedNamespace } = useContext(ApplicationContext);
   const { pathname } = useLocation();
 
@@ -38,27 +37,27 @@ export const BlockchainNav = () => {
   const navItems: INavItem[] = [
     {
       name: t('dashboard'),
-      action: () => navigate(blockchainPath),
+      to: blockchainPath,
       itemIsActive: pathname === blockchainPath,
     },
     {
       name: t('events'),
-      action: () => navigate(eventsPath),
+      to: eventsPath,
       itemIsActive: pathname === eventsPath,
     },
     {
       name: t('apis'),
-      action: () => navigate(apiPath),
+      to: apiPath,
       itemIsActive: pathname === apiPath,
     },
     {
       name: t('interfaces'),
-      action: () => navigate(interfacesPath),
+      to: interfacesPath,
       itemIsActive: pathname === interfacesPath,
     },
     {
       name: t('listeners'),
-      action: () => navigate(listenersPath),
+      to: listenersPath,
       itemIsActive: pathname === listenersPath,
     },
   ];

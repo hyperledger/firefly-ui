@@ -21,16 +21,20 @@ import {
   ListItemText,
   Typography,
 } from '@mui/material';
+import { Link as RouterLink } from 'react-router-dom';
 
 interface Props {
   name: string;
-  action: () => void;
-  icon?: JSX.Element;
   itemIsActive: boolean;
+  icon?: JSX.Element;
   rightIcon?: JSX.Element;
   isRoot?: boolean;
-}
 
+  // NEW:
+  to?: string; // internal route (React Router)
+  href?: string; // external link
+  action?: () => void; // fallback click handler (legacy)
+}
 export const NavItem = ({
   name,
   action,
@@ -38,9 +42,23 @@ export const NavItem = ({
   itemIsActive,
   rightIcon,
   isRoot = false,
+  to,
+  href,
 }: Props) => {
+  const linkProps =
+    to != null
+      ? { component: RouterLink, to }
+      : href != null
+      ? {
+          component: 'a' as const,
+          href,
+          target: '_blank',
+          rel: 'noopener noreferrer',
+        }
+      : {};
   return (
     <ListItemButton
+      {...linkProps}
       onClick={action}
       sx={{
         borderLeft: 6,

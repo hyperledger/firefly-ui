@@ -30,7 +30,7 @@ export const Navigation: React.FC = () => {
       <NavItem
         name={t('dashboard')}
         icon={<DashboardOutlined />}
-        action={() => navigate(FF_NAV_PATHS.homePath(selectedNamespace))}
+        to={FF_NAV_PATHS.homePath(selectedNamespace)} // ← use `to` instead of action
         itemIsActive={pathname === FF_NAV_PATHS.homePath(selectedNamespace)}
         isRoot
       />
@@ -43,7 +43,7 @@ export const Navigation: React.FC = () => {
       <NavItem
         name={t('docs')}
         icon={<MenuBookIcon />}
-        action={() => window.open(FF_NAV_PATHS.docsPath, '_blank')}
+        href={FF_NAV_PATHS.docsPath} // ← external URL
         itemIsActive={false}
         rightIcon={<LaunchIcon />}
         isRoot

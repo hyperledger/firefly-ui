@@ -66,10 +66,13 @@ export const NavSection = ({ icon, navItems, title }: Props) => {
       <Collapse in={open} unmountOnExit>
         {navItems.map((item) => (
           <NavItem
-            name={item.name}
-            action={item.action}
-            itemIsActive={item.itemIsActive}
             key={item.name}
+            name={item.name}
+            icon={item.icon}
+            itemIsActive={item.itemIsActive}
+            to={item.to}
+            href={item.href}
+            action={item.action} // still supported as fallback
           />
         ))}
       </Collapse>

@@ -17,14 +17,13 @@
 import HexagonIcon from '@mui/icons-material/Hexagon';
 import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { FF_NAV_PATHS, INavItem } from '../../interfaces';
 import { NavSection } from './NavSection';
 
 export const MyNodeNav = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { selectedNamespace } = useContext(ApplicationContext);
   const { pathname } = useLocation();
 
@@ -37,17 +36,17 @@ export const MyNodeNav = () => {
   const navItems: INavItem[] = [
     {
       name: t('dashboard'),
-      action: () => navigate(myNodePath),
+      to: myNodePath,
       itemIsActive: pathname === myNodePath,
     },
     {
       name: t('subscriptions'),
-      action: () => navigate(myNodeSubscriptionsPath),
+      to: myNodeSubscriptionsPath,
       itemIsActive: pathname === myNodeSubscriptionsPath,
     },
     {
       name: t('websockets'),
-      action: () => navigate(myNodeWebsocketsPath),
+      to: myNodeWebsocketsPath,
       itemIsActive: pathname === myNodeWebsocketsPath,
     },
   ];

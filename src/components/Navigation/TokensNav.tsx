@@ -17,14 +17,13 @@
 import AdjustIcon from '@mui/icons-material/Adjust';
 import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { FF_NAV_PATHS, INavItem } from '../../interfaces';
 import { NavSection } from './NavSection';
 
 export const TokensNav = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { pathname } = useLocation();
   const { selectedNamespace } = useContext(ApplicationContext);
 
@@ -37,27 +36,27 @@ export const TokensNav = () => {
   const navItems: INavItem[] = [
     {
       name: t('dashboard'),
-      action: () => navigate(blockchainPath),
+      to: blockchainPath,
       itemIsActive: pathname === blockchainPath,
     },
     {
       name: t('transfers'),
-      action: () => navigate(transfersPath),
+      to: transfersPath,
       itemIsActive: pathname === transfersPath,
     },
     {
       name: t('pools'),
-      action: () => navigate(poolsPath),
+      to: poolsPath,
       itemIsActive: pathname.startsWith(poolsPath),
     },
     {
       name: t('balances'),
-      action: () => navigate(balancesPath),
+      to: balancesPath,
       itemIsActive: pathname === balancesPath,
     },
     {
       name: t('approvals'),
-      action: () => navigate(approvalsPath),
+      to: approvalsPath,
       itemIsActive: pathname === approvalsPath,
     },
   ];

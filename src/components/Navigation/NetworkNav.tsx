@@ -17,14 +17,13 @@
 import LanguageIcon from '@mui/icons-material/Language';
 import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { FF_NAV_PATHS, INavItem } from '../../interfaces';
 import { NavSection } from './NavSection';
 
 export const NetworkNav = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { selectedNamespace } = useContext(ApplicationContext);
   const { pathname } = useLocation();
 
@@ -37,27 +36,27 @@ export const NetworkNav = () => {
   const navItems: INavItem[] = [
     {
       name: t('dashboard'),
-      action: () => navigate(networkPath),
+      to: networkPath,
       itemIsActive: pathname === networkPath,
     },
     {
       name: t('organizations'),
-      action: () => navigate(orgPath),
+      to: orgPath,
       itemIsActive: pathname === orgPath,
     },
     {
       name: t('nodes'),
-      action: () => navigate(nodePath),
+      to: nodePath,
       itemIsActive: pathname === nodePath,
     },
     {
       name: t('identities'),
-      action: () => navigate(identitiesPath),
+      to: identitiesPath,
       itemIsActive: pathname === identitiesPath,
     },
     {
       name: t('namespaces'),
-      action: () => navigate(namespacesPath),
+      to: namespacesPath,
       itemIsActive: pathname === namespacesPath,
     },
   ];

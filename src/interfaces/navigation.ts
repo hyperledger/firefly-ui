@@ -18,9 +18,15 @@ import { FF_OPS } from './enums';
 
 export interface INavItem {
   name: string;
-  action: () => void;
-  icon?: JSX.Element;
   itemIsActive: boolean;
+  icon?: JSX.Element;
+
+  // NEW optional props for link-style behavior
+  to?: string; // internal React Router path
+  href?: string; // external URL
+
+  // fallback for legacy click handlers
+  action?: () => void;
 }
 
 export const ACTIVITY_PATH = 'activity';

@@ -17,14 +17,13 @@
 import InventoryIcon from '@mui/icons-material/Inventory';
 import React, { useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { FF_NAV_PATHS, INavItem } from '../../interfaces';
 import { NavSection } from './NavSection';
 
 export const OffChainNav = () => {
   const { t } = useTranslation();
-  const navigate = useNavigate();
   const { pathname } = useLocation();
   const { selectedNamespace } = useContext(ApplicationContext);
 
@@ -38,32 +37,32 @@ export const OffChainNav = () => {
   const navItems: INavItem[] = [
     {
       name: t('dashboard'),
-      action: () => navigate(offchainPath),
+      to: offchainPath,
       itemIsActive: pathname === offchainPath,
     },
     {
       name: t('messages'),
-      action: () => navigate(messagesPath),
+      to: messagesPath,
       itemIsActive: pathname === messagesPath,
     },
     {
       name: t('data'),
-      action: () => navigate(dataPath),
+      to: dataPath,
       itemIsActive: pathname === dataPath,
     },
     {
       name: t('batches'),
-      action: () => navigate(batchesPath),
+      to: batchesPath,
       itemIsActive: pathname === batchesPath,
     },
     {
       name: t('datatypes'),
-      action: () => navigate(datatypesPath),
+      to: datatypesPath,
       itemIsActive: pathname === datatypesPath,
     },
     {
       name: t('groups'),
-      action: () => navigate(groupsPath),
+      to: groupsPath,
       itemIsActive: pathname === groupsPath,
     },
   ];
