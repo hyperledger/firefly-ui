@@ -1,4 +1,5 @@
 import { styled } from '@mui/material';
+import dayjs from 'dayjs';
 import React, { useContext, useEffect, useState } from 'react';
 import {
   Navigate,
@@ -36,6 +37,8 @@ const RootDiv = styled('div')({
 export const FILTERS_QUERY_KEY = 'filters';
 export const SLIDE_QUERY_KEY = 'slide';
 export const TIME_QUERY_KEY = 'time';
+export const START_TIME_QUERY_KEY = 'startTime';
+export const END_TIME_QUERY_KEY = 'endTime';
 
 export const AppWrapper: React.FC = () => {
   const { pathname, search } = useLocation();
@@ -71,32 +74,80 @@ export const AppWrapper: React.FC = () => {
   }, [pathname]);
 
   const initializeTimeSearchParams = () => {
-    // If date has already been set
-    if (
-      dateFilter?.filterShortString &&
-      dateFilter?.filterShortString in TimeFilterEnum
-    ) {
-      setTimeSearchParam(dateFilter.filterShortString);
+    const existingTimeParam = searchParams.get(TIME_QUERY_KEY);
+    const existingStartParam = searchParams.get(START_TIME_QUERY_KEY);
+    const existingEndParam = searchParams.get(END_TIME_QUERY_KEY);
+
+    if (existingStartParam || existingEndParam) {
+      setTimeSearchParam(
+        TimeFilterEnum.custom,
+        existingStartParam,
+        existingEndParam
+      );
       return;
     }
-    // If time param is invalid
-    const existingTimeParam = searchParams.get(TIME_QUERY_KEY);
+
+    if (
+      existingTimeParam === TimeFilterEnum.custom &&
+      !existingStartParam &&
+      !existingEndParam
+    ) {
+      setTimeSearchParam(TimeFilterEnum['24hours']);
+      return;
+    }
+
     if (existingTimeParam === null || !(existingTimeParam in TimeFilterEnum)) {
       setTimeSearchParam(TimeFilterEnum['24hours']);
-    } else {
-      // Set filter string for components to consume
-      setDateFilter(getTimeFilterObject(existingTimeParam as TimeFilterEnum));
+      return;
     }
+
+    setDateFilter(getTimeFilterObject(existingTimeParam as TimeFilterEnum));
   };
 
-  const setTimeSearchParam = (timeFilter: TimeFilterEnum) => {
+  const setTimeSearchParam = (
+    timeFilter: TimeFilterEnum,
+    startTime?: string | null,
+    endTime?: string | null
+  ) => {
+    const validStartTime =
+      startTime && dayjs(startTime).isValid()
+        ? dayjs(startTime).toISOString()
+        : undefined;
+    const validEndTime =
+      endTime && dayjs(endTime).isValid()
+        ? dayjs(endTime).toISOString()
+        : undefined;
+    if (timeFilter === TimeFilterEnum.custom) {
+      if (validStartTime) {
+        searchParams.set(START_TIME_QUERY_KEY, validStartTime);
+      } else {
+        searchParams.delete(START_TIME_QUERY_KEY);
+      }
+
+      if (validEndTime) {
+        searchParams.set(END_TIME_QUERY_KEY, validEndTime);
+      } else {
+        searchParams.delete(END_TIME_QUERY_KEY);
+      }
+    } else {
+      searchParams.delete(START_TIME_QUERY_KEY);
+      searchParams.delete(END_TIME_QUERY_KEY);
+    }
     searchParams.set(TIME_QUERY_KEY, timeFilter);
     setSearchParams(searchParams, { replace: true });
+
+    const nextDateFilter = getTimeFilterObject(timeFilter, {
+      startTime: validStartTime,
+      endTime: validEndTime,
+    });
+
     if (
-      getTimeFilterObject(timeFilter).filterShortString !==
-      dateFilter?.filterShortString
+      nextDateFilter.filterShortString !== dateFilter?.filterShortString ||
+      nextDateFilter.filterString !== dateFilter?.filterString ||
+      nextDateFilter.startTime !== dateFilter?.startTime ||
+      nextDateFilter.endTime !== dateFilter?.endTime
     ) {
-      setDateFilter(getTimeFilterObject(timeFilter));
+      setDateFilter(nextDateFilter);
     }
   };
 

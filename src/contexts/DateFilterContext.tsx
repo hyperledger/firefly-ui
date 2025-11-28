@@ -20,7 +20,11 @@ import { ITimeFilterObject, TimeFilterEnum } from '../interfaces';
 export interface IDateFilterContext {
   searchParams: URLSearchParams;
   dateFilter: ITimeFilterObject | undefined;
-  setTimeSearchParam: (timeFilter: TimeFilterEnum) => void;
+  setTimeSearchParam: (
+    timeFilter: TimeFilterEnum,
+    startTime?: string | null,
+    endTime?: string | null
+  ) => void;
 }
 
 export const DateFilterContext = createContext({} as IDateFilterContext);
