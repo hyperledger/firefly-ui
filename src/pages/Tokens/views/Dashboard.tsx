@@ -407,13 +407,13 @@ export const TokensDashboard: () => JSX.Element = () => {
   // Medium Card UseEffect
   useEffect(() => {
     setIsHistLoading(true);
-    const currentTime = dayjs().unix();
+    const histEndTime = dateFilter?.endTime ?? dayjs().unix();
     if (isMounted && dateFilter) {
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
           BucketCollectionEnum.TokenTransfers,
           dateFilter.filterTime,
-          currentTime,
+          histEndTime,
           BucketCountEnum.Small
         )}`
       )

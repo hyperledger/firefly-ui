@@ -133,7 +133,7 @@ export const OffChainMessages: () => JSX.Element = () => {
   // Histogram
   useEffect(() => {
     setIsHistLoading(true);
-    const currentTime = dayjs().unix();
+    const histEndTime = dateFilter?.endTime ?? dayjs().unix();
 
     isMounted &&
       dateFilter &&
@@ -141,7 +141,7 @@ export const OffChainMessages: () => JSX.Element = () => {
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
           BucketCollectionEnum.Messages,
           dateFilter.filterTime,
-          currentTime,
+          histEndTime,
           BucketCountEnum.Large
         )}`
       )

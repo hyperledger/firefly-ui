@@ -160,14 +160,14 @@ export const ActivityEvents: () => JSX.Element = () => {
   // Histogram
   useEffect(() => {
     setIsHistLoading(true);
-    const currentTime = dayjs().unix();
+    const histEndTime = dateFilter?.endTime ?? dayjs().unix();
     isMounted &&
       dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
           BucketCollectionEnum.Events,
           dateFilter.filterTime,
-          currentTime,
+          histEndTime,
           BucketCountEnum.Large
         )}`
       )

@@ -136,6 +136,11 @@ export const TokensTransfers: () => JSX.Element = () => {
       )
         .then(async (tokenTransferRes: IPagedTokenTransferResponse) => {
           if (isMounted) {
+            if (!tokenTransferRes || !tokenTransferRes.items) {
+              setTokenTransfers([]);
+              setTokenTransferTotal(0);
+              return;
+            }
             if (tokenTransferRes.items.length === 0) {
               setTokenTransfers([]);
               setTokenTransferTotal(tokenTransferRes.total);
@@ -174,14 +179,14 @@ export const TokensTransfers: () => JSX.Element = () => {
   // Histogram
   useEffect(() => {
     setIsHistLoading(true);
-    const currentTime = dayjs().unix();
+    const histEndTime = dateFilter?.endTime ?? dayjs().unix();
     isMounted &&
       dateFilter &&
       fetchCatcher(
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
           BucketCollectionEnum.TokenTransfers,
           dateFilter.filterTime,
-          currentTime,
+          histEndTime,
           BucketCountEnum.Large
         )}`
       )

@@ -318,7 +318,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
   // Medium Card UseEffect
   useEffect(() => {
     setIsHistLoading(true);
-    const currentTime = dayjs().unix();
+    const histEndTime = dateFilter?.endTime ?? dayjs().unix();
     const qParams = `?limit=25${dateFilter?.filterString ?? ''}`;
     const qParamsNoRange = `?limit=25`;
     if (isMounted && dateFilter) {
@@ -326,7 +326,7 @@ export const OffChainDashboard: () => JSX.Element = () => {
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
           BucketCollectionEnum.Messages,
           dateFilter.filterTime,
-          currentTime,
+          histEndTime,
           BucketCountEnum.Small
         )}`
       )

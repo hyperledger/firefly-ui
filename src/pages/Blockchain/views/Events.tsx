@@ -134,7 +134,7 @@ export const BlockchainEvents: () => JSX.Element = () => {
   // Histogram
   useEffect(() => {
     setIsHistLoading(true);
-    const currentTime = dayjs().unix();
+    const histEndTime = dateFilter?.endTime ?? dayjs().unix();
 
     isMounted &&
       dateFilter &&
@@ -142,7 +142,7 @@ export const BlockchainEvents: () => JSX.Element = () => {
         `${FF_Paths.nsPrefix}/${selectedNamespace}${FF_Paths.chartsHistogram(
           BucketCollectionEnum.BlockchainEvents,
           dateFilter.filterTime,
-          currentTime,
+          histEndTime,
           BucketCountEnum.Large
         )}`
       )
