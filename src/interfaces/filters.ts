@@ -16,17 +16,20 @@
 
 export interface ITimeFilterObject {
   filterString: string;
-  filterShortString: any;
+  filterShortString: TimeFilterEnum;
   filterTime: number;
+  startTime?: number;
+  endTime?: number;
 }
 
-export const times = ['1hour', '24hours', '7days', '30days'];
+export const times = ['1hour', '24hours', '7days', '30days', 'custom'];
 
 export enum TimeFilterEnum {
   '1hour' = '1hour',
   '24hours' = '24hours',
   '7days' = '7days',
   '30days' = '30days',
+  'custom' = 'custom',
 }
 
 export const ApiFilters = ['id', 'name', 'interface'];

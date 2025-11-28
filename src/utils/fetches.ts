@@ -31,8 +31,13 @@ export function parseLargeNumbersAsStrings(value: any) {
 export const fetchCatcher = async (resource: string): Promise<any> => {
   const response = await fetchWithCredentials(resource);
   if (!response.ok) {
+    throw response;
   } else {
-    return parse(await response.text(), null, parseLargeNumbersAsStrings);
+    const body = await response.text();
+    if (!body) {
+      return undefined;
+    }
+    return parse(body, null, parseLargeNumbersAsStrings);
   }
 };
 
