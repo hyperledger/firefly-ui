@@ -21,11 +21,12 @@ export interface INavItem {
   itemIsActive: boolean;
   icon?: JSX.Element;
 
-  // NEW optional props for link-style behavior
+  // Preferred props for link/navigation behavior
   to?: string; // internal React Router path
   href?: string; // external URL
 
-  // fallback for legacy click handlers
+  // DEPRECATED: legacy click handler (prefer `to` or `href`)
+  /** @deprecated use `to` or `href` instead */
   action?: () => void;
 }
 

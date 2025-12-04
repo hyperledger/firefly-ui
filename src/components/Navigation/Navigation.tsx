@@ -4,7 +4,7 @@ import MenuBookIcon from '@mui/icons-material/MenuBook';
 import { Drawer, List } from '@mui/material';
 import { default as React, useContext } from 'react';
 import { useTranslation } from 'react-i18next';
-import { useLocation, useNavigate } from 'react-router-dom';
+import { useLocation } from 'react-router-dom';
 import { ApplicationContext } from '../../contexts/ApplicationContext';
 import { FF_NAV_PATHS } from '../../interfaces';
 import { MenuLogo } from '../MenuLogo';
@@ -23,7 +23,6 @@ export const Navigation: React.FC = () => {
   const { selectedNamespace } = useContext(ApplicationContext);
   const { t } = useTranslation();
   const { pathname } = useLocation();
-  const navigate = useNavigate();
 
   const makeDrawerContents = (
     <>

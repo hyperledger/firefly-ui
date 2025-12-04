@@ -29,8 +29,6 @@ interface Props {
   icon?: JSX.Element;
   rightIcon?: JSX.Element;
   isRoot?: boolean;
-
-  // NEW:
   to?: string; // internal route (React Router)
   href?: string; // external link
   action?: () => void; // fallback click handler (legacy)
